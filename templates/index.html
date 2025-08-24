@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Étude LINE - Accueil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Étude LINE</h1>
+            <p>Plateforme éducative pour professeurs et étudiants</p>
+        </div>
+        
+        {% if error %}
+        <div class="error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="main-content">
+            <!-- Inscription Professeur -->
+            <div class="card">
+                <h2>👨‍🏫 Espace Professeur</h2>
+                <form action="/register/prof" method="post">
+                    <div class="form-group">
+                        <label for="prof-nom">Nom</label>
+                        <input type="text" id="prof-nom" name="nom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prof-prenom">Prénom</label>
+                        <input type="text" id="prof-prenom" name="prenom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prof-username">Nom d'utilisateur</label>
+                        <input type="text" id="prof-username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prof-password">Mot de passe</label>
+                        <input type="password" id="prof-password" name="password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prof-specialite">Spécialité</label>
+                        <input type="text" id="prof-specialite" name="specialite" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prof-matiere">Matière</label>
+                        <input type="text" id="prof-matiere" name="matiere" required>
+                    </div>
+                    
+                    <button type="submit" class="btn">Créer compte Professeur</button>
+                </form>
+            </div>
+            
+            <!-- Inscription Étudiant -->
+            <div class="card">
+                <h2>🎓 Espace Étudiant</h2>
+                <form action="/register/etudiant" method="post">
+                    <div class="form-group">
+                        <label for="etud-nom">Nom</label>
+                        <input type="text" id="etud-nom" name="nom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-prenom">Prénom</label>
+                        <input type="text" id="etud-prenom" name="prenom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-username">Nom d'utilisateur</label>
+                        <input type="text" id="etud-username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-password">Mot de passe</label>
+                        <input type="password" id="etud-password" name="password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-universite">Université</label>
+                        <input type="text" id="etud-universite" name="universite" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-filiere">Filière</label>
+                        <input type="text" id="etud-filiere" name="filiere" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-niveau">Niveau</label>
+                        <select id="etud-niveau" name="niveau" required>
+                            <option value="">Sélectionner un niveau</option>
+                            <option value="L1">Licence 1</option>
+                            <option value="L2">Licence 2</option>
+                            <option value="L3">Licence 3</option>
+                            <option value="M1">Master 1</option>
+                            <option value="M2">Master 2</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn">Créer compte Étudiant</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="login-link">
+            <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+        </div>
+    </div>
+</body>
+</html>

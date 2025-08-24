@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Étudiant - Étude LINE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .navbar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .profile-card h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .semester-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .semester-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .semester-card.active {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+        
+        .semester-card.inactive {
+            border-color: #dc3545;
+            background: #fff8f8;
+        }
+        
+        .semester-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .semester-status {
+            margin-bottom: 1rem;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .content-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .filter-group select {
+            padding: 0.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .content-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .content-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .content-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .content-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meta-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .content-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .content-text {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .type-cours { background: #d4edda; color: #155724; }
+        .type-exercice { background: #fff3cd; color: #856404; }
+        .type-solution { background: #d1ecf1; color: #0c5460; }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .qr-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .qr-image {
+            max-width: 200px;
+            height: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+        }
+        
+        .payment-form {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .semester-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-filters {
+                flex-direction: column;
+            }
+            
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎓 Étude LINE - Étudiant</h1>
+        <div class="user-info">
+            <span>👨‍🎓 {{ student.prenom }} {{ student.nom }}</span>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Messages d'alerte -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                document.write('<div class="alert alert-success">✅ ' + urlParams.get('success') + '</div>');
+            }
+            if (urlParams.has('error')) {
+                document.write('<div class="alert alert-error">⚠️ ' + urlParams.get('error') + '</div>');
+            }
+        </script>
+        
+        <!-- Profil étudiant -->
+        <div class="profile-card">
+            <h2>👨‍🎓 Mon profil</h2>
+            <div class="profile-info">
+                <div class="info-item">
+                    <div class="info-label">Nom complet</div>
+                    <div class="info-value">{{ student.prenom }} {{ student.nom }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Université</div>
+                    <div class="info-value">{{ student.universite }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Filière</div>
+                    <div class="info-value">{{ student.filiere }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Niveau</div>
+                    <div class="info-value">{{ student.niveau }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Semestres -->
+        <div class="section">
+            <h3>📅 Mes semestres</h3>
+            <div class="semester-grid">
+                {% for sem, status in semester_status.items() %}
+                <div class="semester-card {% if status.active %}active{% else %}inactive{% endif %}">
+                    <div class="semester-title">{{ sem }}</div>
+                    <div class="semester-status">
+                        {% if status.active %}
+                            <div class="status-badge status-active">
+                                Actif jusqu'au {{ status.expires_at.strftime('%d/%m/%Y') }}
+                            </div>
+                        {% else %}
+                            <div class="status-badge status-inactive">Non actif</div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if status.active %}
+                        <button class="btn btn-success" onclick="showContent('{{ sem }}')">
+                            Voir les contenus
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary" onclick="startPayment('{{ sem }}')">
+                            Payer {{ price }} FCFA
+                        </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Contenus accessibles -->
+        <div class="section">
+            <h3>📚 Contenus accessibles</h3>
+            
+            {% if accessible_content %}
+            <!-- Filtres -->
+            <div class="content-filters">
+                <div class="filter-group">
+                    <label for="filter-subject">Matière</label>
+                    <select id="filter-subject" onchange="filterContent()">
+                        <option value="">Toutes les matières</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject }}">{{ subject }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-chapter">Chapitre</label>
+                    <select id="filter-chapter" onchange="filterContent()">
+                        <option value="">Tous les chapitres</option>
+                        {% for chapter in chapters %}
+                        <option value="{{ chapter }}">{{ chapter }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-type">Type</label>
+                    <select id="filter-type" onchange="filterContent()">
+                        <option value="">Tous les types</option>
+                        <option value="cours">Cours</option>
+                        <option value="exercice">Exercice</option>
+                        <option value="solution">Solution</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="content-list" id="content-list">
+                {% for content in accessible_content %}
+                <div class="content-item" 
+                     data-subject="{{ content.matiere }}" 
+                     data-chapter="{{ content.chapitre }}" 
+                     data-type="{{ content.type }}">
+                    <div class="type-badge type-{{ content.type }}">{{ content.type.upper() }}</div>
+                    <div class="content-meta">
+                        <span class="meta-tag">{{ content.semestre }}</span>
+                        <span class="meta-tag">{{ content.matiere }}</span>
+                        <span class="meta-tag">{{ content.chapitre }}</span>
+                    </div>
+                    <div class="content-title">{{ content.titre }}</div>
+                    <div class="content-text">{{ content.texte }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; color: #666; padding: 2rem;">
+                <p>📚 Aucun contenu accessible</p>
+                <p>Payez pour un semestre pour accéder aux contenus correspondants.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Modal de paiement -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h2>💳 Paiement par QR Wave</h2>
+            
+            <div class="qr-container">
+                <p><strong>Montant:</strong> <span id="payment-amount">{{ price }}</span> FCFA</p>
+                <p><strong>Semestre:</strong> <span id="payment-semester"></span></p>
+                <br>
+                <img src="/static/wave_qr.png" alt="QR Wave" class="qr-image" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; padding: 2rem; border: 2px dashed #ccc; border-radius: 10px;">
+                    <p>🔲 QR Code Wave</p>
+                    <p>Scannez avec votre application Wave</p>
+                </div>
+            </div>
+            
+            <div class="payment-form">
+                <h4>Mode test - Confirmation manuelle</h4>
+                <p>Si le webhook Wave n'est pas configuré, confirmez manuellement votre paiement:</p>
+                
+                <form action="/pay/confirm-manual" method="post">
+                    <input type="hidden" id="pay-semestre" name="semestre" value="">
+                    
+                    <div class="form-group">
+                        <label for="transaction-id">ID de transaction Wave</label>
+                        <input type="text" id="transaction-id" name="transaction_id" 
+                               placeholder="Entrez l'ID de votre transaction Wave" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Confirmer le paiement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function startPayment(semester) {
+            document.getElementById('payment-semester').textContent = semester;
+            document.getElementById('pay-semestre').value = semester;
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+        
+        function showContent(semester) {
+            // Scroll to content section and highlight semester content
+            const contentSection = document.querySelector('.section:last-child');
+            contentSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Filter content by semester
+            const items = document.querySelectorAll('.content-item');
+            items.forEach(item => {
+                const semTag = item.querySelector('.meta-tag');
+                if (semTag && semTag.textContent === semester) {
+                    item.style.display = 'block';
+                    item.style.background = '#e3f2fd';
+                    setTimeout(() => {
+                        item.style.background = '';
+                    }, 2000);
+                }
+            });
+        }
+        
+        function filterContent() {
+            const subjectFilter = document.getElementById('filter-subject').value;
+            const chapterFilter = document.getElementById('filter-chapter').value;
+            const typeFilter = document.getElementById('filter-type').value;
+            
+            const items = document.querySelectorAll('.content-item');
+            
+            items.forEach(item => {
+                const subject = item.getAttribute('data-subject');
+                const chapter = item.getAttribute('data-chapter');
+                const type = item.getAttribute('data-type');
+                
+                const showItem = (!subjectFilter || subject === subjectFilter) &&
+                                (!chapterFilter || chapter === chapterFilter) &&
+                                (!typeFilter || type === typeFilter);
+                
+                item.style.display = showItem ? 'block' : 'none';
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target == modal) {
+                closePaymentModal();
+            }
+        }
+    </script>
+</body>
+</html>

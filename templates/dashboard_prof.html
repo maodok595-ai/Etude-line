@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Professeur - Étude LINE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .navbar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-card h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-card p {
+            color: #666;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .content-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .content-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .content-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .content-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meta-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .content-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .type-cours { background: #d4edda; color: #155724; }
+        .type-exercice { background: #fff3cd; color: #856404; }
+        .type-solution { background: #d1ecf1; color: #0c5460; }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎓 Étude LINE - Professeur</h1>
+        <div class="user-info">
+            <span>👨‍🏫 {{ prof.prenom }} {{ prof.nom }}</span>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="welcome-card">
+            <h2>Bienvenue, {{ prof.prenom }} {{ prof.nom }}</h2>
+            <p><strong>Spécialité:</strong> {{ prof.specialite }} | <strong>Matière:</strong> {{ prof.matiere }}</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Formulaire d'ajout de contenu -->
+            <div class="card">
+                <h3>📝 Ajouter du contenu</h3>
+                <form action="/prof/content" method="post">
+                    <div class="form-group">
+                        <label for="type">Type de contenu</label>
+                        <select id="type" name="type" required>
+                            <option value="">Sélectionner un type</option>
+                            <option value="cours">Cours</option>
+                            <option value="exercice">Exercice</option>
+                            <option value="solution">Solution</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="universite">Université</label>
+                            <input type="text" id="universite" name="universite" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="filiere">Filière</label>
+                            <input type="text" id="filiere" name="filiere" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="niveau">Niveau</label>
+                            <select id="niveau" name="niveau" required>
+                                <option value="">Sélectionner</option>
+                                <option value="L1">Licence 1</option>
+                                <option value="L2">Licence 2</option>
+                                <option value="L3">Licence 3</option>
+                                <option value="M1">Master 1</option>
+                                <option value="M2">Master 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="semestre">Semestre</label>
+                            <select id="semestre" name="semestre" required>
+                                <option value="">Sélectionner</option>
+                                <option value="S1">Semestre 1</option>
+                                <option value="S2">Semestre 2</option>
+                                <option value="S3">Semestre 3</option>
+                                <option value="S4">Semestre 4</option>
+                                <option value="S5">Semestre 5</option>
+                                <option value="S6">Semestre 6</option>
+                                <option value="S7">Semestre 7</option>
+                                <option value="S8">Semestre 8</option>
+                                <option value="S9">Semestre 9</option>
+                                <option value="S10">Semestre 10</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="matiere">Matière</label>
+                            <input type="text" id="matiere" name="matiere" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chapitre">Chapitre</label>
+                            <input type="text" id="chapitre" name="chapitre" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="titre">Titre</label>
+                        <input type="text" id="titre" name="titre" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="texte">Contenu</label>
+                        <textarea id="texte" name="texte" required placeholder="Saisissez le contenu du cours, exercice ou solution..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">Publier le contenu</button>
+                </form>
+            </div>
+            
+            <!-- Liste des contenus -->
+            <div class="card">
+                <h3>📚 Mes contenus ({{ contents|length }})</h3>
+                <div class="content-list">
+                    {% if contents %}
+                        {% for content in contents %}
+                        <div class="content-item">
+                            <div class="type-badge type-{{ content.type }}">{{ content.type.upper() }}</div>
+                            <div class="content-meta">
+                                <span class="meta-tag">{{ content.universite }}</span>
+                                <span class="meta-tag">{{ content.filiere }}</span>
+                                <span class="meta-tag">{{ content.niveau }}</span>
+                                <span class="meta-tag">{{ content.semestre }}</span>
+                                <span class="meta-tag">{{ content.matiere }}</span>
+                                <span class="meta-tag">{{ content.chapitre }}</span>
+                            </div>
+                            <div class="content-title">{{ content.titre }}</div>
+                            <div class="content-text">{{ content.texte[:100] }}{% if content.texte|length > 100 %}...{% endif %}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            <p>📝 Aucun contenu publié</p>
+                            <p>Utilisez le formulaire pour ajouter votre premier contenu.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
