@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Administrateur - Étude LINE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .navbar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-card h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-card p {
+            color: #666;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .prof-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .prof-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .prof-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .prof-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prof-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .prof-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .meta-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎓 Étude LINE - Administration</h1>
+        <div class="user-info">
+            <span>👨‍💼 {{ admin.prenom }} {{ admin.nom }}</span>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Messages d'alerte -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                document.write('<div class="alert alert-success">✅ ' + urlParams.get('success') + '</div>');
+            }
+            if (urlParams.has('error')) {
+                document.write('<div class="alert alert-error">⚠️ ' + urlParams.get('error') + '</div>');
+            }
+        </script>
+        
+        {% if error %}
+        <div class="alert alert-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="welcome-card">
+            <h2>Bienvenue, {{ admin.prenom }} {{ admin.nom }}</h2>
+            <p><strong>Rôle:</strong> Administrateur Principal</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Formulaire de création de professeur -->
+            <div class="card">
+                <h3>👨‍🏫 Créer un professeur</h3>
+                <form action="/admin/create-prof" method="post">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nom">Nom</label>
+                            <input type="text" id="nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prenom">Prénom</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Nom d'utilisateur</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="specialite">Spécialité</label>
+                            <input type="text" id="specialite" name="specialite" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="matiere">Matière</label>
+                            <input type="text" id="matiere" name="matiere" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Créer le professeur</button>
+                </form>
+            </div>
+            
+            <!-- Liste des professeurs -->
+            <div class="card">
+                <h3>📚 Professeurs ({{ profs|length }})</h3>
+                <div class="prof-list">
+                    {% if profs %}
+                        {% for prof in profs %}
+                        <div class="prof-item">
+                            <div class="prof-name">{{ prof.prenom }} {{ prof.nom }}</div>
+                            <div class="prof-details">@{{ prof.username }}</div>
+                            <div class="prof-meta">
+                                <span class="meta-tag">{{ prof.specialite }}</span>
+                                <span class="meta-tag">{{ prof.matiere }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            <p>👨‍🏫 Aucun professeur créé</p>
+                            <p>Utilisez le formulaire pour créer le premier professeur.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

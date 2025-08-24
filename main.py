@@ -46,6 +46,12 @@ class UserEtudiant(BaseModel):
     filiere: str
     niveau: str
 
+class UserAdmin(BaseModel):
+    username: str
+    password_hash: str
+    nom: str
+    prenom: str
+
 class ContentItem(BaseModel):
     id: str
     type: str  # cours|exercice|solution
@@ -96,12 +102,13 @@ def load_db() -> Dict[str, Any]:
     if not db_path.exists():
         # Initialize empty database
         initial_db = {
-            "users": {"prof": [], "etudiant": []},
+            "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
             "payments": [],
             "subscriptions": []
         }
         save_db(initial_db)
+        create_default_admin(initial_db)
         return initial_db
     
     try:
@@ -109,11 +116,12 @@ def load_db() -> Dict[str, Any]:
             fcntl.flock(f.fileno(), fcntl.LOCK_SH)  # Shared lock for reading
             data = json.load(f)
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)  # Unlock
+        create_default_admin(data)
         return data
     except (json.JSONDecodeError, FileNotFoundError):
         # Return empty structure if file is corrupted
         return {
-            "users": {"prof": [], "etudiant": []},
+            "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
             "payments": [],
             "subscriptions": []
@@ -133,6 +141,18 @@ def save_db(db: Dict[str, Any]) -> None:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX)  # Exclusive lock for writing
         json.dump(db, f, ensure_ascii=False, indent=2, default=serialize_datetime)
         fcntl.flock(f.fileno(), fcntl.LOCK_UN)  # Unlock
+
+def create_default_admin(db: Dict[str, Any]) -> None:
+    """Create default admin if none exists"""
+    if not db["users"]["admin"]:
+        default_admin = {
+            "username": "admin",
+            "password_hash": hash_password("admin123"),
+            "nom": "Administrateur",
+            "prenom": "Principal"
+        }
+        db["users"]["admin"].append(default_admin)
+        save_db(db)
 
 # Session management
 def create_session_token(username: str, role: str) -> str:
@@ -185,6 +205,16 @@ def require_etudiant(request: Request) -> str:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Student access required"
+        )
+    return username
+
+def require_admin(request: Request) -> str:
+    """Dependency to require admin role"""
+    role, username = require_auth(request)
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required"
         )
     return username
 
@@ -254,6 +284,8 @@ async def index(request: Request):
         role, username = user
         if role == "prof":
             return RedirectResponse(url="/dashboard/prof", status_code=302)
+        elif role == "admin":
+            return RedirectResponse(url="/dashboard/admin", status_code=302)
         else:
             return RedirectResponse(url="/dashboard/etudiant", status_code=302)
     
@@ -273,7 +305,7 @@ async def register_prof(
     db = load_db()
     
     # Check if username already exists
-    if find_user(username, "prof") or find_user(username, "etudiant"):
+    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
         return templates.TemplateResponse(
             "index.html", 
             {"request": request, "error": "Ce nom d'utilisateur existe déjà"}
@@ -314,7 +346,7 @@ async def register_etudiant(
     db = load_db()
     
     # Check if username already exists
-    if find_user(username, "prof") or find_user(username, "etudiant"):
+    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
         return templates.TemplateResponse(
             "index.html", 
             {"request": request, "error": "Ce nom d'utilisateur existe déjà"}
@@ -349,6 +381,8 @@ async def login_form(request: Request):
         role, username = user
         if role == "prof":
             return RedirectResponse(url="/dashboard/prof", status_code=302)
+        elif role == "admin":
+            return RedirectResponse(url="/dashboard/admin", status_code=302)
         else:
             return RedirectResponse(url="/dashboard/etudiant", status_code=302)
     
@@ -361,9 +395,14 @@ async def login(
     password: str = Form(...)
 ):
     """Process login"""
-    # Try professor first
-    user = find_user(username, "prof")
-    role = "prof"
+    # Try admin first
+    user = find_user(username, "admin")
+    role = "admin"
+    
+    if not user:
+        # Try professor
+        user = find_user(username, "prof")
+        role = "prof"
     
     if not user:
         # Try student
@@ -378,7 +417,12 @@ async def login(
     
     # Create session and redirect
     session_token = create_session_token(username, role)
-    redirect_url = "/dashboard/prof" if role == "prof" else "/dashboard/etudiant"
+    if role == "admin":
+        redirect_url = "/dashboard/admin"
+    elif role == "prof":
+        redirect_url = "/dashboard/prof"
+    else:
+        redirect_url = "/dashboard/etudiant"
     
     response = RedirectResponse(url=redirect_url, status_code=302)
     response.set_cookie("session", session_token, httponly=True)
@@ -585,6 +629,60 @@ async def get_content(request: Request, etudiant_username: str = Depends(require
     """Get accessible content for student (API endpoint)"""
     content = get_accessible_content(etudiant_username)
     return {"content": content}
+
+@app.get("/dashboard/admin", response_class=HTMLResponse)
+async def dashboard_admin(request: Request, admin_username: str = Depends(require_admin)):
+    """Admin dashboard"""
+    db = load_db()
+    
+    # Get all professors
+    profs = db["users"]["prof"]
+    
+    admin = find_user(admin_username, "admin")
+    
+    return templates.TemplateResponse("dashboard_admin.html", {
+        "request": request,
+        "admin": admin,
+        "profs": profs
+    })
+
+@app.post("/admin/create-prof")
+async def admin_create_prof(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    nom: str = Form(...),
+    prenom: str = Form(...),
+    username: str = Form(...),
+    password: str = Form(...),
+    specialite: str = Form(...),
+    matiere: str = Form(...)
+):
+    """Admin creates new professor"""
+    db = load_db()
+    
+    # Check if username already exists
+    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
+        admin = find_user(admin_username, "admin")
+        profs = db["users"]["prof"]
+        return templates.TemplateResponse(
+            "dashboard_admin.html", 
+            {"request": request, "admin": admin, "profs": profs, "error": "Ce nom d'utilisateur existe déjà"}
+        )
+    
+    # Create new professor
+    new_prof = {
+        "username": username,
+        "password_hash": hash_password(password),
+        "nom": nom,
+        "prenom": prenom,
+        "specialite": specialite,
+        "matiere": matiere
+    }
+    
+    db["users"]["prof"].append(new_prof)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=302)
 
 if __name__ == "__main__":
     print("=" * 50)

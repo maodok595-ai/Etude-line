@@ -47,9 +47,8 @@
         }
         
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            display: flex;
+            justify-content: center;
             margin-bottom: 30px;
         }
         
@@ -146,17 +145,21 @@
         }
         
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
             .container {
                 padding: 20px;
             }
             
             .header h1 {
                 font-size: 2rem;
+            }
+            
+            .login-link div {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .login-link a {
+                text-align: center;
             }
         }
     </style>
@@ -175,46 +178,8 @@
         {% endif %}
         
         <div class="main-content">
-            <!-- Inscription Professeur -->
-            <div class="card">
-                <h2>👨‍🏫 Espace Professeur</h2>
-                <form action="/register/prof" method="post">
-                    <div class="form-group">
-                        <label for="prof-nom">Nom</label>
-                        <input type="text" id="prof-nom" name="nom" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="prof-prenom">Prénom</label>
-                        <input type="text" id="prof-prenom" name="prenom" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="prof-username">Nom d'utilisateur</label>
-                        <input type="text" id="prof-username" name="username" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="prof-password">Mot de passe</label>
-                        <input type="password" id="prof-password" name="password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="prof-specialite">Spécialité</label>
-                        <input type="text" id="prof-specialite" name="specialite" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="prof-matiere">Matière</label>
-                        <input type="text" id="prof-matiere" name="matiere" required>
-                    </div>
-                    
-                    <button type="submit" class="btn">Créer compte Professeur</button>
-                </form>
-            </div>
-            
             <!-- Inscription Étudiant -->
-            <div class="card">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <h2>🎓 Espace Étudiant</h2>
                 <form action="/register/etudiant" method="post">
                     <div class="form-group">
@@ -265,7 +230,12 @@
         </div>
         
         <div class="login-link">
-            <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+            <p>Déjà un compte ?</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                <a href="/login?type=etudiant" style="padding: 0.5rem 1rem; background: #28a745; color: white; border-radius: 5px; text-decoration: none;">Connexion Étudiant</a>
+                <a href="/login?type=prof" style="padding: 0.5rem 1rem; background: #007bff; color: white; border-radius: 5px; text-decoration: none;">Connexion Professeur</a>
+                <a href="/login?type=admin" style="padding: 0.5rem 1rem; background: #dc3545; color: white; border-radius: 5px; text-decoration: none;">Connexion Administrateur</a>
+            </div>
         </div>
     </div>
 </body>
