@@ -1,6 +1,15 @@
 {
   "users": {
-    "prof": [],
+    "prof": [
+      {
+        "username": "KAMAODO65@GMAIL.COM",
+        "password_hash": "$2b$12$qaTizAp6RLG6tdORYs3QVOvi.R2vwxPmmB7fiF9uDSlvcHU9UWbri",
+        "nom": "yj",
+        "prenom": "h",
+        "specialite": "MATH",
+        "matiere": "ASS"
+      }
+    ],
     "etudiant": []
   },
   "contents": [],
