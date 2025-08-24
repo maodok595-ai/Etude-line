@@ -431,11 +431,11 @@
         
         <!-- Semestres -->
         <div class="section">
-            <h3>📅 Mes semestres</h3>
+            <h3>📅 Mes semestres ({{ student.niveau }})</h3>
             <div class="semester-grid">
                 {% for sem, status in semester_status.items() %}
                 <div class="semester-card {% if status.active %}active{% else %}inactive{% endif %}">
-                    <div class="semester-title">{{ sem }}</div>
+                    <div class="semester-title">{{ student.niveau }} - {{ sem }}</div>
                     <div class="semester-status">
                         {% if status.active %}
                             <div class="status-badge status-active">

@@ -498,8 +498,8 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
     
-    # Get all available semesters (S1-S10 for now)
-    all_semesters = [f"S{i}" for i in range(1, 11)]
+    # Get all available semesters (S1-S2 only per level)
+    all_semesters = ["S1", "S2"]
     
     # Check subscription status for each semester
     semester_status = {}

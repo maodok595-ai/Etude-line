@@ -1,7 +1,34 @@
 {
   "users": {
-    "prof": [],
-    "etudiant": [],
+    "prof": [
+      {
+        "username": "maodo45",
+        "password_hash": "$2b$12$0dANqzOTORDq0ZbbLHgVZuGwq.oGv49x564NQ/V8CcFC5Vp4mqsnC",
+        "nom": "ka",
+        "prenom": "maodo",
+        "specialite": "math",
+        "matiere": "algebre"
+      },
+      {
+        "username": "vieux1",
+        "password_hash": "$2b$12$qZ4xR1d7v2uE28EG3p78oeQfq9kXwDXC1mzugScfafHM0QdF9xl86",
+        "nom": "vieux",
+        "prenom": "ka",
+        "specialite": "physiques ",
+        "matiere": "mécanique "
+      }
+    ],
+    "etudiant": [
+      {
+        "username": "dev1",
+        "password_hash": "$2b$12$5/ejAHxJWVGvUTrA75nY3eK1z.SPrZ934GLIqLN6/qUfr2Y/Y9mwu",
+        "nom": "ka",
+        "prenom": "dev",
+        "universite": "uadb",
+        "filiere": "mpi",
+        "niveau": "L2"
+      }
+    ],
     "admin": [
       {
         "username": "admin",
@@ -11,7 +38,21 @@
       }
     ]
   },
-  "contents": [],
+  "contents": [
+    {
+      "id": "f194188f-6e5b-487f-be4a-0cc118fd30d3",
+      "type": "exercice",
+      "universite": "uadb",
+      "filiere": "mpi",
+      "niveau": "L2",
+      "semestre": "S1",
+      "matiere": "mecanique",
+      "chapitre": "torseur",
+      "titre": "torseur mecanique",
+      "texte": "kodkf",
+      "created_by": "vieux1"
+    }
+  ],
   "payments": [],
   "subscriptions": []
 }
