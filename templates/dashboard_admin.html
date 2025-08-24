@@ -202,6 +202,55 @@
             font-size: 0.8rem;
         }
         
+        /* Styles pour les onglets */
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tab-btn:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .academic-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .academic-item h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .academic-code {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -213,6 +262,11 @@
             
             .container {
                 padding: 0 1rem;
+            }
+            
+            .tab-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -249,10 +303,23 @@
             <p><strong>Rôle:</strong> Administrateur Principal</p>
         </div>
         
-        <div class="main-content">
-            <!-- Formulaire de création de professeur -->
-            <div class="card">
-                <h3>👨‍🏫 Créer un professeur</h3>
+        <!-- Navigation par onglets -->
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; gap: 1rem; border-bottom: 2px solid #e9ecef;">
+                <button onclick="showTab('prof')" id="tab-prof" class="tab-btn active">👨‍🏫 Professeurs</button>
+                <button onclick="showTab('universite')" id="tab-universite" class="tab-btn">🏛️ Universités</button>
+                <button onclick="showTab('ufr')" id="tab-ufr" class="tab-btn">🏢 UFR</button>
+                <button onclick="showTab('filiere')" id="tab-filiere" class="tab-btn">📚 Filières</button>
+                <button onclick="showTab('matiere')" id="tab-matiere" class="tab-btn">📖 Matières</button>
+            </div>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div id="content-prof" class="tab-content active">
+            <div class="main-content">
+                <!-- Formulaire de création de professeur -->
+                <div class="card">
+                    <h3>👨‍🏫 Créer un professeur</h3>
                 <form action="/admin/create-prof" method="post">
                     <div class="form-row">
                         <div class="form-group">
@@ -314,6 +381,245 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- Onglet Universités -->
+        <div id="content-universite" class="tab-content">
+            <div class="main-content">
+                <div class="card">
+                    <h3>🏛️ Créer une université</h3>
+                    <form action="/admin/create-universite" method="post">
+                        <div class="form-group">
+                            <label for="uni-nom">Nom de l'université</label>
+                            <input type="text" id="uni-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="uni-code">Code université</label>
+                            <input type="text" id="uni-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer l'université</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Universités ({{ universites|length }})</h3>
+                    <div class="prof-list">
+                        {% if universites %}
+                            {% for uni in universites %}
+                            <div class="academic-item">
+                                <h4>{{ uni.nom }}</h4>
+                                <div class="academic-code">Code: {{ uni.code }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏛️ Aucune université créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet UFR -->
+        <div id="content-ufr" class="tab-content">
+            <div class="main-content">
+                <div class="card">
+                    <h3>🏢 Créer une UFR</h3>
+                    <form action="/admin/create-ufr" method="post">
+                        <div class="form-group">
+                            <label for="ufr-universite">Université</label>
+                            <select id="ufr-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ufr-nom">Nom de l'UFR</label>
+                            <input type="text" id="ufr-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ufr-code">Code UFR</label>
+                            <input type="text" id="ufr-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer l'UFR</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>📋 UFR ({{ ufrs|length }})</h3>
+                    <div class="prof-list">
+                        {% if ufrs %}
+                            {% for ufr in ufrs %}
+                            <div class="academic-item">
+                                <h4>{{ ufr.nom }}</h4>
+                                <div class="academic-code">Code: {{ ufr.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for uni in universites %}
+                                        {% if uni.id == ufr.universite_id %}
+                                            Université: {{ uni.nom }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏢 Aucune UFR créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Filières -->
+        <div id="content-filiere" class="tab-content">
+            <div class="main-content">
+                <div class="card">
+                    <h3>📚 Créer une filière</h3>
+                    <form action="/admin/create-filiere" method="post">
+                        <div class="form-group">
+                            <label for="fil-ufr">UFR</label>
+                            <select id="fil-ufr" name="ufr_id" required>
+                                <option value="">Sélectionner une UFR</option>
+                                {% for ufr in ufrs %}
+                                <option value="{{ ufr.id }}">{{ ufr.nom }}
+                                    {% for uni in universites %}
+                                        {% if uni.id == ufr.universite_id %}
+                                            ({{ uni.nom }})
+                                        {% endif %}
+                                    {% endfor %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fil-nom">Nom de la filière</label>
+                            <input type="text" id="fil-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fil-code">Code filière</label>
+                            <input type="text" id="fil-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer la filière</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Filières ({{ filieres|length }})</h3>
+                    <div class="prof-list">
+                        {% if filieres %}
+                            {% for filiere in filieres %}
+                            <div class="academic-item">
+                                <h4>{{ filiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ filiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for ufr in ufrs %}
+                                        {% if ufr.id == filiere.ufr_id %}
+                                            UFR: {{ ufr.nom }}
+                                            {% for uni in universites %}
+                                                {% if uni.id == ufr.universite_id %}
+                                                    ({{ uni.nom }})
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📚 Aucune filière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Matières -->
+        <div id="content-matiere" class="tab-content">
+            <div class="main-content">
+                <div class="card">
+                    <h3>📖 Créer une matière</h3>
+                    <form action="/admin/create-matiere" method="post">
+                        <div class="form-group">
+                            <label for="mat-filiere">Filière</label>
+                            <select id="mat-filiere" name="filiere_id" required>
+                                <option value="">Sélectionner une filière</option>
+                                {% for filiere in filieres %}
+                                <option value="{{ filiere.id }}">{{ filiere.nom }}
+                                    {% for ufr in ufrs %}
+                                        {% if ufr.id == filiere.ufr_id %}
+                                            ({{ ufr.nom }})
+                                        {% endif %}
+                                    {% endfor %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mat-nom">Nom de la matière</label>
+                            <input type="text" id="mat-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mat-code">Code matière</label>
+                            <input type="text" id="mat-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer la matière</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Matières ({{ matieres|length }})</h3>
+                    <div class="prof-list">
+                        {% if matieres %}
+                            {% for matiere in matieres %}
+                            <div class="academic-item">
+                                <h4>{{ matiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ matiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == matiere.filiere_id %}
+                                            Filière: {{ filiere.nom }}
+                                            {% for ufr in ufrs %}
+                                                {% if ufr.id == filiere.ufr_id %}
+                                                    ({{ ufr.nom }})
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📖 Aucune matière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Désactiver tous les boutons
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Afficher le contenu sélectionné
+            document.getElementById('content-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+    </script>
 </body>
 </html>

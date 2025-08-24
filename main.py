@@ -81,6 +81,29 @@ class Subscription(BaseModel):
     paid_at: datetime
     expires_at: datetime
 
+class Universite(BaseModel):
+    id: str
+    nom: str
+    code: str
+
+class UFR(BaseModel):
+    id: str
+    nom: str
+    code: str
+    universite_id: str
+
+class Filiere(BaseModel):
+    id: str
+    nom: str
+    code: str
+    ufr_id: str
+
+class Matiere(BaseModel):
+    id: str
+    nom: str
+    code: str
+    filiere_id: str
+
 # Utility functions
 def now_utc() -> datetime:
     return datetime.utcnow()
@@ -105,7 +128,11 @@ def load_db() -> Dict[str, Any]:
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
             "payments": [],
-            "subscriptions": []
+            "subscriptions": [],
+            "universites": [],
+            "ufrs": [],
+            "filieres": [],
+            "matieres": []
         }
         save_db(initial_db)
         create_default_admin(initial_db)
@@ -124,7 +151,11 @@ def load_db() -> Dict[str, Any]:
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
             "payments": [],
-            "subscriptions": []
+            "subscriptions": [],
+            "universites": [],
+            "ufrs": [],
+            "filieres": [],
+            "matieres": []
         }
 
 def save_db(db: Dict[str, Any]) -> None:
@@ -274,6 +305,23 @@ def get_accessible_content(username: str) -> List[Dict[str, Any]]:
                 accessible_content.append(content)
     
     return accessible_content
+
+# Helper functions for academic structure
+def get_universites(db: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Get all universities"""
+    return db.get("universites", [])
+
+def get_ufrs_by_universite(db: Dict[str, Any], universite_id: str) -> List[Dict[str, Any]]:
+    """Get UFRs for a specific university"""
+    return [ufr for ufr in db.get("ufrs", []) if ufr["universite_id"] == universite_id]
+
+def get_filieres_by_ufr(db: Dict[str, Any], ufr_id: str) -> List[Dict[str, Any]]:
+    """Get filières for a specific UFR"""
+    return [filiere for filiere in db.get("filieres", []) if filiere["ufr_id"] == ufr_id]
+
+def get_matieres_by_filiere(db: Dict[str, Any], filiere_id: str) -> List[Dict[str, Any]]:
+    """Get matières for a specific filière"""
+    return [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] == filiere_id]
 
 # Routes
 @app.get("/", response_class=HTMLResponse)
@@ -638,12 +686,22 @@ async def dashboard_admin(request: Request, admin_username: str = Depends(requir
     # Get all professors
     profs = db["users"]["prof"]
     
+    # Get academic structure data
+    universites = get_universites(db)
+    ufrs = db.get("ufrs", [])
+    filieres = db.get("filieres", [])
+    matieres = db.get("matieres", [])
+    
     admin = find_user(admin_username, "admin")
     
     return templates.TemplateResponse("dashboard_admin.html", {
         "request": request,
         "admin": admin,
-        "profs": profs
+        "profs": profs,
+        "universites": universites,
+        "ufrs": ufrs,
+        "filieres": filieres,
+        "matieres": matieres
     })
 
 @app.post("/admin/create-prof")
@@ -683,6 +741,127 @@ async def admin_create_prof(
     save_db(db)
     
     return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=302)
+
+@app.post("/admin/create-universite")
+async def admin_create_universite(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    nom: str = Form(...),
+    code: str = Form(...)
+):
+    """Admin creates new university"""
+    db = load_db()
+    
+    # Check if code already exists
+    if any(u["code"] == code for u in db.get("universites", [])):
+        return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=302)
+    
+    # Create new university
+    new_universite = {
+        "id": str(uuid.uuid4()),
+        "nom": nom,
+        "code": code
+    }
+    
+    if "universites" not in db:
+        db["universites"] = []
+    db["universites"].append(new_universite)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=302)
+
+@app.post("/admin/create-ufr")
+async def admin_create_ufr(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    nom: str = Form(...),
+    code: str = Form(...),
+    universite_id: str = Form(...)
+):
+    """Admin creates new UFR"""
+    db = load_db()
+    
+    # Check if code already exists for this university
+    existing_ufrs = get_ufrs_by_universite(db, universite_id)
+    if any(u["code"] == code for u in existing_ufrs):
+        return RedirectResponse(url="/dashboard/admin?error=Code UFR déjà existant pour cette université", status_code=302)
+    
+    # Create new UFR
+    new_ufr = {
+        "id": str(uuid.uuid4()),
+        "nom": nom,
+        "code": code,
+        "universite_id": universite_id
+    }
+    
+    if "ufrs" not in db:
+        db["ufrs"] = []
+    db["ufrs"].append(new_ufr)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=302)
+
+@app.post("/admin/create-filiere")
+async def admin_create_filiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    nom: str = Form(...),
+    code: str = Form(...),
+    ufr_id: str = Form(...)
+):
+    """Admin creates new filière"""
+    db = load_db()
+    
+    # Check if code already exists for this UFR
+    existing_filieres = get_filieres_by_ufr(db, ufr_id)
+    if any(f["code"] == code for f in existing_filieres):
+        return RedirectResponse(url="/dashboard/admin?error=Code filière déjà existant pour cette UFR", status_code=302)
+    
+    # Create new filière
+    new_filiere = {
+        "id": str(uuid.uuid4()),
+        "nom": nom,
+        "code": code,
+        "ufr_id": ufr_id
+    }
+    
+    if "filieres" not in db:
+        db["filieres"] = []
+    db["filieres"].append(new_filiere)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=302)
+
+@app.post("/admin/create-matiere")
+async def admin_create_matiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    nom: str = Form(...),
+    code: str = Form(...),
+    filiere_id: str = Form(...)
+):
+    """Admin creates new matière"""
+    db = load_db()
+    
+    # Check if code already exists for this filière
+    existing_matieres = get_matieres_by_filiere(db, filiere_id)
+    if any(m["code"] == code for m in existing_matieres):
+        return RedirectResponse(url="/dashboard/admin?error=Code matière déjà existant pour cette filière", status_code=302)
+    
+    # Create new matière
+    new_matiere = {
+        "id": str(uuid.uuid4()),
+        "nom": nom,
+        "code": code,
+        "filiere_id": filiere_id
+    }
+    
+    if "matieres" not in db:
+        db["matieres"] = []
+    db["matieres"].append(new_matiere)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
 
 if __name__ == "__main__":
     print("=" * 50)
