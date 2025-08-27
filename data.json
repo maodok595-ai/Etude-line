@@ -54,5 +54,36 @@
     }
   ],
   "payments": [],
-  "subscriptions": []
+  "subscriptions": [],
+  "universites": [
+    {
+      "id": "d37015b8-dd7f-4a47-9178-0a65108c965f",
+      "nom": "ucad",
+      "code": "1"
+    }
+  ],
+  "ufrs": [
+    {
+      "id": "c1b4a866-127d-4415-81f6-6992177f65de",
+      "nom": "satic",
+      "code": "1",
+      "universite_id": "d37015b8-dd7f-4a47-9178-0a65108c965f"
+    }
+  ],
+  "filieres": [
+    {
+      "id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+      "nom": "mpi",
+      "code": "1",
+      "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de"
+    }
+  ],
+  "matieres": [
+    {
+      "id": "f28ee503-56ea-4b1f-9d9b-75abfd6af8c5",
+      "nom": "math",
+      "code": "1",
+      "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc"
+    }
+  ]
 }

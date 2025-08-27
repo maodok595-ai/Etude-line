@@ -25,7 +25,7 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             padding: 40px;
         }
@@ -120,6 +120,69 @@
             font-size: 3rem;
             margin-bottom: 20px;
         }
+        
+        .role-selector {
+            margin-bottom: 30px;
+        }
+        
+        .role-selector label {
+            display: block;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .role-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        
+        .role-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .role-btn:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .role-btn.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .role-btn input[type="radio"] {
+            display: none;
+        }
+        
+        .role-icon {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 480px) {
+            .role-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .role-btn {
+                flex: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -137,6 +200,27 @@
         {% endif %}
         
         <form action="/login" method="post">
+            <div class="role-selector">
+                <label>Choisissez votre rôle :</label>
+                <div class="role-buttons">
+                    <label class="role-btn" for="role-admin">
+                        <input type="radio" id="role-admin" name="role" value="admin" required>
+                        <span class="role-icon">👑</span>
+                        <span>Admin</span>
+                    </label>
+                    <label class="role-btn" for="role-prof">
+                        <input type="radio" id="role-prof" name="role" value="prof" required>
+                        <span class="role-icon">👨‍🏫</span>
+                        <span>Professeur</span>
+                    </label>
+                    <label class="role-btn" for="role-etudiant">
+                        <input type="radio" id="role-etudiant" name="role" value="etudiant" required>
+                        <span class="role-icon">🎓</span>
+                        <span>Étudiant</span>
+                    </label>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label for="username">Nom d'utilisateur</label>
                 <input type="text" id="username" name="username" required>
@@ -154,5 +238,29 @@
             <a href="/">← Retour à l'accueil</a>
         </div>
     </div>
+    
+    <script>
+        // Gérer la sélection des rôles
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Retirer la classe active de tous les boutons
+                document.querySelectorAll('.role-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Ajouter la classe active au bouton sélectionné
+                this.closest('.role-btn').classList.add('active');
+            });
+        });
+        
+        // Permettre de cliquer sur le bouton pour sélectionner
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
 </body>
 </html>

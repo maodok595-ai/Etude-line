@@ -440,27 +440,17 @@ async def login_form(request: Request):
 async def login(
     request: Request,
     username: str = Form(...),
-    password: str = Form(...)
+    password: str = Form(...),
+    role: str = Form(...)
 ):
     """Process login"""
-    # Try admin first
-    user = find_user(username, "admin")
-    role = "admin"
-    
-    if not user:
-        # Try professor
-        user = find_user(username, "prof")
-        role = "prof"
-    
-    if not user:
-        # Try student
-        user = find_user(username, "etudiant")
-        role = "etudiant"
+    # Find user in the specified role
+    user = find_user(username, role)
     
     if not user or not verify_password(password, user["password_hash"]):
         return templates.TemplateResponse(
             "login.html", 
-            {"request": request, "error": "Nom d'utilisateur ou mot de passe incorrect"}
+            {"request": request, "error": "Nom d'utilisateur, mot de passe ou rôle incorrect"}
         )
     
     # Create session and redirect
