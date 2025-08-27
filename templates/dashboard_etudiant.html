@@ -416,11 +416,31 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">Université</div>
-                    <div class="info-value">{{ student.universite }}</div>
+                    <div class="info-value">
+                        {% if student.universite_id %}
+                            {% for uni in universites %}
+                                {% if uni.id == student.universite_id %}
+                                    🏛️ {{ uni.nom }}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            🏛️ {{ student.universite }}
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Filière</div>
-                    <div class="info-value">{{ student.filiere }}</div>
+                    <div class="info-value">
+                        {% if student.filiere_id %}
+                            {% for filiere in filieres %}
+                                {% if filiere.id == student.filiere_id %}
+                                    📚 {{ filiere.nom }}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            📚 {{ student.filiere }}
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Niveau</div>

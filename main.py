@@ -494,6 +494,9 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
     
     # Get academic structure data
     universites = get_universites(db)
+    ufrs = db.get("ufrs", [])
+    filieres = db.get("filieres", [])
+    matieres = db.get("matieres", [])
     
     prof = find_user(prof_username, "prof")
     
@@ -501,7 +504,10 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
         "request": request,
         "prof": prof,
         "contents": prof_contents,
-        "universites": universites
+        "universites": universites,
+        "ufrs": ufrs,
+        "filieres": filieres,
+        "matieres": matieres
     })
 
 @app.post("/prof/content")
@@ -579,8 +585,14 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     accessible_content = get_accessible_content(etudiant_username)
     
     # Get unique subjects and chapters for filtering
-    subjects = list(set([c["matiere"] for c in accessible_content]))
+    subjects = list(set([c.get("matiere", c.get("matiere_id", "")) for c in accessible_content]))
     chapters = list(set([c["chapitre"] for c in accessible_content]))
+    
+    # Get academic structure data for display
+    universites = get_universites(db)
+    ufrs = db.get("ufrs", [])
+    filieres = db.get("filieres", [])
+    matieres = db.get("matieres", [])
     
     return templates.TemplateResponse("dashboard_etudiant.html", {
         "request": request,
@@ -589,7 +601,11 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
         "accessible_content": accessible_content,
         "subjects": subjects,
         "chapters": chapters,
-        "price": PRICE_FCFA
+        "price": PRICE_FCFA,
+        "universites": universites,
+        "ufrs": ufrs,
+        "filieres": filieres,
+        "matieres": matieres
     })
 
 @app.post("/pay/start")

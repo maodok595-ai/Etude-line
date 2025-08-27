@@ -299,8 +299,8 @@
                             <label for="semestre">Semestre</label>
                             <select id="semestre" name="semestre" required>
                                 <option value="">Sélectionner</option>
-                                <option value="S1">Semestre 1</option>
-                                <option value="S2">Semestre 2</option>
+                                <option value="S1">Semestre 1 (S1)</option>
+                                <option value="S2">Semestre 2 (S2)</option>
                             </select>
                         </div>
                     </div>
@@ -335,12 +335,42 @@
                         <div class="content-item">
                             <div class="type-badge type-{{ content.type }}">{{ content.type.upper() }}</div>
                             <div class="content-meta">
-                                <span class="meta-tag">{{ content.universite }}</span>
-                                <span class="meta-tag">{{ content.filiere }}</span>
-                                <span class="meta-tag">{{ content.niveau }}</span>
-                                <span class="meta-tag">{{ content.semestre }}</span>
-                                <span class="meta-tag">{{ content.matiere }}</span>
-                                <span class="meta-tag">{{ content.chapitre }}</span>
+                                {% if content.universite_id %}
+                                    <!-- Nouveau format avec IDs -->
+                                    {% for uni in universites %}
+                                        {% if uni.id == content.universite_id %}
+                                            <span class="meta-tag">🏛️ {{ uni.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Ancien format -->
+                                    <span class="meta-tag">🏛️ {{ content.universite }}</span>
+                                {% endif %}
+                                
+                                {% if content.filiere_id %}
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == content.filiere_id %}
+                                            <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="meta-tag">📚 {{ content.filiere }}</span>
+                                {% endif %}
+                                
+                                <span class="meta-tag">🎓 {{ content.niveau }}</span>
+                                <span class="meta-tag">📅 {{ content.semestre }}</span>
+                                
+                                {% if content.matiere_id %}
+                                    {% for matiere in matieres %}
+                                        {% if matiere.id == content.matiere_id %}
+                                            <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="meta-tag">📖 {{ content.matiere }}</span>
+                                {% endif %}
+                                
+                                <span class="meta-tag">📑 {{ content.chapitre }}</span>
                             </div>
                             <div class="content-title">{{ content.titre }}</div>
                             <div class="content-text">{{ content.texte[:100] }}{% if content.texte|length > 100 %}...{% endif %}</div>
