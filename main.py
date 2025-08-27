@@ -260,17 +260,29 @@ def find_user(username: str, role: str) -> Optional[Dict[str, Any]]:
     return None
 
 def get_student_profile(username: str) -> Optional[Dict[str, str]]:
-    """Get student profile"""
+    """Get student profile with backward compatibility"""
     user = find_user(username, "etudiant")
     if user:
-        return {
-            "username": user["username"],
-            "nom": user["nom"],
-            "prenom": user["prenom"],
-            "universite": user["universite"],
-            "filiere": user["filiere"],
-            "niveau": user["niveau"]
-        }
+        # Handle both old and new data formats
+        if "universite_id" in user:  # New format
+            return {
+                "username": user["username"],
+                "nom": user["nom"],
+                "prenom": user["prenom"],
+                "universite_id": user["universite_id"],
+                "ufr_id": user["ufr_id"],
+                "filiere_id": user["filiere_id"],
+                "niveau": user["niveau"]
+            }
+        else:  # Old format
+            return {
+                "username": user["username"],
+                "nom": user["nom"],
+                "prenom": user["prenom"],
+                "universite": user.get("universite", ""),
+                "filiere": user.get("filiere", ""),
+                "niveau": user["niveau"]
+            }
     return None
 
 def is_subscription_active(username: str, semestre: str) -> bool:
@@ -295,11 +307,25 @@ def get_accessible_content(username: str) -> List[Dict[str, Any]]:
     accessible_content = []
     
     for content in db["contents"]:
-        # Check if content matches student profile
-        if (content["universite"] == student["universite"] and
-            content["filiere"] == student["filiere"] and
-            content["niveau"] == student["niveau"]):
-            
+        # Handle both old and new content formats
+        content_matches = False
+        
+        if "universite_id" in student and "universite_id" in content:
+            # New format comparison
+            content_matches = (
+                content["universite_id"] == student["universite_id"] and
+                content["filiere_id"] == student["filiere_id"] and
+                content["niveau"] == student["niveau"]
+            )
+        elif "universite" in student and "universite" in content:
+            # Old format comparison
+            content_matches = (
+                content["universite"] == student["universite"] and
+                content["filiere"] == student["filiere"] and
+                content["niveau"] == student["niveau"]
+            )
+        
+        if content_matches:
             # Check if student has active subscription for this semester
             if is_subscription_active(username, content["semestre"]):
                 accessible_content.append(content)
@@ -322,6 +348,106 @@ def get_filieres_by_ufr(db: Dict[str, Any], ufr_id: str) -> List[Dict[str, Any]]
 def get_matieres_by_filiere(db: Dict[str, Any], filiere_id: str) -> List[Dict[str, Any]]:
     """Get matières for a specific filière"""
     return [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] == filiere_id]
+
+# Helper functions to get names from IDs
+def get_universite_name(db: Dict[str, Any], universite_id: str) -> str:
+    """Get university name from ID"""
+    for uni in db.get("universites", []):
+        if uni["id"] == universite_id:
+            return uni["nom"]
+    return "Université inconnue"
+
+def get_ufr_name(db: Dict[str, Any], ufr_id: str) -> str:
+    """Get UFR name from ID"""
+    for ufr in db.get("ufrs", []):
+        if ufr["id"] == ufr_id:
+            return ufr["nom"]
+    return "UFR inconnue"
+
+def get_filiere_name(db: Dict[str, Any], filiere_id: str) -> str:
+    """Get filière name from ID"""
+    for filiere in db.get("filieres", []):
+        if filiere["id"] == filiere_id:
+            return filiere["nom"]
+    return "Filière inconnue"
+
+def get_matiere_name(db: Dict[str, Any], matiere_id: str) -> str:
+    """Get matière name from ID"""
+    for matiere in db.get("matieres", []):
+        if matiere["id"] == matiere_id:
+            return matiere["nom"]
+    return "Matière inconnue"
+
+def migrate_data_to_new_format():
+    """Migrate existing data to new hierarchical format"""
+    db = load_db()
+    migration_needed = False
+    
+    # Check if we need to migrate students
+    for student in db["users"]["etudiant"]:
+        if "universite" in student and "universite_id" not in student:
+            # Find university by name and add ID
+            for uni in db.get("universites", []):
+                if uni["nom"].lower() == student["universite"].lower():
+                    student["universite_id"] = uni["id"]
+                    migration_needed = True
+                    break
+            
+            # Find filiere by name and add ID
+            if "filiere" in student:
+                for filiere in db.get("filieres", []):
+                    if filiere["nom"].lower() == student["filiere"].lower():
+                        student["filiere_id"] = filiere["id"]
+                        # Also find UFR
+                        for ufr in db.get("ufrs", []):
+                            if ufr["id"] == filiere["ufr_id"]:
+                                student["ufr_id"] = ufr["id"]
+                                break
+                        migration_needed = True
+                        break
+    
+    # Check if we need to migrate content
+    for content in db["contents"]:
+        if "universite" in content and "universite_id" not in content:
+            # Find university by name
+            for uni in db.get("universites", []):
+                if uni["nom"].lower() == content["universite"].lower():
+                    content["universite_id"] = uni["id"]
+                    migration_needed = True
+                    break
+            
+            # Find filiere by name
+            if "filiere" in content:
+                for filiere in db.get("filieres", []):
+                    if filiere["nom"].lower() == content["filiere"].lower():
+                        content["filiere_id"] = filiere["id"]
+                        # Also find UFR
+                        for ufr in db.get("ufrs", []):
+                            if ufr["id"] == filiere["ufr_id"]:
+                                content["ufr_id"] = ufr["id"]
+                                break
+                        migration_needed = True
+                        break
+            
+            # Find matiere by name
+            if "matiere" in content:
+                for matiere in db.get("matieres", []):
+                    if matiere["nom"].lower() == content["matiere"].lower():
+                        content["matiere_id"] = matiere["id"]
+                        migration_needed = True
+                        break
+    
+    if migration_needed:
+        save_db(db)
+        print("✅ Migration des données effectuée avec succès")
+    
+    return migration_needed
+
+# Exécuter la migration au démarrage
+@app.on_event("startup")
+async def startup_event():
+    """Run data migration on startup"""
+    migrate_data_to_new_format()
 
 # Routes
 @app.get("/", response_class=HTMLResponse)
@@ -528,6 +654,14 @@ async def create_content(
     """Create new content"""
     db = load_db()
     
+    # Validate semester (only S1 and S2 allowed)
+    if semestre not in ["S1", "S2"]:
+        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
+    
+    # Validate academic level
+    if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
+        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=302)
+    
     # Create new content item
     new_content = {
         "id": str(uuid.uuid4()),
@@ -666,6 +800,58 @@ async def confirm_manual_payment(
     save_db(db)
     
     return RedirectResponse(url="/dashboard/etudiant?success=Paiement confirmé, accès activé!", status_code=302)
+
+# Admin utility endpoints
+@app.get("/admin/migrate")
+async def force_migration(admin_username: str = Depends(require_admin)):
+    """Force data migration (admin only)"""
+    migrated = migrate_data_to_new_format()
+    if migrated:
+        return {"message": "Migration effectuée avec succès", "migrated": True}
+    else:
+        return {"message": "Aucune migration nécessaire", "migrated": False}
+
+@app.get("/admin/stats")
+async def get_admin_stats(admin_username: str = Depends(require_admin)):
+    """Get system statistics (admin only)"""
+    db = load_db()
+    
+    # Count users
+    prof_count = len(db["users"]["prof"])
+    student_count = len(db["users"]["etudiant"])
+    
+    # Count content by type
+    content_stats = {}
+    for content in db["contents"]:
+        content_type = content["type"]
+        content_stats[content_type] = content_stats.get(content_type, 0) + 1
+    
+    # Count active subscriptions
+    active_subs = sum(1 for sub in db["subscriptions"] 
+                     if datetime.fromisoformat(sub["expires_at"]) > now_utc())
+    
+    # Academic structure counts
+    uni_count = len(db.get("universites", []))
+    ufr_count = len(db.get("ufrs", []))
+    filiere_count = len(db.get("filieres", []))
+    matiere_count = len(db.get("matieres", []))
+    
+    return {
+        "users": {
+            "professeurs": prof_count,
+            "etudiants": student_count
+        },
+        "contenu": content_stats,
+        "subscriptions_actives": active_subs,
+        "structure_academique": {
+            "universites": uni_count,
+            "ufrs": ufr_count,
+            "filieres": filiere_count,
+            "matieres": matiere_count
+        },
+        "total_content": len(db["contents"]),
+        "total_payments": len(db["payments"])
+    }
 
 @app.post("/webhook/wave")
 async def wave_webhook(request: Request):

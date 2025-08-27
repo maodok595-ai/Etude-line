@@ -26,7 +26,9 @@
         "prenom": "dev",
         "universite": "uadb",
         "filiere": "mpi",
-        "niveau": "L2"
+        "niveau": "L2",
+        "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+        "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de"
       }
     ],
     "admin": [
@@ -50,7 +52,9 @@
       "chapitre": "torseur",
       "titre": "torseur mecanique",
       "texte": "kodkf",
-      "created_by": "vieux1"
+      "created_by": "vieux1",
+      "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+      "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de"
     }
   ],
   "payments": [],

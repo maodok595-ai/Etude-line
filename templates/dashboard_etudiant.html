@@ -428,6 +428,20 @@
                         {% endif %}
                     </div>
                 </div>
+                
+                {% if student.ufr_id %}
+                <div class="info-item">
+                    <div class="info-label">UFR</div>
+                    <div class="info-value">
+                        {% for ufr in ufrs %}
+                            {% if ufr.id == student.ufr_id %}
+                                🏢 {{ ufr.nom }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
                 <div class="info-item">
                     <div class="info-label">Filière</div>
                     <div class="info-value">
