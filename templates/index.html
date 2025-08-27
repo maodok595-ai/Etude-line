@@ -204,12 +204,26 @@
                     
                     <div class="form-group">
                         <label for="etud-universite">Université</label>
-                        <input type="text" id="etud-universite" name="universite" required>
+                        <select id="etud-universite" name="universite_id" required>
+                            <option value="">Sélectionner une université</option>
+                            {% for uni in universites %}
+                            <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etud-ufr">UFR</label>
+                        <select id="etud-ufr" name="ufr_id" required disabled>
+                            <option value="">Sélectionner d'abord une université</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="etud-filiere">Filière</label>
-                        <input type="text" id="etud-filiere" name="filiere" required>
+                        <select id="etud-filiere" name="filiere_id" required disabled>
+                            <option value="">Sélectionner d'abord une UFR</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -236,5 +250,74 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Gestion des sélecteurs hiérarchiques
+        const universiteSelect = document.getElementById('etud-universite');
+        const ufrSelect = document.getElementById('etud-ufr');
+        const filiereSelect = document.getElementById('etud-filiere');
+        
+        // Réinitialise et désactive un sélecteur
+        function resetSelect(select, message) {
+            select.innerHTML = `<option value="">${message}</option>`;
+            select.disabled = true;
+            select.value = '';
+        }
+        
+        // Charge les UFR quand une université est sélectionnée
+        universiteSelect.addEventListener('change', async function() {
+            const universiteId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetSelect(ufrSelect, 'Chargement des UFR...');
+            resetSelect(filiereSelect, 'Sélectionner d\'abord une UFR');
+            
+            if (universiteId) {
+                try {
+                    const response = await fetch(`/api/ufrs/${universiteId}`);
+                    const data = await response.json();
+                    
+                    ufrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
+                    data.ufrs.forEach(ufr => {
+                        const option = document.createElement('option');
+                        option.value = ufr.id;
+                        option.textContent = ufr.nom;
+                        ufrSelect.appendChild(option);
+                    });
+                    ufrSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des UFR:', error);
+                    resetSelect(ufrSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les filières quand une UFR est sélectionnée
+        ufrSelect.addEventListener('change', async function() {
+            const ufrId = this.value;
+            
+            // Réinitialise le sélecteur suivant
+            resetSelect(filiereSelect, 'Chargement des filières...');
+            
+            if (ufrId) {
+                try {
+                    const response = await fetch(`/api/filieres/${ufrId}`);
+                    const data = await response.json();
+                    
+                    filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    data.filieres.forEach(filiere => {
+                        const option = document.createElement('option');
+                        option.value = filiere.id;
+                        option.textContent = filiere.nom;
+                        filiereSelect.appendChild(option);
+                    });
+                    filiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des filières:', error);
+                    resetSelect(filiereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

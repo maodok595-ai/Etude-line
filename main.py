@@ -337,7 +337,14 @@ async def index(request: Request):
         else:
             return RedirectResponse(url="/dashboard/etudiant", status_code=302)
     
-    return templates.TemplateResponse("index.html", {"request": request})
+    # Load academic data for form
+    db = load_db()
+    universites = get_universites(db)
+    
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "universites": universites
+    })
 
 @app.post("/register/prof")
 async def register_prof(
@@ -386,8 +393,9 @@ async def register_etudiant(
     prenom: str = Form(...),
     username: str = Form(...),
     password: str = Form(...),
-    universite: str = Form(...),
-    filiere: str = Form(...),
+    universite_id: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
     niveau: str = Form(...)
 ):
     """Register new student"""
@@ -395,9 +403,10 @@ async def register_etudiant(
     
     # Check if username already exists
     if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
+        universites = get_universites(db)
         return templates.TemplateResponse(
             "index.html", 
-            {"request": request, "error": "Ce nom d'utilisateur existe déjà"}
+            {"request": request, "error": "Ce nom d'utilisateur existe déjà", "universites": universites}
         )
     
     # Create new student
@@ -406,8 +415,9 @@ async def register_etudiant(
         "password_hash": hash_password(password),
         "nom": nom,
         "prenom": prenom,
-        "universite": universite,
-        "filiere": filiere,
+        "universite_id": universite_id,
+        "ufr_id": ufr_id,
+        "filiere_id": filiere_id,
         "niveau": niveau
     }
     
@@ -482,12 +492,16 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
     # Get professor's contents
     prof_contents = [c for c in db["contents"] if c["created_by"] == prof_username]
     
+    # Get academic structure data
+    universites = get_universites(db)
+    
     prof = find_user(prof_username, "prof")
     
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
         "prof": prof,
-        "contents": prof_contents
+        "contents": prof_contents,
+        "universites": universites
     })
 
 @app.post("/prof/content")
@@ -495,11 +509,12 @@ async def create_content(
     request: Request,
     prof_username: str = Depends(require_prof),
     type: str = Form(...),
-    universite: str = Form(...),
-    filiere: str = Form(...),
+    universite_id: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
+    matiere_id: str = Form(...),
     niveau: str = Form(...),
     semestre: str = Form(...),
-    matiere: str = Form(...),
     chapitre: str = Form(...),
     titre: str = Form(...),
     texte: str = Form(...)
@@ -511,11 +526,12 @@ async def create_content(
     new_content = {
         "id": str(uuid.uuid4()),
         "type": type,
-        "universite": universite,
-        "filiere": filiere,
+        "universite_id": universite_id,
+        "ufr_id": ufr_id,
+        "filiere_id": filiere_id,
+        "matiere_id": matiere_id,
         "niveau": niveau,
         "semestre": semestre,
-        "matiere": matiere,
         "chapitre": chapitre,
         "titre": titre,
         "texte": texte,
@@ -852,6 +868,28 @@ async def admin_create_matiere(
     save_db(db)
     
     return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
+
+# API endpoints for hierarchical data
+@app.get("/api/ufrs/{universite_id}")
+async def get_ufrs_api(universite_id: str):
+    """Get UFRs for a specific university"""
+    db = load_db()
+    ufrs = get_ufrs_by_universite(db, universite_id)
+    return {"ufrs": ufrs}
+
+@app.get("/api/filieres/{ufr_id}")
+async def get_filieres_api(ufr_id: str):
+    """Get filières for a specific UFR"""
+    db = load_db()
+    filieres = get_filieres_by_ufr(db, ufr_id)
+    return {"filieres": filieres}
+
+@app.get("/api/matieres/{filiere_id}")
+async def get_matieres_api(filiere_id: str):
+    """Get matières for a specific filière"""
+    db = load_db()
+    matieres = get_matieres_by_filiere(db, filiere_id)
+    return {"matieres": matieres}
 
 if __name__ == "__main__":
     print("=" * 50)
