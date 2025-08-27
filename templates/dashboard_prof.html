@@ -232,7 +232,34 @@
     <div class="container">
         <div class="welcome-card">
             <h2>Bienvenue, {{ prof.prenom }} {{ prof.nom }}</h2>
-            <p><strong>Spécialité:</strong> {{ prof.specialite }} | <strong>Matière:</strong> {{ prof.matiere }}</p>
+            <p><strong>Spécialité:</strong> {{ prof.specialite }}</p>
+            {% if prof.matiere_id %}
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                    <strong>🏛️ Votre affectation:</strong><br>
+                    {% for uni in universites %}
+                        {% if uni.id == prof.universite_id %}
+                            <span style="color: #667eea;">Université: {{ uni.nom }}</span><br>
+                        {% endif %}
+                    {% endfor %}
+                    {% for ufr in ufrs %}
+                        {% if ufr.id == prof.ufr_id %}
+                            <span style="color: #667eea;">UFR: {{ ufr.nom }}</span><br>
+                        {% endif %}
+                    {% endfor %}
+                    {% for filiere in filieres %}
+                        {% if filiere.id == prof.filiere_id %}
+                            <span style="color: #667eea;">Filière: {{ filiere.nom }}</span><br>
+                        {% endif %}
+                    {% endfor %}
+                    {% for matiere in matieres %}
+                        {% if matiere.id == prof.matiere_id %}
+                            <span style="color: #667eea;">Matière: {{ matiere.nom }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p><strong>Matière:</strong> {{ prof.matiere }}</p>
+            {% endif %}
         </div>
         
         <div class="main-content">

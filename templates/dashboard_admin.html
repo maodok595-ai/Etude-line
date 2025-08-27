@@ -344,13 +344,40 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="specialite">Spécialité</label>
-                            <input type="text" id="specialite" name="specialite" required>
+                            <label for="prof-universite">Université</label>
+                            <select id="prof-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="matiere">Matière</label>
-                            <input type="text" id="matiere" name="matiere" required>
+                            <label for="prof-ufr">UFR</label>
+                            <select id="prof-ufr" name="ufr_id" required disabled>
+                                <option value="">Sélectionner d'abord une université</option>
+                            </select>
                         </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prof-filiere">Filière</label>
+                            <select id="prof-filiere" name="filiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une UFR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-matiere">Matière</label>
+                            <select id="prof-matiere" name="matiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une filière</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialite">Spécialité du professeur</label>
+                        <input type="text" id="specialite" name="specialite" required placeholder="Ex: Docteur en Mathématiques, Expert en Physique, etc.">
                     </div>
                     
                     <button type="submit" class="btn">Créer le professeur</button>
@@ -368,7 +395,25 @@
                             <div class="prof-details">@{{ prof.username }}</div>
                             <div class="prof-meta">
                                 <span class="meta-tag">{{ prof.specialite }}</span>
-                                <span class="meta-tag">{{ prof.matiere }}</span>
+                                {% if prof.matiere_id %}
+                                    {% for matiere in matieres %}
+                                        {% if matiere.id == prof.matiere_id %}
+                                            <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == prof.filiere_id %}
+                                            <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for uni in universites %}
+                                        {% if uni.id == prof.universite_id %}
+                                            <span class="meta-tag">🏛️ {{ uni.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="meta-tag">{{ prof.matiere }}</span>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -620,6 +665,103 @@
             document.getElementById('content-' + tabName).classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
+        
+        // Gestion des sélecteurs hiérarchiques pour le formulaire professeur
+        const profUniversiteSelect = document.getElementById('prof-universite');
+        const profUfrSelect = document.getElementById('prof-ufr');
+        const profFiliereSelect = document.getElementById('prof-filiere');
+        const profMatiereSelect = document.getElementById('prof-matiere');
+        
+        // Réinitialise et désactive un sélecteur
+        function resetProfSelect(select, message) {
+            select.innerHTML = `<option value="">${message}</option>`;
+            select.disabled = true;
+            select.value = '';
+        }
+        
+        // Charge les UFR quand une université est sélectionnée
+        profUniversiteSelect.addEventListener('change', async function() {
+            const universiteId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profUfrSelect, 'Chargement des UFR...');
+            resetProfSelect(profFiliereSelect, 'Sélectionner d\'abord une UFR');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (universiteId) {
+                try {
+                    const response = await fetch(`/api/ufrs/${universiteId}`);
+                    const data = await response.json();
+                    
+                    profUfrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
+                    data.ufrs.forEach(ufr => {
+                        const option = document.createElement('option');
+                        option.value = ufr.id;
+                        option.textContent = ufr.nom;
+                        profUfrSelect.appendChild(option);
+                    });
+                    profUfrSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des UFR:', error);
+                    resetProfSelect(profUfrSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les filières quand une UFR est sélectionnée
+        profUfrSelect.addEventListener('change', async function() {
+            const ufrId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profFiliereSelect, 'Chargement des filières...');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (ufrId) {
+                try {
+                    const response = await fetch(`/api/filieres/${ufrId}`);
+                    const data = await response.json();
+                    
+                    profFiliereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    data.filieres.forEach(filiere => {
+                        const option = document.createElement('option');
+                        option.value = filiere.id;
+                        option.textContent = filiere.nom;
+                        profFiliereSelect.appendChild(option);
+                    });
+                    profFiliereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des filières:', error);
+                    resetProfSelect(profFiliereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les matières quand une filière est sélectionnée
+        profFiliereSelect.addEventListener('change', async function() {
+            const filiereId = this.value;
+            
+            // Réinitialise le sélecteur suivant
+            resetProfSelect(profMatiereSelect, 'Chargement des matières...');
+            
+            if (filiereId) {
+                try {
+                    const response = await fetch(`/api/matieres/${filiereId}`);
+                    const data = await response.json();
+                    
+                    profMatiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
+                    data.matieres.forEach(matiere => {
+                        const option = document.createElement('option');
+                        option.value = matiere.id;
+                        option.textContent = matiere.nom;
+                        profMatiereSelect.appendChild(option);
+                    });
+                    profMatiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des matières:', error);
+                    resetProfSelect(profMatiereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
     </script>
 </body>
 </html>

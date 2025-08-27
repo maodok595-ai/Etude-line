@@ -735,28 +735,48 @@ async def admin_create_prof(
     username: str = Form(...),
     password: str = Form(...),
     specialite: str = Form(...),
-    matiere: str = Form(...)
+    universite_id: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
+    matiere_id: str = Form(...)
 ):
-    """Admin creates new professor"""
+    """Admin creates new professor with hierarchical structure"""
     db = load_db()
     
     # Check if username already exists
     if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
-        admin = find_user(admin_username, "admin")
-        profs = db["users"]["prof"]
-        return templates.TemplateResponse(
-            "dashboard_admin.html", 
-            {"request": request, "admin": admin, "profs": profs, "error": "Ce nom d'utilisateur existe déjà"}
-        )
+        return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=302)
     
-    # Create new professor
+    # Validate hierarchical relationships
+    universite = next((u for u in db.get("universites", []) if u["id"] == universite_id), None)
+    if not universite:
+        return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
+    
+    ufr = next((u for u in db.get("ufrs", []) if u["id"] == ufr_id and u["universite_id"] == universite_id), None)
+    if not ufr:
+        return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=302)
+    
+    filiere = next((f for f in db.get("filieres", []) if f["id"] == filiere_id and f["ufr_id"] == ufr_id), None)
+    if not filiere:
+        return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=302)
+    
+    matiere = next((m for m in db.get("matieres", []) if m["id"] == matiere_id and m["filiere_id"] == filiere_id), None)
+    if not matiere:
+        return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=302)
+    
+    # Create new professor with hierarchical structure
     new_prof = {
         "username": username,
         "password_hash": hash_password(password),
         "nom": nom,
         "prenom": prenom,
         "specialite": specialite,
-        "matiere": matiere
+        "universite_id": universite_id,
+        "ufr_id": ufr_id,
+        "filiere_id": filiere_id,
+        "matiere_id": matiere_id,
+        # Keep backward compatibility
+        "matiere": matiere["nom"]
     }
     
     db["users"]["prof"].append(new_prof)
