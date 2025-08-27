@@ -340,12 +340,6 @@
             border-radius: 10px;
         }
         
-        .payment-form {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
         
         .form-group {
             margin-bottom: 1rem;
@@ -471,24 +465,14 @@
                 <div class="semester-card {% if status.active %}active{% else %}inactive{% endif %}">
                     <div class="semester-title">{{ student.niveau }} - {{ sem }}</div>
                     <div class="semester-status">
-                        {% if status.active %}
-                            <div class="status-badge status-active">
-                                Actif jusqu'au {{ status.expires_at.strftime('%d/%m/%Y') }}
-                            </div>
-                        {% else %}
-                            <div class="status-badge status-inactive">Non actif</div>
-                        {% endif %}
+                        <div class="status-badge status-active">
+                            ✅ Accès libre
+                        </div>
                     </div>
                     
-                    {% if status.active %}
-                        <button class="btn btn-success" onclick="showContent('{{ sem }}')">
-                            Voir les contenus
-                        </button>
-                    {% else %}
-                        <button class="btn btn-primary" onclick="startPayment('{{ sem }}')">
-                            Payer {{ price }} FCFA
-                        </button>
-                    {% endif %}
+                    <button class="btn btn-success" onclick="showContent('{{ sem }}')">
+                        📚 Voir les contenus
+                    </button>
                 </div>
                 {% endfor %}
             </div>
@@ -551,62 +535,15 @@
             </div>
             {% else %}
             <div style="text-align: center; color: #666; padding: 2rem;">
-                <p>📚 Aucun contenu accessible</p>
-                <p>Payez pour un semestre pour accéder aux contenus correspondants.</p>
+                <p>📚 Aucun contenu disponible</p>
+                <p>Les professeurs n'ont pas encore ajouté de contenu pour votre niveau.</p>
             </div>
             {% endif %}
         </div>
     </div>
     
-    <!-- Modal de paiement -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closePaymentModal()">&times;</span>
-            <h2>💳 Paiement par QR Wave</h2>
-            
-            <div class="qr-container">
-                <p><strong>Montant:</strong> <span id="payment-amount">{{ price }}</span> FCFA</p>
-                <p><strong>Semestre:</strong> <span id="payment-semester"></span></p>
-                <br>
-                <img src="/static/wave_qr.png" alt="QR Wave" class="qr-image" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; padding: 2rem; border: 2px dashed #ccc; border-radius: 10px;">
-                    <p>🔲 QR Code Wave</p>
-                    <p>Scannez avec votre application Wave</p>
-                </div>
-            </div>
-            
-            <div class="payment-form">
-                <h4>Mode test - Confirmation manuelle</h4>
-                <p>Si le webhook Wave n'est pas configuré, confirmez manuellement votre paiement:</p>
-                
-                <form action="/pay/confirm-manual" method="post">
-                    <input type="hidden" id="pay-semestre" name="semestre" value="">
-                    
-                    <div class="form-group">
-                        <label for="transaction-id">ID de transaction Wave</label>
-                        <input type="text" id="transaction-id" name="transaction_id" 
-                               placeholder="Entrez l'ID de votre transaction Wave" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        Confirmer le paiement
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
     
     <script>
-        function startPayment(semester) {
-            document.getElementById('payment-semester').textContent = semester;
-            document.getElementById('pay-semestre').value = semester;
-            document.getElementById('paymentModal').style.display = 'block';
-        }
-        
-        function closePaymentModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-        }
         
         function showContent(semester) {
             // Scroll to content section and highlight semester content
@@ -647,13 +584,6 @@
             });
         }
         
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('paymentModal');
-            if (event.target == modal) {
-                closePaymentModal();
-            }
-        }
     </script>
 </body>
 </html>

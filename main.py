@@ -15,14 +15,11 @@ from itsdangerous import URLSafeTimedSerializer
 import uvicorn
 
 # Initialize FastAPI app
-app = FastAPI(title="Étude LINE", description="Application éducative avec système de paiement")
+app = FastAPI(title="Étude LINE", description="Application éducative")
 templates = Jinja2Templates(directory="templates")
 
 # Configuration from environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this")
-PRICE_FCFA = int(os.getenv("PRICE_FCFA", "990"))
-WAVE_WEBHOOK_SECRET = os.getenv("WAVE_WEBHOOK_SECRET", "")
-WAVE_QR_IMAGE_PATH = os.getenv("WAVE_QR_IMAGE_PATH", "templates/wave_qr.png")
 
 # Security setup
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -65,21 +62,6 @@ class ContentItem(BaseModel):
     texte: str
     created_by: str  # username du prof
 
-class Payment(BaseModel):
-    id: str
-    username: str
-    semestre: str
-    amount: int
-    provider: str
-    status: str
-    paid_at: datetime
-    raw: Dict[str, Any]
-
-class Subscription(BaseModel):
-    username: str
-    semestre: str
-    paid_at: datetime
-    expires_at: datetime
 
 class Universite(BaseModel):
     id: str
@@ -127,8 +109,6 @@ def load_db() -> Dict[str, Any]:
         initial_db = {
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
-            "payments": [],
-            "subscriptions": [],
             "universites": [],
             "ufrs": [],
             "filieres": [],
@@ -150,8 +130,6 @@ def load_db() -> Dict[str, Any]:
         return {
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
-            "payments": [],
-            "subscriptions": [],
             "universites": [],
             "ufrs": [],
             "filieres": [],
@@ -285,17 +263,9 @@ def get_student_profile(username: str) -> Optional[Dict[str, str]]:
             }
     return None
 
-def is_subscription_active(username: str, semestre: str) -> bool:
-    """Check if subscription is active for user and semester"""
-    db = load_db()
-    now = now_utc()
-    
-    for sub in db["subscriptions"]:
-        if (sub["username"] == username and 
-            sub["semestre"] == semestre and 
-            datetime.fromisoformat(sub["expires_at"]) > now):
-            return True
-    return False
+def has_content_access(username: str, semestre: str) -> bool:
+    """All students have free access to content"""
+    return True  # Free access for all students
 
 def get_accessible_content(username: str) -> List[Dict[str, Any]]:
     """Get content accessible to student based on active subscriptions"""
@@ -326,9 +296,8 @@ def get_accessible_content(username: str) -> List[Dict[str, Any]]:
             )
         
         if content_matches:
-            # Check if student has active subscription for this semester
-            if is_subscription_active(username, content["semestre"]):
-                accessible_content.append(content)
+            # All students have free access to content
+            accessible_content.append(content)
     
     return accessible_content
 
@@ -695,24 +664,12 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     # Get all available semesters (S1-S2 only per level)
     all_semesters = ["S1", "S2"]
     
-    # Check subscription status for each semester
+    # All semesters are freely accessible
     semester_status = {}
     for sem in all_semesters:
-        is_active = is_subscription_active(etudiant_username, sem)
-        expires_at = None
-        
-        if is_active:
-            # Find expiration date
-            for sub in db["subscriptions"]:
-                if (sub["username"] == etudiant_username and 
-                    sub["semestre"] == sem and 
-                    datetime.fromisoformat(sub["expires_at"]) > now_utc()):
-                    expires_at = datetime.fromisoformat(sub["expires_at"])
-                    break
-        
         semester_status[sem] = {
-            "active": is_active,
-            "expires_at": expires_at
+            "active": True,
+            "expires_at": None
         }
     
     # Get accessible content
@@ -735,71 +692,12 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
         "accessible_content": accessible_content,
         "subjects": subjects,
         "chapters": chapters,
-        "price": PRICE_FCFA,
         "universites": universites,
         "ufrs": ufrs,
         "filieres": filieres,
         "matieres": matieres
     })
 
-@app.post("/pay/start")
-async def start_payment(
-    request: Request,
-    etudiant_username: str = Depends(require_etudiant),
-    semestre: str = Form(...)
-):
-    """Start payment process"""
-    # This would typically create a payment intention
-    # For now, we'll just return to dashboard with payment modal info
-    return RedirectResponse(url=f"/dashboard/etudiant?pay_semestre={semestre}", status_code=302)
-
-@app.post("/pay/confirm-manual")
-async def confirm_manual_payment(
-    request: Request,
-    etudiant_username: str = Depends(require_etudiant),
-    semestre: str = Form(...),
-    transaction_id: str = Form(...)
-):
-    """Confirm manual payment (test mode)"""
-    if not transaction_id.strip():
-        return RedirectResponse(url="/dashboard/etudiant?error=Transaction ID requis", status_code=302)
-    
-    db = load_db()
-    now = now_utc()
-    
-    # Create payment record
-    payment = {
-        "id": str(uuid.uuid4()),
-        "username": etudiant_username,
-        "semestre": semestre,
-        "amount": PRICE_FCFA,
-        "provider": "WAVE",
-        "status": "succeeded",
-        "paid_at": now,
-        "raw": {"transaction_id": transaction_id, "manual": True}
-    }
-    
-    db["payments"].append(payment)
-    
-    # Create or update subscription
-    expires_at = add_days(now, 30)
-    
-    # Remove existing subscription for this semester if any
-    db["subscriptions"] = [s for s in db["subscriptions"] 
-                          if not (s["username"] == etudiant_username and s["semestre"] == semestre)]
-    
-    # Add new subscription
-    subscription = {
-        "username": etudiant_username,
-        "semestre": semestre,
-        "paid_at": now,
-        "expires_at": expires_at
-    }
-    
-    db["subscriptions"].append(subscription)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/etudiant?success=Paiement confirmé, accès activé!", status_code=302)
 
 # Admin utility endpoints
 @app.get("/admin/migrate")
@@ -826,9 +724,8 @@ async def get_admin_stats(admin_username: str = Depends(require_admin)):
         content_type = content["type"]
         content_stats[content_type] = content_stats.get(content_type, 0) + 1
     
-    # Count active subscriptions
-    active_subs = sum(1 for sub in db["subscriptions"] 
-                     if datetime.fromisoformat(sub["expires_at"]) > now_utc())
+    # No subscription system - all content is free
+    active_subs = 0
     
     # Academic structure counts
     uni_count = len(db.get("universites", []))
@@ -849,36 +746,9 @@ async def get_admin_stats(admin_username: str = Depends(require_admin)):
             "filieres": filiere_count,
             "matieres": matiere_count
         },
-        "total_content": len(db["contents"]),
-        "total_payments": len(db["payments"])
+        "total_content": len(db["contents"])
     }
 
-@app.post("/webhook/wave")
-async def wave_webhook(request: Request):
-    """Wave webhook handler (for real payment integration)"""
-    # TODO: Implement real Wave webhook handling
-    # This is a placeholder for when Wave webhook is configured
-    
-    if not WAVE_WEBHOOK_SECRET:
-        return {"status": "error", "message": "Webhook secret not configured"}
-    
-    try:
-        # Get webhook signature from headers
-        signature = request.headers.get("WAVE_SIGNATURE", "")
-        
-        # Get request body
-        body = await request.body()
-        
-        # TODO: Verify signature with WAVE_WEBHOOK_SECRET
-        # TODO: Parse webhook payload according to Wave API documentation
-        # TODO: Handle payment.succeeded event
-        # TODO: Create Payment and Subscription records
-        
-        # For now, return success
-        return {"status": "ok"}
-        
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
 
 @app.get("/content")
 async def get_content(request: Request, etudiant_username: str = Depends(require_etudiant)):
@@ -1118,11 +988,10 @@ if __name__ == "__main__":
     print("🎓 Étude LINE - Application Éducative")
     print("=" * 50)
     print(f"🌐 Application démarrée sur: http://0.0.0.0:5000")
-    print(f"💰 Prix par semestre: {PRICE_FCFA} FCFA")
+    print("💰 Accès gratuit pour tous les étudiants")
     print(f"🔗 Webhook Wave URL: http://0.0.0.0:5000/webhook/wave")
     
-    if not WAVE_WEBHOOK_SECRET:
-        print("⚠️  WAVE_WEBHOOK_SECRET non configuré - mode manuel seulement")
+    print("🎓 Système de paiement supprimé - accès libre")
     
     print("=" * 50)
     
