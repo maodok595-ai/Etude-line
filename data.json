@@ -70,6 +70,12 @@
         "nom": "Ka",
         "prenom": "Maodo",
         "is_main_admin": true
+      },
+      {
+        "username": "mn",
+        "password_hash": "$2b$12$oYgQwE7z/PvBG.lVwOslx.mOzkv9qQOc/xLDTnbv7uOwYeaLDFKKq",
+        "nom": "lk;",
+        "prenom": ",../"
       }
     ]
   },
