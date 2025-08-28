@@ -90,6 +90,21 @@ def load_json_data():
         "chapitres_complets": []
     }
 
+def clean_uploads_directory():
+    """Nettoyer le dossier uploads pour une installation propre"""
+    import shutil
+    from pathlib import Path
+    
+    uploads_dir = Path("uploads")
+    if uploads_dir.exists():
+        print("🧹 Nettoyage du dossier uploads...")
+        shutil.rmtree(uploads_dir)
+    
+    # Recréer les dossiers de base
+    for folder in ["cours", "exercices", "solutions"]:
+        (uploads_dir / folder).mkdir(parents=True, exist_ok=True)
+    print("📁 Dossiers uploads recréés proprement")
+
 def migrate_data():
     """Migrer les données JSON vers PostgreSQL"""
     print("🔄 Début de la migration des données...")
@@ -98,6 +113,9 @@ def migrate_data():
     print("🗑️ Suppression de l'ancienne base de données...")
     reset_database()
     print("✨ Nouvelle base de données de production créée...")
+    
+    # Nettoyer le dossier uploads
+    clean_uploads_directory()
     
     # Charger les données JSON
     data = load_json_data()
