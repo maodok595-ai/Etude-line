@@ -299,6 +299,16 @@
         
         <form action="/login" method="post">
             <div class="form-group">
+                <label for="user_type">Type d'utilisateur</label>
+                <select id="user_type" name="user_type" required style="width: 100%; padding: 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
+                    <option value="">Sélectionner votre rôle</option>
+                    <option value="etudiant">👨‍🎓 Étudiant</option>
+                    <option value="prof">👨‍🏫 Professeur</option>
+                    <option value="admin">👑 Administrateur</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label for="username">Nom d'utilisateur</label>
                 <input type="text" id="username" name="username" required>
             </div>
