@@ -35,7 +35,11 @@ waitForPort = 5000
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
 [deployment]
 deploymentTarget = "cloudrun"
-build = ["sh", "-c", "pip install -r requirements.txt"]
-run = ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+build = ["sh", "-c", "pip install fastapi uvicorn"]
+run = ["sh", "-c", "python3 deploy.py"]
