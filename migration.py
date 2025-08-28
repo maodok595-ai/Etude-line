@@ -5,6 +5,74 @@ from sqlalchemy.orm import Session
 from database import engine, SessionLocal, create_tables
 from models import *
 import uuid
+from passlib.context import CryptContext
+
+# Configuration du hachage des mots de passe
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_default_data(db: Session, data: dict):
+    """Créer les données de base nécessaires"""
+    # Créer l'université par défaut si pas de données JSON
+    if not data.get("universites"):
+        print("📚 Création de l'université par défaut...")
+        universite_id = str(uuid.uuid4())
+        default_universite = Universite(
+            id=universite_id,
+            nom="Université Virtuelle",
+            code="UV"
+        )
+        db.merge(default_universite)
+        
+        # Créer UFR par défaut
+        ufr_id = str(uuid.uuid4())
+        default_ufr = UFR(
+            id=ufr_id,
+            nom="UFR Sciences",
+            code="SCI",
+            universite_id=universite_id
+        )
+        db.merge(default_ufr)
+        
+        # Créer filière par défaut
+        filiere_id = str(uuid.uuid4())
+        default_filiere = Filiere(
+            id=filiere_id,
+            nom="Informatique",
+            code="INFO",
+            ufr_id=ufr_id
+        )
+        db.merge(default_filiere)
+    
+    # Créer l'administrateur principal s'il n'existe pas
+    existing_admin = db.query(Administrateur).filter_by(username="kamaodo65").first()
+    if not existing_admin:
+        print("👑 Création de l'administrateur principal...")
+        admin_hash = pwd_context.hash("admin123")
+        admin = Administrateur(
+            username="kamaodo65",
+            password_hash=admin_hash,
+            nom="Ka",
+            prenom="Maodo",
+            is_main_admin=True
+        )
+        db.add(admin)
+        
+    # Créer le professeur par défaut s'il n'existe pas et qu'il n'y a pas de données JSON
+    if not data.get("users", {}).get("prof"):
+        existing_prof = db.query(Professeur).filter_by(username="Abdousalam00").first()
+        if not existing_prof:
+            print("👨‍🏫 Création du professeur par défaut...")
+            prof_hash = pwd_context.hash("prof123")
+            prof = Professeur(
+                username="Abdousalam00",
+                password_hash=prof_hash,
+                nom="Diallo",
+                prenom="Abdou Salam",
+                specialite="Informatique"
+            )
+            db.add(prof)
+    
+    db.commit()
 
 def load_json_data():
     """Charger les données JSON existantes"""
@@ -33,6 +101,8 @@ def migrate_data():
     
     db = SessionLocal()
     try:
+        # Créer les données de base si elles n'existent pas
+        create_default_data(db, data)
         # Migrer les universités
         print("📚 Migration des universités...")
         for uni_data in data.get("universites", []):
