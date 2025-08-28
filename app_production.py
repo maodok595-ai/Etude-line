@@ -44,8 +44,7 @@ def get_production_port() -> int:
         os.environ.get("PORT"),
         os.environ.get("REPLIT_PORT"),
         os.environ.get("SERVER_PORT"),
-        "8080",  # Port par défaut Cloud Run
-        "5000"   # Fallback final
+        "5000"   # Port fixe pour Replit
     ]
     
     for port in port_candidates:
