@@ -65,10 +65,11 @@
     ],
     "admin": [
       {
-        "username": "admin",
-        "password_hash": "$2b$12$Jz0kACBjxLg4XLNIQAxBpewG8FuXwvWxDmkFc1ZAKlDKYCUNBt22a",
-        "nom": "Administrateur",
-        "prenom": "Principal"
+        "username": "kamaodo65@gmail.com",
+        "password_hash": "$2b$12$4BKqP6Uir9DuGY1avjbXwueHBd4qy92d19Di.HuSww650hMFwJbmq",
+        "nom": "Ka",
+        "prenom": "Maodo",
+        "is_main_admin": true
       }
     ]
   },
