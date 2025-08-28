@@ -50,6 +50,57 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .login-container {
+                padding: 2rem;
+                margin: 10px;
+                max-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem !important;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input, .form-group select {
+                padding: 0.875rem !important;
+                font-size: 0.95rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem !important;
+                font-size: 0.95rem;
+            }
+            
+            .toggle-link {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                margin: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-group input, .form-group select {
+                padding: 0.75rem !important;
+                font-size: 0.9rem;
+            }
+        }
         
         .login-container::before {
             content: '';
