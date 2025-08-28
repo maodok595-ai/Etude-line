@@ -457,27 +457,6 @@
             </div>
         </div>
         
-        <!-- Semestres -->
-        <div class="section">
-            <h3>📅 Mes semestres ({{ student.niveau }})</h3>
-            <div class="semester-grid">
-                {% for sem, status in semester_status.items() %}
-                <div class="semester-card {% if status.active %}active{% else %}inactive{% endif %}">
-                    <div class="semester-title">{{ student.niveau }} - {{ sem }}</div>
-                    <div class="semester-status">
-                        <div class="status-badge status-active">
-                            ✅ Accès libre
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-success" onclick="showContent('{{ sem }}')">
-                        📚 Voir les contenus
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        
         <!-- Contenus accessibles -->
         <div class="section">
             <h3>📚 Contenus accessibles</h3>
