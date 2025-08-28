@@ -9,6 +9,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, validator
 from passlib.context import CryptContext
 from itsdangerous import URLSafeTimedSerializer
@@ -17,6 +18,9 @@ import uvicorn
 # Initialize FastAPI app
 app = FastAPI(title="Étude LINE", description="Application éducative")
 templates = Jinja2Templates(directory="templates")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configuration from environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this")
