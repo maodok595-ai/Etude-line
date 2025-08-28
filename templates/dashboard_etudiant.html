@@ -734,12 +734,15 @@
         // Charger le logo de l'université de l'étudiant au chargement de la page
         document.addEventListener('DOMContentLoaded', async function() {
             const universiteId = '{{ user.universite_id }}';
-            if (universiteId) {
+            console.log('ID université étudiant:', universiteId);
+            if (universiteId && universiteId !== 'None' && universiteId !== '') {
                 try {
                     const response = await fetch(`/api/universite/${universiteId}`);
                     const data = await response.json();
+                    console.log('Données université:', data);
                     
                     if (data.logo_url) {
+                        console.log('Application du logo en arrière-plan:', data.logo_url);
                         // Appliquer le logo comme fond avec overlay semi-transparent
                         document.body.style.background = `
                             linear-gradient(rgba(245, 246, 250, 0.85), rgba(245, 246, 250, 0.85)),
@@ -748,6 +751,16 @@
                         document.body.style.backgroundSize = 'cover';
                         document.body.style.backgroundPosition = 'center';
                         document.body.style.backgroundRepeat = 'no-repeat';
+                        
+                        // Précharger l'image
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('Logo universitaire chargé avec succès pour l\'étudiant');
+                        };
+                        img.onerror = function() {
+                            console.error('Erreur lors du chargement du logo universitaire');
+                        };
+                        img.src = data.logo_url;
                     }
                 } catch (error) {
                     console.error('Erreur lors du chargement du logo universitaire:', error);

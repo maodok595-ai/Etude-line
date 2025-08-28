@@ -92,8 +92,8 @@
   "universites": [
     {
       "id": "d37015b8-dd7f-4a47-9178-0a65108c965f",
-      "nom": "ucad",
-      "code": "1",
+      "nom": "Université Cheikh Anta Diop (UCAD)",
+      "code": "UCAD",
       "logo_url": "/static/ucad_logo.png"
     }
   ],

@@ -313,6 +313,7 @@
                     const uniData = await uniResponse.json();
                     
                     if (uniData.logo_url) {
+                        console.log('Chargement du logo universitaire:', uniData.logo_url);
                         // Créer un overlay semi-transparent pour garder la lisibilité
                         document.body.style.background = `
                             linear-gradient(rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)),
@@ -321,6 +322,16 @@
                         document.body.style.backgroundSize = 'cover';
                         document.body.style.backgroundPosition = 'center';
                         document.body.style.backgroundRepeat = 'no-repeat';
+                        
+                        // Précharger l'image pour s'assurer qu'elle est disponible
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('Logo chargé avec succès');
+                        };
+                        img.onerror = function() {
+                            console.error('Erreur lors du chargement du logo');
+                        };
+                        img.src = uniData.logo_url;
                     }
                 } catch (error) {
                     console.error('Erreur lors du chargement des UFR:', error);
