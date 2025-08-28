@@ -1000,43 +1000,70 @@ async def force_migration(admin_username: str = Depends(require_admin)):
         return {"message": "Aucune migration nécessaire", "migrated": False}
 
 @app.get("/admin/stats")
-async def get_admin_stats(admin_username: str = Depends(require_admin)):
+async def get_admin_stats(request: Request, db: Session = Depends(get_db)):
     """Get system statistics (admin only)"""
-    db = load_db()
+    # Verify admin authentication
+    role, username, user_data = require_auth(request, db)
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     
     # Count users
-    prof_count = len(db["users"]["prof"])
-    student_count = len(db["users"]["etudiant"])
+    prof_count = db.query(Professeur).count()
+    student_count = db.query(Etudiant).count()
+    admin_count = db.query(Administrateur).count()
     
-    # Count content by type
+    # Count content by type (from Content table)
     content_stats = {}
-    for content in db["contents"]:
-        content_type = content["type"]
+    contents = db.query(Content).all()
+    for content in contents:
+        content_type = content.type
         content_stats[content_type] = content_stats.get(content_type, 0) + 1
     
-    # No subscription system - all content is free
-    active_subs = 0
+    # Count chapitres complets by type (cours, exercice, solution)
+    chapitres = db.query(ChapitreComplet).all()
+    chapitre_stats = {
+        "cours": 0,
+        "exercice": 0, 
+        "solution": 0
+    }
+    
+    for chapitre in chapitres:
+        # Compter les cours
+        if chapitre.cours_texte or chapitre.cours_fichier_nom:
+            chapitre_stats["cours"] += 1
+        # Compter les exercices  
+        if chapitre.exercice_texte or chapitre.exercice_fichier_nom:
+            chapitre_stats["exercice"] += 1
+        # Compter les solutions
+        if chapitre.solution_texte or chapitre.solution_fichier_nom:
+            chapitre_stats["solution"] += 1
     
     # Academic structure counts
-    uni_count = len(db.get("universites", []))
-    ufr_count = len(db.get("ufrs", []))
-    filiere_count = len(db.get("filieres", []))
-    matiere_count = len(db.get("matieres", []))
+    uni_count = db.query(Universite).count()
+    ufr_count = db.query(UFR).count()
+    filiere_count = db.query(Filiere).count()
+    matiere_count = db.query(Matiere).count()
+    
+    # Total content includes both individual contents and chapter components
+    total_content = len(contents) + sum(chapitre_stats.values())
     
     return {
         "users": {
             "professeurs": prof_count,
-            "etudiants": student_count
+            "etudiants": student_count,
+            "administrateurs": admin_count
         },
         "contenu": content_stats,
-        "subscriptions_actives": active_subs,
+        "chapitres": chapitre_stats,
+        "subscriptions_actives": 0,  # No subscription system
         "structure_academique": {
             "universites": uni_count,
             "ufrs": ufr_count,
             "filieres": filiere_count,
             "matieres": matiere_count
         },
-        "total_content": len(db["contents"])
+        "total_content": total_content,
+        "total_chapitres": len(chapitres)
     }
 
 
@@ -1047,33 +1074,50 @@ async def get_content(request: Request, etudiant_username: str = Depends(require
     return {"content": content}
 
 @app.get("/dashboard/admin", response_class=HTMLResponse)
-async def dashboard_admin(request: Request, admin_username: str = Depends(require_admin)):
+async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
     """Admin dashboard"""
-    db = load_db()
+    admin_username, admin_user = admin_data
     
     # Get all administrators
-    admins = db["users"]["admin"]
+    admins = db.query(Administrateur).all()
+    admins_data = [{
+        "id": admin.id,
+        "username": admin.username,
+        "nom": admin.nom,
+        "prenom": admin.prenom,
+        "is_main_admin": admin.is_main_admin
+    } for admin in admins]
     
-    # Get all professors
-    profs = db["users"]["prof"]
+    # Get all professors  
+    profs = db.query(Professeur).all()
+    profs_data = [{
+        "id": prof.id,
+        "username": prof.username,
+        "nom": prof.nom,
+        "prenom": prof.prenom,
+        "specialite": prof.specialite,
+        "matiere": prof.matiere
+    } for prof in profs]
     
     # Get academic structure data
     universites = get_universites(db)
-    ufrs = db.get("ufrs", [])
-    filieres = db.get("filieres", [])
-    matieres = db.get("matieres", [])
+    ufrs_data = db.query(UFR).all()
+    filieres_data = db.query(Filiere).all()
+    matieres_data = db.query(Matiere).all()
     
-    admin = find_user(admin_username, "admin")
+    # Get statistics for display
+    stats_response = await get_admin_stats(request, db)
     
     return templates.TemplateResponse("dashboard_admin.html", {
         "request": request,
-        "admin": admin,
-        "admins": admins,
-        "profs": profs,
+        "admin": admin_user,
+        "admins": admins_data,
+        "profs": profs_data,
         "universites": universites,
-        "ufrs": ufrs,
-        "filieres": filieres,
-        "matieres": matieres
+        "ufrs": ufrs_data,
+        "filieres": filieres_data,
+        "matieres": matieres_data,
+        "stats": stats_response
     })
 
 @app.post("/admin/create-admin")
