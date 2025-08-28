@@ -1520,7 +1520,7 @@ async def admin_edit_universite(
     admin_username, admin_data = admin_info
     
     try:
-        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == id).first()
+        universite = db.query(UniversiteDB).filter(UniversiteDB.id == id).first()
         if universite:
             universite.nom = nom
             universite.code = code
@@ -1544,7 +1544,7 @@ async def admin_delete_universite(
     admin_username, admin_data = admin_info
     
     try:
-        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == id).first()
+        universite = db.query(UniversiteDB).filter(UniversiteDB.id == id).first()
         if universite:
             # Supprimer en cascade (PostgreSQL s'occupera des relations)
             db.delete(universite)
@@ -1571,7 +1571,7 @@ async def admin_edit_ufr(
     admin_username, admin_data = admin_info
     
     try:
-        ufr = db_session.query(UFRDB).filter(UFRDB.id == id).first()
+        ufr = db.query(UFRDB).filter(UFRDB.id == id).first()
         if ufr:
             ufr.nom = nom
             ufr.code = code
@@ -1595,7 +1595,7 @@ async def admin_delete_ufr(
     admin_username, admin_data = admin_info
     
     try:
-        ufr = db_session.query(UFRDB).filter(UFRDB.id == id).first()
+        ufr = db.query(UFRDB).filter(UFRDB.id == id).first()
         if ufr:
             # PostgreSQL s'occupera des suppressions en cascade
             db.delete(ufr)
@@ -1622,7 +1622,7 @@ async def admin_edit_filiere(
     admin_username, admin_data = admin_info
     
     try:
-        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == id).first()
+        filiere = db.query(FiliereDB).filter(FiliereDB.id == id).first()
         if filiere:
             filiere.nom = nom
             filiere.code = code
@@ -1646,7 +1646,7 @@ async def admin_delete_filiere(
     admin_username, admin_data = admin_info
     
     try:
-        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == id).first()
+        filiere = db.query(FiliereDB).filter(FiliereDB.id == id).first()
         if filiere:
             # PostgreSQL s'occupera des suppressions en cascade
             db.delete(filiere)
@@ -1673,7 +1673,7 @@ async def admin_edit_matiere(
     admin_username, admin_data = admin_info
     
     try:
-        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == id).first()
+        matiere = db.query(MatiereDB).filter(MatiereDB.id == id).first()
         if matiere:
             matiere.nom = nom
             matiere.code = code
@@ -1697,7 +1697,7 @@ async def admin_delete_matiere(
     admin_username, admin_data = admin_info
     
     try:
-        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == id).first()
+        matiere = db.query(MatiereDB).filter(MatiereDB.id == id).first()
         if matiere:
             # PostgreSQL s'occupera des suppressions en cascade
             db.delete(matiere)
