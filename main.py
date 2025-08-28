@@ -1413,262 +1413,337 @@ async def admin_create_matiere(
 @app.post("/admin/edit-admin")
 async def admin_edit_admin(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     username: str = Form(...),
     nom: str = Form(...),
     prenom: str = Form(...)
 ):
     """Edit administrator (only for principal admin)"""
-    if admin_username != "kamaodo65":
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
+    
+    # Vérifier que seul l'admin principal peut modifier des admins
+    if not admin_data.get("is_main_admin", False):
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des administrateurs", status_code=303)
     
-    db = load_db()
-    admins = db["users"]["admin"]
-    
-    for admin in admins:
-        if admin["username"] == username:
-            admin["nom"] = nom
-            admin["prenom"] = prenom
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=AdministrateurDB modifié avec succès", status_code=303)
+    try:
+        admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        if admin:
+            admin.nom = nom
+            admin.prenom = prenom
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-admin")
 async def admin_delete_admin(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     username: str = Form(...)
 ):
     """Delete administrator (only for principal admin)"""
-    if admin_username != "kamaodo65":
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
+    
+    # Vérifier que seul l'admin principal peut supprimer des admins
+    if not admin_data.get("is_main_admin", False):
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut supprimer des administrateurs", status_code=303)
     
-    if username == "kamaodo65":
+    # L'admin principal ne peut pas être supprimé
+    if username == "maodoka65":
         return RedirectResponse("/dashboard/admin?error=L'administrateur principal ne peut pas être supprimé", status_code=303)
     
-    db = load_db()
-    db["users"]["admin"] = [admin for admin in db["users"]["admin"] if admin["username"] != username]
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=AdministrateurDB supprimé avec succès", status_code=303)
+    try:
+        admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        if admin:
+            db_session.delete(admin)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Administrateur supprimé avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # Professor routes
 @app.post("/admin/edit-prof")
 async def admin_edit_prof(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     username: str = Form(...),
     nom: str = Form(...),
     prenom: str = Form(...),
     specialite: str = Form(...)
 ):
     """Edit professor"""
-    db = load_db()
-    profs = db["users"]["prof"]
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    for prof in profs:
-        if prof["username"] == username:
-            prof["nom"] = nom
-            prof["prenom"] = prenom
-            prof["specialite"] = specialite
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=ProfesseurDB modifié avec succès", status_code=303)
+    try:
+        prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        if prof:
+            prof.nom = nom
+            prof.prenom = prenom
+            prof.specialite = specialite
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-prof")
 async def admin_delete_prof(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     username: str = Form(...)
 ):
     """Delete professor and all their content"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Remove professor
-    db["users"]["prof"] = [prof for prof in db["users"]["prof"] if prof["username"] != username]
-    
-    # Remove all content created by this professor
-    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("created_by") != username]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=ProfesseurDB et son contenu supprimés avec succès", status_code=303)
+    try:
+        prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        if prof:
+            # Supprimer d'abord tout le contenu créé par ce professeur
+            chapitres = db_session.query(ChapitreComplet).filter(ChapitreComplet.created_by == username).all()
+            for chapitre in chapitres:
+                db_session.delete(chapitre)
+            
+            # Puis supprimer le professeur
+            db_session.delete(prof)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Professeur et son contenu supprimés avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # University routes
 @app.post("/admin/edit-universite")
 async def admin_edit_universite(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
     code: str = Form(...)
 ):
     """Edit university"""
-    db = load_db()
-    universites = db.get("universites", [])
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    for uni in universites:
-        if uni["id"] == id:
-            uni["nom"] = nom
-            uni["code"] = code
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Université modifiée avec succès", status_code=303)
+    try:
+        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == id).first()
+        if universite:
+            universite.nom = nom
+            universite.code = code
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Université modifiée avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-universite")
 async def admin_delete_universite(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...)
 ):
     """Delete university and all related data"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Get all UFR IDs for this university
-    ufr_ids = [ufr["id"] for ufr in db.get("ufrs", []) if ufr["universite_id"] == id]
-    
-    # Get all filiere IDs for these UFRs
-    filiere_ids = [filiere["id"] for filiere in db.get("filieres", []) if filiere["ufr_id"] in ufr_ids]
-    
-    # Get all matiere IDs for these filieres
-    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] in filiere_ids]
-    
-    # Remove all related data
-    db["universites"] = [uni for uni in db.get("universites", []) if uni["id"] != id]
-    db["ufrs"] = [ufr for ufr in db.get("ufrs", []) if ufr["universite_id"] != id]
-    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["ufr_id"] not in ufr_ids]
-    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] not in filiere_ids]
-    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Université et toutes ses données supprimées avec succès", status_code=303)
+    try:
+        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == id).first()
+        if universite:
+            # Supprimer en cascade (PostgreSQL s'occupera des relations)
+            db_session.delete(universite)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Université et toutes ses données supprimées avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # UFR routes
 @app.post("/admin/edit-ufr")
 async def admin_edit_ufr(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
     code: str = Form(...)
 ):
     """Edit UFR"""
-    db = load_db()
-    ufrs = db.get("ufrs", [])
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    for ufr in ufrs:
-        if ufr["id"] == id:
-            ufr["nom"] = nom
-            ufr["code"] = code
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=UFR modifiée avec succès", status_code=303)
+    try:
+        ufr = db_session.query(UFRDB).filter(UFRDB.id == id).first()
+        if ufr:
+            ufr.nom = nom
+            ufr.code = code
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=UFR modifiée avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-ufr")
 async def admin_delete_ufr(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...)
 ):
     """Delete UFR and all related data"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Get all filiere IDs for this UFR
-    filiere_ids = [filiere["id"] for filiere in db.get("filieres", []) if filiere["ufr_id"] == id]
-    
-    # Get all matiere IDs for these filieres
-    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] in filiere_ids]
-    
-    # Remove all related data
-    db["ufrs"] = [ufr for ufr in db.get("ufrs", []) if ufr["id"] != id]
-    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["ufr_id"] != id]
-    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] not in filiere_ids]
-    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=UFR et toutes ses données supprimées avec succès", status_code=303)
+    try:
+        ufr = db_session.query(UFRDB).filter(UFRDB.id == id).first()
+        if ufr:
+            # PostgreSQL s'occupera des suppressions en cascade
+            db_session.delete(ufr)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=UFR et toutes ses données supprimées avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # Filière routes
 @app.post("/admin/edit-filiere")
 async def admin_edit_filiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
     code: str = Form(...)
 ):
     """Edit filière"""
-    db = load_db()
-    filieres = db.get("filieres", [])
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    for filiere in filieres:
-        if filiere["id"] == id:
-            filiere["nom"] = nom
-            filiere["code"] = code
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Filière modifiée avec succès", status_code=303)
+    try:
+        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == id).first()
+        if filiere:
+            filiere.nom = nom
+            filiere.code = code
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Filière modifiée avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-filiere")
 async def admin_delete_filiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...)
 ):
     """Delete filière and all related data"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Get all matiere IDs for this filière
-    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] == id]
-    
-    # Remove all related data
-    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["id"] != id]
-    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] != id]
-    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Filière et toutes ses données supprimées avec succès", status_code=303)
+    try:
+        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == id).first()
+        if filiere:
+            # PostgreSQL s'occupera des suppressions en cascade
+            db_session.delete(filiere)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Filière et toutes ses données supprimées avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # Matière routes
 @app.post("/admin/edit-matiere")
 async def admin_edit_matiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
     code: str = Form(...)
 ):
     """Edit matière"""
-    db = load_db()
-    matieres = db.get("matieres", [])
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    for matiere in matieres:
-        if matiere["id"] == id:
-            matiere["nom"] = nom
-            matiere["code"] = code
-            break
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Matière modifiée avec succès", status_code=303)
+    try:
+        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == id).first()
+        if matiere:
+            matiere.nom = nom
+            matiere.code = code
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Matière modifiée avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/delete-matiere")
 async def admin_delete_matiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...)
 ):
     """Delete matière and all related content"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Remove matière and all related content
-    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["id"] != id]
-    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") != id]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
+    try:
+        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == id).first()
+        if matiere:
+            # PostgreSQL s'occupera des suppressions en cascade
+            db_session.delete(matiere)
+            db_session.commit()
+            return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
+        else:
+            return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 # Route pour upload de logo université
 @app.post("/admin/upload-logo")
