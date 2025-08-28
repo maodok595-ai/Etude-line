@@ -141,6 +141,27 @@
       "solution_fichier_nom": null,
       "solution_fichier_path": null,
       "created_by": "ka65"
+    },
+    {
+      "id": "14261f1a-9ce4-43ad-9eed-c48414643574",
+      "universite_id": "d37015b8-dd7f-4a47-9178-0a65108c965f",
+      "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de",
+      "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+      "matiere_id": "f28ee503-56ea-4b1f-9d9b-75abfd6af8c5",
+      "niveau": "L2",
+      "semestre": "S1",
+      "chapitre": "l;l",
+      "titre": "l;",
+      "cours_texte": "l'l",
+      "cours_fichier_nom": null,
+      "cours_fichier_path": null,
+      "exercice_texte": ",.l",
+      "exercice_fichier_nom": null,
+      "exercice_fichier_path": null,
+      "solution_texte": ",/,",
+      "solution_fichier_nom": null,
+      "solution_fichier_path": null,
+      "created_by": "ka65"
     }
   ]
 }
