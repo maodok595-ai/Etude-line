@@ -251,6 +251,48 @@
             font-weight: bold;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-edit:hover {
+            background: #218838;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn-small {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -389,6 +431,16 @@
                                         <span class="meta-tag" style="background: #f39c12; color: white;">Administrateur Principal</span>
                                     {% endif %}
                                 </div>
+                                {% if administrator.username != 'maodo_ka' and admin.username == 'maodo_ka' %}
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editAdmin('{{ administrator.username }}', '{{ administrator.nom }}', '{{ administrator.prenom }}')">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteAdmin('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}')">
+                                        🗑️ Supprimer
+                                    </button>
+                                </div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         {% else %}
@@ -502,6 +554,14 @@
                                     <span class="meta-tag">{{ prof.matiere }}</span>
                                 {% endif %}
                             </div>
+                            <div class="action-buttons">
+                                <button class="btn-edit btn-small" onclick="editProf('{{ prof.username }}', '{{ prof.nom }}', '{{ prof.prenom }}', '{{ prof.specialite }}')">
+                                    ✏️ Modifier
+                                </button>
+                                <button class="btn-delete btn-small" onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')">
+                                    🗑️ Supprimer
+                                </button>
+                            </div>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -541,6 +601,14 @@
                             <div class="academic-item">
                                 <h4>{{ uni.nom }}</h4>
                                 <div class="academic-code">Code: {{ uni.code }}</div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editUniversite('{{ uni.id }}', '{{ uni.nom }}', '{{ uni.code }}')">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteUniversite('{{ uni.id }}', '{{ uni.nom }}')">
+                                        🗑️ Supprimer
+                                    </button>
+                                </div>
                             </div>
                             {% endfor %}
                         {% else %}
@@ -594,6 +662,14 @@
                                             Université: {{ uni.nom }}
                                         {% endif %}
                                     {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editUfr('{{ ufr.id }}', '{{ ufr.nom }}', '{{ ufr.code }}')">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteUfr('{{ ufr.id }}', '{{ ufr.nom }}')">
+                                        🗑️ Supprimer
+                                    </button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -660,6 +736,14 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editFiliere('{{ filiere.id }}', '{{ filiere.nom }}', '{{ filiere.code }}')">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteFiliere('{{ filiere.id }}', '{{ filiere.nom }}')">
+                                        🗑️ Supprimer
+                                    </button>
+                                </div>
                             </div>
                             {% endfor %}
                         {% else %}
@@ -724,6 +808,14 @@
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editMatiere('{{ matiere.id }}', '{{ matiere.nom }}', '{{ matiere.code }}')">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteMatiere('{{ matiere.id }}', '{{ matiere.nom }}')">
+                                        🗑️ Supprimer
+                                    </button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -849,6 +941,184 @@
                 }
             }
         });
+        
+        // Functions pour les actions CRUD
+        
+        // Administrateurs
+        function editAdmin(username, nom, prenom) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newPrenom = prompt('Nouveau prénom:', prenom);
+            if (newNom && newPrenom) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-admin';
+                form.innerHTML = `
+                    <input type="hidden" name="username" value="${username}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="prenom" value="${newPrenom}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteAdmin(username, fullName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'administrateur "${fullName}" ?\\n\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-admin';
+                form.innerHTML = `<input type="hidden" name="username" value="${username}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Professeurs
+        function editProf(username, nom, prenom, specialite) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newPrenom = prompt('Nouveau prénom:', prenom);
+            const newSpecialite = prompt('Nouvelle spécialité:', specialite);
+            if (newNom && newPrenom && newSpecialite) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-prof';
+                form.innerHTML = `
+                    <input type="hidden" name="username" value="${username}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="prenom" value="${newPrenom}">
+                    <input type="hidden" name="specialite" value="${newSpecialite}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteProf(username, fullName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le professeur "${fullName}" ?\\n\\nTout le contenu publié par ce professeur sera aussi supprimé.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-prof';
+                form.innerHTML = `<input type="hidden" name="username" value="${username}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Universités
+        function editUniversite(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-universite';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteUniversite(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'université "${nom}" ?\\n\\nTous les UFR, filières, matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-universite';
+                form.innerHTML = `<input type="hidden" name="id" value="${id}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // UFR
+        function editUfr(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-ufr';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteUfr(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'UFR "${nom}" ?\\n\\nToutes les filières, matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-ufr';
+                form.innerHTML = `<input type="hidden" name="id" value="${id}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Filières
+        function editFiliere(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-filiere';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteFiliere(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la filière "${nom}" ?\\n\\nToutes les matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-filiere';
+                form.innerHTML = `<input type="hidden" name="id" value="${id}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Matières
+        function editMatiere(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-matiere';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteMatiere(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la matière "${nom}" ?\\n\\nTout le contenu associé sera supprimé.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-matiere';
+                form.innerHTML = `<input type="hidden" name="id" value="${id}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">

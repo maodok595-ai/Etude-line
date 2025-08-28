@@ -1275,6 +1275,269 @@ async def admin_create_matiere(
     
     return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
 
+# Routes pour modification et suppression
+
+# Admin routes
+@app.post("/admin/edit-admin")
+async def admin_edit_admin(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    username: str = Form(...),
+    nom: str = Form(...),
+    prenom: str = Form(...)
+):
+    """Edit administrator (only for principal admin)"""
+    if admin_username != "maodo_ka":
+        return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des administrateurs", status_code=303)
+    
+    db = load_db()
+    admins = db["users"]["admin"]
+    
+    for admin in admins:
+        if admin["username"] == username:
+            admin["nom"] = nom
+            admin["prenom"] = prenom
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
+
+@app.post("/admin/delete-admin")
+async def admin_delete_admin(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    username: str = Form(...)
+):
+    """Delete administrator (only for principal admin)"""
+    if admin_username != "maodo_ka":
+        return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut supprimer des administrateurs", status_code=303)
+    
+    if username == "maodo_ka":
+        return RedirectResponse("/dashboard/admin?error=L'administrateur principal ne peut pas être supprimé", status_code=303)
+    
+    db = load_db()
+    db["users"]["admin"] = [admin for admin in db["users"]["admin"] if admin["username"] != username]
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Administrateur supprimé avec succès", status_code=303)
+
+# Professor routes
+@app.post("/admin/edit-prof")
+async def admin_edit_prof(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    username: str = Form(...),
+    nom: str = Form(...),
+    prenom: str = Form(...),
+    specialite: str = Form(...)
+):
+    """Edit professor"""
+    db = load_db()
+    profs = db["users"]["prof"]
+    
+    for prof in profs:
+        if prof["username"] == username:
+            prof["nom"] = nom
+            prof["prenom"] = prenom
+            prof["specialite"] = specialite
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
+
+@app.post("/admin/delete-prof")
+async def admin_delete_prof(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    username: str = Form(...)
+):
+    """Delete professor and all their content"""
+    db = load_db()
+    
+    # Remove professor
+    db["users"]["prof"] = [prof for prof in db["users"]["prof"] if prof["username"] != username]
+    
+    # Remove all content created by this professor
+    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("created_by") != username]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Professeur et son contenu supprimés avec succès", status_code=303)
+
+# University routes
+@app.post("/admin/edit-universite")
+async def admin_edit_universite(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...),
+    nom: str = Form(...),
+    code: str = Form(...)
+):
+    """Edit university"""
+    db = load_db()
+    universites = db.get("universites", [])
+    
+    for uni in universites:
+        if uni["id"] == id:
+            uni["nom"] = nom
+            uni["code"] = code
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Université modifiée avec succès", status_code=303)
+
+@app.post("/admin/delete-universite")
+async def admin_delete_universite(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...)
+):
+    """Delete university and all related data"""
+    db = load_db()
+    
+    # Get all UFR IDs for this university
+    ufr_ids = [ufr["id"] for ufr in db.get("ufrs", []) if ufr["universite_id"] == id]
+    
+    # Get all filiere IDs for these UFRs
+    filiere_ids = [filiere["id"] for filiere in db.get("filieres", []) if filiere["ufr_id"] in ufr_ids]
+    
+    # Get all matiere IDs for these filieres
+    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] in filiere_ids]
+    
+    # Remove all related data
+    db["universites"] = [uni for uni in db.get("universites", []) if uni["id"] != id]
+    db["ufrs"] = [ufr for ufr in db.get("ufrs", []) if ufr["universite_id"] != id]
+    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["ufr_id"] not in ufr_ids]
+    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] not in filiere_ids]
+    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Université et toutes ses données supprimées avec succès", status_code=303)
+
+# UFR routes
+@app.post("/admin/edit-ufr")
+async def admin_edit_ufr(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...),
+    nom: str = Form(...),
+    code: str = Form(...)
+):
+    """Edit UFR"""
+    db = load_db()
+    ufrs = db.get("ufrs", [])
+    
+    for ufr in ufrs:
+        if ufr["id"] == id:
+            ufr["nom"] = nom
+            ufr["code"] = code
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=UFR modifiée avec succès", status_code=303)
+
+@app.post("/admin/delete-ufr")
+async def admin_delete_ufr(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...)
+):
+    """Delete UFR and all related data"""
+    db = load_db()
+    
+    # Get all filiere IDs for this UFR
+    filiere_ids = [filiere["id"] for filiere in db.get("filieres", []) if filiere["ufr_id"] == id]
+    
+    # Get all matiere IDs for these filieres
+    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] in filiere_ids]
+    
+    # Remove all related data
+    db["ufrs"] = [ufr for ufr in db.get("ufrs", []) if ufr["id"] != id]
+    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["ufr_id"] != id]
+    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] not in filiere_ids]
+    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=UFR et toutes ses données supprimées avec succès", status_code=303)
+
+# Filière routes
+@app.post("/admin/edit-filiere")
+async def admin_edit_filiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...),
+    nom: str = Form(...),
+    code: str = Form(...)
+):
+    """Edit filière"""
+    db = load_db()
+    filieres = db.get("filieres", [])
+    
+    for filiere in filieres:
+        if filiere["id"] == id:
+            filiere["nom"] = nom
+            filiere["code"] = code
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Filière modifiée avec succès", status_code=303)
+
+@app.post("/admin/delete-filiere")
+async def admin_delete_filiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...)
+):
+    """Delete filière and all related data"""
+    db = load_db()
+    
+    # Get all matiere IDs for this filière
+    matiere_ids = [matiere["id"] for matiere in db.get("matieres", []) if matiere["filiere_id"] == id]
+    
+    # Remove all related data
+    db["filieres"] = [filiere for filiere in db.get("filieres", []) if filiere["id"] != id]
+    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["filiere_id"] != id]
+    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") not in matiere_ids]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Filière et toutes ses données supprimées avec succès", status_code=303)
+
+# Matière routes
+@app.post("/admin/edit-matiere")
+async def admin_edit_matiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...),
+    nom: str = Form(...),
+    code: str = Form(...)
+):
+    """Edit matière"""
+    db = load_db()
+    matieres = db.get("matieres", [])
+    
+    for matiere in matieres:
+        if matiere["id"] == id:
+            matiere["nom"] = nom
+            matiere["code"] = code
+            break
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Matière modifiée avec succès", status_code=303)
+
+@app.post("/admin/delete-matiere")
+async def admin_delete_matiere(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    id: str = Form(...)
+):
+    """Delete matière and all related content"""
+    db = load_db()
+    
+    # Remove matière and all related content
+    db["matieres"] = [matiere for matiere in db.get("matieres", []) if matiere["id"] != id]
+    db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("matiere_id") != id]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
+
 # API endpoints for hierarchical data
 @app.get("/api/ufrs/{universite_id}")
 async def get_ufrs_api(universite_id: str):
