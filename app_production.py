@@ -68,12 +68,13 @@ async def initialize_database():
         logger.info("🔄 Initialisation de la base de données...")
         
         # Import conditionnel pour éviter les erreurs au démarrage
-        from database import get_db, create_tables
+        from database import get_db, reset_database
         from migration import migrate_data
         
-        # Création des tables
-        create_tables()
-        logger.info("✅ Tables créées avec succès")
+        # Suppression et recréation des tables (cohérent avec migration.py)
+        logger.info("🗑️ Suppression de l'ancienne base de données...")
+        reset_database()
+        logger.info("✅ Nouvelle base de données de production créée...")
         database_connected = True
         
         # Migration des données
