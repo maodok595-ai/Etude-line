@@ -123,7 +123,7 @@ def migrate_data():
     db = SessionLocal()
     try:
         # Créer les données de base si elles n'existent pas
-        create_default_data(db, data)
+        # create_default_data(db, data)  # DÉSACTIVÉ - Pas de données par défaut
         # Migrer les universités
         print("📚 Migration des universités...")
         for uni_data in data.get("universites", []):
