@@ -1798,12 +1798,13 @@ async def prof_edit_chapitre(
 @app.post("/prof/delete-chapitre")
 async def prof_delete_chapitre(
     request: Request,
-    prof_username: str = Depends(require_prof),
+    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
     chapitre_id: str = Form(...),
     db: Session = Depends(get_db)
 ):
     """Professor deletes their chapter"""
     try:
+        prof_username, prof_data = prof_data
         # Find the chapter and verify ownership
         chapitre = db.query(ChapitreCompletDB).filter_by(
             id=chapitre_id,
