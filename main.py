@@ -663,10 +663,11 @@ async def create_content(
     titre: str = Form(...),
     texte: str = Form(""),
     fichier: Optional[UploadFile] = File(None),
-    prof_username: str = Depends(require_prof),
+    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
     db: Session = Depends(get_db)
 ):
     """Create new content"""
+    prof_username, prof_user_data = prof_data
     
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
@@ -732,7 +733,7 @@ async def create_content(
 @app.post("/prof/chapitre-complet")
 async def create_chapitre_complet(
     request: Request,
-    prof_username: str = Depends(require_prof),
+    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
     universite_id: str = Form(...),
     ufr_id: str = Form(...),
     filiere_id: str = Form(...),
@@ -753,6 +754,8 @@ async def create_chapitre_complet(
     db: Session = Depends(get_db)
 ):
     """Create a complete chapter with cours, exercice and solution"""
+    prof_username, prof_user_data = prof_data
+    
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
         return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
@@ -816,6 +819,8 @@ async def create_chapitre_complet(
         
         # Create complete chapter in PostgreSQL
         nouveau_chapitre = ChapitreCompletDB(
+            universite_id=universite_id,
+            ufr_id=ufr_id,
             filiere_id=filiere_id,
             matiere_id=matiere_id,
             niveau=niveau,
