@@ -11,9 +11,10 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_default_data(db: Session, data: dict):
-    """Créer les données de base nécessaires"""
-    # Créer l'université par défaut si pas de données JSON
-    if not data.get("universites"):
+    """Créer les données de base nécessaires - éviter les doublons"""
+    # Créer l'université par défaut seulement si aucune université n'existe
+    existing_unis = db.query(Universite).count()
+    if existing_unis == 0 and not data.get("universites"):
         print("📚 Création de l'université par défaut...")
         universite_id = str(uuid.uuid4())
         default_universite = Universite(
