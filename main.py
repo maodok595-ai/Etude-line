@@ -1383,10 +1383,11 @@ async def admin_edit_admin(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     username: str = Form(...),
     nom: str = Form(...),
-    prenom: str = Form(...)
+    prenom: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit administrator (only for principal admin)"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     # Vérifier que seul l'admin principal peut modifier des admins
@@ -1398,7 +1399,7 @@ async def admin_edit_admin(
         if admin:
             admin.nom = nom
             admin.prenom = prenom
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
@@ -1414,7 +1415,7 @@ async def admin_delete_admin(
     username: str = Form(...)
 ):
     """Delete administrator (only for principal admin)"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     # Vérifier que seul l'admin principal peut supprimer des admins
@@ -1428,8 +1429,8 @@ async def admin_delete_admin(
     try:
         admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
         if admin:
-            db_session.delete(admin)
-            db_session.commit()
+            db.delete(admin)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Administrateur supprimé avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
@@ -1449,7 +1450,7 @@ async def admin_edit_prof(
     specialite: str = Form(...)
 ):
     """Edit professor"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1458,7 +1459,7 @@ async def admin_edit_prof(
             prof.nom = nom
             prof.prenom = prenom
             prof.specialite = specialite
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
@@ -1474,7 +1475,7 @@ async def admin_delete_prof(
     username: str = Form(...)
 ):
     """Delete professor and all their content"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1483,11 +1484,11 @@ async def admin_delete_prof(
             # Supprimer d'abord tout le contenu créé par ce professeur
             chapitres = db_session.query(ChapitreComplet).filter(ChapitreComplet.created_by == username).all()
             for chapitre in chapitres:
-                db_session.delete(chapitre)
+                db.delete(chapitre)
             
             # Puis supprimer le professeur
-            db_session.delete(prof)
-            db_session.commit()
+            db.delete(prof)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Professeur et son contenu supprimés avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
@@ -1506,7 +1507,7 @@ async def admin_edit_universite(
     code: str = Form(...)
 ):
     """Edit university"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1514,7 +1515,7 @@ async def admin_edit_universite(
         if universite:
             universite.nom = nom
             universite.code = code
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Université modifiée avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
@@ -1530,15 +1531,15 @@ async def admin_delete_universite(
     id: str = Form(...)
 ):
     """Delete university and all related data"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
         universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == id).first()
         if universite:
             # Supprimer en cascade (PostgreSQL s'occupera des relations)
-            db_session.delete(universite)
-            db_session.commit()
+            db.delete(universite)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Université et toutes ses données supprimées avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
@@ -1557,7 +1558,7 @@ async def admin_edit_ufr(
     code: str = Form(...)
 ):
     """Edit UFR"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1565,7 +1566,7 @@ async def admin_edit_ufr(
         if ufr:
             ufr.nom = nom
             ufr.code = code
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=UFR modifiée avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
@@ -1581,15 +1582,15 @@ async def admin_delete_ufr(
     id: str = Form(...)
 ):
     """Delete UFR and all related data"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
         ufr = db_session.query(UFRDB).filter(UFRDB.id == id).first()
         if ufr:
             # PostgreSQL s'occupera des suppressions en cascade
-            db_session.delete(ufr)
-            db_session.commit()
+            db.delete(ufr)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=UFR et toutes ses données supprimées avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
@@ -1608,7 +1609,7 @@ async def admin_edit_filiere(
     code: str = Form(...)
 ):
     """Edit filière"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1616,7 +1617,7 @@ async def admin_edit_filiere(
         if filiere:
             filiere.nom = nom
             filiere.code = code
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Filière modifiée avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
@@ -1632,15 +1633,15 @@ async def admin_delete_filiere(
     id: str = Form(...)
 ):
     """Delete filière and all related data"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
         filiere = db_session.query(FiliereDB).filter(FiliereDB.id == id).first()
         if filiere:
             # PostgreSQL s'occupera des suppressions en cascade
-            db_session.delete(filiere)
-            db_session.commit()
+            db.delete(filiere)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Filière et toutes ses données supprimées avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
@@ -1659,7 +1660,7 @@ async def admin_edit_matiere(
     code: str = Form(...)
 ):
     """Edit matière"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
@@ -1667,7 +1668,7 @@ async def admin_edit_matiere(
         if matiere:
             matiere.nom = nom
             matiere.code = code
-            db_session.commit()
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Matière modifiée avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
@@ -1683,15 +1684,15 @@ async def admin_delete_matiere(
     id: str = Form(...)
 ):
     """Delete matière and all related content"""
-    db_session = next(get_db())
+
     admin_username, admin_data = admin_info
     
     try:
         matiere = db_session.query(MatiereDB).filter(MatiereDB.id == id).first()
         if matiere:
             # PostgreSQL s'occupera des suppressions en cascade
-            db_session.delete(matiere)
-            db_session.commit()
+            db.delete(matiere)
+            db.commit()
             return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
         else:
             return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
