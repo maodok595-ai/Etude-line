@@ -1538,6 +1538,63 @@ async def admin_delete_matiere(
     save_db(db)
     return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
 
+# Routes pour les professeurs - modification et suppression de chapitres
+@app.post("/prof/edit-chapitre")
+async def prof_edit_chapitre(
+    request: Request,
+    prof_username: str = Depends(require_prof),
+    chapitre_id: str = Form(...),
+    nouveau_titre: str = Form(...)
+):
+    """Professor edits their chapter title"""
+    db = load_db()
+    
+    if "chapitres_complets" not in db:
+        return RedirectResponse("/dashboard/prof?error=Aucun chapitre trouvé", status_code=303)
+    
+    # Find the chapter and verify ownership
+    chapitre_found = False
+    for chapitre in db["chapitres_complets"]:
+        if chapitre["id"] == chapitre_id and chapitre["created_by"] == prof_username:
+            chapitre["titre"] = nouveau_titre
+            chapitre_found = True
+            break
+    
+    if not chapitre_found:
+        return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/prof?success=Chapitre modifié avec succès", status_code=303)
+
+@app.post("/prof/delete-chapitre")
+async def prof_delete_chapitre(
+    request: Request,
+    prof_username: str = Depends(require_prof),
+    chapitre_id: str = Form(...)
+):
+    """Professor deletes their chapter"""
+    db = load_db()
+    
+    if "chapitres_complets" not in db:
+        return RedirectResponse("/dashboard/prof?error=Aucun chapitre trouvé", status_code=303)
+    
+    # Find the chapter and verify ownership before deletion
+    chapitre_to_delete = None
+    for chapitre in db["chapitres_complets"]:
+        if chapitre["id"] == chapitre_id and chapitre["created_by"] == prof_username:
+            chapitre_to_delete = chapitre
+            break
+    
+    if not chapitre_to_delete:
+        return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
+    
+    # Remove the chapter
+    db["chapitres_complets"] = [c for c in db["chapitres_complets"] 
+                               if not (c["id"] == chapitre_id and c["created_by"] == prof_username)]
+    
+    save_db(db)
+    return RedirectResponse("/dashboard/prof?success=Chapitre supprimé avec succès", status_code=303)
+
 # API endpoints for hierarchical data
 @app.get("/api/ufrs/{universite_id}")
 async def get_ufrs_api(universite_id: str):

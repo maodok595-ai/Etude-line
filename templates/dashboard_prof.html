@@ -451,7 +451,17 @@
                                 
                                 <span class="meta-tag">📑 {{ chapitre.chapitre }}</span>
                             </div>
-                            <div class="content-title" style="font-size: 1.2rem; font-weight: bold; color: #2e7d32;">{{ chapitre.titre }}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div class="content-title" style="font-size: 1.2rem; font-weight: bold; color: #2e7d32;">{{ chapitre.titre }}</div>
+                                <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-edit btn-small" onclick="editChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" style="background: #ff9800; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                        ✏️ Modifier
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" style="background: #f44336; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                        🗑️ Supprimer
+                                    </button>
+                                </div>
+                            </div>
                             
                             <!-- Affichage des 3 sections -->
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
@@ -610,6 +620,33 @@
                 }
             }
         });
+        
+        // Fonctions pour gestion des chapitres
+        function editChapitre(chapitreId, currentTitle) {
+            const newTitle = prompt('Nouveau titre du chapitre:', currentTitle);
+            if (newTitle && newTitle !== currentTitle) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/prof/edit-chapitre';
+                form.innerHTML = `
+                    <input type="hidden" name="chapitre_id" value="${chapitreId}">
+                    <input type="hidden" name="nouveau_titre" value="${newTitle}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function deleteChapitre(chapitreId, title) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le chapitre "${title}" ?\\n\\nTous les fichiers associés (cours, exercices, solutions) seront définitivement supprimés.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/prof/delete-chapitre';
+                form.innerHTML = `<input type="hidden" name="chapitre_id" value="${chapitreId}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
