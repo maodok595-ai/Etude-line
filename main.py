@@ -857,6 +857,10 @@ async def serve_uploaded_file(file_path: str):
     """Serve uploaded files with proper content type for browser viewing"""
     import mimetypes
     
+    # Remove uploads/ prefix if it exists to avoid double prefix
+    if file_path.startswith("uploads/"):
+        file_path = file_path[8:]  # Remove "uploads/" prefix
+    
     file_location = Path("uploads") / file_path
     
     if not file_location.exists():
