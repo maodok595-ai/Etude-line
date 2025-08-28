@@ -276,17 +276,17 @@
         <div class="main-content">
             <!-- Formulaire d'ajout de contenu -->
             <div class="card">
-                <h3>📝 Ajouter du contenu</h3>
-                <form action="/prof/content" method="post" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="type">Type de contenu</label>
-                        <select id="type" name="type" required>
-                            <option value="">Sélectionner un type</option>
-                            <option value="cours">📚 Cours</option>
-                            <option value="exercice">✏️ Exercice</option>
-                            <option value="solution">✅ Solution</option>
-                        </select>
-                    </div>
+                <h3>📝 Créer un chapitre complet</h3>
+                <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
+                    <strong>📋 Chapitre complet requis :</strong><br>
+                    Vous devez fournir les <strong>3 éléments obligatoires</strong> pour chaque chapitre :
+                    <ul style="margin: 0.5rem 0 0 1.5rem;">
+                        <li>📚 <strong>Cours</strong> (fichier ou texte)</li>
+                        <li>✏️ <strong>Exercices</strong> (fichier ou texte)</li>
+                        <li>✅ <strong>Solutions</strong> (fichier ou texte)</li>
+                    </ul>
+                </div>
+                <form action="/prof/chapitre-complet" method="post" enctype="multipart/form-data">
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -351,92 +351,161 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="titre">Titre</label>
-                        <input type="text" id="titre" name="titre" required>
+                        <label for="titre">Titre du chapitre</label>
+                        <input type="text" id="titre" name="titre" required placeholder="Ex: Les fonctions mathématiques">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="texte">Contenu textuel (optionnel)</label>
-                        <textarea id="texte" name="texte" placeholder="Saisissez le contenu du cours, exercice ou solution..."></textarea>
+                    <!-- Section COURS -->
+                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #2e7d32; margin-bottom: 1rem;">📚 COURS (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="cours_texte">Contenu textuel du cours</label>
+                            <textarea id="cours_texte" name="cours_texte" placeholder="Saisissez le contenu du cours..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cours_fichier">Fichier cours (PDF, Word, PowerPoint...)</label>
+                            <input type="file" id="cours_fichier" name="cours_fichier" 
+                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.odt,.odp">
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="fichier">Fichier (PDF, Word, Excel, PowerPoint...)</label>
-                        <input type="file" id="fichier" name="fichier" 
-                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt,.ods,.odp">
-                        <small style="color: #666; display: block; margin-top: 0.5rem;">
-                            📎 Formats acceptés: PDF, Word, Excel, PowerPoint, Texte, LibreOffice
+                    <!-- Section EXERCICES -->
+                    <div style="background: #fff8e1; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #f57c00; margin-bottom: 1rem;">✏️ EXERCICES (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="exercice_texte">Contenu textuel des exercices</label>
+                            <textarea id="exercice_texte" name="exercice_texte" placeholder="Saisissez les exercices..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exercice_fichier">Fichier exercices (PDF, Word, Excel...)</label>
+                            <input type="file" id="exercice_fichier" name="exercice_fichier" 
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods">
+                        </div>
+                    </div>
+                    
+                    <!-- Section SOLUTIONS -->
+                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #1976d2; margin-bottom: 1rem;">✅ SOLUTIONS (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="solution_texte">Contenu textuel des solutions</label>
+                            <textarea id="solution_texte" name="solution_texte" placeholder="Saisissez les solutions..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="solution_fichier">Fichier solutions (PDF, Word, Excel...)</label>
+                            <input type="file" id="solution_fichier" name="solution_fichier" 
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods">
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px dashed #6c757d;">
+                        <small style="color: #495057;">
+                            <strong>📌 Note importante :</strong> Pour chaque section (Cours, Exercices, Solutions), vous devez fournir <strong>au moins</strong> soit du contenu textuel, soit un fichier.
                         </small>
                     </div>
                     
-                    <button type="submit" class="btn">📝 Publier le contenu</button>
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #2e7d32, #388e3c); font-size: 1.2rem; padding: 1rem 2rem;">
+                        🎯 Créer le chapitre complet
+                    </button>
                 </form>
             </div>
             
-            <!-- Liste des contenus -->
+            <!-- Liste des chapitres complets -->
             <div class="card">
-                <h3>📚 Mes contenus ({{ contents|length }})</h3>
+                <h3>📚 Mes chapitres complets ({{ chapitres|length }})</h3>
                 <div class="content-list">
-                    {% if contents %}
-                        {% for content in contents %}
-                        <div class="content-item">
-                            <div class="type-badge type-{{ content.type }}">{{ content.type.upper() }}</div>
-                            <div class="content-meta">
-                                {% if content.universite_id %}
-                                    <!-- Nouveau format avec IDs -->
-                                    {% for uni in universites %}
-                                        {% if uni.id == content.universite_id %}
-                                            <span class="meta-tag">🏛️ {{ uni.nom }}</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <!-- Ancien format -->
-                                    <span class="meta-tag">🏛️ {{ content.universite }}</span>
-                                {% endif %}
-                                
-                                {% if content.filiere_id %}
-                                    {% for filiere in filieres %}
-                                        {% if filiere.id == content.filiere_id %}
-                                            <span class="meta-tag">📚 {{ filiere.nom }}</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="meta-tag">📚 {{ content.filiere }}</span>
-                                {% endif %}
-                                
-                                <span class="meta-tag">🎓 {{ content.niveau }}</span>
-                                <span class="meta-tag">📅 {{ content.semestre }}</span>
-                                
-                                {% if content.matiere_id %}
-                                    {% for matiere in matieres %}
-                                        {% if matiere.id == content.matiere_id %}
-                                            <span class="meta-tag">📖 {{ matiere.nom }}</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="meta-tag">📖 {{ content.matiere }}</span>
-                                {% endif %}
-                                
-                                <span class="meta-tag">📑 {{ content.chapitre }}</span>
+                    {% if chapitres %}
+                        {% for chapitre in chapitres %}
+                        <div class="content-item" style="border-left: 4px solid #2e7d32;">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <div class="type-badge" style="background: #e8f5e8; color: #2e7d32;">📚 COURS</div>
+                                <div class="type-badge" style="background: #fff8e1; color: #f57c00;">✏️ EXERCICES</div>
+                                <div class="type-badge" style="background: #e3f2fd; color: #1976d2;">✅ SOLUTIONS</div>
                             </div>
-                            <div class="content-title">{{ content.titre }}</div>
-                            {% if content.fichier_nom %}
-                                <div class="file-info" style="background: #e3f2fd; padding: 0.5rem; border-radius: 5px; margin: 0.5rem 0;">
-                                    <strong>📎 Fichier:</strong> 
-                                    <a href="/uploads/{{ content.fichier_path }}" target="_blank" style="color: #1976d2;">
-                                        {{ content.fichier_nom }}
-                                    </a>
+                            <div class="content-meta">
+                                {% for uni in universites %}
+                                    {% if uni.id == chapitre.universite_id %}
+                                        <span class="meta-tag">🏛️ {{ uni.nom }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% for filiere in filieres %}
+                                    {% if filiere.id == chapitre.filiere_id %}
+                                        <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <span class="meta-tag">🎓 {{ chapitre.niveau }}</span>
+                                <span class="meta-tag">📅 {{ chapitre.semestre }}</span>
+                                
+                                {% for matiere in matieres %}
+                                    {% if matiere.id == chapitre.matiere_id %}
+                                        <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <span class="meta-tag">📑 {{ chapitre.chapitre }}</span>
+                            </div>
+                            <div class="content-title" style="font-size: 1.2rem; font-weight: bold; color: #2e7d32;">{{ chapitre.titre }}</div>
+                            
+                            <!-- Affichage des 3 sections -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <!-- Cours -->
+                                <div style="background: #f1f8e9; padding: 1rem; border-radius: 8px; border: 1px solid #c8e6c9;">
+                                    <h5 style="color: #2e7d32; margin-bottom: 0.5rem;">📚 Cours</h5>
+                                    {% if chapitre.cours_fichier_nom %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <a href="/uploads/{{ chapitre.cours_fichier_path }}" target="_blank" style="color: #2e7d32;">
+                                                📎 {{ chapitre.cours_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.cours_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.cours_texte[:50] }}{% if chapitre.cours_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                            {% if content.texte %}
-                                <div class="content-text">{{ content.texte[:100] }}{% if content.texte|length > 100 %}...{% endif %}</div>
-                            {% endif %}
+                                
+                                <!-- Exercices -->
+                                <div style="background: #fffde7; padding: 1rem; border-radius: 8px; border: 1px solid #fff176;">
+                                    <h5 style="color: #f57c00; margin-bottom: 0.5rem;">✏️ Exercices</h5>
+                                    {% if chapitre.exercice_fichier_nom %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <a href="/uploads/{{ chapitre.exercice_fichier_path }}" target="_blank" style="color: #f57c00;">
+                                                📎 {{ chapitre.exercice_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.exercice_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.exercice_texte[:50] }}{% if chapitre.exercice_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Solutions -->
+                                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; border: 1px solid #90caf9;">
+                                    <h5 style="color: #1976d2; margin-bottom: 0.5rem;">✅ Solutions</h5>
+                                    {% if chapitre.solution_fichier_nom %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <a href="/uploads/{{ chapitre.solution_fichier_path }}" target="_blank" style="color: #1976d2;">
+                                                📎 {{ chapitre.solution_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.solution_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.solution_texte[:50] }}{% if chapitre.solution_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                         {% endfor %}
                     {% else %}
                         <div style="text-align: center; color: #666; padding: 2rem;">
-                            <p>📝 Aucun contenu publié</p>
-                            <p>Utilisez le formulaire pour ajouter votre premier contenu.</p>
+                            <p>📝 Aucun chapitre complet publié</p>
+                            <p>Utilisez le formulaire pour créer votre premier chapitre complet.</p>
                         </div>
                     {% endif %}
                 </div>

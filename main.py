@@ -64,6 +64,30 @@ class ContentItem(BaseModel):
     fichier_path: Optional[str] = None  # chemin du fichier
     created_by: str  # username du prof
 
+class ChapitreComplet(BaseModel):
+    id: str
+    universite_id: str
+    ufr_id: str
+    filiere_id: str
+    matiere_id: str
+    niveau: str
+    semestre: str
+    chapitre: str
+    titre: str
+    # Cours
+    cours_texte: Optional[str] = None
+    cours_fichier_nom: Optional[str] = None
+    cours_fichier_path: Optional[str] = None
+    # Exercices
+    exercice_texte: Optional[str] = None
+    exercice_fichier_nom: Optional[str] = None
+    exercice_fichier_path: Optional[str] = None
+    # Solutions
+    solution_texte: Optional[str] = None
+    solution_fichier_nom: Optional[str] = None
+    solution_fichier_path: Optional[str] = None
+    created_by: str
+
 
 class Universite(BaseModel):
     id: str
@@ -111,6 +135,7 @@ def load_db() -> Dict[str, Any]:
         initial_db = {
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
+            "chapitres_complets": [],
             "universites": [],
             "ufrs": [],
             "filieres": [],
@@ -132,6 +157,7 @@ def load_db() -> Dict[str, Any]:
         return {
             "users": {"prof": [], "etudiant": [], "admin": []},
             "contents": [],
+            "chapitres_complets": [],
             "universites": [],
             "ufrs": [],
             "filieres": [],
@@ -589,6 +615,11 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
     # Get professor's contents
     prof_contents = [c for c in db["contents"] if c["created_by"] == prof_username]
     
+    # Get professor's complete chapters
+    prof_chapitres = []
+    if "chapitres_complets" in db:
+        prof_chapitres = [c for c in db["chapitres_complets"] if c["created_by"] == prof_username]
+    
     # Get academic structure data
     universites = get_universites(db)
     ufrs = db.get("ufrs", [])
@@ -601,6 +632,7 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
         "request": request,
         "prof": prof,
         "contents": prof_contents,
+        "chapitres": prof_chapitres,
         "universites": universites,
         "ufrs": ufrs,
         "filieres": filieres,
@@ -685,6 +717,128 @@ async def create_content(
     save_db(db)
     
     return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=302)
+
+@app.post("/prof/chapitre-complet")
+async def create_chapitre_complet(
+    request: Request,
+    prof_username: str = Depends(require_prof),
+    universite_id: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
+    matiere_id: str = Form(...),
+    niveau: str = Form(...),
+    semestre: str = Form(...),
+    chapitre: str = Form(...),
+    titre: str = Form(...),
+    # Cours
+    cours_texte: str = Form(""),
+    cours_fichier: Optional[UploadFile] = File(None),
+    # Exercices
+    exercice_texte: str = Form(""),
+    exercice_fichier: Optional[UploadFile] = File(None),
+    # Solutions
+    solution_texte: str = Form(""),
+    solution_fichier: Optional[UploadFile] = File(None)
+):
+    """Create a complete chapter with cours, exercice and solution"""
+    db = load_db()
+    
+    # Validate semester (only S1 and S2 allowed)
+    if semestre not in ["S1", "S2"]:
+        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
+    
+    # Validate academic level
+    if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
+        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=302)
+    
+    # Validate that each section has at least text or file
+    errors = []
+    if not cours_texte.strip() and (not cours_fichier or not cours_fichier.filename):
+        errors.append("Cours: vous devez fournir soit du texte soit un fichier")
+    
+    if not exercice_texte.strip() and (not exercice_fichier or not exercice_fichier.filename):
+        errors.append("Exercices: vous devez fournir soit du texte soit un fichier")
+        
+    if not solution_texte.strip() and (not solution_fichier or not solution_fichier.filename):
+        errors.append("Solutions: vous devez fournir soit du texte soit un fichier")
+    
+    if errors:
+        error_msg = " | ".join(errors)
+        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=302)
+    
+    # Check if chapter already exists for this context
+    existing = None
+    if "chapitres_complets" not in db:
+        db["chapitres_complets"] = []
+    
+    for chap in db["chapitres_complets"]:
+        if (chap["universite_id"] == universite_id and 
+            chap["filiere_id"] == filiere_id and 
+            chap["matiere_id"] == matiere_id and 
+            chap["niveau"] == niveau and 
+            chap["semestre"] == semestre and 
+            chap["chapitre"] == chapitre):
+            existing = chap
+            break
+    
+    if existing:
+        return RedirectResponse(url="/dashboard/prof?error=Ce chapitre existe déjà pour ce niveau/semestre/matière", status_code=302)
+    
+    # Helper function to save file
+    async def save_file(file: UploadFile, type_folder: str) -> tuple[str, str]:
+        if not file or not file.filename:
+            return None, None
+        
+        upload_dir = Path("uploads") / type_folder
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        file_extension = Path(file.filename).suffix
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = upload_dir / unique_filename
+        
+        try:
+            content = await file.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+            return file.filename, str(file_path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Erreur upload {type_folder}: {str(e)}")
+    
+    # Save files
+    cours_nom, cours_path = await save_file(cours_fichier, "cours")
+    exercice_nom, exercice_path = await save_file(exercice_fichier, "exercices")
+    solution_nom, solution_path = await save_file(solution_fichier, "solutions")
+    
+    # Create complete chapter
+    nouveau_chapitre = {
+        "id": str(uuid.uuid4()),
+        "universite_id": universite_id,
+        "ufr_id": ufr_id,
+        "filiere_id": filiere_id,
+        "matiere_id": matiere_id,
+        "niveau": niveau,
+        "semestre": semestre,
+        "chapitre": chapitre,
+        "titre": titre,
+        # Cours
+        "cours_texte": cours_texte,
+        "cours_fichier_nom": cours_nom,
+        "cours_fichier_path": cours_path,
+        # Exercices
+        "exercice_texte": exercice_texte,
+        "exercice_fichier_nom": exercice_nom,
+        "exercice_fichier_path": exercice_path,
+        # Solutions
+        "solution_texte": solution_texte,
+        "solution_fichier_nom": solution_nom,
+        "solution_fichier_path": solution_path,
+        "created_by": prof_username
+    }
+    
+    db["chapitres_complets"].append(nouveau_chapitre)
+    save_db(db)
+    
+    return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=302)
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str):
