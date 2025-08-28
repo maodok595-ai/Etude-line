@@ -105,17 +105,31 @@ def clean_uploads_directory():
         (uploads_dir / folder).mkdir(parents=True, exist_ok=True)
     print("📁 Dossiers uploads recréés proprement")
 
+def ensure_uploads_directories():
+    """Créer les dossiers uploads s'ils n'existent pas (sans suppression)"""
+    from pathlib import Path
+    
+    uploads_dir = Path("uploads")
+    
+    # Créer les dossiers de base uniquement s'ils n'existent pas
+    for folder in ["cours", "exercices", "solutions"]:
+        folder_path = uploads_dir / folder
+        if not folder_path.exists():
+            folder_path.mkdir(parents=True, exist_ok=True)
+            print(f"📁 Dossier {folder} créé")
+    print("✅ Dossiers uploads vérifiés")
+
 def migrate_data():
     """Migrer les données JSON vers PostgreSQL"""
     print("🔄 Début de la migration des données...")
     
-    # Supprimer l'ancienne base de données et créer une nouvelle
-    print("🗑️ Suppression de l'ancienne base de données...")
-    reset_database()
-    print("✨ Nouvelle base de données de production créée...")
+    # Créer les tables si elles n'existent pas (sans suppression)
+    print("🔧 Vérification de la base de données...")
+    create_tables()
+    print("✅ Base de données prête...")
     
-    # Nettoyer le dossier uploads
-    clean_uploads_directory()
+    # Créer les dossiers uploads si nécessaire (sans suppression)
+    ensure_uploads_directories()
     
     # Charger les données JSON
     data = load_json_data()
@@ -123,7 +137,7 @@ def migrate_data():
     db = SessionLocal()
     try:
         # Créer les données de base si elles n'existent pas
-        # create_default_data(db, data)  # DÉSACTIVÉ - Pas de données par défaut
+        create_default_data(db, data)  # RÉACTIVÉ - Données par défaut necessaires
         # Migrer les universités
         print("📚 Migration des universités...")
         for uni_data in data.get("universites", []):
