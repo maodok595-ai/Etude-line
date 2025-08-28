@@ -1494,7 +1494,7 @@ async def admin_delete_prof(
         prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
         if prof:
             # Supprimer d'abord tout le contenu créé par ce professeur
-            chapitres = db.query(ChapitreComplet).filter(ChapitreComplet.created_by == username).all()
+            chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == username).all()
             for chapitre in chapitres:
                 db.delete(chapitre)
             
@@ -1516,7 +1516,8 @@ async def admin_edit_universite(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
-    code: str = Form(...)
+    code: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit university"""
 
@@ -1540,7 +1541,8 @@ async def admin_edit_universite(
 async def admin_delete_universite(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    id: str = Form(...)
+    id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete university and all related data"""
 
@@ -1567,7 +1569,8 @@ async def admin_edit_ufr(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
-    code: str = Form(...)
+    code: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit UFR"""
 
@@ -1591,7 +1594,8 @@ async def admin_edit_ufr(
 async def admin_delete_ufr(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    id: str = Form(...)
+    id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete UFR and all related data"""
 
@@ -1618,7 +1622,8 @@ async def admin_edit_filiere(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
-    code: str = Form(...)
+    code: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit filière"""
 
@@ -1642,7 +1647,8 @@ async def admin_edit_filiere(
 async def admin_delete_filiere(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    id: str = Form(...)
+    id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete filière and all related data"""
 
@@ -1669,7 +1675,8 @@ async def admin_edit_matiere(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     id: str = Form(...),
     nom: str = Form(...),
-    code: str = Form(...)
+    code: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit matière"""
 
@@ -1693,7 +1700,8 @@ async def admin_edit_matiere(
 async def admin_delete_matiere(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    id: str = Form(...)
+    id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete matière and all related content"""
 
