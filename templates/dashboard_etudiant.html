@@ -516,105 +516,160 @@
             
             <div class="content-list" id="content-list">
                 {% if chapitres %}
+                    <!-- Groupement par niveau avec séparateurs visuels -->
+                    {% set current_level = '' %}
                     {% for chapitre in chapitres %}
-                    <div class="content-item" 
-                         data-subject="{{ chapitre.matiere_id }}" 
-                         data-chapter="{{ chapitre.chapitre }}" 
-                         data-type="chapitre"
-                         style="border-left: 4px solid #667eea;">
                         
-                        <!-- En-tête avec badges -->
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center;">
-                            <div class="type-badge" style="background: #e8f5e8; color: #2e7d32;">📚 COURS</div>
-                            <div class="type-badge" style="background: #fff8e1; color: #f57c00;">✏️ EXERCICES</div>
-                            <div class="type-badge" style="background: #e3f2fd; color: #1976d2;">✅ SOLUTIONS</div>
-                            <span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; font-weight: 600;">
-                                CHAPITRE COMPLET
-                            </span>
-                        </div>
+                        <!-- Séparateur de niveau distinctif -->
+                        {% if chapitre.niveau != current_level %}
+                            {% set current_level = chapitre.niveau %}
+                            <div style="margin: 2rem 0; text-align: center;">
+                                <div style="display: inline-block; background: 
+                                    {% if chapitre.niveau == 'L1' %}linear-gradient(135deg, #4CAF50, #8BC34A)
+                                    {% elif chapitre.niveau == 'L2' %}linear-gradient(135deg, #2196F3, #03A9F4)
+                                    {% elif chapitre.niveau == 'L3' %}linear-gradient(135deg, #FF9800, #FFC107)
+                                    {% elif chapitre.niveau == 'M1' %}linear-gradient(135deg, #9C27B0, #E91E63)
+                                    {% elif chapitre.niveau == 'M2' %}linear-gradient(135deg, #F44336, #FF5722)
+                                    {% else %}linear-gradient(135deg, #607D8B, #90A4AE){% endif %};
+                                    color: white; padding: 1rem 3rem; border-radius: 50px; font-size: 1.4rem; font-weight: bold; 
+                                    box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px;">
+                                    
+                                    {% if chapitre.niveau == 'L1' %}🎓 LICENCE 1ère ANNÉE
+                                    {% elif chapitre.niveau == 'L2' %}🎓 LICENCE 2ème ANNÉE  
+                                    {% elif chapitre.niveau == 'L3' %}🎓 LICENCE 3ème ANNÉE
+                                    {% elif chapitre.niveau == 'M1' %}🎯 MASTER 1ère ANNÉE
+                                    {% elif chapitre.niveau == 'M2' %}🎯 MASTER 2ème ANNÉE
+                                    {% else %}{{ chapitre.niveau }}{% endif %}
+                                </div>
+                                <div style="height: 4px; background: 
+                                    {% if chapitre.niveau == 'L1' %}linear-gradient(90deg, #4CAF50, #8BC34A)
+                                    {% elif chapitre.niveau == 'L2' %}linear-gradient(90deg, #2196F3, #03A9F4)
+                                    {% elif chapitre.niveau == 'L3' %}linear-gradient(90deg, #FF9800, #FFC107)
+                                    {% elif chapitre.niveau == 'M1' %}linear-gradient(90deg, #9C27B0, #E91E63)
+                                    {% elif chapitre.niveau == 'M2' %}linear-gradient(90deg, #F44336, #FF5722)
+                                    {% else %}linear-gradient(90deg, #607D8B, #90A4AE){% endif %};
+                                    margin: 1rem auto; border-radius: 2px; width: 60%;"></div>
+                            </div>
+                        {% endif %}
                         
-                        <!-- Métadonnées -->
-                        <div class="content-meta">
-                            <span class="meta-tag">🎓 {{ chapitre.niveau }}</span>
-                            <span class="meta-tag">📅 {{ chapitre.semestre }}</span>
-                            {% for matiere in matieres %}
-                                {% if matiere.id == chapitre.matiere_id %}
-                                    <span class="meta-tag">📖 {{ matiere.nom }}</span>
-                                {% endif %}
-                            {% endfor %}
-                            <span class="meta-tag">📑 {{ chapitre.chapitre }}</span>
-                        </div>
-                        
-                        <!-- Titre du chapitre -->
-                        <div class="content-title" style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 1rem 0;">
-                            {{ chapitre.titre }}
-                        </div>
-                        
-                        <!-- Contenu organisé en colonnes -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                        <!-- Chapitre avec bordure colorée selon le niveau -->
+                        <div class="content-item" 
+                             data-subject="{{ chapitre.matiere_id }}" 
+                             data-chapter="{{ chapitre.chapitre }}" 
+                             data-type="chapitre"
+                             style="border-left: 6px solid 
+                                {% if chapitre.niveau == 'L1' %}#4CAF50
+                                {% elif chapitre.niveau == 'L2' %}#2196F3
+                                {% elif chapitre.niveau == 'L3' %}#FF9800
+                                {% elif chapitre.niveau == 'M1' %}#9C27B0
+                                {% elif chapitre.niveau == 'M2' %}#F44336
+                                {% else %}#607D8B{% endif %}; 
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
                             
-                            <!-- Section Cours -->
-                            <div style="background: #f1f8e9; padding: 1.5rem; border-radius: 12px; border: 2px solid #c8e6c9;">
-                                <h4 style="color: #2e7d32; margin-bottom: 1rem; font-size: 1.1rem;">📚 Cours</h4>
-                                {% if chapitre.cours_fichier_nom %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #a5d6a7;">
-                                        <a href="/uploads/{{ chapitre.cours_fichier_path }}" target="_blank" 
-                                           style="color: #2e7d32; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                            📎 {{ chapitre.cours_fichier_nom }}
-                                        </a>
-                                    </div>
-                                {% endif %}
-                                {% if chapitre.cours_texte %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #a5d6a7;">
-                                        <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
-                                            {{ chapitre.cours_texte[:150] }}{% if chapitre.cours_texte|length > 150 %}...{% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
+                            <!-- En-tête avec badges -->
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap;">
+                                <div class="type-badge" style="background: #e8f5e8; color: #2e7d32;">📚 COURS</div>
+                                <div class="type-badge" style="background: #fff8e1; color: #f57c00;">✏️ EXERCICES</div>
+                                <div class="type-badge" style="background: #e3f2fd; color: #1976d2;">✅ SOLUTIONS</div>
+                                
+                                <!-- Badge niveau distinctif -->
+                                <span style="background: 
+                                    {% if chapitre.niveau == 'L1' %}#4CAF50
+                                    {% elif chapitre.niveau == 'L2' %}#2196F3
+                                    {% elif chapitre.niveau == 'L3' %}#FF9800
+                                    {% elif chapitre.niveau == 'M1' %}#9C27B0
+                                    {% elif chapitre.niveau == 'M2' %}#F44336
+                                    {% else %}#607D8B{% endif %}; 
+                                    color: white; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">
+                                    🎓 {{ chapitre.niveau }}
+                                </span>
+                                
+                                <span style="background: #667eea; color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; font-weight: 600;">
+                                    CHAPITRE COMPLET
+                                </span>
                             </div>
                             
-                            <!-- Section Exercices -->
-                            <div style="background: #fffde7; padding: 1.5rem; border-radius: 12px; border: 2px solid #fff176;">
-                                <h4 style="color: #f57c00; margin-bottom: 1rem; font-size: 1.1rem;">✏️ Exercices</h4>
-                                {% if chapitre.exercice_fichier_nom %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #ffcc02;">
-                                        <a href="/uploads/{{ chapitre.exercice_fichier_path }}" target="_blank" 
-                                           style="color: #f57c00; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                            📎 {{ chapitre.exercice_fichier_nom }}
-                                        </a>
-                                    </div>
-                                {% endif %}
-                                {% if chapitre.exercice_texte %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #ffcc02;">
-                                        <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
-                                            {{ chapitre.exercice_texte[:150] }}{% if chapitre.exercice_texte|length > 150 %}...{% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
+                            <!-- Métadonnées -->
+                            <div class="content-meta">
+                                <span class="meta-tag">📅 {{ chapitre.semestre }}</span>
+                                {% for matiere in matieres %}
+                                    {% if matiere.id == chapitre.matiere_id %}
+                                        <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="meta-tag">📑 {{ chapitre.chapitre }}</span>
                             </div>
                             
-                            <!-- Section Solutions -->
-                            <div style="background: #e8f4fd; padding: 1.5rem; border-radius: 12px; border: 2px solid #90caf9;">
-                                <h4 style="color: #1976d2; margin-bottom: 1rem; font-size: 1.1rem;">✅ Solutions</h4>
-                                {% if chapitre.solution_fichier_nom %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #64b5f6;">
-                                        <a href="/uploads/{{ chapitre.solution_fichier_path }}" target="_blank" 
-                                           style="color: #1976d2; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                            📎 {{ chapitre.solution_fichier_nom }}
-                                        </a>
-                                    </div>
-                                {% endif %}
-                                {% if chapitre.solution_texte %}
-                                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #64b5f6;">
-                                        <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
-                                            {{ chapitre.solution_texte[:150] }}{% if chapitre.solution_texte|length > 150 %}...{% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
+                            <!-- Titre du chapitre -->
+                            <div class="content-title" style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 1rem 0;">
+                                {{ chapitre.titre }}
                             </div>
                             
+                            <!-- Contenu organisé en colonnes -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                                
+                                <!-- Section Cours -->
+                                <div style="background: #f1f8e9; padding: 1.5rem; border-radius: 12px; border: 2px solid #c8e6c9;">
+                                    <h4 style="color: #2e7d32; margin-bottom: 1rem; font-size: 1.1rem;">📚 Cours</h4>
+                                    {% if chapitre.cours_fichier_nom %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #a5d6a7;">
+                                            <a href="/uploads/{{ chapitre.cours_fichier_path }}" target="_blank" 
+                                               style="color: #2e7d32; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                                📎 {{ chapitre.cours_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.cours_texte %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #a5d6a7;">
+                                            <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
+                                                {{ chapitre.cours_texte[:150] }}{% if chapitre.cours_texte|length > 150 %}...{% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Section Exercices -->
+                                <div style="background: #fffde7; padding: 1.5rem; border-radius: 12px; border: 2px solid #fff176;">
+                                    <h4 style="color: #f57c00; margin-bottom: 1rem; font-size: 1.1rem;">✏️ Exercices</h4>
+                                    {% if chapitre.exercice_fichier_nom %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #ffcc02;">
+                                            <a href="/uploads/{{ chapitre.exercice_fichier_path }}" target="_blank" 
+                                               style="color: #f57c00; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                                📎 {{ chapitre.exercice_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.exercice_texte %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #ffcc02;">
+                                            <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
+                                                {{ chapitre.exercice_texte[:150] }}{% if chapitre.exercice_texte|length > 150 %}...{% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Section Solutions -->
+                                <div style="background: #e8f4fd; padding: 1.5rem; border-radius: 12px; border: 2px solid #90caf9;">
+                                    <h4 style="color: #1976d2; margin-bottom: 1rem; font-size: 1.1rem;">✅ Solutions</h4>
+                                    {% if chapitre.solution_fichier_nom %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #64b5f6;">
+                                            <a href="/uploads/{{ chapitre.solution_fichier_path }}" target="_blank" 
+                                               style="color: #1976d2; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                                📎 {{ chapitre.solution_fichier_nom }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if chapitre.solution_texte %}
+                                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #64b5f6;">
+                                            <div style="font-size: 0.9rem; color: #333; line-height: 1.5;">
+                                                {{ chapitre.solution_texte[:150] }}{% if chapitre.solution_texte|length > 150 %}...{% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                            </div>
                         </div>
-                    </div>
                     {% endfor %}
                 {% else %}
                     <div style="text-align: center; color: #666; padding: 3rem;">
