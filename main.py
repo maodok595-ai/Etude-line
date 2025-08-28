@@ -1707,40 +1707,35 @@ async def prof_delete_chapitre(
 
 # API endpoints for hierarchical data
 @app.get("/api/ufrs/{universite_id}")
-async def get_ufrs_api(universite_id: str):
+async def get_ufrs_api(universite_id: str, db: Session = Depends(get_db)):
     """Get UFRs for a specific university"""
-    db = load_db()
     ufrs = get_ufrs_by_universite(db, universite_id)
     return {"ufrs": ufrs}
 
 @app.get("/api/filieres/{ufr_id}")
-async def get_filieres_api(ufr_id: str):
+async def get_filieres_api(ufr_id: str, db: Session = Depends(get_db)):
     """Get filières for a specific UFR"""
-    db = load_db()
     filieres = get_filieres_by_ufr(db, ufr_id)
     return {"filieres": filieres}
 
 @app.get("/api/matieres/{filiere_id}")
-async def get_matieres_api(filiere_id: str):
+async def get_matieres_api(filiere_id: str, db: Session = Depends(get_db)):
     """Get matières for a specific filière"""
-    db = load_db()
     matieres = get_matieres_by_filiere(db, filiere_id)
     return {"matieres": matieres}
 
 @app.get("/api/universite/{universite_id}")
-async def get_universite_api(universite_id: str):
+async def get_universite_api(universite_id: str, db: Session = Depends(get_db)):
     """Get university information including logo"""
-    db = load_db()
-    universites = db.get("universites", [])
+    uni = db.query(UniversiteDB).filter_by(id=universite_id).first()
     
-    for uni in universites:
-        if uni["id"] == universite_id:
-            return {
-                "id": uni["id"],
-                "nom": uni["nom"],
-                "code": uni["code"],
-                "logo_url": uni.get("logo_url")
-            }
+    if uni:
+        return {
+            "id": uni.id,
+            "nom": uni.nom,
+            "code": uni.code,
+            "logo_url": uni.logo_url
+        }
     
     raise HTTPException(status_code=404, detail="Université non trouvée")
 
