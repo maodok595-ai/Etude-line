@@ -578,6 +578,18 @@ async def logout():
     """Logout user"""
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
+    response.delete_cookie("session", domain=None)
+    return response
+
+@app.get("/clear")
+async def clear_session():
+    """Force clear all cookies and redirect to home"""
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
+    response.delete_cookie("session", domain=None)
+    response.set_cookie("session", "", expires=0, max_age=0)
     return response
 
 @app.get("/dashboard/prof", response_class=HTMLResponse)
