@@ -91,53 +91,10 @@ class ContentItem(BaseModel):
     fichier_path: Optional[str] = None  # chemin du fichier
     created_by: str  # username du prof
 
-class ChapitreComplet(BaseModel):
-    id: str
-    universite_id: str
-    ufr_id: str
-    filiere_id: str
-    matiere_id: str
-    niveau: str
-    semestre: str
-    chapitre: str
-    titre: str
-    # Cours
-    cours_texte: Optional[str] = None
-    cours_fichier_nom: Optional[str] = None
-    cours_fichier_path: Optional[str] = None
-    # Exercices
-    exercice_texte: Optional[str] = None
-    exercice_fichier_nom: Optional[str] = None
-    exercice_fichier_path: Optional[str] = None
-    # Solutions
-    solution_texte: Optional[str] = None
-    solution_fichier_nom: Optional[str] = None
-    solution_fichier_path: Optional[str] = None
-    created_by: str
+# Ancien modèle ChapitreComplet Pydantic supprimé - nous utilisons ChapitreCompletDB SQLAlchemy
 
 
-class Universite(BaseModel):
-    id: str
-    nom: str
-    code: str
-
-class UFR(BaseModel):
-    id: str
-    nom: str
-    code: str
-    universite_id: str
-
-class Filiere(BaseModel):
-    id: str
-    nom: str
-    code: str
-    ufr_id: str
-
-class Matiere(BaseModel):
-    id: str
-    nom: str
-    code: str
-    filiere_id: str
+# Ancien modèle ChapitreComplet Pydantic supprimé - nous utilisons ChapitreCompletDB SQLAlchemy
 
 # Utility functions
 def now_utc() -> datetime:
