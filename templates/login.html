@@ -51,54 +51,100 @@
             overflow: hidden;
         }
 
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
+        /* Mobile Responsive - Version renforcée */
+        @media screen and (max-width: 768px) {
             body {
-                padding: 15px;
+                padding: 10px !important;
+                min-height: 100vh;
             }
             
             .login-container {
-                padding: 2rem;
-                margin: 10px;
-                max-width: 100%;
+                padding: 1.5rem !important;
+                margin: 5px !important;
+                max-width: calc(100vw - 20px) !important;
+                width: calc(100vw - 20px) !important;
+                box-sizing: border-box !important;
             }
             
             .header h1 {
                 font-size: 1.6rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            .header p {
+                font-size: 0.9rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem !important;
             }
             
             .form-group label {
-                font-size: 0.9rem;
+                font-size: 0.9rem !important;
+                margin-bottom: 5px !important;
             }
             
             .form-group input, .form-group select {
-                padding: 0.875rem !important;
-                font-size: 0.95rem;
+                padding: 12px !important;
+                font-size: 16px !important; /* Évite le zoom sur iOS */
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             
             .btn {
-                padding: 0.875rem 1.5rem !important;
-                font-size: 0.95rem;
+                padding: 12px 20px !important;
+                font-size: 1rem !important;
+                width: 100% !important;
+                margin-top: 10px !important;
             }
             
             .toggle-link {
-                font-size: 0.85rem;
+                font-size: 0.85rem !important;
+                display: block !important;
+                text-align: center !important;
+                margin-top: 15px !important;
+            }
+            
+            .password-field {
+                position: relative !important;
+            }
+            
+            .toggle-password {
+                right: 10px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
             }
         }
 
-        @media (max-width: 480px) {
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 5px !important;
+            }
+            
             .login-container {
-                padding: 1.5rem;
-                margin: 5px;
+                padding: 1rem !important;
+                margin: 3px !important;
+                max-width: calc(100vw - 10px) !important;
+                width: calc(100vw - 10px) !important;
             }
             
             .header h1 {
                 font-size: 1.4rem !important;
+                line-height: 1.1 !important;
+            }
+            
+            .header p {
+                font-size: 0.8rem !important;
             }
             
             .form-group input, .form-group select {
-                padding: 0.75rem !important;
-                font-size: 0.9rem;
+                padding: 10px !important;
+                font-size: 16px !important;
+            }
+            
+            .btn {
+                padding: 10px 15px !important;
+                font-size: 0.9rem !important;
             }
         }
         
