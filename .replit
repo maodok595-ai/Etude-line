@@ -1,7 +1,7 @@
-modules = ["python-3.11", "nodejs-20"]
+modules = ["python-3.11", "nodejs-20", "python3"]
 [agent]
 expertMode = true
-integrations = ["javascript_object_storage==1.0.0"]
+integrations = ["javascript_object_storage==1.0.0", "python_database==1.0.0"]
 
 [nix]
 channel = "stable-25_05"
