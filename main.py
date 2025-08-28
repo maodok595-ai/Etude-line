@@ -623,64 +623,62 @@ async def logout():
     return response
 
 @app.get("/dashboard/prof", response_class=HTMLResponse)
-async def dashboard_prof(request: Request, prof_username: str = Depends(require_prof)):
+async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
     """Professor dashboard"""
-    db = load_db()
+    prof_username, user_data = require_prof(request, db)
     
     # Get professor's contents
-    prof_contents = [c for c in db["contents"] if c["created_by"] == prof_username]
+    prof_contents = db.query(Content).filter(Content.created_by == prof_username).all()
     
     # Get academic structure data first (needed for sorting)
-    universites = get_universites(db)
-    ufrs = db.get("ufrs", [])
-    filieres = db.get("filieres", [])
-    matieres = db.get("matieres", [])
+    universites = db.query(UniversiteDB).all()
+    ufrs = db.query(UFRDB).all()
+    filieres = db.query(FiliereDB).all()
+    matieres = db.query(MatiereDB).all()
 
     # Get professor's complete chapters with ultra logical sorting
-    prof_chapitres = []
-    if "chapitres_complets" in db:
-        prof_chapitres = [c for c in db["chapitres_complets"] if c["created_by"] == prof_username]
-        
-        # Ultra logical sorting: University → UFR → Filiere → Level → Semester → Matiere → Chapter
-        def get_sort_key(chapitre):
-            # Get names for sorting instead of IDs
-            uni_nom = ""
-            for uni in universites:
-                if uni["id"] == chapitre["universite_id"]:
-                    uni_nom = uni["nom"]
-                    break
-            
-            ufr_nom = ""
-            for ufr in ufrs:
-                if ufr["id"] == chapitre["ufr_id"]:
-                    ufr_nom = ufr["nom"]
-                    break
-            
-            filiere_nom = ""
-            for fil in filieres:
-                if fil["id"] == chapitre["filiere_id"]:
-                    filiere_nom = fil["nom"]
-                    break
-            
-            matiere_nom = ""
-            for mat in matieres:
-                if mat["id"] == chapitre["matiere_id"]:
-                    matiere_nom = mat["nom"]
-                    break
-            
-            # Custom level order for proper academic progression
-            level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
-            level_sort = level_order.get(chapitre["niveau"], 99)
-            
-            # Semester order
-            semester_order = {"S1": 1, "S2": 2}
-            semester_sort = semester_order.get(chapitre["semestre"], 99)
-            
-            return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapitre["chapitre"])
-        
-        prof_chapitres.sort(key=get_sort_key)
+    prof_chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == prof_username).all()
     
-    prof = find_user(prof_username, "prof")
+    # Ultra logical sorting: University → UFR → Filiere → Level → Semester → Matiere → Chapter
+    def get_sort_key(chapitre):
+        # Get names for sorting instead of IDs
+        uni_nom = ""
+        for uni in universites:
+            if uni.id == chapitre.universite_id:
+                uni_nom = uni.nom
+                break
+        
+        ufr_nom = ""
+        for ufr in ufrs:
+            if ufr.id == chapitre.ufr_id:
+                ufr_nom = ufr.nom
+                break
+        
+        filiere_nom = ""
+        for fil in filieres:
+            if fil.id == chapitre.filiere_id:
+                filiere_nom = fil.nom
+                break
+        
+        matiere_nom = ""
+        for mat in matieres:
+            if mat.id == chapitre.matiere_id:
+                matiere_nom = mat.nom
+                break
+        
+        # Custom level order for proper academic progression
+        level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+        level_sort = level_order.get(chapitre.niveau, 99)
+        
+        # Semester order
+        semester_order = {"S1": 1, "S2": 2}
+        semester_sort = semester_order.get(chapitre.semestre, 99)
+        
+        return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapitre.chapitre)
+    
+    prof_chapitres.sort(key=get_sort_key)
+    
+    prof = db.query(Professeur).filter(Professeur.username == prof_username).first()
     
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
