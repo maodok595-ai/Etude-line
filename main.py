@@ -1130,10 +1130,10 @@ async def admin_create_admin(
     prenom: str = Form(...),
     username: str = Form(...),
     password: str = Form(...),
-    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin)
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
     """Create a new administrator (only for principal admin)"""
-    db_session = next(get_db())
     
     # Récupérer les informations de l'admin connecté
     admin_username, admin_data = admin_info
@@ -1142,32 +1142,30 @@ async def admin_create_admin(
     if not admin_data.get("is_main_admin", False):
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut créer des administrateurs", status_code=303)
     
-    # Vérifier si le nom d'utilisateur existe déjà
-    existing_admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
-    existing_prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
-    existing_etudiant = db_session.query(EtudiantDB).filter(EtudiantDB.username == username).first()
-    
-    if existing_admin or existing_prof or existing_etudiant:
-        return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
-    
-    # Créer le nouvel administrateur
-    new_admin = AdministrateurDB(
-        username=username,
-        password_hash=pwd_context.hash(password),
-        nom=nom,
-        prenom=prenom,
-        is_main_admin=False
-    )
-    
     try:
-        db_session.add(new_admin)
-        db_session.commit()
-        return RedirectResponse("/dashboard/admin?success=AdministrateurDB créé avec succès", status_code=303)
+        # Vérifier si le nom d'utilisateur existe déjà
+        existing_admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        existing_prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
+        
+        if existing_admin or existing_prof or existing_etudiant:
+            return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+        
+        # Créer le nouvel administrateur
+        new_admin = AdministrateurDB(
+            username=username,
+            password_hash=pwd_context.hash(password),
+            nom=nom,
+            prenom=prenom,
+            is_main_admin=False
+        )
+        
+        db.add(new_admin)
+        db.commit()
+        return RedirectResponse("/dashboard/admin?success=Administrateur créé avec succès", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
 
 @app.post("/admin/create-prof")
 async def admin_create_prof(
@@ -1181,35 +1179,35 @@ async def admin_create_prof(
     universite_id: str = Form(...),
     ufr_id: str = Form(...),
     filiere_id: str = Form(...),
-    matiere_id: str = Form(...)
+    matiere_id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Admin creates new professor with hierarchical structure"""
-    db_session = next(get_db())
     admin_username, admin_data = admin_info
     
     try:
         # Check if username already exists
-        existing_admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
-        existing_prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
-        existing_etudiant = db_session.query(EtudiantDB).filter(EtudiantDB.username == username).first()
+        existing_admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        existing_prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
         
         if existing_admin or existing_prof or existing_etudiant:
             return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=302)
         
         # Validate hierarchical relationships
-        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
+        universite = db.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
         if not universite:
             return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
         
-        ufr = db_session.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
+        ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
         if not ufr:
             return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=302)
         
-        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == filiere_id, FiliereDB.ufr_id == ufr_id).first()
+        filiere = db.query(FiliereDB).filter(FiliereDB.id == filiere_id, FiliereDB.ufr_id == ufr_id).first()
         if not filiere:
             return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=302)
         
-        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == matiere_id, MatiereDB.filiere_id == filiere_id).first()
+        matiere = db.query(MatiereDB).filter(MatiereDB.id == matiere_id, MatiereDB.filiere_id == filiere_id).first()
         if not matiere:
             return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=302)
         
@@ -1227,30 +1225,28 @@ async def admin_create_prof(
             matiere=matiere.nom
         )
         
-        db_session.add(new_prof)
-        db_session.commit()
-        return RedirectResponse(url="/dashboard/admin?success=ProfesseurDB créé avec succès", status_code=302)
+        db.add(new_prof)
+        db.commit()
+        return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=302)
         
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
-    finally:
-        db_session.close()
 
 @app.post("/admin/create-universite")
 async def admin_create_universite(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
-    code: str = Form(...)
+    code: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Admin creates new university"""
-    db_session = next(get_db())
     admin_username, admin_data = admin_info
     
     try:
         # Check if code already exists
-        existing_universite = db_session.query(UniversiteDB).filter(UniversiteDB.code == code).first()
+        existing_universite = db.query(UniversiteDB).filter(UniversiteDB.code == code).first()
         if existing_universite:
             return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=302)
         
@@ -1262,15 +1258,13 @@ async def admin_create_universite(
             logo_url=None
         )
         
-        db_session.add(new_universite)
-        db_session.commit()
+        db.add(new_universite)
+        db.commit()
         return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=302)
         
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
-    finally:
-        db_session.close()
 
 @app.post("/admin/create-ufr")
 async def admin_create_ufr(
@@ -1278,10 +1272,10 @@ async def admin_create_ufr(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
-    universite_id: str = Form(...)
+    universite_id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Admin creates new UFR"""
-    db_session = next(get_db())
     admin_username, admin_data = admin_info
     
     try:
