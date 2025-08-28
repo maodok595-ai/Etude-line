@@ -416,23 +416,37 @@ def get_matiere_name(db: Session, matiere_id: str) -> str:
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, db: Session = Depends(get_db)):
     """Home page with registration forms"""
-    user = get_current_user(request)
-    if user:
-        role, username = user
-        if role == "prof":
-            return RedirectResponse(url="/dashboard/prof", status_code=303)
-        elif role == "admin":
-            return RedirectResponse(url="/dashboard/admin", status_code=303)
-        else:
-            return RedirectResponse(url="/dashboard/etudiant", status_code=303)
+    try:
+        user = get_current_user(request)
+        if user:
+            role, username = user
+            # Vérifier que l'utilisateur existe vraiment dans la base
+            user_data = get_user_by_username(db, username, role)
+            if user_data:
+                if role == "prof":
+                    return RedirectResponse(url="/dashboard/prof", status_code=303)
+                elif role == "admin":
+                    return RedirectResponse(url="/dashboard/admin", status_code=303)
+                else:
+                    return RedirectResponse(url="/dashboard/etudiant", status_code=303)
+    except:
+        # En cas d'erreur de session, on ignore et affiche la page d'accueil
+        pass
     
     # Load academic data for form
     universites = get_universites(db)
     
-    return templates.TemplateResponse("index.html", {
+    # Créer une réponse avec suppression forcée du cookie corrompu
+    response = templates.TemplateResponse("index.html", {
         "request": request, 
         "universites": universites
     })
+    
+    # Forcer la suppression du cookie de session corrompu
+    response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
+    
+    return response
 
 @app.post("/register/prof")
 async def register_prof(
