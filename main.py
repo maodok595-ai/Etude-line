@@ -615,6 +615,12 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
     # Get professor's contents
     prof_contents = [c for c in db["contents"] if c["created_by"] == prof_username]
     
+    # Get academic structure data first (needed for sorting)
+    universites = get_universites(db)
+    ufrs = db.get("ufrs", [])
+    filieres = db.get("filieres", [])
+    matieres = db.get("matieres", [])
+
     # Get professor's complete chapters with ultra logical sorting
     prof_chapitres = []
     if "chapitres_complets" in db:
@@ -658,12 +664,6 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
             return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapitre["chapitre"])
         
         prof_chapitres.sort(key=get_sort_key)
-    
-    # Get academic structure data
-    universites = get_universites(db)
-    ufrs = db.get("ufrs", [])
-    filieres = db.get("filieres", [])
-    matieres = db.get("matieres", [])
     
     prof = find_user(prof_username, "prof")
     
