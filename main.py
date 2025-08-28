@@ -6,8 +6,8 @@ from typing import Optional, Dict, Any, List, Tuple
 import fcntl
 from pathlib import Path
 
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, validator
 from passlib.context import CryptContext
@@ -60,6 +60,8 @@ class ContentItem(BaseModel):
     chapitre: str
     titre: str
     texte: str
+    fichier_nom: Optional[str] = None  # nom du fichier uploadé
+    fichier_path: Optional[str] = None  # chemin du fichier
     created_by: str  # username du prof
 
 
@@ -618,7 +620,8 @@ async def create_content(
     semestre: str = Form(...),
     chapitre: str = Form(...),
     titre: str = Form(...),
-    texte: str = Form(...)
+    texte: str = Form(""),
+    fichier: Optional[UploadFile] = File(None)
 ):
     """Create new content"""
     db = load_db()
@@ -630,6 +633,35 @@ async def create_content(
     # Validate academic level
     if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
         return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=302)
+    
+    # Check if at least one content (text or file) is provided
+    if not texte.strip() and not fichier:
+        return RedirectResponse(url="/dashboard/prof?error=Veuillez fournir soit du contenu textuel, soit un fichier", status_code=302)
+    
+    # Handle file upload if provided
+    fichier_nom = None
+    fichier_path = None
+    
+    if fichier and fichier.filename:
+        # Create upload directory for this content type
+        upload_dir = Path("uploads") / type
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate unique filename
+        file_extension = Path(fichier.filename).suffix
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        fichier_path = upload_dir / unique_filename
+        
+        # Save the file
+        try:
+            content = await fichier.read()
+            with open(fichier_path, "wb") as f:
+                f.write(content)
+            
+            fichier_nom = fichier.filename
+            fichier_path = str(fichier_path)
+        except Exception as e:
+            return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de l'upload du fichier: {str(e)}", status_code=302)
     
     # Create new content item
     new_content = {
@@ -644,13 +676,29 @@ async def create_content(
         "chapitre": chapitre,
         "titre": titre,
         "texte": texte,
+        "fichier_nom": fichier_nom,
+        "fichier_path": fichier_path,
         "created_by": prof_username
     }
     
     db["contents"].append(new_content)
     save_db(db)
     
-    return RedirectResponse(url="/dashboard/prof", status_code=302)
+    return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=302)
+
+@app.get("/uploads/{file_path:path}")
+async def serve_uploaded_file(file_path: str):
+    """Serve uploaded files"""
+    file_location = Path("uploads") / file_path
+    
+    if not file_location.exists():
+        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+    
+    return FileResponse(
+        path=file_location,
+        filename=file_location.name,
+        media_type='application/octet-stream'
+    )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
 async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(require_etudiant)):

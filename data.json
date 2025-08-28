@@ -16,6 +16,18 @@
         "prenom": "ka",
         "specialite": "physiques ",
         "matiere": "mécanique "
+      },
+      {
+        "username": "ka65",
+        "password_hash": "$2b$12$QXeQMg3Vtb3wGFdK7Kw.3ez.o.gtZQaMyXVMcgi71Tbr.j1mQY1qe",
+        "nom": "MAODO",
+        "prenom": "KA",
+        "specialite": "algebre",
+        "universite_id": "d37015b8-dd7f-4a47-9178-0a65108c965f",
+        "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de",
+        "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+        "matiere_id": "f28ee503-56ea-4b1f-9d9b-75abfd6af8c5",
+        "matiere": "math"
       }
     ],
     "etudiant": [
@@ -29,6 +41,16 @@
         "niveau": "L2",
         "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
         "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de"
+      },
+      {
+        "username": "Maodoka65",
+        "password_hash": "$2b$12$EMCcP4d1l0pzCI0gMdVHtOCxG0UsXnr9lQeV/BureWpodg47OFqiy",
+        "nom": "ka",
+        "prenom": "maodo",
+        "universite_id": "d37015b8-dd7f-4a47-9178-0a65108c965f",
+        "ufr_id": "c1b4a866-127d-4415-81f6-6992177f65de",
+        "filiere_id": "15c4a9a5-9bd0-401c-b707-5bba546d24fc",
+        "niveau": "L1"
       }
     ],
     "admin": [

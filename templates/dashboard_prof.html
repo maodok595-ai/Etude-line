@@ -277,14 +277,14 @@
             <!-- Formulaire d'ajout de contenu -->
             <div class="card">
                 <h3>📝 Ajouter du contenu</h3>
-                <form action="/prof/content" method="post">
+                <form action="/prof/content" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="type">Type de contenu</label>
                         <select id="type" name="type" required>
                             <option value="">Sélectionner un type</option>
-                            <option value="cours">Cours</option>
-                            <option value="exercice">Exercice</option>
-                            <option value="solution">Solution</option>
+                            <option value="cours">📚 Cours</option>
+                            <option value="exercice">✏️ Exercice</option>
+                            <option value="solution">✅ Solution</option>
                         </select>
                     </div>
                     
@@ -356,11 +356,20 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="texte">Contenu</label>
-                        <textarea id="texte" name="texte" required placeholder="Saisissez le contenu du cours, exercice ou solution..."></textarea>
+                        <label for="texte">Contenu textuel (optionnel)</label>
+                        <textarea id="texte" name="texte" placeholder="Saisissez le contenu du cours, exercice ou solution..."></textarea>
                     </div>
                     
-                    <button type="submit" class="btn">Publier le contenu</button>
+                    <div class="form-group">
+                        <label for="fichier">Fichier (PDF, Word, Excel, PowerPoint...)</label>
+                        <input type="file" id="fichier" name="fichier" 
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt,.ods,.odp">
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">
+                            📎 Formats acceptés: PDF, Word, Excel, PowerPoint, Texte, LibreOffice
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn">📝 Publier le contenu</button>
                 </form>
             </div>
             
@@ -411,7 +420,17 @@
                                 <span class="meta-tag">📑 {{ content.chapitre }}</span>
                             </div>
                             <div class="content-title">{{ content.titre }}</div>
-                            <div class="content-text">{{ content.texte[:100] }}{% if content.texte|length > 100 %}...{% endif %}</div>
+                            {% if content.fichier_nom %}
+                                <div class="file-info" style="background: #e3f2fd; padding: 0.5rem; border-radius: 5px; margin: 0.5rem 0;">
+                                    <strong>📎 Fichier:</strong> 
+                                    <a href="/uploads/{{ content.fichier_path }}" target="_blank" style="color: #1976d2;">
+                                        {{ content.fichier_nom }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if content.texte %}
+                                <div class="content-text">{{ content.texte[:100] }}{% if content.texte|length > 100 %}...{% endif %}</div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     {% else %}
