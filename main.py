@@ -21,7 +21,8 @@ import uvicorn
 from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
-    Administrateur, Professeur, Etudiant, Content, ChapitreComplet as ChapitreCompletDB
+    Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
+    Content, ChapitreComplet as ChapitreCompletDB
 )
 from migration import migrate_data
 
@@ -60,7 +61,7 @@ class UserProf(BaseModel):
     specialite: str
     matiere: str
 
-class UserEtudiant(BaseModel):
+class UserEtudiantDB(BaseModel):
     username: str
     password_hash: str
     nom: str
@@ -154,12 +155,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Database helper functions (PostgreSQL)
 def create_default_admin_if_needed(db: Session) -> None:
     """Create default admin if none exists"""
-    existing_admin = db.query(Administrateur).filter_by(username="admin").first()
+    existing_admin = db.query(AdministrateurDB).filter_by(username="admin").first()
     if not existing_admin:
-        default_admin = Administrateur(
+        default_admin = AdministrateurDB(
             username="admin",
             password_hash=hash_password("admin123"),
-            nom="Administrateur",
+            nom="AdministrateurDB",
             prenom="Principal",
             is_main_admin=True
         )
@@ -169,7 +170,7 @@ def create_default_admin_if_needed(db: Session) -> None:
 def authenticate_user(db: Session, username: str, password: str) -> Optional[Tuple[str, Dict[str, Any]]]:
     """Authenticate user against PostgreSQL database"""
     # Try admin first
-    admin = db.query(Administrateur).filter_by(username=username).first()
+    admin = db.query(AdministrateurDB).filter_by(username=username).first()
     if admin and verify_password(password, admin.password_hash):
         return "admin", {
             "id": admin.id,
@@ -180,7 +181,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Tup
         }
     
     # Try professor
-    prof = db.query(Professeur).filter_by(username=username).first()
+    prof = db.query(ProfesseurDB).filter_by(username=username).first()
     if prof and verify_password(password, prof.password_hash):
         return "prof", {
             "id": prof.id,
@@ -196,7 +197,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Tup
         }
     
     # Try student
-    etudiant = db.query(Etudiant).filter_by(username=username).first()
+    etudiant = db.query(EtudiantDB).filter_by(username=username).first()
     if etudiant and verify_password(password, etudiant.password_hash):
         return "etudiant", {
             "id": etudiant.id,
@@ -214,7 +215,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Tup
 def get_user_by_username(db: Session, username: str, role: str) -> Optional[Dict[str, Any]]:
     """Get user by username and role from PostgreSQL"""
     if role == "admin":
-        admin = db.query(Administrateur).filter_by(username=username).first()
+        admin = db.query(AdministrateurDB).filter_by(username=username).first()
         if admin:
             return {
                 "id": admin.id,
@@ -224,7 +225,7 @@ def get_user_by_username(db: Session, username: str, role: str) -> Optional[Dict
                 "is_main_admin": admin.is_main_admin
             }
     elif role == "prof":
-        prof = db.query(Professeur).filter_by(username=username).first()
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
         if prof:
             return {
                 "id": prof.id,
@@ -239,7 +240,7 @@ def get_user_by_username(db: Session, username: str, role: str) -> Optional[Dict
                 "matiere": prof.matiere
             }
     elif role == "etudiant":
-        etudiant = db.query(Etudiant).filter_by(username=username).first()
+        etudiant = db.query(EtudiantDB).filter_by(username=username).first()
         if etudiant:
             return {
                 "id": etudiant.id,
@@ -329,7 +330,7 @@ def require_admin(request: Request, db: Session = Depends(get_db)) -> Tuple[str,
 # Helper functions (PostgreSQL)
 def get_student_profile(db: Session, username: str) -> Optional[Dict[str, str]]:
     """Get student profile from PostgreSQL"""
-    etudiant = db.query(Etudiant).filter_by(username=username).first()
+    etudiant = db.query(EtudiantDB).filter_by(username=username).first()
     if etudiant:
         universite = db.query(UniversiteDB).filter_by(id=etudiant.universite_id).first()
         ufr = db.query(UFRDB).filter_by(id=etudiant.ufr_id).first()
@@ -358,7 +359,7 @@ def get_student_profile(db: Session, username: str) -> Optional[Dict[str, str]]:
 
 def get_professor_profile(db: Session, username: str) -> Optional[Dict[str, str]]:
     """Get professor profile from PostgreSQL"""
-    prof = db.query(Professeur).filter_by(username=username).first()
+    prof = db.query(ProfesseurDB).filter_by(username=username).first()
     if prof:
         profile = {
             "username": prof.username,
@@ -489,9 +490,9 @@ async def register_prof(
 ):
     """Register new professor"""
     # Check if username already exists
-    existing_admin = db.query(Administrateur).filter_by(username=username).first()
-    existing_prof = db.query(Professeur).filter_by(username=username).first()
-    existing_etudiant = db.query(Etudiant).filter_by(username=username).first()
+    existing_admin = db.query(AdministrateurDB).filter_by(username=username).first()
+    existing_prof = db.query(ProfesseurDB).filter_by(username=username).first()
+    existing_etudiant = db.query(EtudiantDB).filter_by(username=username).first()
     
     if existing_admin or existing_prof or existing_etudiant:
         universites = get_universites(db)
@@ -501,7 +502,7 @@ async def register_prof(
         )
     
     # Create new professor
-    new_prof = Professeur(
+    new_prof = ProfesseurDB(
         username=username,
         password_hash=hash_password(password),
         nom=nom,
@@ -535,9 +536,9 @@ async def register_etudiant(
 ):
     """Register new student"""
     # Check if username already exists
-    existing_admin = db.query(Administrateur).filter_by(username=username).first()
-    existing_prof = db.query(Professeur).filter_by(username=username).first()
-    existing_etudiant = db.query(Etudiant).filter_by(username=username).first()
+    existing_admin = db.query(AdministrateurDB).filter_by(username=username).first()
+    existing_prof = db.query(ProfesseurDB).filter_by(username=username).first()
+    existing_etudiant = db.query(EtudiantDB).filter_by(username=username).first()
     
     if existing_admin or existing_prof or existing_etudiant:
         universites = get_universites(db)
@@ -547,7 +548,7 @@ async def register_etudiant(
         )
     
     # Create new student
-    new_etudiant = Etudiant(
+    new_etudiant = EtudiantDB(
         username=username,
         password_hash=hash_password(password),
         nom=nom,
@@ -678,7 +679,7 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
     
     prof_chapitres.sort(key=get_sort_key)
     
-    prof = db.query(Professeur).filter(Professeur.username == prof_username).first()
+    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
     
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
@@ -1013,9 +1014,9 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Admin access required")
     
     # Count users
-    prof_count = db.query(Professeur).count()
-    student_count = db.query(Etudiant).count()
-    admin_count = db.query(Administrateur).count()
+    prof_count = db.query(ProfesseurDB).count()
+    student_count = db.query(EtudiantDB).count()
+    admin_count = db.query(AdministrateurDB).count()
     
     # Count content by type (from Content table)
     content_stats = {}
@@ -1084,7 +1085,7 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     admin_username, admin_user = admin_data
     
     # Get all administrators
-    admins = db.query(Administrateur).all()
+    admins = db.query(AdministrateurDB).all()
     admins_data = [{
         "id": admin.id,
         "username": admin.username,
@@ -1094,7 +1095,7 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     } for admin in admins]
     
     # Get all professors  
-    profs = db.query(Professeur).all()
+    profs = db.query(ProfesseurDB).all()
     profs_data = [{
         "id": prof.id,
         "username": prof.username,
@@ -1132,42 +1133,49 @@ async def admin_create_admin(
     prenom: str = Form(...),
     username: str = Form(...),
     password: str = Form(...),
-    admin_username: str = Depends(require_admin)
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin)
 ):
     """Create a new administrator (only for principal admin)"""
-    db = load_db()
+    db_session = next(get_db())
+    
+    # Récupérer les informations de l'admin connecté
+    admin_username, admin_data = admin_info
     
     # Vérifier que seul l'admin principal peut créer des admins
-    admin_user = find_user(admin_username, "admin")
-    if not admin_user or not admin_user.get("is_main_admin", False):
+    if not admin_data.get("is_main_admin", False):
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut créer des administrateurs", status_code=303)
     
     # Vérifier si le nom d'utilisateur existe déjà
-    all_users = []
-    for role in ["prof", "etudiant", "admin"]:
-        all_users.extend(db["users"][role])
+    existing_admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+    existing_prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+    existing_etudiant = db_session.query(EtudiantDB).filter(EtudiantDB.username == username).first()
     
-    if any(user["username"] == username for user in all_users):
+    if existing_admin or existing_prof or existing_etudiant:
         return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
     
     # Créer le nouvel administrateur
-    new_admin = UserAdmin(
+    new_admin = AdministrateurDB(
         username=username,
         password_hash=pwd_context.hash(password),
         nom=nom,
-        prenom=prenom
+        prenom=prenom,
+        is_main_admin=False
     )
     
-    # Ajouter à la base de données
-    db["users"]["admin"].append(new_admin.dict())
-    save_db(db)
-    
-    return RedirectResponse("/dashboard/admin?success=Administrateur créé avec succès", status_code=303)
+    try:
+        db_session.add(new_admin)
+        db_session.commit()
+        return RedirectResponse("/dashboard/admin?success=AdministrateurDB créé avec succès", status_code=303)
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
+    finally:
+        db_session.close()
 
 @app.post("/admin/create-prof")
 async def admin_create_prof(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     prenom: str = Form(...),
     username: str = Form(...),
@@ -1179,170 +1187,225 @@ async def admin_create_prof(
     matiere_id: str = Form(...)
 ):
     """Admin creates new professor with hierarchical structure"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Check if username already exists
-    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
-        return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=302)
-    
-    # Validate hierarchical relationships
-    universite = next((u for u in db.get("universites", []) if u["id"] == universite_id), None)
-    if not universite:
-        return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
-    
-    ufr = next((u for u in db.get("ufrs", []) if u["id"] == ufr_id and u["universite_id"] == universite_id), None)
-    if not ufr:
-        return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=302)
-    
-    filiere = next((f for f in db.get("filieres", []) if f["id"] == filiere_id and f["ufr_id"] == ufr_id), None)
-    if not filiere:
-        return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=302)
-    
-    matiere = next((m for m in db.get("matieres", []) if m["id"] == matiere_id and m["filiere_id"] == filiere_id), None)
-    if not matiere:
-        return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=302)
-    
-    # Create new professor with hierarchical structure
-    new_prof = {
-        "username": username,
-        "password_hash": hash_password(password),
-        "nom": nom,
-        "prenom": prenom,
-        "specialite": specialite,
-        "universite_id": universite_id,
-        "ufr_id": ufr_id,
-        "filiere_id": filiere_id,
-        "matiere_id": matiere_id,
-        # Keep backward compatibility
-        "matiere": matiere["nom"]
-    }
-    
-    db["users"]["prof"].append(new_prof)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=302)
+    try:
+        # Check if username already exists
+        existing_admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        existing_prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        existing_etudiant = db_session.query(EtudiantDB).filter(EtudiantDB.username == username).first()
+        
+        if existing_admin or existing_prof or existing_etudiant:
+            return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=302)
+        
+        # Validate hierarchical relationships
+        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
+        if not universite:
+            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
+        
+        ufr = db_session.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
+        if not ufr:
+            return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=302)
+        
+        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == filiere_id, FiliereDB.ufr_id == ufr_id).first()
+        if not filiere:
+            return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=302)
+        
+        matiere = db_session.query(MatiereDB).filter(MatiereDB.id == matiere_id, MatiereDB.filiere_id == filiere_id).first()
+        if not matiere:
+            return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=302)
+        
+        # Create new professor with hierarchical structure
+        new_prof = ProfesseurDB(
+            username=username,
+            password_hash=pwd_context.hash(password),
+            nom=nom,
+            prenom=prenom,
+            specialite=specialite,
+            universite_id=universite_id,
+            ufr_id=ufr_id,
+            filiere_id=filiere_id,
+            matiere_id=matiere_id,
+            matiere=matiere.nom
+        )
+        
+        db_session.add(new_prof)
+        db_session.commit()
+        return RedirectResponse(url="/dashboard/admin?success=ProfesseurDB créé avec succès", status_code=302)
+        
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+    finally:
+        db_session.close()
 
 @app.post("/admin/create-universite")
 async def admin_create_universite(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...)
 ):
     """Admin creates new university"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Check if code already exists
-    if any(u["code"] == code for u in db.get("universites", [])):
-        return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=302)
-    
-    # Create new university
-    new_universite = {
-        "id": str(uuid.uuid4()),
-        "nom": nom,
-        "code": code,
-        "logo_url": None
-    }
-    
-    if "universites" not in db:
-        db["universites"] = []
-    db["universites"].append(new_universite)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=302)
+    try:
+        # Check if code already exists
+        existing_universite = db_session.query(UniversiteDB).filter(UniversiteDB.code == code).first()
+        if existing_universite:
+            return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=302)
+        
+        # Create new university
+        new_universite = UniversiteDB(
+            id=str(uuid.uuid4()),
+            nom=nom,
+            code=code,
+            logo_url=None
+        )
+        
+        db_session.add(new_universite)
+        db_session.commit()
+        return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=302)
+        
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+    finally:
+        db_session.close()
 
 @app.post("/admin/create-ufr")
 async def admin_create_ufr(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
     universite_id: str = Form(...)
 ):
     """Admin creates new UFR"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Check if code already exists for this university
-    existing_ufrs = get_ufrs_by_universite(db, universite_id)
-    if any(u["code"] == code for u in existing_ufrs):
-        return RedirectResponse(url="/dashboard/admin?error=Code UFR déjà existant pour cette université", status_code=302)
-    
-    # Create new UFR
-    new_ufr = {
-        "id": str(uuid.uuid4()),
-        "nom": nom,
-        "code": code,
-        "universite_id": universite_id
-    }
-    
-    if "ufrs" not in db:
-        db["ufrs"] = []
-    db["ufrs"].append(new_ufr)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=302)
+    try:
+        # Check if university exists
+        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
+        if not universite:
+            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
+        
+        # Check if code already exists for this university
+        existing_ufr = db_session.query(UFRDB).filter(
+            UFRDB.code == code, 
+            UFRDB.universite_id == universite_id
+        ).first()
+        if existing_ufr:
+            return RedirectResponse(url="/dashboard/admin?error=Code UFR déjà existant pour cette université", status_code=302)
+        
+        # Create new UFR
+        new_ufr = UFRDB(
+            id=str(uuid.uuid4()),
+            nom=nom,
+            code=code,
+            universite_id=universite_id
+        )
+        
+        db_session.add(new_ufr)
+        db_session.commit()
+        return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=302)
+        
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+    finally:
+        db_session.close()
 
 @app.post("/admin/create-filiere")
 async def admin_create_filiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
     ufr_id: str = Form(...)
 ):
     """Admin creates new filière"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Check if code already exists for this UFR
-    existing_filieres = get_filieres_by_ufr(db, ufr_id)
-    if any(f["code"] == code for f in existing_filieres):
-        return RedirectResponse(url="/dashboard/admin?error=Code filière déjà existant pour cette UFR", status_code=302)
-    
-    # Create new filière
-    new_filiere = {
-        "id": str(uuid.uuid4()),
-        "nom": nom,
-        "code": code,
-        "ufr_id": ufr_id
-    }
-    
-    if "filieres" not in db:
-        db["filieres"] = []
-    db["filieres"].append(new_filiere)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=302)
+    try:
+        # Check if UFR exists
+        ufr = db_session.query(UFRDB).filter(UFRDB.id == ufr_id).first()
+        if not ufr:
+            return RedirectResponse(url="/dashboard/admin?error=UFR non trouvée", status_code=302)
+        
+        # Check if code already exists for this UFR
+        existing_filiere = db_session.query(FiliereDB).filter(
+            FiliereDB.code == code, 
+            FiliereDB.ufr_id == ufr_id
+        ).first()
+        if existing_filiere:
+            return RedirectResponse(url="/dashboard/admin?error=Code filière déjà existant pour cette UFR", status_code=302)
+        
+        # Create new filiere
+        new_filiere = FiliereDB(
+            id=str(uuid.uuid4()),
+            nom=nom,
+            code=code,
+            ufr_id=ufr_id
+        )
+        
+        db_session.add(new_filiere)
+        db_session.commit()
+        return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=302)
+        
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+    finally:
+        db_session.close()
 
 @app.post("/admin/create-matiere")
 async def admin_create_matiere(
     request: Request,
-    admin_username: str = Depends(require_admin),
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
     filiere_id: str = Form(...)
 ):
     """Admin creates new matière"""
-    db = load_db()
+    db_session = next(get_db())
+    admin_username, admin_data = admin_info
     
-    # Check if code already exists for this filière
-    existing_matieres = get_matieres_by_filiere(db, filiere_id)
-    if any(m["code"] == code for m in existing_matieres):
-        return RedirectResponse(url="/dashboard/admin?error=Code matière déjà existant pour cette filière", status_code=302)
-    
-    # Create new matière
-    new_matiere = {
-        "id": str(uuid.uuid4()),
-        "nom": nom,
-        "code": code,
-        "filiere_id": filiere_id
-    }
-    
-    if "matieres" not in db:
-        db["matieres"] = []
-    db["matieres"].append(new_matiere)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
+    try:
+        # Check if filiere exists
+        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == filiere_id).first()
+        if not filiere:
+            return RedirectResponse(url="/dashboard/admin?error=Filière non trouvée", status_code=302)
+        
+        # Check if code already exists for this filiere
+        existing_matiere = db_session.query(MatiereDB).filter(
+            MatiereDB.code == code, 
+            MatiereDB.filiere_id == filiere_id
+        ).first()
+        if existing_matiere:
+            return RedirectResponse(url="/dashboard/admin?error=Code matière déjà existant pour cette filière", status_code=302)
+        
+        # Create new matiere
+        new_matiere = MatiereDB(
+            id=str(uuid.uuid4()),
+            nom=nom,
+            code=code,
+            filiere_id=filiere_id
+        )
+        
+        db_session.add(new_matiere)
+        db_session.commit()
+        return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
+        
+    except Exception as e:
+        db_session.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+    finally:
+        db_session.close()
 
 # Routes pour modification et suppression
 
@@ -1369,7 +1432,7 @@ async def admin_edit_admin(
             break
     
     save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
+    return RedirectResponse("/dashboard/admin?success=AdministrateurDB modifié avec succès", status_code=303)
 
 @app.post("/admin/delete-admin")
 async def admin_delete_admin(
@@ -1387,7 +1450,7 @@ async def admin_delete_admin(
     db = load_db()
     db["users"]["admin"] = [admin for admin in db["users"]["admin"] if admin["username"] != username]
     save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Administrateur supprimé avec succès", status_code=303)
+    return RedirectResponse("/dashboard/admin?success=AdministrateurDB supprimé avec succès", status_code=303)
 
 # Professor routes
 @app.post("/admin/edit-prof")
@@ -1411,7 +1474,7 @@ async def admin_edit_prof(
             break
     
     save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
+    return RedirectResponse("/dashboard/admin?success=ProfesseurDB modifié avec succès", status_code=303)
 
 @app.post("/admin/delete-prof")
 async def admin_delete_prof(
@@ -1429,7 +1492,7 @@ async def admin_delete_prof(
     db["chapitres_complets"] = [chapitre for chapitre in db.get("chapitres_complets", []) if chapitre.get("created_by") != username]
     
     save_db(db)
-    return RedirectResponse("/dashboard/admin?success=Professeur et son contenu supprimés avec succès", status_code=303)
+    return RedirectResponse("/dashboard/admin?success=ProfesseurDB et son contenu supprimés avec succès", status_code=303)
 
 # University routes
 @app.post("/admin/edit-universite")
