@@ -1289,7 +1289,7 @@ async def admin_edit_admin(
     prenom: str = Form(...)
 ):
     """Edit administrator (only for principal admin)"""
-    if admin_username != "maodo_ka":
+    if admin_username != "kamaodo65":
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des administrateurs", status_code=303)
     
     db = load_db()
@@ -1311,10 +1311,10 @@ async def admin_delete_admin(
     username: str = Form(...)
 ):
     """Delete administrator (only for principal admin)"""
-    if admin_username != "maodo_ka":
+    if admin_username != "kamaodo65":
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut supprimer des administrateurs", status_code=303)
     
-    if username == "maodo_ka":
+    if username == "kamaodo65":
         return RedirectResponse("/dashboard/admin?error=L'administrateur principal ne peut pas être supprimé", status_code=303)
     
     db = load_db()
