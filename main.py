@@ -885,16 +885,23 @@ async def create_chapitre_complet(
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str):
-    """Serve uploaded files"""
+    """Serve uploaded files with proper content type for browser viewing"""
+    import mimetypes
+    
     file_location = Path("uploads") / file_path
     
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
+    # Detect MIME type for proper browser handling
+    mime_type, _ = mimetypes.guess_type(str(file_location))
+    if mime_type is None:
+        mime_type = 'application/octet-stream'
+    
     return FileResponse(
         path=file_location,
         filename=file_location.name,
-        media_type='application/octet-stream'
+        media_type=mime_type
     )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)

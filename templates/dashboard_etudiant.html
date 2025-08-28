@@ -612,10 +612,19 @@
                                     <h4 style="color: #2e7d32; margin-bottom: 1rem; font-size: 1.1rem;">📚 Cours</h4>
                                     {% if chapitre.cours_fichier_nom %}
                                         <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #a5d6a7;">
-                                            <a href="/uploads/{{ chapitre.cours_fichier_path }}" target="_blank" 
-                                               style="color: #2e7d32; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                                 📎 {{ chapitre.cours_fichier_nom }}
-                                            </a>
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/uploads/{{ chapitre.cours_fichier_path }}" target="_blank" 
+                                                   style="background: #4caf50; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire dans le navigateur
+                                                </a>
+                                                <a href="/uploads/{{ chapitre.cours_fichier_path }}" download 
+                                                   style="background: #2e7d32; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    💾 Télécharger
+                                                </a>
+                                            </div>
                                         </div>
                                     {% endif %}
                                     {% if chapitre.cours_texte %}
@@ -632,10 +641,19 @@
                                     <h4 style="color: #f57c00; margin-bottom: 1rem; font-size: 1.1rem;">✏️ Exercices</h4>
                                     {% if chapitre.exercice_fichier_nom %}
                                         <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #ffcc02;">
-                                            <a href="/uploads/{{ chapitre.exercice_fichier_path }}" target="_blank" 
-                                               style="color: #f57c00; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                                 📎 {{ chapitre.exercice_fichier_nom }}
-                                            </a>
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/uploads/{{ chapitre.exercice_fichier_path }}" target="_blank" 
+                                                   style="background: #ff9800; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire dans le navigateur
+                                                </a>
+                                                <a href="/uploads/{{ chapitre.exercice_fichier_path }}" download 
+                                                   style="background: #f57c00; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    💾 Télécharger
+                                                </a>
+                                            </div>
                                         </div>
                                     {% endif %}
                                     {% if chapitre.exercice_texte %}
@@ -652,10 +670,19 @@
                                     <h4 style="color: #1976d2; margin-bottom: 1rem; font-size: 1.1rem;">✅ Solutions</h4>
                                     {% if chapitre.solution_fichier_nom %}
                                         <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #64b5f6;">
-                                            <a href="/uploads/{{ chapitre.solution_fichier_path }}" target="_blank" 
-                                               style="color: #1976d2; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                                 📎 {{ chapitre.solution_fichier_nom }}
-                                            </a>
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/uploads/{{ chapitre.solution_fichier_path }}" target="_blank" 
+                                                   style="background: #2196f3; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire dans le navigateur
+                                                </a>
+                                                <a href="/uploads/{{ chapitre.solution_fichier_path }}" download 
+                                                   style="background: #1976d2; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    💾 Télécharger
+                                                </a>
+                                            </div>
                                         </div>
                                     {% endif %}
                                     {% if chapitre.solution_texte %}
