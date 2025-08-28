@@ -436,7 +436,7 @@ def get_matieres_by_filiere(db: Session, filiere_id: str) -> List[Dict[str, Any]
 # Helper functions to get names from IDs (PostgreSQL)
 def get_universite_name(db: Session, universite_id: str) -> str:
     """Get university name from ID"""
-    uni = db.query(Universite).filter_by(id=universite_id).first()
+    uni = db.query(UniversiteDB).filter_by(id=universite_id).first()
     return uni.nom if uni else "Université inconnue"
 
 def get_ufr_name(db: Session, ufr_id: str) -> str:
@@ -1765,7 +1765,7 @@ async def admin_upload_logo(
             f.write(content)
         
         # Update database (PostgreSQL)
-        universite = db.query(Universite).filter_by(id=universite_id).first()
+        universite = db.query(UniversiteDB).filter_by(id=universite_id).first()
         if universite:
             # Remove old logo file if exists
             if universite.logo_url and universite.logo_url.startswith("/static/"):
@@ -1859,7 +1859,7 @@ async def get_matieres_api(filiere_id: str, db: Session = Depends(get_db)):
 @app.get("/api/universite/{universite_id}")
 async def get_universite_api(universite_id: str, db: Session = Depends(get_db)):
     """Get university information including logo"""
-    uni = db.query(Universite).filter_by(id=universite_id).first()
+    uni = db.query(UniversiteDB).filter_by(id=universite_id).first()
     
     if uni:
         return {
