@@ -568,7 +568,7 @@ async def login(
     else:
         redirect_url = "/dashboard/etudiant"
     
-    response = RedirectResponse(url=redirect_url, status_code=302)
+    response = RedirectResponse(url=redirect_url, status_code=303)
     response.set_cookie("session", session_token, httponly=True)
     
     return response
