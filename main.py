@@ -915,17 +915,9 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     
     # Get ALL complete chapters from student's filiere (all levels: L1, L2, L3, M1, M2)
     chapitres_filiere = []
-    if "chapitres_complets" in db and student:
-        print(f"DEBUG - Student data: {student}")  # Debug
-        print(f"DEBUG - Available chapters: {len(db['chapitres_complets'])}")  # Debug
-        
-        if student.get("filiere_id"):
-            # Filter chapters by student's filiere - SHOW ALL LEVELS
-            chapitres_filiere = [c for c in db["chapitres_complets"] if c["filiere_id"] == student["filiere_id"]]
-            print(f"DEBUG - Student filiere_id: {student['filiere_id']}")  # Debug
-            print(f"DEBUG - Found chapters for filiere: {len(chapitres_filiere)}")  # Debug
-        else:
-            print("DEBUG - No filiere_id found for student")  # Debug
+    if "chapitres_complets" in db and student and student.get("filiere_id"):
+        # Filter chapters by student's filiere - SHOW ALL LEVELS
+        chapitres_filiere = [c for c in db["chapitres_complets"] if c["filiere_id"] == student["filiere_id"]]
         
         # Get academic structure data for sorting
         matieres = db.get("matieres", [])
