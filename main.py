@@ -581,10 +581,18 @@ async def login(
     role: str = Form(...)
 ):
     """Process login"""
+    print(f"Tentative de connexion - Username: {username}, Role: {role}")
+    
     # Find user in the specified role
     user = find_user(username, role)
+    print(f"Utilisateur trouvé: {user is not None}")
+    
+    if user:
+        password_ok = verify_password(password, user["password_hash"])
+        print(f"Mot de passe correct: {password_ok}")
     
     if not user or not verify_password(password, user["password_hash"]):
+        print("Échec de la connexion - identifiants incorrects")
         return templates.TemplateResponse(
             "login.html", 
             {"request": request, "error": "Nom d'utilisateur, mot de passe ou rôle incorrect"}
