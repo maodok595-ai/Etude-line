@@ -913,10 +913,10 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
             "expires_at": None
         }
     
-    # Get only complete chapters from student's filiere with logical sorting
+    # Get ALL complete chapters from student's filiere (all levels: L1, L2, L3, M1, M2)
     chapitres_filiere = []
     if "chapitres_complets" in db and student and student.get("filiere_id"):
-        # Filter chapters by student's filiere
+        # Filter chapters by student's filiere - SHOW ALL LEVELS
         chapitres_filiere = [c for c in db["chapitres_complets"] if c["filiere_id"] == student["filiere_id"]]
         
         # Get academic structure data for sorting
