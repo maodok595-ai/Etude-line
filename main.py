@@ -1033,6 +1033,9 @@ async def dashboard_admin(request: Request, admin_username: str = Depends(requir
     """Admin dashboard"""
     db = load_db()
     
+    # Get all administrators
+    admins = db["users"]["admin"]
+    
     # Get all professors
     profs = db["users"]["prof"]
     
@@ -1047,12 +1050,51 @@ async def dashboard_admin(request: Request, admin_username: str = Depends(requir
     return templates.TemplateResponse("dashboard_admin.html", {
         "request": request,
         "admin": admin,
+        "admins": admins,
         "profs": profs,
         "universites": universites,
         "ufrs": ufrs,
         "filieres": filieres,
         "matieres": matieres
     })
+
+@app.post("/admin/create-admin")
+async def admin_create_admin(
+    request: Request,
+    nom: str = Form(...),
+    prenom: str = Form(...),
+    username: str = Form(...),
+    password: str = Form(...),
+    admin_username: str = Depends(require_admin)
+):
+    """Create a new administrator (only for principal admin)"""
+    db = load_db()
+    
+    # Vérifier que seul l'admin principal peut créer des admins
+    if admin_username != "maodo_ka":
+        return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut créer des administrateurs", status_code=303)
+    
+    # Vérifier si le nom d'utilisateur existe déjà
+    all_users = []
+    for role in ["prof", "etudiant", "admin"]:
+        all_users.extend(db["users"][role])
+    
+    if any(user["username"] == username for user in all_users):
+        return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+    
+    # Créer le nouvel administrateur
+    new_admin = UserAdmin(
+        username=username,
+        password_hash=pwd_context.hash(password),
+        nom=nom,
+        prenom=prenom
+    )
+    
+    # Ajouter à la base de données
+    db["users"]["admin"].append(new_admin.dict())
+    save_db(db)
+    
+    return RedirectResponse("/dashboard/admin?success=Administrateur créé avec succès", status_code=303)
 
 @app.post("/admin/create-prof")
 async def admin_create_prof(
