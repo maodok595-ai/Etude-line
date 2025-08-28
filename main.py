@@ -436,7 +436,7 @@ def get_matieres_by_filiere(db: Session, filiere_id: str) -> List[Dict[str, Any]
 # Helper functions to get names from IDs (PostgreSQL)
 def get_universite_name(db: Session, universite_id: str) -> str:
     """Get university name from ID"""
-    uni = db.query(UniversiteDB).filter_by(id=universite_id).first()
+    uni = db.query(Universite).filter_by(id=universite_id).first()
     return uni.nom if uni else "Université inconnue"
 
 def get_ufr_name(db: Session, ufr_id: str) -> str:
@@ -695,7 +695,6 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
 @app.post("/prof/content")
 async def create_content(
     request: Request,
-    prof_username: str = Depends(require_prof),
     type: str = Form(...),
     universite_id: str = Form(...),
     ufr_id: str = Form(...),
@@ -706,10 +705,11 @@ async def create_content(
     chapitre: str = Form(...),
     titre: str = Form(...),
     texte: str = Form(""),
-    fichier: Optional[UploadFile] = File(None)
+    fichier: Optional[UploadFile] = File(None),
+    prof_username: str = Depends(require_prof),
+    db: Session = Depends(get_db)
 ):
     """Create new content"""
-    db = load_db()
     
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
@@ -748,28 +748,29 @@ async def create_content(
         except Exception as e:
             return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de l'upload du fichier: {str(e)}", status_code=302)
     
-    # Create new content item
-    new_content = {
-        "id": str(uuid.uuid4()),
-        "type": type,
-        "universite_id": universite_id,
-        "ufr_id": ufr_id,
-        "filiere_id": filiere_id,
-        "matiere_id": matiere_id,
-        "niveau": niveau,
-        "semestre": semestre,
-        "chapitre": chapitre,
-        "titre": titre,
-        "texte": texte,
-        "fichier_nom": fichier_nom,
-        "fichier_path": fichier_path,
-        "created_by": prof_username
-    }
-    
-    db["contents"].append(new_content)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=302)
+    try:
+        # Create new content item in PostgreSQL
+        new_content = Content(
+            niveau=niveau,
+            semestre=semestre,
+            chapitre=chapitre,
+            type=type,
+            texte=texte,
+            fichier_nom=fichier_nom,
+            fichier_path=fichier_path,
+            matiere_id=matiere_id,
+            created_by=prof_username
+        )
+        
+        db.add(new_content)
+        db.commit()
+        db.refresh(new_content)
+        
+        return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=302)
+        
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du contenu: {str(e)}", status_code=302)
 
 @app.post("/prof/chapitre-complet")
 async def create_chapitre_complet(
@@ -791,11 +792,10 @@ async def create_chapitre_complet(
     exercice_fichier: Optional[UploadFile] = File(None),
     # Solutions
     solution_texte: str = Form(""),
-    solution_fichier: Optional[UploadFile] = File(None)
+    solution_fichier: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db)
 ):
     """Create a complete chapter with cours, exercice and solution"""
-    db = load_db()
-    
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
         return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
@@ -819,24 +819,18 @@ async def create_chapitre_complet(
         error_msg = " | ".join(errors)
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=302)
     
-    # Check if chapter already exists for this context
-    existing = None
-    if "chapitres_complets" not in db:
-        db["chapitres_complets"] = []
-    
-    for chap in db["chapitres_complets"]:
-        if (chap["universite_id"] == universite_id and 
-            chap["filiere_id"] == filiere_id and 
-            chap["matiere_id"] == matiere_id and 
-            chap["niveau"] == niveau and 
-            chap["semestre"] == semestre and 
-            chap["chapitre"] == chapitre):
-            existing = chap
-            break
+    # Check if chapter already exists for this context in PostgreSQL
+    existing = db.query(ChapitreCompletDB).filter_by(
+        filiere_id=filiere_id,
+        matiere_id=matiere_id,
+        niveau=niveau,
+        semestre=semestre,
+        chapitre=chapitre
+    ).first()
     
     if existing:
         return RedirectResponse(url="/dashboard/prof?error=Ce chapitre existe déjà pour ce niveau/semestre/matière", status_code=302)
-    
+
     # Helper function to save file
     async def save_file(file: UploadFile, type_folder: str) -> tuple[str, str]:
         if not file or not file.filename:
@@ -857,41 +851,44 @@ async def create_chapitre_complet(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Erreur upload {type_folder}: {str(e)}")
     
-    # Save files
-    cours_nom, cours_path = await save_file(cours_fichier, "cours")
-    exercice_nom, exercice_path = await save_file(exercice_fichier, "exercices")
-    solution_nom, solution_path = await save_file(solution_fichier, "solutions")
-    
-    # Create complete chapter
-    nouveau_chapitre = {
-        "id": str(uuid.uuid4()),
-        "universite_id": universite_id,
-        "ufr_id": ufr_id,
-        "filiere_id": filiere_id,
-        "matiere_id": matiere_id,
-        "niveau": niveau,
-        "semestre": semestre,
-        "chapitre": chapitre,
-        "titre": titre,
-        # Cours
-        "cours_texte": cours_texte,
-        "cours_fichier_nom": cours_nom,
-        "cours_fichier_path": cours_path,
-        # Exercices
-        "exercice_texte": exercice_texte,
-        "exercice_fichier_nom": exercice_nom,
-        "exercice_fichier_path": exercice_path,
-        # Solutions
-        "solution_texte": solution_texte,
-        "solution_fichier_nom": solution_nom,
-        "solution_fichier_path": solution_path,
-        "created_by": prof_username
-    }
-    
-    db["chapitres_complets"].append(nouveau_chapitre)
-    save_db(db)
-    
-    return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=302)
+    try:
+        # Save files
+        cours_nom, cours_path = await save_file(cours_fichier, "cours")
+        exercice_nom, exercice_path = await save_file(exercice_fichier, "exercices")
+        solution_nom, solution_path = await save_file(solution_fichier, "solutions")
+        
+        # Create complete chapter in PostgreSQL
+        nouveau_chapitre = ChapitreCompletDB(
+            filiere_id=filiere_id,
+            matiere_id=matiere_id,
+            niveau=niveau,
+            semestre=semestre,
+            chapitre=chapitre,
+            titre=titre,
+            # Cours
+            cours_texte=cours_texte,
+            cours_fichier_nom=cours_nom,
+            cours_fichier_path=cours_path,
+            # Exercices
+            exercice_texte=exercice_texte,
+            exercice_fichier_nom=exercice_nom,
+            exercice_fichier_path=exercice_path,
+            # Solutions
+            solution_texte=solution_texte,
+            solution_fichier_nom=solution_nom,
+            solution_fichier_path=solution_path,
+            created_by=prof_username
+        )
+        
+        db.add(nouveau_chapitre)
+        db.commit()
+        db.refresh(nouveau_chapitre)
+        
+        return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=302)
+        
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du chapitre: {str(e)}", status_code=302)
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str):
@@ -1751,7 +1748,8 @@ async def admin_upload_logo(
     request: Request,
     admin_username: str = Depends(require_admin),
     universite_id: str = Form(...),
-    logo: UploadFile = File(...)
+    logo: UploadFile = File(...),
+    db: Session = Depends(get_db)
 ):
     """Admin uploads logo for university"""
     try:
@@ -1772,23 +1770,22 @@ async def admin_upload_logo(
             content = await logo.read()
             f.write(content)
         
-        # Update database
-        db = load_db()
-        for uni in db.get("universites", []):
-            if uni["id"] == universite_id:
-                # Remove old logo file if exists
-                if uni.get("logo_url") and uni["logo_url"].startswith("/static/"):
-                    old_file_path = uni["logo_url"][1:]  # Remove leading slash
-                    if os.path.exists(old_file_path):
-                        os.remove(old_file_path)
-                
-                uni["logo_url"] = f"/{file_path}"
-                break
+        # Update database (PostgreSQL)
+        universite = db.query(Universite).filter_by(id=universite_id).first()
+        if universite:
+            # Remove old logo file if exists
+            if universite.logo_url and universite.logo_url.startswith("/static/"):
+                old_file_path = universite.logo_url[1:]  # Remove leading slash
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+            
+            universite.logo_url = f"/{file_path}"
+            db.commit()
         
-        save_db(db)
         return RedirectResponse("/dashboard/admin?success=Logo téléchargé avec succès", status_code=303)
         
     except Exception as e:
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors du téléchargement: {str(e)}", status_code=303)
 
 # Routes pour les professeurs - modification et suppression de chapitres
@@ -1797,56 +1794,54 @@ async def prof_edit_chapitre(
     request: Request,
     prof_username: str = Depends(require_prof),
     chapitre_id: str = Form(...),
-    nouveau_titre: str = Form(...)
+    nouveau_titre: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Professor edits their chapter title"""
-    db = load_db()
+    try:
+        # Find the chapter and verify ownership
+        chapitre = db.query(ChapitreCompletDB).filter_by(
+            id=chapitre_id,
+            created_by=prof_username
+        ).first()
+        
+        if not chapitre:
+            return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
+        
+        chapitre.titre = nouveau_titre
+        db.commit()
+        return RedirectResponse("/dashboard/prof?success=Chapitre modifié avec succès", status_code=303)
     
-    if "chapitres_complets" not in db:
-        return RedirectResponse("/dashboard/prof?error=Aucun chapitre trouvé", status_code=303)
-    
-    # Find the chapter and verify ownership
-    chapitre_found = False
-    for chapitre in db["chapitres_complets"]:
-        if chapitre["id"] == chapitre_id and chapitre["created_by"] == prof_username:
-            chapitre["titre"] = nouveau_titre
-            chapitre_found = True
-            break
-    
-    if not chapitre_found:
-        return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/prof?success=Chapitre modifié avec succès", status_code=303)
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(f"/dashboard/prof?error=Erreur lors de la modification: {str(e)}", status_code=303)
 
 @app.post("/prof/delete-chapitre")
 async def prof_delete_chapitre(
     request: Request,
     prof_username: str = Depends(require_prof),
-    chapitre_id: str = Form(...)
+    chapitre_id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Professor deletes their chapter"""
-    db = load_db()
+    try:
+        # Find the chapter and verify ownership
+        chapitre = db.query(ChapitreCompletDB).filter_by(
+            id=chapitre_id,
+            created_by=prof_username
+        ).first()
+        
+        if not chapitre:
+            return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
+        
+        # Delete chapter from PostgreSQL
+        db.delete(chapitre)
+        db.commit()
+        return RedirectResponse("/dashboard/prof?success=Chapitre supprimé avec succès", status_code=303)
     
-    if "chapitres_complets" not in db:
-        return RedirectResponse("/dashboard/prof?error=Aucun chapitre trouvé", status_code=303)
-    
-    # Find the chapter and verify ownership before deletion
-    chapitre_to_delete = None
-    for chapitre in db["chapitres_complets"]:
-        if chapitre["id"] == chapitre_id and chapitre["created_by"] == prof_username:
-            chapitre_to_delete = chapitre
-            break
-    
-    if not chapitre_to_delete:
-        return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
-    
-    # Remove the chapter
-    db["chapitres_complets"] = [c for c in db["chapitres_complets"] 
-                               if not (c["id"] == chapitre_id and c["created_by"] == prof_username)]
-    
-    save_db(db)
-    return RedirectResponse("/dashboard/prof?success=Chapitre supprimé avec succès", status_code=303)
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(f"/dashboard/prof?error=Erreur lors de la suppression: {str(e)}", status_code=303)
 
 # API endpoints for hierarchical data
 @app.get("/api/ufrs/{universite_id}")
@@ -1870,7 +1865,7 @@ async def get_matieres_api(filiere_id: str, db: Session = Depends(get_db)):
 @app.get("/api/universite/{universite_id}")
 async def get_universite_api(universite_id: str, db: Session = Depends(get_db)):
     """Get university information including logo"""
-    uni = db.query(UniversiteDB).filter_by(id=universite_id).first()
+    uni = db.query(Universite).filter_by(id=universite_id).first()
     
     if uni:
         return {
