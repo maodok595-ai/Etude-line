@@ -15,6 +15,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f6fa;
             min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
         }
         
         .navbar {
@@ -647,6 +651,45 @@
                 form.submit();
             }
         }
+    </script>
+    
+    <script>
+        // Charger le logo de l'université du professeur au chargement de la page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const universiteId = '{{ prof.universite_id }}';
+            console.log('ID université professeur:', universiteId);
+            if (universiteId && universiteId !== 'None' && universiteId !== '') {
+                try {
+                    const response = await fetch(`/api/universite/${universiteId}`);
+                    const data = await response.json();
+                    console.log('Données université professeur:', data);
+                    
+                    if (data.logo_url) {
+                        console.log('Application du logo en arrière-plan pour le professeur:', data.logo_url);
+                        // Appliquer le logo comme fond avec overlay semi-transparent
+                        document.body.style.background = `
+                            linear-gradient(rgba(245, 246, 250, 0.85), rgba(245, 246, 250, 0.85)),
+                            url('${data.logo_url}')
+                        `;
+                        document.body.style.backgroundSize = 'cover';
+                        document.body.style.backgroundPosition = 'center';
+                        document.body.style.backgroundRepeat = 'no-repeat';
+                        
+                        // Précharger l'image
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('Logo universitaire chargé avec succès pour le professeur');
+                        };
+                        img.onerror = function() {
+                            console.error('Erreur lors du chargement du logo universitaire pour le professeur');
+                        };
+                        img.src = data.logo_url;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement du logo universitaire:', error);
+                }
+            }
+        });
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
