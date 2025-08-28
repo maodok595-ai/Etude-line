@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 from sqlalchemy.orm import Session
-from database import engine, SessionLocal, create_tables
+from database import engine, SessionLocal, create_tables, reset_database
 from models import *
 import uuid
 from passlib.context import CryptContext
@@ -94,8 +94,10 @@ def migrate_data():
     """Migrer les données JSON vers PostgreSQL"""
     print("🔄 Début de la migration des données...")
     
-    # Créer les tables
-    create_tables()
+    # Supprimer l'ancienne base de données et créer une nouvelle
+    print("🗑️ Suppression de l'ancienne base de données...")
+    reset_database()
+    print("✨ Nouvelle base de données de production créée...")
     
     # Charger les données JSON
     data = load_json_data()
