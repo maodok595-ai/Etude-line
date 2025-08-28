@@ -463,38 +463,11 @@
                     });
                     ufrSelect.disabled = false;
                     
-                    // Charger et appliquer le logo de l'université comme fond
-                    const uniResponse = await fetch(`/api/universite/${universiteId}`);
-                    const uniData = await uniResponse.json();
-                    
-                    if (uniData.logo_url) {
-                        console.log('Chargement du logo universitaire:', uniData.logo_url);
-                        // Créer un overlay semi-transparent pour garder la lisibilité
-                        document.body.style.background = `
-                            linear-gradient(rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)),
-                            url('${uniData.logo_url}')
-                        `;
-                        document.body.style.backgroundSize = 'cover';
-                        document.body.style.backgroundPosition = 'center';
-                        document.body.style.backgroundRepeat = 'no-repeat';
-                        
-                        // Précharger l'image pour s'assurer qu'elle est disponible
-                        const img = new Image();
-                        img.onload = function() {
-                            console.log('Logo chargé avec succès');
-                        };
-                        img.onerror = function() {
-                            console.error('Erreur lors du chargement du logo');
-                        };
-                        img.src = uniData.logo_url;
-                    }
+                    // Note: Le logo s'affichera uniquement dans les dashboards après connexion
                 } catch (error) {
                     console.error('Erreur lors du chargement des UFR:', error);
                     resetSelect(ufrSelect, 'Erreur lors du chargement');
                 }
-            } else {
-                // Remettre le fond par défaut si aucune université sélectionnée
-                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }
         });
         
