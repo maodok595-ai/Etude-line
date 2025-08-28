@@ -879,7 +879,7 @@ async def create_chapitre_complet(
         return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du chapitre: {str(e)}", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
-async def serve_uploaded_file(file_path: str):
+async def serve_uploaded_file(file_path: str, request: Request):
     """Serve uploaded files with proper content type for browser viewing"""
     import mimetypes
     
@@ -897,15 +897,35 @@ async def serve_uploaded_file(file_path: str):
     if mime_type is None:
         mime_type = 'application/octet-stream'
     
-    # Pour les PDF, on veut qu'ils s'ouvrent dans le navigateur
+    # Détecter si c'est un appareil mobile
+    user_agent = request.headers.get("user-agent", "").lower()
+    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
+    
+    # Pour les PDF, optimiser selon le type d'appareil
     if mime_type == 'application/pdf':
+        headers = {}
+        
+        if is_mobile:
+            # Sur mobile, forcer le téléchargement car l'affichage inline pose souvent problème
+            headers = {
+                "Content-Disposition": f'attachment; filename="{file_location.name}"',
+                "Cache-Control": "no-cache",
+                "Content-Transfer-Encoding": "binary"
+            }
+        else:
+            # Sur desktop, affichage inline
+            headers = {
+                "Content-Disposition": "inline",
+                "Cache-Control": "public, max-age=3600"
+            }
+        
         return FileResponse(
             path=file_location,
             media_type=mime_type,
-            headers={"Content-Disposition": "inline"}
+            headers=headers
         )
     else:
-        # Pour les autres fichiers, on garde le comportement de téléchargement
+        # Pour les autres fichiers, téléchargement direct
         return FileResponse(
             path=file_location,
             filename=file_location.name,
