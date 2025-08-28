@@ -871,11 +871,20 @@ async def serve_uploaded_file(file_path: str):
     if mime_type is None:
         mime_type = 'application/octet-stream'
     
-    return FileResponse(
-        path=file_location,
-        filename=file_location.name,
-        media_type=mime_type
-    )
+    # Pour les PDF, on veut qu'ils s'ouvrent dans le navigateur
+    if mime_type == 'application/pdf':
+        return FileResponse(
+            path=file_location,
+            media_type=mime_type,
+            headers={"Content-Disposition": "inline"}
+        )
+    else:
+        # Pour les autres fichiers, on garde le comportement de téléchargement
+        return FileResponse(
+            path=file_location,
+            filename=file_location.name,
+            media_type=mime_type
+        )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
 async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
