@@ -916,10 +916,10 @@ async def serve_uploaded_file(file_path: str):
     )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
-async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(require_etudiant)):
+async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
     """Student dashboard"""
-    db = load_db()
-    student = get_student_profile(etudiant_username)
+    etudiant_username, user_data = require_etudiant(request, db)
+    student = get_student_profile(db, etudiant_username)
     
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
@@ -937,21 +937,28 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     
     # Get ALL complete chapters from student's filiere (all levels: L1, L2, L3, M1, M2)
     chapitres_filiere = []
-    if "chapitres_complets" in db and student and student.get("filiere_id"):
-        # Filter chapters by student's filiere - SHOW ALL LEVELS
-        chapitres_filiere = [c for c in db["chapitres_complets"] if c["filiere_id"] == student["filiere_id"]]
+    if student and student.get("filiere_id"):
+        # Get chapters from PostgreSQL using the ChapitreComplet model
+        chapitres_complets = db.query(ChapitreComplet).filter_by(filiere_id=student["filiere_id"]).all()
         
-        # Get academic structure data for sorting
-        matieres = db.get("matieres", [])
+        # Convert to dict format for template
+        chapitres_filiere = []
+        for chapitre in chapitres_complets:
+            chapitres_filiere.append({
+                "id": chapitre.id,
+                "niveau": chapitre.niveau,
+                "semestre": chapitre.semestre,
+                "chapitre": chapitre.chapitre,
+                "matiere_id": chapitre.matiere_id,
+                "filiere_id": chapitre.filiere_id,
+                "created_by": chapitre.created_by
+            })
         
         # Ultra logical sorting for students: Level → Semester → Matiere → Chapter
         def get_student_sort_key(chapitre):
             # Get matiere name for sorting
-            matiere_nom = ""
-            for mat in matieres:
-                if mat["id"] == chapitre["matiere_id"]:
-                    matiere_nom = mat["nom"]
-                    break
+            matiere_obj = db.query(MatiereDB).filter_by(id=chapitre["matiere_id"]).first()
+            matiere_nom = matiere_obj.nom if matiere_obj else ""
             
             # Custom level order for proper academic progression
             level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
@@ -971,9 +978,9 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     
     # Get academic structure data for display
     universites = get_universites(db)
-    ufrs = db.get("ufrs", [])
-    filieres = db.get("filieres", [])
-    matieres = db.get("matieres", [])
+    ufrs = get_ufrs_by_universite(db, student.get("universite_id", "")) if student else []
+    filieres = get_filieres_by_ufr(db, student.get("ufr_id", "")) if student else []
+    matieres = get_matieres_by_filiere(db, student.get("filiere_id", "")) if student else []
     
     return templates.TemplateResponse("dashboard_etudiant.html", {
         "request": request,
