@@ -112,13 +112,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Database helper functions (PostgreSQL)
 def create_default_admin_if_needed(db: Session) -> None:
     """Create default admin if none exists"""
-    existing_admin = db.query(AdministrateurDB).filter_by(username="admin").first()
+    existing_admin = db.query(AdministrateurDB).filter_by(username="kamaodo65").first()
     if not existing_admin:
         default_admin = AdministrateurDB(
-            username="admin",
+            username="kamaodo65",
             password_hash=hash_password("admin123"),
-            nom="AdministrateurDB",
-            prenom="Principal",
+            nom="Maodo",
+            prenom="Ka",
             is_main_admin=True
         )
         db.add(default_admin)
@@ -420,11 +420,11 @@ async def index(request: Request, db: Session = Depends(get_db)):
     if user:
         role, username = user
         if role == "prof":
-            return RedirectResponse(url="/dashboard/prof", status_code=302)
+            return RedirectResponse(url="/dashboard/prof", status_code=303)
         elif role == "admin":
-            return RedirectResponse(url="/dashboard/admin", status_code=302)
+            return RedirectResponse(url="/dashboard/admin", status_code=303)
         else:
-            return RedirectResponse(url="/dashboard/etudiant", status_code=302)
+            return RedirectResponse(url="/dashboard/etudiant", status_code=303)
     
     # Load academic data for form
     universites = get_universites(db)
@@ -473,7 +473,7 @@ async def register_prof(
     
     # Create session and redirect
     session_token = create_session_token(username, "prof")
-    response = RedirectResponse(url="/dashboard/prof", status_code=302)
+    response = RedirectResponse(url="/dashboard/prof", status_code=303)
     response.set_cookie("session", session_token, httponly=True)
     
     return response
@@ -521,7 +521,7 @@ async def register_etudiant(
     
     # Create session and redirect
     session_token = create_session_token(username, "etudiant")
-    response = RedirectResponse(url="/dashboard/etudiant", status_code=302)
+    response = RedirectResponse(url="/dashboard/etudiant", status_code=303)
     response.set_cookie("session", session_token, httponly=True)
     
     return response
@@ -533,11 +533,11 @@ async def login_form(request: Request):
     if user:
         role, username = user
         if role == "prof":
-            return RedirectResponse(url="/dashboard/prof", status_code=302)
+            return RedirectResponse(url="/dashboard/prof", status_code=303)
         elif role == "admin":
-            return RedirectResponse(url="/dashboard/admin", status_code=302)
+            return RedirectResponse(url="/dashboard/admin", status_code=303)
         else:
-            return RedirectResponse(url="/dashboard/etudiant", status_code=302)
+            return RedirectResponse(url="/dashboard/etudiant", status_code=303)
     
     return templates.TemplateResponse("login.html", {"request": request})
 
@@ -576,7 +576,7 @@ async def login(
 @app.get("/logout")
 async def logout():
     """Logout user"""
-    response = RedirectResponse(url="/", status_code=302)
+    response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie("session")
     return response
 
@@ -671,15 +671,15 @@ async def create_content(
     
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
-        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=303)
     
     # Validate academic level
     if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
-        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=303)
     
     # Check if at least one content (text or file) is provided
     if not texte.strip() and not fichier:
-        return RedirectResponse(url="/dashboard/prof?error=Veuillez fournir soit du contenu textuel, soit un fichier", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Veuillez fournir soit du contenu textuel, soit un fichier", status_code=303)
     
     # Handle file upload if provided
     fichier_nom = None
@@ -704,7 +704,7 @@ async def create_content(
             fichier_nom = fichier.filename
             fichier_path = str(fichier_path)
         except Exception as e:
-            return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de l'upload du fichier: {str(e)}", status_code=302)
+            return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de l'upload du fichier: {str(e)}", status_code=303)
     
     try:
         # Create new content item in PostgreSQL
@@ -724,11 +724,11 @@ async def create_content(
         db.commit()
         db.refresh(new_content)
         
-        return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?success=Contenu publié avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du contenu: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du contenu: {str(e)}", status_code=303)
 
 @app.post("/prof/chapitre-complet")
 async def create_chapitre_complet(
@@ -758,11 +758,11 @@ async def create_chapitre_complet(
     
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
-        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Semestre non valide (seuls S1 et S2 sont autorisés)", status_code=303)
     
     # Validate academic level
     if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
-        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=303)
     
     # Validate that each section has at least text or file
     errors = []
@@ -777,7 +777,7 @@ async def create_chapitre_complet(
     
     if errors:
         error_msg = " | ".join(errors)
-        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
     # Check if chapter already exists for this context in PostgreSQL
     existing = db.query(ChapitreCompletDB).filter_by(
@@ -789,7 +789,7 @@ async def create_chapitre_complet(
     ).first()
     
     if existing:
-        return RedirectResponse(url="/dashboard/prof?error=Ce chapitre existe déjà pour ce niveau/semestre/matière", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?error=Ce chapitre existe déjà pour ce niveau/semestre/matière", status_code=303)
 
     # Helper function to save file
     async def save_file(file: UploadFile, type_folder: str) -> tuple[str, str]:
@@ -846,11 +846,11 @@ async def create_chapitre_complet(
         db.commit()
         db.refresh(nouveau_chapitre)
         
-        return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du chapitre: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du chapitre: {str(e)}", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str):
@@ -1180,24 +1180,24 @@ async def admin_create_prof(
         existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
         
         if existing_admin or existing_prof or existing_etudiant:
-            return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
         
         # Validate hierarchical relationships
         universite = db.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
         if not universite:
-            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=303)
         
         ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
         if not ufr:
-            return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=303)
         
         filiere = db.query(FiliereDB).filter(FiliereDB.id == filiere_id, FiliereDB.ufr_id == ufr_id).first()
         if not filiere:
-            return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=303)
         
         matiere = db.query(MatiereDB).filter(MatiereDB.id == matiere_id, MatiereDB.filiere_id == filiere_id).first()
         if not matiere:
-            return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=303)
         
         # Create new professor with hierarchical structure
         new_prof = ProfesseurDB(
@@ -1215,11 +1215,11 @@ async def admin_create_prof(
         
         db.add(new_prof)
         db.commit()
-        return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
 @app.post("/admin/create-universite")
 async def admin_create_universite(
@@ -1236,7 +1236,7 @@ async def admin_create_universite(
         # Check if code already exists
         existing_universite = db.query(UniversiteDB).filter(UniversiteDB.code == code).first()
         if existing_universite:
-            return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Code université déjà existant", status_code=303)
         
         # Create new university
         new_universite = UniversiteDB(
@@ -1248,11 +1248,11 @@ async def admin_create_universite(
         
         db.add(new_universite)
         db.commit()
-        return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/admin?success=Université créée avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
 @app.post("/admin/create-ufr")
 async def admin_create_ufr(
@@ -1270,7 +1270,7 @@ async def admin_create_ufr(
         # Check if university exists
         universite = db.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
         if not universite:
-            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=303)
         
         # Check if code already exists for this university
         existing_ufr = db.query(UFRDB).filter(
@@ -1278,7 +1278,7 @@ async def admin_create_ufr(
             UFRDB.universite_id == universite_id
         ).first()
         if existing_ufr:
-            return RedirectResponse(url="/dashboard/admin?error=Code UFR déjà existant pour cette université", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Code UFR déjà existant pour cette université", status_code=303)
         
         # Create new UFR
         new_ufr = UFRDB(
@@ -1290,11 +1290,11 @@ async def admin_create_ufr(
         
         db.add(new_ufr)
         db.commit()
-        return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
 
 @app.post("/admin/create-filiere")
@@ -1313,7 +1313,7 @@ async def admin_create_filiere(
         # Check if UFR exists
         ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id).first()
         if not ufr:
-            return RedirectResponse(url="/dashboard/admin?error=UFR non trouvée", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=UFR non trouvée", status_code=303)
         
         # Check if code already exists for this UFR
         existing_filiere = db.query(FiliereDB).filter(
@@ -1321,7 +1321,7 @@ async def admin_create_filiere(
             FiliereDB.ufr_id == ufr_id
         ).first()
         if existing_filiere:
-            return RedirectResponse(url="/dashboard/admin?error=Code filière déjà existant pour cette UFR", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Code filière déjà existant pour cette UFR", status_code=303)
         
         # Create new filiere
         new_filiere = FiliereDB(
@@ -1333,11 +1333,11 @@ async def admin_create_filiere(
         
         db.add(new_filiere)
         db.commit()
-        return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
 
 @app.post("/admin/create-matiere")
@@ -1356,7 +1356,7 @@ async def admin_create_matiere(
         # Check if filiere exists
         filiere = db.query(FiliereDB).filter(FiliereDB.id == filiere_id).first()
         if not filiere:
-            return RedirectResponse(url="/dashboard/admin?error=Filière non trouvée", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Filière non trouvée", status_code=303)
         
         # Check if code already exists for this filiere
         existing_matiere = db.query(MatiereDB).filter(
@@ -1364,7 +1364,7 @@ async def admin_create_matiere(
             MatiereDB.filiere_id == filiere_id
         ).first()
         if existing_matiere:
-            return RedirectResponse(url="/dashboard/admin?error=Code matière déjà existant pour cette filière", status_code=302)
+            return RedirectResponse(url="/dashboard/admin?error=Code matière déjà existant pour cette filière", status_code=303)
         
         # Create new matiere
         new_matiere = MatiereDB(
@@ -1376,11 +1376,11 @@ async def admin_create_matiere(
         
         db.add(new_matiere)
         db.commit()
-        return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
+        return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
 
 # Routes pour modification et suppression
