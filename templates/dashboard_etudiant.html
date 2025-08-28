@@ -733,7 +733,7 @@
     <script>
         // Charger le logo de l'université de l'étudiant au chargement de la page
         document.addEventListener('DOMContentLoaded', async function() {
-            const universiteId = '{{ user.universite_id }}';
+            const universiteId = '{{ student.universite_id }}';
             console.log('ID université étudiant:', universiteId);
             if (universiteId && universiteId !== 'None' && universiteId !== '') {
                 try {
