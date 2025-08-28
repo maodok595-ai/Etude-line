@@ -1172,7 +1172,8 @@ async def admin_create_universite(
     new_universite = {
         "id": str(uuid.uuid4()),
         "nom": nom,
-        "code": code
+        "code": code,
+        "logo_url": None
     }
     
     if "universites" not in db:
@@ -1538,6 +1539,52 @@ async def admin_delete_matiere(
     save_db(db)
     return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
 
+# Route pour upload de logo université
+@app.post("/admin/upload-logo")
+async def admin_upload_logo(
+    request: Request,
+    admin_username: str = Depends(require_admin),
+    universite_id: str = Form(...),
+    logo: UploadFile = File(...)
+):
+    """Admin uploads logo for university"""
+    try:
+        # Validate file type
+        if not logo.content_type.startswith('image/'):
+            return RedirectResponse("/dashboard/admin?error=Le fichier doit être une image", status_code=303)
+        
+        # Save file with unique name
+        file_extension = logo.filename.split('.')[-1]
+        unique_filename = f"logo_universite_{universite_id}_{uuid.uuid4().hex[:8]}.{file_extension}"
+        file_path = f"static/{unique_filename}"
+        
+        # Create static directory if it doesn't exist
+        os.makedirs("static", exist_ok=True)
+        
+        # Save file
+        with open(file_path, "wb") as f:
+            content = await logo.read()
+            f.write(content)
+        
+        # Update database
+        db = load_db()
+        for uni in db.get("universites", []):
+            if uni["id"] == universite_id:
+                # Remove old logo file if exists
+                if uni.get("logo_url") and uni["logo_url"].startswith("/static/"):
+                    old_file_path = uni["logo_url"][1:]  # Remove leading slash
+                    if os.path.exists(old_file_path):
+                        os.remove(old_file_path)
+                
+                uni["logo_url"] = f"/{file_path}"
+                break
+        
+        save_db(db)
+        return RedirectResponse("/dashboard/admin?success=Logo téléchargé avec succès", status_code=303)
+        
+    except Exception as e:
+        return RedirectResponse(f"/dashboard/admin?error=Erreur lors du téléchargement: {str(e)}", status_code=303)
+
 # Routes pour les professeurs - modification et suppression de chapitres
 @app.post("/prof/edit-chapitre")
 async def prof_edit_chapitre(
@@ -1616,6 +1663,23 @@ async def get_matieres_api(filiere_id: str):
     db = load_db()
     matieres = get_matieres_by_filiere(db, filiere_id)
     return {"matieres": matieres}
+
+@app.get("/api/universite/{universite_id}")
+async def get_universite_api(universite_id: str):
+    """Get university information including logo"""
+    db = load_db()
+    universites = db.get("universites", [])
+    
+    for uni in universites:
+        if uni["id"] == universite_id:
+            return {
+                "id": uni["id"],
+                "nom": uni["nom"],
+                "code": uni["code"],
+                "logo_url": uni.get("logo_url")
+            }
+    
+    raise HTTPException(status_code=404, detail="Université non trouvée")
 
 if __name__ == "__main__":
     print("=" * 50)

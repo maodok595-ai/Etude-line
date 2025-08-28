@@ -19,6 +19,10 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
         }
         
         .container {
@@ -291,6 +295,7 @@
             
             if (universiteId) {
                 try {
+                    // Charger les UFR
                     const response = await fetch(`/api/ufrs/${universiteId}`);
                     const data = await response.json();
                     
@@ -302,10 +307,28 @@
                         ufrSelect.appendChild(option);
                     });
                     ufrSelect.disabled = false;
+                    
+                    // Charger et appliquer le logo de l'université comme fond
+                    const uniResponse = await fetch(`/api/universite/${universiteId}`);
+                    const uniData = await uniResponse.json();
+                    
+                    if (uniData.logo_url) {
+                        // Créer un overlay semi-transparent pour garder la lisibilité
+                        document.body.style.background = `
+                            linear-gradient(rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7)),
+                            url('${uniData.logo_url}')
+                        `;
+                        document.body.style.backgroundSize = 'cover';
+                        document.body.style.backgroundPosition = 'center';
+                        document.body.style.backgroundRepeat = 'no-repeat';
+                    }
                 } catch (error) {
                     console.error('Erreur lors du chargement des UFR:', error);
                     resetSelect(ufrSelect, 'Erreur lors du chargement');
                 }
+            } else {
+                // Remettre le fond par défaut si aucune université sélectionnée
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }
         });
         

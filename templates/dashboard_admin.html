@@ -599,11 +599,25 @@
                         {% if universites %}
                             {% for uni in universites %}
                             <div class="academic-item">
-                                <h4>{{ uni.nom }}</h4>
-                                <div class="academic-code">Code: {{ uni.code }}</div>
-                                <div class="action-buttons">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    {% if uni.logo_url %}
+                                        <img src="{{ uni.logo_url }}" alt="Logo {{ uni.nom }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+                                    {% else %}
+                                        <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd;">
+                                            🏛️
+                                        </div>
+                                    {% endif %}
+                                    <div style="flex-grow: 1;">
+                                        <h4>{{ uni.nom }}</h4>
+                                        <div class="academic-code">Code: {{ uni.code }}</div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons" style="margin-top: 0.5rem;">
                                     <button class="btn-edit btn-small" onclick="editUniversite('{{ uni.id }}', '{{ uni.nom }}', '{{ uni.code }}')">
                                         ✏️ Modifier
+                                    </button>
+                                    <button class="btn-small" onclick="uploadLogo('{{ uni.id }}', '{{ uni.nom }}')" style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                        📸 Logo
                                     </button>
                                     <button class="btn-delete btn-small" onclick="deleteUniversite('{{ uni.id }}', '{{ uni.nom }}')">
                                         🗑️ Supprimer
@@ -617,6 +631,23 @@
                             </div>
                         {% endif %}
                     </div>
+                </div>
+                
+                <!-- Formulaire d'upload de logo (caché par défaut) -->
+                <div id="logoUploadForm" style="display: none;" class="card">
+                    <h3>📸 Ajouter un logo à l'université</h3>
+                    <form id="logoForm" action="/admin/upload-logo" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="logoUniversiteId" name="universite_id">
+                        <div class="form-group">
+                            <label for="logoFile">Choisir un logo (JPG, PNG, GIF)</label>
+                            <input type="file" id="logoFile" name="logo" accept="image/*" required>
+                            <small style="color: #666;">Taille recommandée: 500x500 pixels maximum</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button type="submit" class="btn">📸 Télécharger le logo</button>
+                            <button type="button" class="btn" style="background: #666;" onclick="cancelLogoUpload()">Annuler</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1118,6 +1149,19 @@
                 document.body.appendChild(form);
                 form.submit();
             }
+        }
+        
+        // Fonctions pour gestion des logos
+        function uploadLogo(universiteId, universiteNom) {
+            document.getElementById('logoUniversiteId').value = universiteId;
+            document.getElementById('logoUploadForm').style.display = 'block';
+            document.querySelector('#logoUploadForm h3').textContent = `📸 Ajouter un logo à "${universiteNom}"`;
+            document.getElementById('logoUploadForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function cancelLogoUpload() {
+            document.getElementById('logoUploadForm').style.display = 'none';
+            document.getElementById('logoForm').reset();
         }
     </script>
     
