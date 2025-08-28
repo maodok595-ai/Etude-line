@@ -937,7 +937,7 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
     chapitres_filiere = []
     if student and student.get("filiere_id"):
         # Get chapters from PostgreSQL using the ChapitreComplet model
-        chapitres_complets = db.query(ChapitreComplet).filter_by(filiere_id=student["filiere_id"]).all()
+        chapitres_complets = db.query(ChapitreCompletDB).filter_by(filiere_id=student["filiere_id"]).all()
         
         # Convert to dict format for template
         chapitres_filiere = []
