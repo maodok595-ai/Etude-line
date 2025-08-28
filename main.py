@@ -953,10 +953,6 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
     filieres = db.get("filieres", [])
     matieres = db.get("matieres", [])
     
-    print(f"DEBUG - Sending to template: {len(chapitres_filiere)} chapitres")
-    for i, chap in enumerate(chapitres_filiere):
-        print(f"DEBUG - Chapitre {i+1}: Niveau {chap['niveau']}, Titre: {chap['titre']}")
-    
     return templates.TemplateResponse("dashboard_etudiant.html", {
         "request": request,
         "student": student,
