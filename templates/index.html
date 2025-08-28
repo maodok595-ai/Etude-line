@@ -31,6 +31,7 @@
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -61,6 +62,9 @@
             body {
                 padding: 5px !important;
                 min-height: 100vh;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
             }
             
             .container {
@@ -99,6 +103,28 @@
                 flex-direction: column !important;
                 gap: 15px !important;
                 grid-template-columns: none !important;
+                width: 100% !important;
+            }
+            
+            .main-content {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 20px !important;
+            }
+            
+            .login-link {
+                margin-top: 20px !important;
+                width: 100% !important;
+                clear: both !important;
+                display: block !important;
+            }
+            
+            footer {
+                margin-top: 30px !important;
+                width: 100% !important;
+                display: block !important;
+                clear: both !important;
+                position: relative !important;
             }
             
             .role-card {
@@ -227,6 +253,7 @@
             display: flex;
             justify-content: center;
             margin-bottom: 30px;
+            width: 100%;
         }
         
         .card {
@@ -611,8 +638,8 @@
         });
     </script>
     
-    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
+    <footer style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem; width: 100%; clear: both; display: block;">
         © 2025 Maodo Ka - Tous droits réservés | Étude LINE
-    </div>
+    </footer>
 </body>
 </html>
