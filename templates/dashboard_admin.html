@@ -96,6 +96,96 @@
             margin: 2rem auto;
             padding: 0 2rem;
         }
+
+        /* Mobile Responsive */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                text-align: center !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .container {
+                margin: 1rem auto !important;
+                padding: 0 1rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            
+            .card {
+                padding: 1.5rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem !important;
+            }
+            
+            .btn {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.9rem !important;
+                width: 100% !important;
+                margin-top: 10px !important;
+            }
+            
+            table {
+                font-size: 0.85rem !important;
+            }
+            
+            th, td {
+                padding: 0.5rem !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .navbar {
+                padding: 0.75rem !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .container {
+                margin: 0.5rem auto !important;
+                padding: 0 0.5rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1rem !important;
+            }
+            
+            .card {
+                padding: 1rem !important;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
         
         .alert {
             padding: 1rem;

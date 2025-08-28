@@ -51,18 +51,21 @@
             overflow: hidden;
         }
 
-        /* Mobile Responsive - Version renforcée */
+        /* Mobile Responsive - Version optimisée */
         @media screen and (max-width: 768px) {
             body {
-                padding: 10px !important;
+                padding: 15px !important;
                 min-height: 100vh;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             
             .login-container {
-                padding: 1.5rem !important;
-                margin: 5px !important;
-                max-width: calc(100vw - 20px) !important;
-                width: calc(100vw - 20px) !important;
+                padding: 2rem !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
                 box-sizing: border-box !important;
             }
             
@@ -118,14 +121,15 @@
 
         @media screen and (max-width: 480px) {
             body {
-                padding: 5px !important;
+                padding: 10px !important;
             }
             
             .login-container {
-                padding: 1rem !important;
-                margin: 3px !important;
-                max-width: calc(100vw - 10px) !important;
-                width: calc(100vw - 10px) !important;
+                padding: 1.5rem !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             
             .header h1 {
