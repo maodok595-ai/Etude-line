@@ -6,8 +6,13 @@ import os
 # Configuration de la base de données
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
 
-# Création de l'engine et de la session
-engine = create_engine(DATABASE_URL)
+# Création de l'engine et de la session avec configuration SSL
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    connect_args={"sslmode": "prefer"}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
