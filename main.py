@@ -911,9 +911,22 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
                 "niveau": chapitre.niveau,
                 "semestre": chapitre.semestre,
                 "chapitre": chapitre.chapitre,
+                "titre": chapitre.titre,
                 "matiere_id": chapitre.matiere_id,
                 "filiere_id": chapitre.filiere_id,
-                "created_by": chapitre.created_by
+                "created_by": chapitre.created_by,
+                # Cours
+                "cours_texte": chapitre.cours_texte,
+                "cours_fichier_nom": chapitre.cours_fichier_nom,
+                "cours_fichier_path": chapitre.cours_fichier_path,
+                # Exercices
+                "exercice_texte": chapitre.exercice_texte,
+                "exercice_fichier_nom": chapitre.exercice_fichier_nom,
+                "exercice_fichier_path": chapitre.exercice_fichier_path,
+                # Solutions
+                "solution_texte": chapitre.solution_texte,
+                "solution_fichier_nom": chapitre.solution_fichier_nom,
+                "solution_fichier_path": chapitre.solution_fichier_path
             })
         
         # Ultra logical sorting for students: Level → Semester → Matiere → Chapter
