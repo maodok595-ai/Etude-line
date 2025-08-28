@@ -1020,7 +1020,7 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db)):
         content_stats[content_type] = content_stats.get(content_type, 0) + 1
     
     # Count chapitres complets by type (cours, exercice, solution)
-    chapitres = db.query(ChapitreComplet).all()
+    chapitres = db.query(ChapitreCompletDB).all()
     chapitre_stats = {
         "cours": 0,
         "exercice": 0, 
@@ -1039,10 +1039,10 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db)):
             chapitre_stats["solution"] += 1
     
     # Academic structure counts
-    uni_count = db.query(Universite).count()
-    ufr_count = db.query(UFR).count()
-    filiere_count = db.query(Filiere).count()
-    matiere_count = db.query(Matiere).count()
+    uni_count = db.query(UniversiteDB).count()
+    ufr_count = db.query(UFRDB).count()
+    filiere_count = db.query(FiliereDB).count()
+    matiere_count = db.query(MatiereDB).count()
     
     # Total content includes both individual contents and chapter components
     total_content = len(contents) + sum(chapitre_stats.values())
@@ -1101,9 +1101,9 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     
     # Get academic structure data
     universites = get_universites(db)
-    ufrs_data = db.query(UFR).all()
-    filieres_data = db.query(Filiere).all()
-    matieres_data = db.query(Matiere).all()
+    ufrs_data = db.query(UFRDB).all()
+    filieres_data = db.query(FiliereDB).all()
+    matieres_data = db.query(MatiereDB).all()
     
     # Get statistics for display
     stats_response = await get_admin_stats(request, db)
