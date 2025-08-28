@@ -1404,7 +1404,7 @@ async def admin_edit_admin(
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des administrateurs", status_code=303)
     
     try:
-        admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
         if admin:
             admin.nom = nom
             admin.prenom = prenom
@@ -1421,7 +1421,8 @@ async def admin_edit_admin(
 async def admin_delete_admin(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    username: str = Form(...)
+    username: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete administrator (only for principal admin)"""
 
@@ -1436,7 +1437,7 @@ async def admin_delete_admin(
         return RedirectResponse("/dashboard/admin?error=L'administrateur principal ne peut pas être supprimé", status_code=303)
     
     try:
-        admin = db_session.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
+        admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
         if admin:
             db.delete(admin)
             db.commit()
@@ -1456,14 +1457,15 @@ async def admin_edit_prof(
     username: str = Form(...),
     nom: str = Form(...),
     prenom: str = Form(...),
-    specialite: str = Form(...)
+    specialite: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Edit professor"""
 
     admin_username, admin_data = admin_info
     
     try:
-        prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
         if prof:
             prof.nom = nom
             prof.prenom = prenom
@@ -1481,17 +1483,18 @@ async def admin_edit_prof(
 async def admin_delete_prof(
     request: Request,
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
-    username: str = Form(...)
+    username: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Delete professor and all their content"""
 
     admin_username, admin_data = admin_info
     
     try:
-        prof = db_session.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
         if prof:
             # Supprimer d'abord tout le contenu créé par ce professeur
-            chapitres = db_session.query(ChapitreComplet).filter(ChapitreComplet.created_by == username).all()
+            chapitres = db.query(ChapitreComplet).filter(ChapitreComplet.created_by == username).all()
             for chapitre in chapitres:
                 db.delete(chapitre)
             
