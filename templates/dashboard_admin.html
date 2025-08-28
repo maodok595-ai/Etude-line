@@ -363,7 +363,7 @@
         <div id="content-admin" class="tab-content active">
             <div class="main-content">
                 <!-- Formulaire de création d'administrateur (réservé à l'admin principal) -->
-                {% if admin.username == 'maodo_ka' %}
+                {% if admin.is_main_admin %}
                 <div class="card">
                     <h3>👑 Créer un administrateur</h3>
                     <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
@@ -413,10 +413,10 @@
                     <div class="prof-list">
                         {% if admins %}
                             {% for administrator in admins %}
-                            <div class="prof-item" style="{% if administrator.username == 'maodo_ka' %}border-left: 4px solid #f39c12; background: linear-gradient(135deg, #fff7e6, #ffeaa7);{% elif administrator.username == admin.username %}border-left: 4px solid #667eea;{% endif %}">
+                            <div class="prof-item" style="{% if administrator.get('is_main_admin') %}border-left: 4px solid #f39c12; background: linear-gradient(135deg, #fff7e6, #ffeaa7);{% elif administrator.username == admin.username %}border-left: 4px solid #667eea;{% endif %}">
                                 <div class="prof-name">
                                     {{ administrator.prenom }} {{ administrator.nom }}
-                                    {% if administrator.username == 'maodo_ka' %}
+                                    {% if administrator.get('is_main_admin') %}
                                         <span style="background: #f39c12; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">PRINCIPAL</span>
                                     {% elif administrator.username == admin.username %}
                                         <span style="background: #667eea; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">VOUS</span>
@@ -427,11 +427,11 @@
                                 </div>
                                 <div class="prof-meta">
                                     <span class="meta-tag">👑 Administrateur</span>
-                                    {% if administrator.username == 'maodo_ka' %}
+                                    {% if administrator.get('is_main_admin') %}
                                         <span class="meta-tag" style="background: #f39c12; color: white;">Administrateur Principal</span>
                                     {% endif %}
                                 </div>
-                                {% if administrator.username != 'maodo_ka' and admin.username == 'maodo_ka' %}
+                                {% if not administrator.get('is_main_admin') and admin.get('is_main_admin') %}
                                 <div class="action-buttons">
                                     <button class="btn-edit btn-small" onclick="editAdmin('{{ administrator.username }}', '{{ administrator.nom }}', '{{ administrator.prenom }}')">
                                         ✏️ Modifier

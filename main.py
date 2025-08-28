@@ -581,18 +581,10 @@ async def login(
     role: str = Form(...)
 ):
     """Process login"""
-    print(f"Tentative de connexion - Username: {username}, Role: {role}")
-    
     # Find user in the specified role
     user = find_user(username, role)
-    print(f"Utilisateur trouvé: {user is not None}")
-    
-    if user:
-        password_ok = verify_password(password, user["password_hash"])
-        print(f"Mot de passe correct: {password_ok}")
     
     if not user or not verify_password(password, user["password_hash"]):
-        print("Échec de la connexion - identifiants incorrects")
         return templates.TemplateResponse(
             "login.html", 
             {"request": request, "error": "Nom d'utilisateur, mot de passe ou rôle incorrect"}
@@ -1079,7 +1071,8 @@ async def admin_create_admin(
     db = load_db()
     
     # Vérifier que seul l'admin principal peut créer des admins
-    if admin_username != "maodo_ka":
+    admin_user = find_user(admin_username, "admin")
+    if not admin_user or not admin_user.get("is_main_admin", False):
         return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut créer des administrateurs", status_code=303)
     
     # Vérifier si le nom d'utilisateur existe déjà
