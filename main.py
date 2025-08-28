@@ -1830,6 +1830,65 @@ async def get_matieres_api(filiere_id: str, db: Session = Depends(get_db)):
     matieres = get_matieres_by_filiere(db, filiere_id)
     return {"matieres": matieres}
 
+# APIs pour l'administration - récupérer toutes les données
+@app.get("/api/universites")
+async def get_all_universites_api(db: Session = Depends(get_db)):
+    """Get all universities"""
+    universites = db.query(UniversiteDB).all()
+    return [
+        {
+            "id": uni.id,
+            "nom": uni.nom,
+            "code": uni.code,
+            "logo_url": uni.logo_url
+        } for uni in universites
+    ]
+
+@app.get("/api/all-ufrs")
+async def get_all_ufrs_api(db: Session = Depends(get_db)):
+    """Get all UFRs with university info"""
+    ufrs = db.query(UFRDB).join(UniversiteDB).all()
+    return [
+        {
+            "id": ufr.id,
+            "nom": ufr.nom,
+            "code": ufr.code,
+            "universite_id": ufr.universite_id,
+            "universite_nom": ufr.universite.nom
+        } for ufr in ufrs
+    ]
+
+@app.get("/api/all-filieres")
+async def get_all_filieres_api(db: Session = Depends(get_db)):
+    """Get all filières with UFR and university info"""
+    filieres = db.query(FiliereDB).join(UFRDB).join(UniversiteDB).all()
+    return [
+        {
+            "id": filiere.id,
+            "nom": filiere.nom,
+            "code": filiere.code,
+            "ufr_id": filiere.ufr_id,
+            "ufr_nom": filiere.ufr.nom,
+            "universite_nom": filiere.ufr.universite.nom
+        } for filiere in filieres
+    ]
+
+@app.get("/api/all-matieres")
+async def get_all_matieres_api(db: Session = Depends(get_db)):
+    """Get all matières with filière, UFR and university info"""
+    matieres = db.query(MatiereDB).join(FiliereDB).join(UFRDB).join(UniversiteDB).all()
+    return [
+        {
+            "id": matiere.id,
+            "nom": matiere.nom,
+            "code": matiere.code,
+            "filiere_id": matiere.filiere_id,
+            "filiere_nom": matiere.filiere.nom,
+            "ufr_nom": matiere.filiere.ufr.nom,
+            "universite_nom": matiere.filiere.ufr.universite.nom
+        } for matiere in matieres
+    ]
+
 @app.get("/api/universite/{universite_id}")
 async def get_universite_api(universite_id: str, db: Session = Depends(get_db)):
     """Get university information including logo"""
