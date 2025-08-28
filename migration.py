@@ -80,31 +80,41 @@ def migrate_data():
         # Migrer les administrateurs
         print("👑 Migration des administrateurs...")
         for admin_data in data.get("users", {}).get("admin", []):
-            admin = Administrateur(
-                username=admin_data["username"],
-                password_hash=admin_data["password_hash"],
-                nom=admin_data["nom"],
-                prenom=admin_data["prenom"],
-                is_main_admin=admin_data.get("is_main_admin", False)
-            )
-            db.merge(admin)
+            # Vérifier si l'admin existe déjà
+            existing_admin = db.query(Administrateur).filter_by(username=admin_data["username"]).first()
+            if not existing_admin:
+                admin = Administrateur(
+                    username=admin_data["username"],
+                    password_hash=admin_data["password_hash"],
+                    nom=admin_data["nom"],
+                    prenom=admin_data["prenom"],
+                    is_main_admin=admin_data.get("is_main_admin", False)
+                )
+                db.add(admin)
+            else:
+                print(f"   ⚠️ Administrateur {admin_data['username']} existe déjà, ignoré")
         
         # Migrer les professeurs
         print("👨‍🏫 Migration des professeurs...")
         for prof_data in data.get("users", {}).get("prof", []):
-            prof = Professeur(
-                username=prof_data["username"],
-                password_hash=prof_data["password_hash"],
-                nom=prof_data["nom"],
-                prenom=prof_data["prenom"],
-                specialite=prof_data["specialite"],
-                universite_id=prof_data.get("universite_id"),
-                ufr_id=prof_data.get("ufr_id"),
-                filiere_id=prof_data.get("filiere_id"),
-                matiere_id=prof_data.get("matiere_id"),
-                matiere=prof_data.get("matiere")
-            )
-            db.merge(prof)
+            # Vérifier si le professeur existe déjà
+            existing_prof = db.query(Professeur).filter_by(username=prof_data["username"]).first()
+            if not existing_prof:
+                prof = Professeur(
+                    username=prof_data["username"],
+                    password_hash=prof_data["password_hash"],
+                    nom=prof_data["nom"],
+                    prenom=prof_data["prenom"],
+                    specialite=prof_data["specialite"],
+                    universite_id=prof_data.get("universite_id"),
+                    ufr_id=prof_data.get("ufr_id"),
+                    filiere_id=prof_data.get("filiere_id"),
+                    matiere_id=prof_data.get("matiere_id"),
+                    matiere=prof_data.get("matiere")
+                )
+                db.add(prof)
+            else:
+                print(f"   ⚠️ Professeur {prof_data['username']} existe déjà, ignoré")
         
         # Migrer les étudiants
         print("👨‍🎓 Migration des étudiants...")
@@ -128,17 +138,22 @@ def migrate_data():
                 print(f"⚠️  Étudiant {etudiant_data['username']} ignoré - IDs manquants")
                 continue
             
-            etudiant = Etudiant(
-                username=etudiant_data["username"],
-                password_hash=etudiant_data["password_hash"],
-                nom=etudiant_data["nom"],
-                prenom=etudiant_data["prenom"],
-                niveau=etudiant_data["niveau"],
-                universite_id=universite_id,
-                ufr_id=ufr_id,
-                filiere_id=filiere_id
-            )
-            db.merge(etudiant)
+            # Vérifier si l'étudiant existe déjà
+            existing_etudiant = db.query(Etudiant).filter_by(username=etudiant_data["username"]).first()
+            if not existing_etudiant:
+                etudiant = Etudiant(
+                    username=etudiant_data["username"],
+                    password_hash=etudiant_data["password_hash"],
+                    nom=etudiant_data["nom"],
+                    prenom=etudiant_data["prenom"],
+                    niveau=etudiant_data["niveau"],
+                    universite_id=universite_id,
+                    ufr_id=ufr_id,
+                    filiere_id=filiere_id
+                )
+                db.add(etudiant)
+            else:
+                print(f"   ⚠️ Étudiant {etudiant_data['username']} existe déjà, ignoré")
         
         # Migrer les contenus
         print("📄 Migration des contenus...")

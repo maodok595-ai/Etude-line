@@ -484,30 +484,34 @@ async def register_prof(
     username: str = Form(...),
     password: str = Form(...),
     specialite: str = Form(...),
-    matiere: str = Form(...)
+    matiere: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Register new professor"""
-    db = load_db()
-    
     # Check if username already exists
-    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
+    existing_admin = db.query(Administrateur).filter_by(username=username).first()
+    existing_prof = db.query(Professeur).filter_by(username=username).first()
+    existing_etudiant = db.query(Etudiant).filter_by(username=username).first()
+    
+    if existing_admin or existing_prof or existing_etudiant:
+        universites = get_universites(db)
         return templates.TemplateResponse(
             "index.html", 
-            {"request": request, "error": "Ce nom d'utilisateur existe déjà"}
+            {"request": request, "error": "Ce nom d'utilisateur existe déjà", "universites": universites}
         )
     
     # Create new professor
-    new_prof = {
-        "username": username,
-        "password_hash": hash_password(password),
-        "nom": nom,
-        "prenom": prenom,
-        "specialite": specialite,
-        "matiere": matiere
-    }
+    new_prof = Professeur(
+        username=username,
+        password_hash=hash_password(password),
+        nom=nom,
+        prenom=prenom,
+        specialite=specialite,
+        matiere=matiere
+    )
     
-    db["users"]["prof"].append(new_prof)
-    save_db(db)
+    db.add(new_prof)
+    db.commit()
     
     # Create session and redirect
     session_token = create_session_token(username, "prof")
@@ -526,13 +530,16 @@ async def register_etudiant(
     universite_id: str = Form(...),
     ufr_id: str = Form(...),
     filiere_id: str = Form(...),
-    niveau: str = Form(...)
+    niveau: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Register new student"""
-    db = load_db()
-    
     # Check if username already exists
-    if find_user(username, "prof") or find_user(username, "etudiant") or find_user(username, "admin"):
+    existing_admin = db.query(Administrateur).filter_by(username=username).first()
+    existing_prof = db.query(Professeur).filter_by(username=username).first()
+    existing_etudiant = db.query(Etudiant).filter_by(username=username).first()
+    
+    if existing_admin or existing_prof or existing_etudiant:
         universites = get_universites(db)
         return templates.TemplateResponse(
             "index.html", 
@@ -540,19 +547,19 @@ async def register_etudiant(
         )
     
     # Create new student
-    new_etudiant = {
-        "username": username,
-        "password_hash": hash_password(password),
-        "nom": nom,
-        "prenom": prenom,
-        "universite_id": universite_id,
-        "ufr_id": ufr_id,
-        "filiere_id": filiere_id,
-        "niveau": niveau
-    }
+    new_etudiant = Etudiant(
+        username=username,
+        password_hash=hash_password(password),
+        nom=nom,
+        prenom=prenom,
+        universite_id=universite_id,
+        ufr_id=ufr_id,
+        filiere_id=filiere_id,
+        niveau=niveau
+    )
     
-    db["users"]["etudiant"].append(new_etudiant)
-    save_db(db)
+    db.add(new_etudiant)
+    db.commit()
     
     # Create session and redirect
     session_token = create_session_token(username, "etudiant")
