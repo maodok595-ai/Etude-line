@@ -615,10 +615,49 @@ async def dashboard_prof(request: Request, prof_username: str = Depends(require_
     # Get professor's contents
     prof_contents = [c for c in db["contents"] if c["created_by"] == prof_username]
     
-    # Get professor's complete chapters
+    # Get professor's complete chapters with ultra logical sorting
     prof_chapitres = []
     if "chapitres_complets" in db:
         prof_chapitres = [c for c in db["chapitres_complets"] if c["created_by"] == prof_username]
+        
+        # Ultra logical sorting: University → UFR → Filiere → Level → Semester → Matiere → Chapter
+        def get_sort_key(chapitre):
+            # Get names for sorting instead of IDs
+            uni_nom = ""
+            for uni in universites:
+                if uni["id"] == chapitre["universite_id"]:
+                    uni_nom = uni["nom"]
+                    break
+            
+            ufr_nom = ""
+            for ufr in ufrs:
+                if ufr["id"] == chapitre["ufr_id"]:
+                    ufr_nom = ufr["nom"]
+                    break
+            
+            filiere_nom = ""
+            for fil in filieres:
+                if fil["id"] == chapitre["filiere_id"]:
+                    filiere_nom = fil["nom"]
+                    break
+            
+            matiere_nom = ""
+            for mat in matieres:
+                if mat["id"] == chapitre["matiere_id"]:
+                    matiere_nom = mat["nom"]
+                    break
+            
+            # Custom level order for proper academic progression
+            level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+            level_sort = level_order.get(chapitre["niveau"], 99)
+            
+            # Semester order
+            semester_order = {"S1": 1, "S2": 2}
+            semester_sort = semester_order.get(chapitre["semestre"], 99)
+            
+            return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapitre["chapitre"])
+        
+        prof_chapitres.sort(key=get_sort_key)
     
     # Get academic structure data
     universites = get_universites(db)
@@ -874,12 +913,39 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
             "expires_at": None
         }
     
-    # Get accessible content
-    accessible_content = get_accessible_content(etudiant_username)
+    # Get only complete chapters from student's filiere with logical sorting
+    chapitres_filiere = []
+    if "chapitres_complets" in db and student and student.get("filiere_id"):
+        # Filter chapters by student's filiere
+        chapitres_filiere = [c for c in db["chapitres_complets"] if c["filiere_id"] == student["filiere_id"]]
+        
+        # Get academic structure data for sorting
+        matieres = db.get("matieres", [])
+        
+        # Ultra logical sorting for students: Level → Semester → Matiere → Chapter
+        def get_student_sort_key(chapitre):
+            # Get matiere name for sorting
+            matiere_nom = ""
+            for mat in matieres:
+                if mat["id"] == chapitre["matiere_id"]:
+                    matiere_nom = mat["nom"]
+                    break
+            
+            # Custom level order for proper academic progression
+            level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+            level_sort = level_order.get(chapitre["niveau"], 99)
+            
+            # Semester order
+            semester_order = {"S1": 1, "S2": 2}
+            semester_sort = semester_order.get(chapitre["semestre"], 99)
+            
+            return (level_sort, semester_sort, matiere_nom, chapitre["chapitre"])
+        
+        chapitres_filiere.sort(key=get_student_sort_key)
     
-    # Get unique subjects and chapters for filtering
-    subjects = list(set([c.get("matiere", c.get("matiere_id", "")) for c in accessible_content]))
-    chapters = list(set([c["chapitre"] for c in accessible_content]))
+    # Get unique subjects and chapters for filtering (from student's filiere only)
+    subjects = list(set([c.get("matiere_id", "") for c in chapitres_filiere]))
+    chapters = list(set([c["chapitre"] for c in chapitres_filiere]))
     
     # Get academic structure data for display
     universites = get_universites(db)
@@ -891,7 +957,7 @@ async def dashboard_etudiant(request: Request, etudiant_username: str = Depends(
         "request": request,
         "student": student,
         "semester_status": semester_status,
-        "accessible_content": accessible_content,
+        "chapitres": chapitres_filiere,
         "subjects": subjects,
         "chapters": chapters,
         "universites": universites,
