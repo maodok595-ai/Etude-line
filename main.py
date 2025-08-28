@@ -1259,12 +1259,12 @@ async def admin_create_ufr(
     
     try:
         # Check if university exists
-        universite = db_session.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
+        universite = db.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
         if not universite:
             return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=302)
         
         # Check if code already exists for this university
-        existing_ufr = db_session.query(UFRDB).filter(
+        existing_ufr = db.query(UFRDB).filter(
             UFRDB.code == code, 
             UFRDB.universite_id == universite_id
         ).first()
@@ -1279,15 +1279,14 @@ async def admin_create_ufr(
             universite_id=universite_id
         )
         
-        db_session.add(new_ufr)
-        db_session.commit()
+        db.add(new_ufr)
+        db.commit()
         return RedirectResponse(url="/dashboard/admin?success=UFR créée avec succès", status_code=302)
         
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/create-filiere")
 async def admin_create_filiere(
@@ -1295,20 +1294,20 @@ async def admin_create_filiere(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
-    ufr_id: str = Form(...)
+    ufr_id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Admin creates new filière"""
-    db_session = next(get_db())
     admin_username, admin_data = admin_info
     
     try:
         # Check if UFR exists
-        ufr = db_session.query(UFRDB).filter(UFRDB.id == ufr_id).first()
+        ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id).first()
         if not ufr:
             return RedirectResponse(url="/dashboard/admin?error=UFR non trouvée", status_code=302)
         
         # Check if code already exists for this UFR
-        existing_filiere = db_session.query(FiliereDB).filter(
+        existing_filiere = db.query(FiliereDB).filter(
             FiliereDB.code == code, 
             FiliereDB.ufr_id == ufr_id
         ).first()
@@ -1323,15 +1322,14 @@ async def admin_create_filiere(
             ufr_id=ufr_id
         )
         
-        db_session.add(new_filiere)
-        db_session.commit()
+        db.add(new_filiere)
+        db.commit()
         return RedirectResponse(url="/dashboard/admin?success=Filière créée avec succès", status_code=302)
         
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/create-matiere")
 async def admin_create_matiere(
@@ -1339,20 +1337,20 @@ async def admin_create_matiere(
     admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
     nom: str = Form(...),
     code: str = Form(...),
-    filiere_id: str = Form(...)
+    filiere_id: str = Form(...),
+    db: Session = Depends(get_db)
 ):
     """Admin creates new matière"""
-    db_session = next(get_db())
     admin_username, admin_data = admin_info
     
     try:
         # Check if filiere exists
-        filiere = db_session.query(FiliereDB).filter(FiliereDB.id == filiere_id).first()
+        filiere = db.query(FiliereDB).filter(FiliereDB.id == filiere_id).first()
         if not filiere:
             return RedirectResponse(url="/dashboard/admin?error=Filière non trouvée", status_code=302)
         
         # Check if code already exists for this filiere
-        existing_matiere = db_session.query(MatiereDB).filter(
+        existing_matiere = db.query(MatiereDB).filter(
             MatiereDB.code == code, 
             MatiereDB.filiere_id == filiere_id
         ).first()
@@ -1367,15 +1365,14 @@ async def admin_create_matiere(
             filiere_id=filiere_id
         )
         
-        db_session.add(new_matiere)
-        db_session.commit()
+        db.add(new_matiere)
+        db.commit()
         return RedirectResponse(url="/dashboard/admin?success=Matière créée avec succès", status_code=302)
         
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=302)
-    finally:
-        db_session.close()
+
 
 # Routes pour modification et suppression
 
@@ -1406,10 +1403,9 @@ async def admin_edit_admin(
         else:
             return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-admin")
 async def admin_delete_admin(
@@ -1438,10 +1434,9 @@ async def admin_delete_admin(
         else:
             return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # Professor routes
 @app.post("/admin/edit-prof")
@@ -1468,10 +1463,9 @@ async def admin_edit_prof(
         else:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-prof")
 async def admin_delete_prof(
@@ -1498,10 +1492,9 @@ async def admin_delete_prof(
         else:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # University routes
 @app.post("/admin/edit-universite")
@@ -1526,10 +1519,9 @@ async def admin_edit_universite(
         else:
             return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-universite")
 async def admin_delete_universite(
@@ -1551,10 +1543,9 @@ async def admin_delete_universite(
         else:
             return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # UFR routes
 @app.post("/admin/edit-ufr")
@@ -1579,10 +1570,9 @@ async def admin_edit_ufr(
         else:
             return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-ufr")
 async def admin_delete_ufr(
@@ -1604,10 +1594,9 @@ async def admin_delete_ufr(
         else:
             return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # Filière routes
 @app.post("/admin/edit-filiere")
@@ -1632,10 +1621,9 @@ async def admin_edit_filiere(
         else:
             return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-filiere")
 async def admin_delete_filiere(
@@ -1657,10 +1645,9 @@ async def admin_delete_filiere(
         else:
             return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # Matière routes
 @app.post("/admin/edit-matiere")
@@ -1685,10 +1672,9 @@ async def admin_edit_matiere(
         else:
             return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 @app.post("/admin/delete-matiere")
 async def admin_delete_matiere(
@@ -1710,10 +1696,9 @@ async def admin_delete_matiere(
         else:
             return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
     except Exception as e:
-        db_session.rollback()
+        db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
-    finally:
-        db_session.close()
+
 
 # Route pour upload de logo université
 @app.post("/admin/upload-logo")
