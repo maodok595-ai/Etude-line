@@ -1,0 +1,6 @@
+servise
+-type: web
+name: fastapi-app
+env:python
+buildcommand: pip install -r requierements.txt
+startcommand:uvicorn main:app --host 0.0.0.0 --port $PORT
