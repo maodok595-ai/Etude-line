@@ -1,6 +1,11 @@
-servise
--type: web
-name: fastapi-app
-env:python
-buildcommand: pip install -r requierements.txt
-startcommand:uvicorn main:app --host 0.0.0.0 --port $PORT
+service
+  - type: web
+    name: etude-line
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: SECRET_KEY
+        value: etude-line-production-secret-key-2024-maodo-ka
+      - key: PORT
+        value: 10000
