@@ -1045,14 +1045,8 @@
             <p>⏳ Chargement de vos contenus...</p>
         </div>
         
-        <!-- Moteur de recherche et filtres de niveaux -->
+        <!-- Moteur de recherche de chapitres -->
         <div id="search-container" style="display: none; position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding-bottom: 1rem; margin-bottom: 0;">
-            <!-- Onglets de niveaux -->
-            <div id="niveau-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; white-space: nowrap; padding-bottom: 0.5rem;">
-                <!-- Les onglets seront ajoutés dynamiquement ici -->
-            </div>
-            
-            <!-- Champ de recherche -->
             <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <label for="chapitre-search" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
                     🔍 Rechercher un chapitre
@@ -1081,10 +1075,6 @@
     </div>
     
     <script>
-        // Variable globale pour stocker la hiérarchie
-        let globalHierarchy = [];
-        let selectedNiveau = null;
-        
         // Load hierarchical content
         async function loadContent() {
             try {
@@ -1103,11 +1093,6 @@
                     return;
                 }
                 
-                globalHierarchy = data.hierarchy;
-                
-                // Créer les onglets de niveaux
-                createNiveauTabs(data.hierarchy);
-                
                 searchEl.style.display = 'block';
                 contentEl.style.display = 'block';
                 contentEl.innerHTML = renderHierarchy(data.hierarchy);
@@ -1115,93 +1100,6 @@
                 console.error('Error loading content:', error);
                 document.getElementById('loading').innerHTML = '<p style="color: red;">❌ Erreur lors du chargement</p>';
             }
-        }
-        
-        // Créer les onglets de niveaux
-        function createNiveauTabs(hierarchy) {
-            const tabsContainer = document.getElementById('niveau-tabs');
-            const niveauxColors = {
-                'L1': '#10b981',
-                'L2': '#3b82f6',
-                'L3': '#8b5cf6',
-                'M1': '#f97316',
-                'M2': '#ef4444'
-            };
-            
-            // Bouton "Tous"
-            const allBtn = document.createElement('button');
-            allBtn.textContent = '📚 Tous';
-            allBtn.className = 'niveau-tab active';
-            allBtn.onclick = () => filterByNiveau(null);
-            allBtn.style.cssText = `
-                padding: 0.75rem 1.5rem;
-                border: 2px solid #667eea;
-                background: #667eea;
-                color: white;
-                border-radius: 8px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                flex-shrink: 0;
-            `;
-            tabsContainer.appendChild(allBtn);
-            
-            // Créer un onglet pour chaque niveau présent
-            hierarchy.forEach(niveau => {
-                const btn = document.createElement('button');
-                btn.textContent = getNiveauComplet(niveau.niveau);
-                btn.className = 'niveau-tab';
-                btn.dataset.niveau = niveau.niveau;
-                btn.onclick = () => filterByNiveau(niveau.niveau);
-                const color = niveauxColors[niveau.niveau] || '#666';
-                btn.style.cssText = `
-                    padding: 0.75rem 1.5rem;
-                    border: 2px solid ${color};
-                    background: white;
-                    color: ${color};
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    flex-shrink: 0;
-                `;
-                tabsContainer.appendChild(btn);
-            });
-        }
-        
-        // Filtrer par niveau
-        function filterByNiveau(niveau) {
-            selectedNiveau = niveau;
-            const allTabs = document.querySelectorAll('.niveau-tab');
-            const niveauCards = document.querySelectorAll('.niveau-card');
-            
-            // Mettre à jour l'apparence des onglets
-            allTabs.forEach(tab => {
-                const isActive = (niveau === null && tab.textContent.includes('Tous')) || 
-                                 tab.dataset.niveau === niveau;
-                if (isActive) {
-                    const color = tab.dataset.niveau ? 
-                        getComputedStyle(tab).borderColor : '#667eea';
-                    tab.style.background = tab.dataset.niveau ? 
-                        getComputedStyle(tab).borderColor : '#667eea';
-                    tab.style.color = 'white';
-                } else {
-                    const borderColor = getComputedStyle(tab).borderColor;
-                    tab.style.background = 'white';
-                    tab.style.color = borderColor;
-                }
-            });
-            
-            // Afficher/masquer les cartes de niveau
-            niveauCards.forEach(card => {
-                const cardNiveau = card.querySelector('.niveau-header').textContent;
-                if (niveau === null) {
-                    card.style.display = 'block';
-                } else {
-                    const niveauComplet = getNiveauComplet(niveau);
-                    card.style.display = cardNiveau === niveauComplet ? 'block' : 'none';
-                }
-            });
         }
         
         // Fonction de recherche de chapitres

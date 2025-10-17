@@ -1468,30 +1468,22 @@
             <div class="card">
                 <h3>📚 Mes chapitres complets ({{ chapitres|length }})</h3>
                 
-                <!-- Moteur de recherche et filtres de niveaux -->
+                <!-- Moteur de recherche de chapitres -->
                 {% if hierarchie %}
-                <div style="position: sticky; top: 0; z-index: 100; background: white; padding-bottom: 1rem; margin-bottom: 0; border: 2px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <!-- Onglets de niveaux -->
-                    <div id="niveau-tabs-prof" style="display: flex; gap: 0.5rem; overflow-x: auto; white-space: nowrap; padding: 1rem 1.5rem 0.5rem 1.5rem; border-bottom: 1px solid #e0e0e0;">
-                        <!-- Les onglets seront ajoutés dynamiquement ici -->
-                    </div>
-                    
-                    <!-- Champ de recherche -->
-                    <div style="padding: 1rem 1.5rem 1.5rem 1.5rem;">
-                        <label for="chapitre-search-prof" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
-                            🔍 Rechercher un chapitre
-                        </label>
-                        <input 
-                            type="text" 
-                            id="chapitre-search-prof" 
-                            placeholder="Tapez le titre ou le numéro du chapitre..."
-                            style="width: 100%; padding: 0.875rem 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;"
-                            oninput="searchChapitresProf(this.value)"
-                            onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
-                            onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
-                        >
-                        <div id="search-results-prof" style="margin-top: 0.75rem; font-size: 0.9rem; color: #666;"></div>
-                    </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 0; border: 2px solid #e0e0e0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <label for="chapitre-search-prof" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
+                        🔍 Rechercher un chapitre
+                    </label>
+                    <input 
+                        type="text" 
+                        id="chapitre-search-prof" 
+                        placeholder="Tapez le titre ou le numéro du chapitre..."
+                        style="width: 100%; padding: 0.875rem 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;"
+                        oninput="searchChapitresProf(this.value)"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
+                        onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
+                    >
+                    <div id="search-results-prof" style="margin-top: 0.75rem; font-size: 0.9rem; color: #666;"></div>
                 </div>
                 {% endif %}
                 
@@ -2231,117 +2223,7 @@
                     setTimeout(() => chargerCommentaires(chapitreId), 100);
                 }
             });
-            
-            // Créer les onglets de niveaux
-            createNiveauTabsProf();
         });
-        
-        // Créer les onglets de niveaux pour le dashboard professeur
-        function createNiveauTabsProf() {
-            const tabsContainer = document.getElementById('niveau-tabs-prof');
-            if (!tabsContainer) return;
-            
-            const niveauCards = document.querySelectorAll('.niveau-card');
-            if (niveauCards.length === 0) return;
-            
-            const niveauxColors = {
-                'L1': '#10b981',
-                'L2': '#3b82f6',
-                'L3': '#8b5cf6',
-                'M1': '#f97316',
-                'M2': '#ef4444'
-            };
-            
-            const niveauxLabels = {
-                'L1': '📘 Licence 1',
-                'L2': '📗 Licence 2',
-                'L3': '📙 Licence 3',
-                'M1': '📕 Master 1',
-                'M2': '📔 Master 2'
-            };
-            
-            // Bouton "Tous"
-            const allBtn = document.createElement('button');
-            allBtn.textContent = '📚 Tous';
-            allBtn.className = 'niveau-tab-prof active';
-            allBtn.onclick = () => filterByNiveauProf(null);
-            allBtn.style.cssText = `
-                padding: 0.75rem 1.5rem;
-                border: 2px solid #667eea;
-                background: #667eea;
-                color: white;
-                border-radius: 8px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                flex-shrink: 0;
-            `;
-            tabsContainer.appendChild(allBtn);
-            
-            // Créer un onglet pour chaque niveau présent
-            niveauCards.forEach(card => {
-                const classList = Array.from(card.classList);
-                const niveauClass = classList.find(c => c.startsWith('niveau-'));
-                if (!niveauClass) return;
-                
-                const niveau = niveauClass.split('-')[1].toUpperCase();
-                const color = niveauxColors[niveau] || '#666';
-                const label = niveauxLabels[niveau] || niveau;
-                
-                const btn = document.createElement('button');
-                btn.textContent = label;
-                btn.className = 'niveau-tab-prof';
-                btn.dataset.niveau = niveau;
-                btn.onclick = () => filterByNiveauProf(niveau);
-                btn.style.cssText = `
-                    padding: 0.75rem 1.5rem;
-                    border: 2px solid ${color};
-                    background: white;
-                    color: ${color};
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    flex-shrink: 0;
-                `;
-                tabsContainer.appendChild(btn);
-            });
-        }
-        
-        // Filtrer par niveau dans le dashboard professeur
-        function filterByNiveauProf(niveau) {
-            const allTabs = document.querySelectorAll('.niveau-tab-prof');
-            const niveauCards = document.querySelectorAll('.niveau-card');
-            
-            // Mettre à jour l'apparence des onglets
-            allTabs.forEach(tab => {
-                const isActive = (niveau === null && tab.textContent.includes('Tous')) || 
-                                 tab.dataset.niveau === niveau;
-                if (isActive) {
-                    const borderColor = getComputedStyle(tab).borderColor;
-                    tab.style.background = borderColor;
-                    tab.style.color = 'white';
-                } else {
-                    const borderColor = getComputedStyle(tab).borderColor;
-                    tab.style.background = 'white';
-                    tab.style.color = borderColor;
-                }
-            });
-            
-            // Afficher/masquer les cartes de niveau
-            niveauCards.forEach(card => {
-                const classList = Array.from(card.classList);
-                const niveauClass = classList.find(c => c.startsWith('niveau-'));
-                if (!niveauClass) return;
-                
-                const cardNiveau = niveauClass.split('-')[1].toUpperCase();
-                if (niveau === null) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = cardNiveau === niveau ? 'block' : 'none';
-                }
-            });
-        }
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
