@@ -22,11 +22,16 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Welcome message "BIENVENUE A L'[UNIVERSITÉ]" in uppercase Poppins font at the top
   - University logo centered at 150px (desktop) / 120px (mobile) with rounded corners and shadow
   - User information box below the logo with role-specific details (administrator/professor/student info)
-- **Responsive Design (Oct 17, 2025)**: Fully optimized for mobile, tablet, and PC with adaptive layouts:
-  - Horizontal scrollable tabs with custom scrollbar on mobile (<768px) ensuring all sections (Matières, etc.) remain accessible
-  - Adaptive grid layouts: 1 column (mobile <768px), 2 columns (tablet 768px), full grid (desktop >768px)
-  - Touch-optimized buttons and spacing for mobile devices (<480px)
-  - Unified media queries without duplication for consistent responsive behavior
+- **Responsive Design (Oct 17, 2025)**: Fully optimized for mobile, tablet, and PC with professional adaptive layouts:
+  - **Breakpoint strategy**: 768px (tablet adjustments), 600px (mobile optimizations), 480px (small phones)
+  - **Tablet optimization (≤768px)**: Light touch adjustments - container padding, horizontal scrollable niveau tabs with custom scrollbar, grid simplification
+  - **Mobile optimization (≤600px)**: Complete responsive overhaul - navbar stacked vertically, compact typography, optimized spacing, reduced logo sizes (80px), touch-friendly buttons
+  - **Small phones (≤480px)**: Further refinements - minimal padding, smallest logos (70px), ultra-compact text sizes
+  - **Dashboard-specific enhancements**:
+    - Student dashboard: horizontal scrollable niveau tabs, compact matière/chapitre cards, optimized content sections
+    - Professor dashboard: optimized forms, hierarchical structure refinements, compact action buttons and badges
+  - **No regressions**: Tablets (720-1024px) maintain horizontal navigation and multi-column button layouts without forced stacking
+  - Unified media queries without duplication for consistent responsive behavior across all dashboards
 
 ### Technical Implementations
 - **Authentication & Authorization**: Utilizes bcrypt for password hashing and `itsdangerous` for secure, cookie-based session management. Supports dual registration (professors/students) and unified login with role detection.
