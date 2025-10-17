@@ -1321,9 +1321,12 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/sw.js')
+                // Force reload du Service Worker avec un paramètre de version
+                navigator.serviceWorker.register('/static/sw.js?v=3')
                     .then(registration => {
                         console.log('✅ Service Worker enregistré avec succès:', registration.scope);
+                        // Force la mise à jour immédiate
+                        registration.update();
                     })
                     .catch(error => {
                         console.log('❌ Échec de l\'enregistrement du Service Worker:', error);
