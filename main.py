@@ -137,6 +137,10 @@ class ContentItem(BaseModel):
     fichier_path: Optional[str] = None  # chemin du fichier
     created_by: str  # username du prof
 
+class CommentaireCreate(BaseModel):
+    chapitre_id: int
+    texte: str
+
 # Ancien modèle ChapitreComplet Pydantic supprimé - nous utilisons ChapitreCompletDB SQLAlchemy
 
 
@@ -2822,8 +2826,7 @@ async def get_commentaires(chapitre_id: int, db: Session = Depends(get_db)):
 @app.post("/api/commentaires")
 async def add_commentaire(
     request: Request,
-    chapitre_id: int = Form(...),
-    texte: str = Form(...),
+    commentaire_data: CommentaireCreate,
     db: Session = Depends(get_db)
 ):
     """Ajouter un commentaire sur un chapitre"""
@@ -2843,8 +2846,8 @@ async def add_commentaire(
     
     # Créer le commentaire
     nouveau_commentaire = CommentaireDB(
-        texte=texte,
-        chapitre_id=chapitre_id,
+        texte=commentaire_data.texte,
+        chapitre_id=commentaire_data.chapitre_id,
         auteur_type=auteur_type,
         auteur_id=auteur_id,
         auteur_nom=auteur_nom
