@@ -106,6 +106,87 @@
             margin: 2rem auto;
             padding: 0 2rem;
         }
+        
+        /* Desktop Pro Optimizations */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1400px;
+                padding: 0 3rem;
+            }
+            
+            .welcome-card {
+                padding: 2rem 2.5rem;
+            }
+            
+            .university-logo {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .university-name {
+                font-size: 1.5rem;
+            }
+            
+            .stats-grid {
+                gap: 2rem;
+            }
+            
+            .stat-card {
+                padding: 2rem;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            }
+            
+            .main-content {
+                gap: 2rem;
+            }
+            
+            .card {
+                padding: 2rem;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1600px;
+                padding: 0 4rem;
+            }
+            
+            .navbar {
+                padding: 1.5rem 3rem;
+            }
+            
+            .navbar h1 {
+                font-size: 1.8rem;
+            }
+            
+            .welcome-card {
+                padding: 2.5rem 3rem;
+            }
+            
+            .university-logo {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .stats-grid {
+                gap: 2.5rem;
+            }
+            
+            .main-content {
+                gap: 2.5rem;
+            }
+        }
 
         /* Tablet adjustments (light touch) */
         @media screen and (max-width: 768px) {
