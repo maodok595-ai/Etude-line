@@ -202,6 +202,20 @@
                 min-width: auto !important;
                 padding: 0.8rem 1rem !important;
             }
+            
+            /* Liste des professeurs responsive */
+            .prof-item {
+                padding: 1rem !important;
+            }
+            
+            .prof-meta {
+                gap: 0.4rem !important;
+            }
+            
+            .meta-tag {
+                font-size: 0.75rem !important;
+                padding: 0.2rem 0.4rem !important;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -611,7 +625,8 @@
         
         .prof-meta {
             display: flex;
-            gap: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             margin-top: 0.5rem;
         }
         
@@ -621,6 +636,7 @@
             padding: 0.25rem 0.5rem;
             border-radius: 15px;
             font-size: 0.8rem;
+            white-space: nowrap;
         }
         
         /* Styles pour les onglets */
