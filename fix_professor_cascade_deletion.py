@@ -86,24 +86,56 @@ def fix_professor_cascade_deletion():
             """))
             print("✅ Nouvelle contrainte contents.created_by ajoutée avec ON DELETE CASCADE")
             
-            # 3. Créer un trigger/fonction pour supprimer les commentaires et notifications
-            print("\n📋 Configuration de la suppression des commentaires et notifications...")
+            # 3. Supprimer et recréer la contrainte FK sur commentaires.chapitre_id
+            print("\n📋 Traitement de la table commentaires...")
+            
+            # Trouver toutes les contraintes FK sur chapitre_id dans commentaires
+            result = conn.execute(text("""
+                SELECT tc.constraint_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu 
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                WHERE tc.table_name = 'commentaires' 
+                    AND tc.constraint_type = 'FOREIGN KEY'
+                    AND kcu.column_name = 'chapitre_id'
+            """))
+            
+            commentaire_constraints = result.fetchall()
+            for constraint in commentaire_constraints:
+                constraint_name = constraint[0]
+                conn.execute(text(f"""
+                    ALTER TABLE commentaires 
+                    DROP CONSTRAINT {constraint_name}
+                """))
+                print(f"✅ Contrainte FK sur commentaires.chapitre_id supprimée: {constraint_name}")
+            
+            if not commentaire_constraints:
+                print("ℹ️  Aucune contrainte FK trouvée sur commentaires.chapitre_id")
+            
+            # Ajouter la nouvelle contrainte avec ON DELETE CASCADE
+            conn.execute(text("""
+                ALTER TABLE commentaires 
+                ADD CONSTRAINT commentaires_chapitre_id_fkey 
+                FOREIGN KEY (chapitre_id) 
+                REFERENCES chapitres_complets(id) 
+                ON DELETE CASCADE
+            """))
+            print("✅ Nouvelle contrainte commentaires.chapitre_id ajoutée avec ON DELETE CASCADE")
+            
+            # 4. Créer un trigger/fonction pour supprimer les notifications
+            print("\n📋 Configuration de la suppression des notifications...")
             
             # Supprimer la fonction si elle existe déjà
             conn.execute(text("""
                 DROP FUNCTION IF EXISTS delete_professor_related_data() CASCADE
             """))
             
-            # Créer la fonction qui supprime les commentaires et notifications
+            # Créer la fonction qui supprime les notifications
             conn.execute(text("""
                 CREATE FUNCTION delete_professor_related_data()
                 RETURNS TRIGGER AS $$
                 BEGIN
-                    -- Supprimer les commentaires du professeur
-                    DELETE FROM commentaires 
-                    WHERE auteur_type = 'professeur' 
-                    AND auteur_id = OLD.id;
-                    
                     -- Supprimer les notifications pour le professeur
                     DELETE FROM notifications 
                     WHERE destinataire_type = 'prof' 
@@ -113,7 +145,7 @@ def fix_professor_cascade_deletion():
                 END;
                 $$ LANGUAGE plpgsql;
             """))
-            print("✅ Fonction de suppression des données liées créée")
+            print("✅ Fonction de suppression des notifications créée")
             
             # Créer le trigger BEFORE DELETE
             conn.execute(text("""
@@ -131,10 +163,10 @@ def fix_professor_cascade_deletion():
             conn.commit()
             print("\n🎉 Migration terminée avec succès!")
             print("ℹ️  Les professeurs peuvent maintenant être supprimés avec toutes leurs données associées:")
-            print("   - Chapitres créés")
-            print("   - Contenus créés")
-            print("   - Commentaires postés")
-            print("   - Notifications reçues")
+            print("   - Chapitres créés (CASCADE)")
+            print("   - Contenus créés (CASCADE)")
+            print("   - Commentaires sur les chapitres (CASCADE via chapitres)")
+            print("   - Notifications reçues (TRIGGER)")
             
         except Exception as e:
             print(f"❌ Erreur lors de la migration: {e}")

@@ -188,7 +188,7 @@ class Commentaire(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     texte = Column(Text, nullable=False)
-    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id"), nullable=False)
+    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id", ondelete='CASCADE'), nullable=False)
     auteur_type = Column(String(20), nullable=False)  # 'professeur' ou 'etudiant'
     auteur_id = Column(Integer, nullable=False)
     auteur_nom = Column(String(200), nullable=False)
