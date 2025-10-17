@@ -998,20 +998,43 @@
     
     <div class="container">
         <!-- Messages d'alerte -->
+        <div id="alert-container"></div>
+        
         <script>
+            // Fonction pour afficher un message qui disparaît automatiquement
+            function showAlert(message, type = 'success') {
+                const container = document.getElementById('alert-container');
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + message;
+                
+                container.appendChild(alertDiv);
+                
+                // Faire disparaître après 4 secondes
+                setTimeout(() => {
+                    alertDiv.style.transition = 'opacity 0.5s, transform 0.5s';
+                    alertDiv.style.opacity = '0';
+                    alertDiv.style.transform = 'translateY(-20px)';
+                    setTimeout(() => alertDiv.remove(), 500);
+                }, 4000);
+            }
+            
+            // Afficher les messages depuis l'URL au chargement
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('success')) {
-                document.write('<div class="alert alert-success">✅ ' + urlParams.get('success') + '</div>');
+                showAlert(urlParams.get('success'), 'success');
+                // Nettoyer l'URL sans recharger la page
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
             if (urlParams.has('error')) {
-                document.write('<div class="alert alert-error">⚠️ ' + urlParams.get('error') + '</div>');
+                showAlert(urlParams.get('error'), 'error');
+                // Nettoyer l'URL sans recharger la page
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         </script>
         
         {% if error %}
-        <div class="alert alert-error">
-            ⚠️ {{ error }}
-        </div>
+        <script>showAlert('{{ error }}', 'error');</script>
         {% endif %}
         
         <div class="welcome-card">
