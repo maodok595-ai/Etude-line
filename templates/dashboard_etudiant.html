@@ -850,13 +850,12 @@
                 container.innerHTML = commentaires.map(c => {
                     const date = new Date(c.created_at);
                     const dateStr = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-                    const icone = c.auteur_type === 'prof' ? '👨‍🏫' : '👨‍🎓';
                     
                     return `
                         <div class="commentaire-item">
                             <div class="commentaire-header">
                                 <span class="commentaire-auteur ${c.auteur_type}">
-                                    ${icone} ${escapeHtml(c.auteur_nom)}
+                                    ${escapeHtml(c.auteur_nom)}
                                 </span>
                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                     <span class="commentaire-date">${dateStr}</span>
