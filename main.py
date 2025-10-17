@@ -2667,6 +2667,24 @@ async def modifier_chapitre_complet(
 
 # API endpoints for hierarchical data
 
+def get_allowed_levels(student_level: str) -> list:
+    """Retourne les niveaux accessibles pour un étudiant donné.
+    Un étudiant peut voir son niveau actuel et tous les niveaux inférieurs.
+    
+    Exemples:
+    - L1 → [L1]
+    - L2 → [L1, L2]
+    - M1 → [L1, L2, L3, M1]
+    - M2 → [L1, L2, L3, M1, M2]
+    """
+    level_hierarchy = ["L1", "L2", "L3", "M1", "M2"]
+    
+    if student_level not in level_hierarchy:
+        return []
+    
+    student_index = level_hierarchy.index(student_level)
+    return level_hierarchy[:student_index + 1]
+
 @app.get("/api/chapitres/hierarchy")
 async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db)):
     """Get chapters organized hierarchically: Niveau → Matière → Semestre → Chapitre"""
@@ -2680,13 +2698,17 @@ async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db
     
     # Filter chapters based on role
     if role == "etudiant":
-        # Student: get chapters from their filière (all levels)
+        # Student: get chapters from their filière (only current level and below)
         etudiant = db.query(EtudiantDB).filter_by(username=username).first()
         if not etudiant:
             return {"hierarchy": []}
         
+        # Get allowed levels (current level + all levels below)
+        allowed_levels = get_allowed_levels(etudiant.niveau)
+        
         chapitres = db.query(ChapitreCompletDB).filter(
-            ChapitreCompletDB.filiere_id == etudiant.filiere_id
+            ChapitreCompletDB.filiere_id == etudiant.filiere_id,
+            ChapitreCompletDB.niveau.in_(allowed_levels)
         ).all()
     elif role == "prof":
         # Professor: get chapters from their subject
