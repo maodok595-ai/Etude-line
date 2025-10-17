@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -107,6 +107,7 @@ class Professeur(Base):
     matiere_obj = relationship("Matiere", back_populates="professeurs")
     chapitres = relationship("ChapitreComplet", back_populates="professeur")
     contents = relationship("Content", back_populates="professeur")
+    quiz = relationship("Quiz", back_populates="professeur")
 
 class Etudiant(Base):
     __tablename__ = "etudiants"
@@ -126,6 +127,8 @@ class Etudiant(Base):
     universite = relationship("Universite", back_populates="etudiants")
     ufr = relationship("UFR", back_populates="etudiants")
     filiere = relationship("Filiere", back_populates="etudiants")
+    tentatives_quiz = relationship("TentativeQuiz", back_populates="etudiant")
+    remediations = relationship("Remediation", back_populates="etudiant")
 
 class Content(Base):
     __tablename__ = "contents"
@@ -182,6 +185,8 @@ class ChapitreComplet(Base):
     matiere = relationship("Matiere", back_populates="chapitres")
     professeur = relationship("Professeur", back_populates="chapitres")
     commentaires = relationship("Commentaire", back_populates="chapitre", cascade="all, delete-orphan")
+    quiz = relationship("Quiz", back_populates="chapitre", cascade="all, delete-orphan")
+    remediations = relationship("Remediation", back_populates="chapitre", cascade="all, delete-orphan")
 
 class Commentaire(Base):
     __tablename__ = "commentaires"
@@ -196,3 +201,94 @@ class Commentaire(Base):
     
     # Relations
     chapitre = relationship("ChapitreComplet", back_populates="commentaires")
+
+class Quiz(Base):
+    __tablename__ = "quiz"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    titre = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id"), nullable=False)
+    duree_minutes = Column(Integer, nullable=True)  # Durée optionnelle du quiz
+    note_passage = Column(Float, default=50.0)  # Note minimale pour réussir (%)
+    created_by = Column(String(100), ForeignKey("professeurs.username"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    actif = Column(Boolean, default=True)
+    
+    # Relations
+    chapitre = relationship("ChapitreComplet", back_populates="quiz")
+    professeur = relationship("Professeur", back_populates="quiz")
+    questions = relationship("Question", back_populates="quiz", cascade="all, delete-orphan")
+    tentatives = relationship("TentativeQuiz", back_populates="quiz", cascade="all, delete-orphan")
+
+class Question(Base):
+    __tablename__ = "questions"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quiz_id = Column(Integer, ForeignKey("quiz.id"), nullable=False)
+    texte = Column(Text, nullable=False)
+    points = Column(Integer, default=1)  # Points accordés pour une bonne réponse
+    ordre = Column(Integer, nullable=False)  # Ordre d'affichage de la question
+    
+    # Relations
+    quiz = relationship("Quiz", back_populates="questions")
+    reponses_options = relationship("ReponseOption", back_populates="question", cascade="all, delete-orphan")
+    reponses_etudiants = relationship("ReponseEtudiant", back_populates="question", cascade="all, delete-orphan")
+
+class ReponseOption(Base):
+    __tablename__ = "reponses_options"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
+    texte = Column(String(500), nullable=False)
+    est_correcte = Column(Boolean, default=False)
+    
+    # Relations
+    question = relationship("Question", back_populates="reponses_options")
+
+class TentativeQuiz(Base):
+    __tablename__ = "tentatives_quiz"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quiz_id = Column(Integer, ForeignKey("quiz.id"), nullable=False)
+    etudiant_username = Column(String(100), ForeignKey("etudiants.username"), nullable=False)
+    score = Column(Float, nullable=True)  # Score en pourcentage
+    points_obtenus = Column(Integer, nullable=True)
+    points_total = Column(Integer, nullable=True)
+    reussi = Column(Boolean, default=False)
+    date_debut = Column(DateTime, default=datetime.utcnow)
+    date_fin = Column(DateTime, nullable=True)
+    
+    # Relations
+    quiz = relationship("Quiz", back_populates="tentatives")
+    etudiant = relationship("Etudiant", back_populates="tentatives_quiz")
+    reponses = relationship("ReponseEtudiant", back_populates="tentative", cascade="all, delete-orphan")
+
+class ReponseEtudiant(Base):
+    __tablename__ = "reponses_etudiants"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tentative_id = Column(Integer, ForeignKey("tentatives_quiz.id"), nullable=False)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
+    reponse_option_id = Column(Integer, ForeignKey("reponses_options.id"), nullable=False)
+    est_correcte = Column(Boolean, default=False)
+    
+    # Relations
+    tentative = relationship("TentativeQuiz", back_populates="reponses")
+    question = relationship("Question", back_populates="reponses_etudiants")
+
+class Remediation(Base):
+    __tablename__ = "remediations"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    etudiant_username = Column(String(100), ForeignKey("etudiants.username"), nullable=False)
+    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id"), nullable=False)
+    score_moyen = Column(Float, nullable=False)  # Score moyen de l'étudiant sur ce chapitre
+    nb_tentatives = Column(Integer, default=0)
+    suggestions = Column(Text, nullable=True)  # Suggestions personnalisées (JSON)
+    date_creation = Column(DateTime, default=datetime.utcnow)
+    date_mise_a_jour = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relations
+    etudiant = relationship("Etudiant", back_populates="remediations")
+    chapitre = relationship("ChapitreComplet", back_populates="remediations")

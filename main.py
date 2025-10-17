@@ -22,7 +22,10 @@ from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
-    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB
+    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB,
+    Quiz as QuizDB, Question as QuestionDB, ReponseOption as ReponseOptionDB,
+    TentativeQuiz as TentativeQuizDB, ReponseEtudiant as ReponseEtudiantDB,
+    Remediation as RemediationDB
 )
 from migration import migrate_data
 
@@ -2877,6 +2880,426 @@ async def delete_commentaire(
         return {"success": True, "message": "Commentaire supprimé"}
     else:
         raise HTTPException(status_code=403, detail="Vous ne pouvez pas supprimer ce commentaire")
+
+# ==================== ROUTES API QUIZ ====================
+
+@app.post("/api/quiz/create")
+async def create_quiz(
+    request: Request,
+    titre: str = Form(...),
+    description: str = Form(""),
+    chapitre_id: int = Form(...),
+    duree_minutes: Optional[int] = Form(None),
+    note_passage: float = Form(50.0),
+    db: Session = Depends(get_db)
+):
+    """Créer un nouveau quiz (professeurs uniquement)"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent créer des quiz")
+    
+    # Créer le quiz
+    nouveau_quiz = QuizDB(
+        titre=titre,
+        description=description,
+        chapitre_id=chapitre_id,
+        duree_minutes=duree_minutes,
+        note_passage=note_passage,
+        created_by=username
+    )
+    
+    db.add(nouveau_quiz)
+    db.commit()
+    db.refresh(nouveau_quiz)
+    
+    return {"success": True, "quiz_id": nouveau_quiz.id, "message": "Quiz créé avec succès"}
+
+@app.get("/api/quiz/chapitre/{chapitre_id}")
+async def get_quiz_by_chapitre(chapitre_id: int, db: Session = Depends(get_db)):
+    """Récupérer tous les quiz d'un chapitre"""
+    quiz_list = db.query(QuizDB).filter_by(chapitre_id=chapitre_id, actif=True).all()
+    return [{
+        "id": q.id,
+        "titre": q.titre,
+        "description": q.description,
+        "duree_minutes": q.duree_minutes,
+        "note_passage": q.note_passage,
+        "nb_questions": len(q.questions)
+    } for q in quiz_list]
+
+@app.get("/api/quiz/{quiz_id}")
+async def get_quiz_details(quiz_id: int, db: Session = Depends(get_db)):
+    """Récupérer les détails complets d'un quiz"""
+    quiz = db.query(QuizDB).filter_by(id=quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz non trouvé")
+    
+    questions = [{
+        "id": q.id,
+        "texte": q.texte,
+        "points": q.points,
+        "ordre": q.ordre,
+        "reponses": [{
+            "id": r.id,
+            "texte": r.texte
+        } for r in sorted(q.reponses_options, key=lambda x: x.id)]
+    } for q in sorted(quiz.questions, key=lambda x: x.ordre)]
+    
+    return {
+        "id": quiz.id,
+        "titre": quiz.titre,
+        "description": quiz.description,
+        "duree_minutes": quiz.duree_minutes,
+        "note_passage": quiz.note_passage,
+        "questions": questions
+    }
+
+@app.delete("/api/quiz/{quiz_id}")
+async def delete_quiz(
+    request: Request,
+    quiz_id: int,
+    db: Session = Depends(get_db)
+):
+    """Supprimer un quiz (professeurs uniquement)"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent supprimer des quiz")
+    
+    quiz = db.query(QuizDB).filter_by(id=quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz non trouvé")
+    
+    # Vérifier que c'est le créateur
+    if quiz.created_by != username:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez supprimer que vos propres quiz")
+    
+    db.delete(quiz)
+    db.commit()
+    
+    return {"success": True, "message": "Quiz supprimé avec succès"}
+
+@app.post("/api/quiz/{quiz_id}/question")
+async def add_question(
+    request: Request,
+    quiz_id: int,
+    texte: str = Form(...),
+    points: int = Form(1),
+    reponses: str = Form(...),  # JSON: [{"texte": "...", "est_correcte": true/false}]
+    db: Session = Depends(get_db)
+):
+    """Ajouter une question à un quiz"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent ajouter des questions")
+    
+    quiz = db.query(QuizDB).filter_by(id=quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz non trouvé")
+    
+    if quiz.created_by != username:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez modifier que vos propres quiz")
+    
+    # Déterminer l'ordre de la question
+    max_ordre = db.query(QuestionDB).filter_by(quiz_id=quiz_id).count()
+    
+    # Créer la question
+    nouvelle_question = QuestionDB(
+        quiz_id=quiz_id,
+        texte=texte,
+        points=points,
+        ordre=max_ordre + 1
+    )
+    
+    db.add(nouvelle_question)
+    db.commit()
+    db.refresh(nouvelle_question)
+    
+    # Ajouter les réponses
+    reponses_data = json.loads(reponses)
+    for rep in reponses_data:
+        reponse_option = ReponseOptionDB(
+            question_id=nouvelle_question.id,
+            texte=rep['texte'],
+            est_correcte=rep.get('est_correcte', False)
+        )
+        db.add(reponse_option)
+    
+    db.commit()
+    
+    return {"success": True, "question_id": nouvelle_question.id}
+
+@app.delete("/api/question/{question_id}")
+async def delete_question(
+    request: Request,
+    question_id: int,
+    db: Session = Depends(get_db)
+):
+    """Supprimer une question"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent supprimer des questions")
+    
+    question = db.query(QuestionDB).filter_by(id=question_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question non trouvée")
+    
+    if question.quiz.created_by != username:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez supprimer que vos propres questions")
+    
+    db.delete(question)
+    db.commit()
+    
+    return {"success": True}
+
+# ==================== ROUTES TENTATIVES QUIZ (ÉTUDIANTS) ====================
+
+@app.post("/api/quiz/{quiz_id}/start")
+async def start_quiz(
+    request: Request,
+    quiz_id: int,
+    db: Session = Depends(get_db)
+):
+    """Démarrer une tentative de quiz (étudiants)"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Seuls les étudiants peuvent passer des quiz")
+    
+    quiz = db.query(QuizDB).filter_by(id=quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz non trouvé")
+    
+    # Créer une nouvelle tentative
+    tentative = TentativeQuizDB(
+        quiz_id=quiz_id,
+        etudiant_username=username,
+        date_debut=datetime.utcnow()
+    )
+    
+    db.add(tentative)
+    db.commit()
+    db.refresh(tentative)
+    
+    return {"success": True, "tentative_id": tentative.id}
+
+@app.post("/api/quiz/tentative/{tentative_id}/submit")
+async def submit_quiz(
+    request: Request,
+    tentative_id: int,
+    reponses: str = Form(...),  # JSON: [{"question_id": 1, "reponse_option_id": 2}]
+    db: Session = Depends(get_db)
+):
+    """Soumettre les réponses d'un quiz"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Seuls les étudiants peuvent soumettre des quiz")
+    
+    tentative = db.query(TentativeQuizDB).filter_by(id=tentative_id).first()
+    if not tentative:
+        raise HTTPException(status_code=404, detail="Tentative non trouvée")
+    
+    if tentative.etudiant_username != username:
+        raise HTTPException(status_code=403, detail="Cette tentative ne vous appartient pas")
+    
+    # Parser les réponses
+    reponses_data = json.loads(reponses)
+    
+    points_obtenus = 0
+    points_total = 0
+    
+    for rep in reponses_data:
+        question = db.query(QuestionDB).filter_by(id=rep['question_id']).first()
+        reponse_option = db.query(ReponseOptionDB).filter_by(id=rep['reponse_option_id']).first()
+        
+        if question and reponse_option:
+            points_total += question.points
+            
+            # Vérifier si la réponse est correcte
+            est_correcte = reponse_option.est_correcte
+            if est_correcte:
+                points_obtenus += question.points
+            
+            # Enregistrer la réponse
+            reponse_etudiant = ReponseEtudiantDB(
+                tentative_id=tentative_id,
+                question_id=question.id,
+                reponse_option_id=reponse_option.id,
+                est_correcte=est_correcte
+            )
+            db.add(reponse_etudiant)
+    
+    # Calculer le score
+    score = (points_obtenus / points_total * 100) if points_total > 0 else 0
+    reussi = score >= tentative.quiz.note_passage
+    
+    # Mettre à jour la tentative
+    tentative.score = score
+    tentative.points_obtenus = points_obtenus
+    tentative.points_total = points_total
+    tentative.reussi = reussi
+    tentative.date_fin = datetime.utcnow()
+    
+    db.commit()
+    
+    # Générer la remediation si échec
+    if not reussi:
+        await generer_remediation_auto(username, tentative.quiz.chapitre_id, score, db)
+    
+    return {
+        "success": True,
+        "score": score,
+        "points_obtenus": points_obtenus,
+        "points_total": points_total,
+        "reussi": reussi
+    }
+
+@app.get("/api/quiz/tentative/{tentative_id}/results")
+async def get_quiz_results(
+    request: Request,
+    tentative_id: int,
+    db: Session = Depends(get_db)
+):
+    """Obtenir les résultats détaillés d'une tentative"""
+    role, username, user_data = require_auth(request, db)
+    
+    tentative = db.query(TentativeQuizDB).filter_by(id=tentative_id).first()
+    if not tentative:
+        raise HTTPException(status_code=404, detail="Tentative non trouvée")
+    
+    if role == "etudiant" and tentative.etudiant_username != username:
+        raise HTTPException(status_code=403, detail="Cette tentative ne vous appartient pas")
+    
+    questions_resultats = []
+    for reponse in tentative.reponses:
+        question = reponse.question
+        reponse_correcte = next((r for r in question.reponses_options if r.est_correcte), None)
+        
+        questions_resultats.append({
+            "question": question.texte,
+            "votre_reponse": db.query(ReponseOptionDB).filter_by(id=reponse.reponse_option_id).first().texte,
+            "reponse_correcte": reponse_correcte.texte if reponse_correcte else "",
+            "est_correcte": reponse.est_correcte,
+            "points": question.points if reponse.est_correcte else 0
+        })
+    
+    return {
+        "score": tentative.score,
+        "points_obtenus": tentative.points_obtenus,
+        "points_total": tentative.points_total,
+        "reussi": tentative.reussi,
+        "questions": questions_resultats
+    }
+
+# ==================== ROUTES REMEDIATION ====================
+
+async def generer_remediation_auto(etudiant_username: str, chapitre_id: int, score: float, db: Session):
+    """Générer automatiquement une remediation après un échec"""
+    # Vérifier si une remediation existe déjà
+    remediation = db.query(RemediationDB).filter_by(
+        etudiant_username=etudiant_username,
+        chapitre_id=chapitre_id
+    ).first()
+    
+    if remediation:
+        # Mettre à jour
+        remediation.nb_tentatives += 1
+        # Calculer nouveau score moyen
+        nouveau_score_moyen = (remediation.score_moyen * (remediation.nb_tentatives - 1) + score) / remediation.nb_tentatives
+        remediation.score_moyen = nouveau_score_moyen
+        remediation.date_mise_a_jour = datetime.utcnow()
+    else:
+        # Créer nouvelle remediation
+        remediation = RemediationDB(
+            etudiant_username=etudiant_username,
+            chapitre_id=chapitre_id,
+            score_moyen=score,
+            nb_tentatives=1
+        )
+        db.add(remediation)
+    
+    # Générer des suggestions
+    chapitre = db.query(ChapitreCompletDB).filter_by(id=chapitre_id).first()
+    suggestions = {
+        "message": f"Vous avez obtenu {score:.1f}% au quiz. Voici des suggestions pour vous améliorer :",
+        "actions": [
+            {"type": "revoir_cours", "titre": "Revoir le cours", "chapitre_id": chapitre_id},
+            {"type": "exercices", "titre": "Faire plus d'exercices", "chapitre_id": chapitre_id},
+            {"type": "refaire_quiz", "titre": "Retenter le quiz après révision"}
+        ]
+    }
+    
+    if score < 30:
+        suggestions["actions"].insert(0, {
+            "type": "prof_aide", 
+            "titre": "Demander de l'aide au professeur",
+            "message": "Votre score est très faible. Nous recommandons de contacter votre professeur."
+        })
+    
+    remediation.suggestions = json.dumps(suggestions)
+    db.commit()
+
+@app.get("/api/remediation/etudiant")
+async def get_remediation_etudiant(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Obtenir toutes les remediations d'un étudiant"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Accès réservé aux étudiants")
+    
+    remediations = db.query(RemediationDB).filter_by(etudiant_username=username).all()
+    
+    return [{
+        "id": r.id,
+        "chapitre": r.chapitre.titre if r.chapitre else "",
+        "chapitre_id": r.chapitre_id,
+        "score_moyen": r.score_moyen,
+        "nb_tentatives": r.nb_tentatives,
+        "suggestions": json.loads(r.suggestions) if r.suggestions else {},
+        "date_mise_a_jour": r.date_mise_a_jour.isoformat()
+    } for r in remediations]
+
+@app.get("/api/remediation/prof/etudiants-difficulte")
+async def get_etudiants_en_difficulte(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Obtenir la liste des étudiants en difficulté (professeurs)"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Accès réservé aux professeurs")
+    
+    # Récupérer les chapitres du professeur
+    chapitres = db.query(ChapitreCompletDB).filter_by(created_by=username).all()
+    chapitre_ids = [c.id for c in chapitres]
+    
+    # Récupérer les remediations pour ces chapitres avec score < 50
+    remediations = db.query(RemediationDB).filter(
+        RemediationDB.chapitre_id.in_(chapitre_ids),
+        RemediationDB.score_moyen < 50
+    ).all()
+    
+    etudiants_difficulte = []
+    for r in remediations:
+        etudiant = db.query(EtudiantDB).filter_by(username=r.etudiant_username).first()
+        if etudiant:
+            etudiants_difficulte.append({
+                "etudiant_nom": f"{etudiant.prenom} {etudiant.nom}",
+                "chapitre": r.chapitre.titre,
+                "score_moyen": r.score_moyen,
+                "nb_tentatives": r.nb_tentatives,
+                "niveau_alerte": "critique" if r.score_moyen < 30 else "important"
+            })
+    
+    return etudiants_difficulte
 
 if __name__ == "__main__":
     print("=" * 50)

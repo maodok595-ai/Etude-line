@@ -935,6 +935,9 @@
                                                             <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
                                                                 🗑️
                                                             </button>
+                                                            <button class="btn-icon" onclick="ouvrirGestionQuiz({{ chapitre.id }}, '{{ chapitre.titre }}')" title="Gérer les quiz" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                                                                📝 Quiz
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     
@@ -1572,6 +1575,16 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        // === FONCTIONS QUIZ ===
+        
+        function ouvrirGestionQuiz(chapitreId, chaptitreTitre) {
+            alert(`Gestion des quiz pour le chapitre "${chaptitreTitre}"\n\n` +
+                  `Pour créer un quiz pour ce chapitre:\n` +
+                  `1. Utilisez l'API POST /api/quiz/create avec chapitre_id=${chapitreId}\n` +
+                  `2. Ajoutez des questions avec POST /api/quiz/{quiz_id}/question\n\n` +
+                  `Interface complète à venir dans la prochaine version.`);
         }
     </script>
     
