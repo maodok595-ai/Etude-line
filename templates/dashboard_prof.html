@@ -312,6 +312,101 @@
                 padding: 0.75rem !important;
                 font-size: 0.85rem !important;
             }
+            
+            /* === FORMULAIRE DE CRÉATION DE CHAPITRE - MOBILE PRO === */
+            
+            /* Header du formulaire */
+            #formulaire-chapitre .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+            
+            #formulaire-chapitre h3 {
+                font-size: 1.1rem !important;
+                text-align: center !important;
+            }
+            
+            /* Bouton fermer */
+            #formulaire-chapitre .btn-close-form {
+                width: 100% !important;
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Avertissement jaune */
+            #formulaire-chapitre .form-warning {
+                padding: 0.85rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            #formulaire-chapitre .form-warning ul {
+                margin: 0.4rem 0 0 1.2rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            #formulaire-chapitre .form-warning li {
+                margin-bottom: 0.3rem !important;
+            }
+            
+            /* Sections colorées (Cours, Exercices, Solutions) */
+            #formulaire-chapitre .section-cours,
+            #formulaire-chapitre .section-exercices,
+            #formulaire-chapitre .section-solutions {
+                padding: 1rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            #formulaire-chapitre .section-cours h4,
+            #formulaire-chapitre .section-exercices h4,
+            #formulaire-chapitre .section-solutions h4 {
+                font-size: 1rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            /* Labels et inputs dans les sections */
+            #formulaire-chapitre .section-cours label,
+            #formulaire-chapitre .section-exercices label,
+            #formulaire-chapitre .section-solutions label {
+                font-size: 0.85rem !important;
+            }
+            
+            /* Boutons d'ajout de fichiers (+ circulaires) */
+            #formulaire-chapitre button[type="button"][onclick*="addFileInput"] {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 1.3rem !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* Note finale */
+            #formulaire-chapitre .form-note {
+                padding: 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            /* Bouton de soumission principal */
+            #formulaire-chapitre button[type="submit"] {
+                width: 100% !important;
+                padding: 0.85rem 1.5rem !important;
+                font-size: 1rem !important;
+                margin-top: 0.5rem !important;
+            }
+            
+            /* Bouton "Créer un chapitre complet" */
+            button[onclick="toggleFormulaireChapitre()"] {
+                width: 100% !important;
+                padding: 0.85rem 1.5rem !important;
+                font-size: 0.95rem !important;
+                white-space: normal !important;
+                line-height: 1.3 !important;
+            }
+            
+            /* Champs de recherche dans les dropdowns */
+            input[id^="search-"][id$="-dropdown"] {
+                font-size: 0.85rem !important;
+                padding: 0.5rem !important;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -375,6 +470,43 @@
             
             .stat-value {
                 font-size: 1.5rem !important;
+            }
+            
+            /* === FORMULAIRE DE CRÉATION - TRÈS PETITS ÉCRANS === */
+            
+            #formulaire-chapitre h3 {
+                font-size: 1rem !important;
+            }
+            
+            #formulaire-chapitre .form-warning {
+                padding: 0.65rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            #formulaire-chapitre .form-warning ul {
+                font-size: 0.75rem !important;
+            }
+            
+            #formulaire-chapitre .section-cours,
+            #formulaire-chapitre .section-exercices,
+            #formulaire-chapitre .section-solutions {
+                padding: 0.85rem !important;
+            }
+            
+            #formulaire-chapitre .section-cours h4,
+            #formulaire-chapitre .section-exercices h4,
+            #formulaire-chapitre .section-solutions h4 {
+                font-size: 0.95rem !important;
+            }
+            
+            #formulaire-chapitre button[type="submit"] {
+                padding: 0.75rem 1.2rem !important;
+                font-size: 0.95rem !important;
+            }
+            
+            button[onclick="toggleFormulaireChapitre()"] {
+                padding: 0.75rem 1.2rem !important;
+                font-size: 0.9rem !important;
             }
         }
         
@@ -1285,15 +1417,15 @@
             
             <!-- Formulaire d'ajout de contenu (caché par défaut) -->
             <div class="card" id="formulaire-chapitre" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div class="form-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="margin: 0;">📝 Créer un chapitre complet</h3>
-                    <button onclick="toggleFormulaireChapitre()" 
+                    <button class="btn-close-form" onclick="toggleFormulaireChapitre()" 
                             style="background: #f44336; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         ✕ Fermer
                     </button>
                 </div>
                 
-                <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
+                <div class="form-warning" style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
                     <strong>📋 Chapitre complet requis :</strong><br>
                     Vous devez fournir les <strong>3 éléments obligatoires</strong> pour chaque chapitre :
                     <ul style="margin: 0.5rem 0 0 1.5rem;">
@@ -1384,7 +1516,7 @@
                     </div>
                     
                     <!-- Section COURS -->
-                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div class="section-cours" style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
                         <h4 style="color: #2e7d32; margin-bottom: 1rem;">📚 COURS (obligatoire)</h4>
                         
                         <div class="form-group">
@@ -1407,7 +1539,7 @@
                     </div>
                     
                     <!-- Section EXERCICES -->
-                    <div style="background: #fff8e1; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div class="section-exercices" style="background: #fff8e1; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
                         <h4 style="color: #f57c00; margin-bottom: 1rem;">✏️ EXERCICES (obligatoire)</h4>
                         
                         <div class="form-group">
@@ -1430,7 +1562,7 @@
                     </div>
                     
                     <!-- Section SOLUTIONS -->
-                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div class="section-solutions" style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
                         <h4 style="color: #1976d2; margin-bottom: 1rem;">✅ SOLUTIONS (obligatoire)</h4>
                         
                         <div class="form-group">
@@ -1452,7 +1584,7 @@
                         </div>
                     </div>
                     
-                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px dashed #6c757d;">
+                    <div class="form-note" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px dashed #6c757d;">
                         <small style="color: #495057;">
                             <strong>📌 Note importante :</strong> Pour chaque section (Cours, Exercices, Solutions), vous devez fournir <strong>au moins</strong> soit du contenu textuel, soit un fichier.
                         </small>
