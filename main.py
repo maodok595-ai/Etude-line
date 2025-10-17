@@ -2895,6 +2895,92 @@ async def delete_commentaire(
     else:
         raise HTTPException(status_code=403, detail="Vous ne pouvez pas supprimer ce commentaire")
 
+# === ROUTES API - NOTIFICATIONS ===
+
+@app.get("/api/notifications")
+async def get_notifications(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer les notifications de l'utilisateur connecté"""
+    role, username, user_data = require_auth(request, db)
+    
+    # Récupérer les notifications selon le rôle
+    notifications = db.query(NotificationDB).filter(
+        and_(
+            NotificationDB.destinataire_type == role,
+            NotificationDB.destinataire_id == user_data.get('id')
+        )
+    ).order_by(NotificationDB.created_at.desc()).limit(50).all()
+    
+    return [{
+        "id": n.id,
+        "type": n.type,
+        "message": n.message,
+        "lien": n.lien,
+        "lue": n.lue,
+        "created_at": n.created_at.isoformat()
+    } for n in notifications]
+
+@app.get("/api/notifications/count")
+async def get_notifications_count(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer le nombre de notifications non lues"""
+    role, username, user_data = require_auth(request, db)
+    
+    count = db.query(NotificationDB).filter(
+        and_(
+            NotificationDB.destinataire_type == role,
+            NotificationDB.destinataire_id == user_data.get('id'),
+            NotificationDB.lue == False
+        )
+    ).count()
+    
+    return {"count": count}
+
+@app.put("/api/notifications/{notification_id}/lue")
+async def mark_notification_read(
+    request: Request,
+    notification_id: int,
+    db: Session = Depends(get_db)
+):
+    """Marquer une notification comme lue"""
+    role, username, user_data = require_auth(request, db)
+    
+    notification = db.query(NotificationDB).filter_by(id=notification_id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification non trouvée")
+    
+    # Vérifier que la notification appartient à l'utilisateur
+    if notification.destinataire_type != role or notification.destinataire_id != user_data.get('id'):
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+    
+    notification.lue = True
+    db.commit()
+    
+    return {"success": True, "message": "Notification marquée comme lue"}
+
+@app.put("/api/notifications/lire-toutes")
+async def mark_all_notifications_read(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Marquer toutes les notifications comme lues"""
+    role, username, user_data = require_auth(request, db)
+    
+    db.query(NotificationDB).filter(
+        and_(
+            NotificationDB.destinataire_type == role,
+            NotificationDB.destinataire_id == user_data.get('id'),
+            NotificationDB.lue == False
+        )
+    ).update({"lue": True})
+    db.commit()
+    
+    return {"success": True, "message": "Toutes les notifications ont été marquées comme lues"}
+
 if __name__ == "__main__":
     print("=" * 50)
     print("🎓 Étude LINE - Application Éducative")
