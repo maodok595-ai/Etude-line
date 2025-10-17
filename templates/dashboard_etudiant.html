@@ -756,17 +756,17 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <h1>📚 Étude LINE - Étudiant</h1>
-        <div class="user-info" style="display: flex; align-items: center; gap: 0.8rem;">
+    <div class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <h1>📚 Étude LINE - Étudiant</h1>
             <div class="notification-icon" id="notification-bell" onclick="toggleNotifications()">
                 🔔
                 <span class="notification-badge" id="notification-count" style="display: none;">0</span>
             </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
-                <span>{{ student.prenom }} {{ student.nom }}</span>
-                <a href="/logout">Déconnexion</a>
-            </div>
+        </div>
+        <div class="user-info" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+            <span>{{ student.prenom }} {{ student.nom }}</span>
+            <a href="/logout">Déconnexion</a>
         </div>
     </div>
     
@@ -1322,7 +1322,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 // Force reload du Service Worker avec un paramètre de version
-                navigator.serviceWorker.register('/static/sw.js?v=3')
+                navigator.serviceWorker.register('/static/sw.js?v=4')
                     .then(registration => {
                         console.log('✅ Service Worker enregistré avec succès:', registration.scope);
                         // Force la mise à jour immédiate

@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'etude-line-v3';
-const STATIC_CACHE = 'etude-line-static-v3';
-const DYNAMIC_CACHE = 'etude-line-dynamic-v3';
+const CACHE_VERSION = 'etude-line-v4';
+const STATIC_CACHE = 'etude-line-static-v4';
+const DYNAMIC_CACHE = 'etude-line-dynamic-v4';
 
 const STATIC_ASSETS = [
   '/',
