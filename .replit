@@ -16,10 +16,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FastAPI Server"
+args = "Server"
 
 [[workflows.workflow]]
-name = "FastAPI Server"
+name = "Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -35,7 +35,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 38499
+localPort = 41559
 externalPort = 3002
 
 [[ports]]
