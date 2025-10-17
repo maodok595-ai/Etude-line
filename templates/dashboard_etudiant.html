@@ -1597,11 +1597,15 @@
                     silent: false
                 });
                 
-                // Jouer le son d'alerte
+                // Jouer le son d'alerte SEULEMENT si la page est visible
+                // (respecte les règles autoplay des navigateurs)
                 try {
-                    if (notificationAudio) {
+                    if (notificationAudio && !document.hidden) {
                         notificationAudio.currentTime = 0;
-                        notificationAudio.play().catch(e => console.log('Son non disponible:', e));
+                        notificationAudio.volume = 0.7; // Volume augmenté pour être audible
+                        notificationAudio.play().catch(e => {
+                            console.log('Son non disponible (interaction requise):', e);
+                        });
                     }
                 } catch (error) {
                     console.log('Erreur lecture son:', error);
@@ -1785,8 +1789,8 @@
         preloadNotificationSound();
         requestNotificationPermission();
         
-        // Mettre à jour le compteur toutes les 30 secondes
-        setInterval(updateNotificationCount, 30000);
+        // Mettre à jour le compteur toutes les 10 secondes (plus réactif)
+        setInterval(updateNotificationCount, 10000);
     </script>
     
     <!-- Service Worker Registration -->
