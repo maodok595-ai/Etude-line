@@ -65,11 +65,12 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Database model `Notification` with type, message, recipient tracking, read status, and timestamps
   - RESTful API endpoints: GET /api/notifications, GET /api/notifications/count, PUT /api/notifications/lire-toutes, PUT /api/notifications/{id}/lire
   - Auto-notification creation when professors publish new chapters, sent to all students in relevant filière/niveau
-  - UI notification center with bell icon, unread counter badge, and dropdown popup with notification list
+  - UI notification center with bell icon (1.2rem, compact design), unread counter badge (18px), and dropdown popup with notification list
   - Graceful error handling: notification failures don't block chapter creation
   - Visual indicators: emoji icons (📚 for new chapters), timestamp display, read/unread states
   - Click-to-mark-read functionality with real-time badge updates
   - "Tout marquer comme lu" batch action for clearing all notifications at once
+  - Optimized layout: compact notification button (gap: 0.8rem) for better navbar alignment with name/logout elements
   - Optimized button sizes in student dashboard (matière buttons: padding 0.6rem, font-size 1rem for cleaner interface)
 
 ### System Design Choices
