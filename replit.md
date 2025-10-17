@@ -16,6 +16,14 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 
 ### Technical Implementations
 - **Authentication & Authorization**: `bcrypt` for password hashing, `itsdangerous` for secure cookie-based session management, and role-based access control for professors and students.
+- **Hierarchical Access Control (Oct 17, 2025)**: Students can only view chapters from their current level and all lower levels within their filière:
+  - L1 students: see L1 only
+  - L2 students: see L1, L2
+  - L3 students: see L1, L2, L3
+  - M1 students: see L1, L2, L3, M1
+  - M2 students: see all levels (L1, L2, L3, M1, M2)
+  - Implementation via `get_allowed_levels()` function with SQL-level filtering using `.in_(allowed_levels)`
+  - Professors retain full access to all levels within their assigned subject
 - **User & Content Management**: Separate models for professors and students. Content is hierarchically organized.
 - **University-Based Administration**: Administrators are assigned to specific universities, restricting their access to institutional data. A main administrator has global access.
 - **Data Filtering**: Professors can only create content within their assigned university. Dashboards dynamically filter data based on user roles and university affiliations.
