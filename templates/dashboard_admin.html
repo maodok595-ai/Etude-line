@@ -2687,6 +2687,9 @@
                     // Réinitialiser le formulaire
                     formElement.reset();
                     
+                    // Sauvegarder la position de scroll avant de recharger
+                    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+                    
                     // Recharger la page après un court délai
                     setTimeout(() => {
                         window.location.reload();
@@ -2710,6 +2713,13 @@
         
         // Intercepter automatiquement tous les formulaires de création
         document.addEventListener('DOMContentLoaded', function() {
+            // Restaurer la position de scroll si elle a été sauvegardée
+            const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+            if (savedScrollPosition) {
+                window.scrollTo(0, parseInt(savedScrollPosition));
+                sessionStorage.removeItem('scrollPosition');
+            }
+            
             // Sélectionner tous les formulaires de création admin
             const createForms = document.querySelectorAll('form[action^="/admin/create-"]');
             
