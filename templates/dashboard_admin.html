@@ -2690,6 +2690,13 @@
                     // Sauvegarder la position de scroll avant de recharger
                     sessionStorage.setItem('scrollPosition', window.scrollY.toString());
                     
+                    // Sauvegarder l'onglet actif avant de recharger
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const activeTabId = activeTab.id.replace('tab-', '');
+                        sessionStorage.setItem('activeTab', activeTabId);
+                    }
+                    
                     // Recharger la page après un court délai
                     setTimeout(() => {
                         window.location.reload();
@@ -2713,6 +2720,13 @@
         
         // Intercepter automatiquement tous les formulaires de création
         document.addEventListener('DOMContentLoaded', function() {
+            // Restaurer l'onglet actif si il a été sauvegardé
+            const savedActiveTab = sessionStorage.getItem('activeTab');
+            if (savedActiveTab) {
+                showTab(savedActiveTab);
+                sessionStorage.removeItem('activeTab');
+            }
+            
             // Restaurer la position de scroll si elle a été sauvegardée
             const savedScrollPosition = sessionStorage.getItem('scrollPosition');
             if (savedScrollPosition) {
