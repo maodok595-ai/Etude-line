@@ -312,50 +312,82 @@
         .file-actions {
             background: white;
             padding: 0.5rem;
-            margin-top: 0.5rem;
+            margin-bottom: 0.8rem;
             border-radius: 4px;
             border: 1px solid #ddd;
-            margin-bottom: 0.5rem;
         }
         
         .file-name {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-name-cours {
+            color: #2e7d32;
+        }
+        
+        .file-name-exercice {
+            color: #f57c00;
+        }
+        
+        .file-name-solution {
+            color: #1976d2;
         }
         
         .file-buttons {
             display: flex;
             gap: 0.5rem;
-            margin-top: 0.3rem;
+            flex-wrap: wrap;
         }
         
         .btn-read {
-            background: #2196f3;
             color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
             text-decoration: none;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
             transition: all 0.2s ease;
-        }
-        
-        .btn-read:hover {
-            background: #1976d2;
         }
         
         .btn-download {
-            background: #1565c0;
             color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
             text-decoration: none;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
             transition: all 0.2s ease;
         }
         
-        .btn-download:hover {
-            background: #0d47a1;
+        .btn-read-cours {
+            background: #4caf50;
+        }
+        
+        .btn-download-cours {
+            background: #2e7d32;
+        }
+        
+        .btn-read-exercice {
+            background: #ff9800;
+        }
+        
+        .btn-download-exercice {
+            background: #e65100;
+        }
+        
+        .btn-read-solution {
+            background: #2196f3;
+        }
+        
+        .btn-download-solution {
+            background: #1565c0;
         }
         
         .loading {
@@ -578,12 +610,12 @@
                     files.forEach((file, idx) => {
                         html += `
                             <div class="file-actions">
-                                <span class="file-name">📄 ${escapeHtml(file)}</span>
+                                <div class="file-name file-name-cours">📎 ${escapeHtml(file)}</div>
                                 <div class="file-buttons">
-                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read">
-                                        👁️ Voir
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-cours">
+                                        👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-cours">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
@@ -607,12 +639,12 @@
                     files.forEach((file, idx) => {
                         html += `
                             <div class="file-actions">
-                                <span class="file-name">📄 ${escapeHtml(file)}</span>
+                                <div class="file-name file-name-exercice">📎 ${escapeHtml(file)}</div>
                                 <div class="file-buttons">
-                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read">
-                                        👁️ Voir
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-exercice">
+                                        👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-exercice">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
@@ -636,12 +668,12 @@
                     files.forEach((file, idx) => {
                         html += `
                             <div class="file-actions">
-                                <span class="file-name">📄 ${escapeHtml(file)}</span>
+                                <div class="file-name file-name-solution">📎 ${escapeHtml(file)}</div>
                                 <div class="file-buttons">
-                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read">
-                                        👁️ Voir
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-solution">
+                                        👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-solution">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
