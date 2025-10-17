@@ -33,8 +33,9 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
     - Student dashboard: horizontal scrollable niveau tabs, compact matière/chapitre cards on mobile, hover effects on desktop
     - Professor dashboard: optimized forms on mobile, hierarchical structure refinements, card hover effects on desktop
     - Admin dashboard: stat-card hover effects with elevation, expanded grid gaps on desktop
+  - **Homepage responsive (Oct 17, 2025)**: Professional mobile adaptation following same breakpoint strategy - consolidated media queries (768px tablet, 600px mobile, 480px small phones), optimized typography scaling (1.8rem → 1.6rem on mobile), responsive hero image heights (220px → 180px), touch-optimized buttons, improved spacing and padding progression
   - **No regressions**: Tablets (720-1024px) maintain horizontal navigation and multi-column button layouts without forced stacking
-  - Unified media queries without duplication for consistent responsive behavior across all dashboards and screen sizes
+  - Unified media queries without duplication for consistent responsive behavior across all pages (dashboards, homepage) and screen sizes
 
 ### Technical Implementations
 - **Authentication & Authorization**: Utilizes bcrypt for password hashing and `itsdangerous` for secure, cookie-based session management. Supports dual registration (professors/students) and unified login with role detection.
