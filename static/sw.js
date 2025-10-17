@@ -107,3 +107,58 @@ async function networkOnlyStrategy(request) {
     });
   }
 }
+
+// Gestion des notifications push
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Notification push reçue');
+  
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || '📚 Étude LINE';
+  const options = {
+    body: data.body || 'Nouvelle notification',
+    icon: data.icon || '/static/icons/icon-192.png',
+    badge: '/static/icons/icon-192.png',
+    vibrate: [200, 100, 200],
+    tag: 'etude-line-notification',
+    requireInteraction: false,
+    silent: false,
+    data: {
+      url: data.url || '/',
+      timestamp: Date.now()
+    }
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Gestion du clic sur les notifications
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Clic sur notification');
+  
+  event.notification.close();
+  
+  const urlToOpen = event.notification.data.url || '/';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Si une fenêtre est déjà ouverte, la focus
+        for (let client of clientList) {
+          if (client.url === urlToOpen && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Sinon, ouvrir une nouvelle fenêtre
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+
+// Gestion de la fermeture des notifications
+self.addEventListener('notificationclose', (event) => {
+  console.log('[Service Worker] Notification fermée');
+});

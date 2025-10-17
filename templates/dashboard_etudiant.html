@@ -1545,6 +1545,78 @@
         
         // === FONCTIONS NOTIFICATIONS ===
         
+        // Demander la permission pour les notifications natives
+        let previousNotificationCount = null;
+        let notificationAudio = null;
+        
+        // Pré-charger le son de notification
+        function preloadNotificationSound() {
+            try {
+                notificationAudio = new Audio('/static/notification-sound.wav');
+                notificationAudio.volume = 0.5;
+                notificationAudio.load();
+            } catch (error) {
+                console.log('Erreur préchargement son:', error);
+            }
+        }
+        
+        async function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        console.log('✅ Permission de notification accordée');
+                        // Tester le son pour préparer l'autoplay
+                        if (notificationAudio) {
+                            notificationAudio.play().then(() => {
+                                console.log('✅ Son de notification prêt');
+                            }).catch(e => console.log('Son test ignoré:', e));
+                        }
+                    }
+                } catch (error) {
+                    console.log('Erreur demande permission notification:', error);
+                }
+            }
+        }
+        
+        // Afficher une notification native
+        function showNativeNotification(title, body, icon) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                // Vibration si disponible
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+                
+                // Créer la notification
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: icon || '/static/icons/icon-192.png',
+                    badge: '/static/icons/icon-192.png',
+                    tag: 'etude-line-notification',
+                    requireInteraction: false,
+                    silent: false
+                });
+                
+                // Jouer le son d'alerte
+                try {
+                    if (notificationAudio) {
+                        notificationAudio.currentTime = 0;
+                        notificationAudio.play().catch(e => console.log('Son non disponible:', e));
+                    }
+                } catch (error) {
+                    console.log('Erreur lecture son:', error);
+                }
+                
+                notification.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+                
+                // Fermer automatiquement après 5 secondes
+                setTimeout(() => notification.close(), 5000);
+            }
+        }
+        
         async function loadNotifications() {
             try {
                 const response = await fetch('/api/notifications');
@@ -1592,9 +1664,21 @@
                 if (data.count > 0) {
                     badge.textContent = data.count > 99 ? '99+' : data.count;
                     badge.style.display = 'flex';
+                    
+                    // Afficher notification native si nouvelle notification
+                    if (previousNotificationCount !== null && data.count > previousNotificationCount) {
+                        const newCount = data.count - previousNotificationCount;
+                        showNativeNotification(
+                            '📚 Étude LINE',
+                            `Vous avez ${newCount} nouvelle${newCount > 1 ? 's' : ''} notification${newCount > 1 ? 's' : ''} !`,
+                            '/static/icons/icon-192.png'
+                        );
+                    }
                 } else {
                     badge.style.display = 'none';
                 }
+                
+                previousNotificationCount = data.count;
             } catch (error) {
                 console.error('Erreur lors de la mise à jour du compteur:', error);
             }
@@ -1696,6 +1780,10 @@
         // Load content on page load
         loadContent();
         updateNotificationCount();
+        
+        // Pré-charger le son et demander la permission
+        preloadNotificationSound();
+        requestNotificationPermission();
         
         // Mettre à jour le compteur toutes les 30 secondes
         setInterval(updateNotificationCount, 30000);
