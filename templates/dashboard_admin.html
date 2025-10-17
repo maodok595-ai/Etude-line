@@ -107,41 +107,10 @@
             padding: 0 2rem;
         }
 
-        /* Mobile Responsive */
+        /* Tablet adjustments (light touch) */
         @media screen and (max-width: 768px) {
-            .navbar {
-                padding: 1rem !important;
-                flex-direction: column !important;
-                gap: 1rem !important;
-                text-align: center !important;
-            }
-            
-            .navbar h1 {
-                font-size: 1.4rem !important;
-            }
-            
-            .navbar .user-info {
-                flex-direction: column !important;
-                gap: 0.5rem !important;
-            }
-            
             .container {
-                margin: 1rem auto !important;
                 padding: 0 1rem !important;
-            }
-            
-            .welcome-card {
-                padding: 1.5rem !important;
-                margin-bottom: 1.5rem !important;
-            }
-            
-            .university-logo {
-                width: 90px !important;
-                height: 90px !important;
-            }
-            
-            .university-name {
-                font-size: 1.1rem !important;
             }
             
             .stats-grid {
@@ -154,30 +123,7 @@
                 gap: 1.5rem !important;
             }
             
-            .card {
-                padding: 1.5rem !important;
-            }
-            
-            .form-group {
-                margin-bottom: 1rem !important;
-            }
-            
-            .btn {
-                padding: 0.75rem 1rem !important;
-                font-size: 0.9rem !important;
-                width: 100% !important;
-                margin-top: 10px !important;
-            }
-            
-            table {
-                font-size: 0.85rem !important;
-            }
-            
-            th, td {
-                padding: 0.5rem !important;
-            }
-            
-            /* Onglets scrollables sur mobile/tablette */
+            /* Onglets scrollables sur tablette */
             .tabs-container {
                 overflow-x: auto !important;
                 overflow-y: hidden !important;
@@ -199,8 +145,95 @@
             .tab-btn {
                 white-space: nowrap !important;
                 flex-shrink: 0 !important;
-                min-width: auto !important;
-                padding: 0.8rem 1rem !important;
+            }
+        }
+        
+        /* Mobile Responsive - Version Pro */
+        @media screen and (max-width: 600px) {
+            .navbar {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                text-align: center !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.3rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .container {
+                margin: 1rem auto !important;
+                padding: 0 0.75rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1.25rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            
+            .university-logo {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            
+            .university-name {
+                font-size: 1rem !important;
+                line-height: 1.3 !important;
+            }
+            
+            .user-info-box {
+                padding: 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            .card {
+                padding: 1.25rem !important;
+            }
+            
+            .card h2 {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .form-group label {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 0.75rem !important;
+                font-size: 16px !important; /* Évite le zoom sur iOS */
+            }
+            
+            .btn {
+                padding: 0.7rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            table {
+                font-size: 0.85rem !important;
+            }
+            
+            th, td {
+                padding: 0.5rem !important;
+            }
+            
+            .tab-btn {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.85rem !important;
             }
             
             /* Liste des professeurs responsive */
@@ -216,6 +249,15 @@
                 font-size: 0.75rem !important;
                 padding: 0.2rem 0.4rem !important;
             }
+            
+            /* Statistiques */
+            .stat-value {
+                font-size: 1.8rem !important;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem !important;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -224,7 +266,7 @@
             }
             
             .navbar h1 {
-                font-size: 1.2rem !important;
+                font-size: 1.1rem !important;
             }
             
             .container {
@@ -236,25 +278,46 @@
                 padding: 1rem !important;
             }
             
+            .university-logo {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .university-name {
+                font-size: 0.95rem !important;
+            }
+            
             .card {
                 padding: 1rem !important;
             }
             
+            .card h2 {
+                font-size: 1rem !important;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 0.65rem !important;
+            }
+            
             .btn {
-                padding: 0.5rem 0.75rem !important;
+                padding: 0.6rem 0.85rem !important;
                 font-size: 0.85rem !important;
             }
             
-            /* Bouton Statistiques universitaire responsive */
             .stats-toggle-btn {
                 font-size: 0.9rem !important;
                 padding: 0.6rem 1rem !important;
             }
             
-            /* Onglets très petits écrans */
             .tab-btn {
                 padding: 0.6rem 0.8rem !important;
                 font-size: 0.75rem !important;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem !important;
             }
         }
         
