@@ -774,7 +774,10 @@
     <div class="notification-popup" id="notification-popup">
         <div class="notification-header">
             <h3>🔔 Notifications</h3>
-            <button class="mark-all-read" onclick="markAllAsRead()">Tout marquer comme lu</button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="mark-all-read" onclick="markAllAsRead()">Marquer tout lu</button>
+                <button class="mark-all-read" onclick="deleteAllNotifications()" style="background: rgba(255,68,68,0.3);">🗑️ Supprimer tout</button>
+            </div>
         </div>
         <div class="notification-list" id="notification-list">
             <div class="notification-empty">Aucune notification</div>
@@ -1215,12 +1218,15 @@
                     const dotHtml = n.lue ? '' : '<div class="notification-dot"></div>';
                     
                     return `
-                        <div class="notification-item ${unreadClass}" onclick="handleNotificationClick(${n.id}, '${n.lien || ''}')">
-                            ${dotHtml}
-                            <div class="notification-content">
-                                <div class="notification-message">${escapeHtml(n.message)}</div>
-                                <div class="notification-time">${timeStr}</div>
+                        <div class="notification-item ${unreadClass}" style="position: relative;">
+                            <div onclick="handleNotificationClick(${n.id}, '${n.lien || ''}')" style="flex: 1; display: flex; gap: 0.8rem; cursor: pointer;">
+                                ${dotHtml}
+                                <div class="notification-content">
+                                    <div class="notification-message">${escapeHtml(n.message)}</div>
+                                    <div class="notification-time">${timeStr}</div>
+                                </div>
                             </div>
+                            <button onclick="deleteNotification(${n.id}, event)" style="background: none; border: none; color: #999; cursor: pointer; padding: 0.5rem; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='#999'">🗑️</button>
                         </div>
                     `;
                 }).join('');
@@ -1284,6 +1290,38 @@
                 updateNotificationCount();
             } catch (error) {
                 console.error('Erreur lors du marquage de toutes les notifications:', error);
+            }
+        }
+        
+        async function deleteNotification(notificationId, event) {
+            event.stopPropagation(); // Empêcher le clic sur la notification
+            
+            try {
+                await fetch(`/api/notifications/${notificationId}`, {
+                    method: 'DELETE'
+                });
+                
+                loadNotifications();
+                updateNotificationCount();
+            } catch (error) {
+                console.error('Erreur lors de la suppression de la notification:', error);
+            }
+        }
+        
+        async function deleteAllNotifications() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer toutes vos notifications ?')) {
+                return;
+            }
+            
+            try {
+                await fetch('/api/notifications/supprimer-toutes', {
+                    method: 'DELETE'
+                });
+                
+                loadNotifications();
+                updateNotificationCount();
+            } catch (error) {
+                console.error('Erreur lors de la suppression de toutes les notifications:', error);
             }
         }
         

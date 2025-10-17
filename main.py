@@ -3063,6 +3063,46 @@ async def mark_all_notifications_read(
     
     return {"success": True, "message": "Toutes les notifications ont été marquées comme lues"}
 
+@app.delete("/api/notifications/{notification_id}")
+async def delete_notification(
+    request: Request,
+    notification_id: int,
+    db: Session = Depends(get_db)
+):
+    """Supprimer une notification"""
+    role, username, user_data = require_auth(request, db)
+    
+    notification = db.query(NotificationDB).filter_by(id=notification_id).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification non trouvée")
+    
+    # Vérifier que la notification appartient à l'utilisateur
+    if notification.destinataire_type != role or notification.destinataire_id != user_data.get('id'):
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+    
+    db.delete(notification)
+    db.commit()
+    
+    return {"success": True, "message": "Notification supprimée"}
+
+@app.delete("/api/notifications/supprimer-toutes")
+async def delete_all_notifications(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Supprimer toutes les notifications de l'utilisateur"""
+    role, username, user_data = require_auth(request, db)
+    
+    db.query(NotificationDB).filter(
+        and_(
+            NotificationDB.destinataire_type == role,
+            NotificationDB.destinataire_id == user_data.get('id')
+        )
+    ).delete()
+    db.commit()
+    
+    return {"success": True, "message": "Toutes les notifications ont été supprimées"}
+
 if __name__ == "__main__":
     print("=" * 50)
     print("🎓 Étude LINE - Application Éducative")

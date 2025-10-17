@@ -814,7 +814,10 @@
     <div class="notification-popup" id="notification-popup">
         <div class="notification-header">
             <h3>🔔 Notifications</h3>
-            <button class="mark-all-read" onclick="markAllAsRead()">Tout marquer comme lu</button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="mark-all-read" onclick="markAllAsRead()">Marquer tout lu</button>
+                <button class="mark-all-read" onclick="deleteAllNotifications()" style="background: rgba(255,68,68,0.3);">🗑️ Supprimer tout</button>
+            </div>
         </div>
         <div class="notification-list" id="notification-list">
             <div class="notification-empty">Aucune notification</div>
@@ -1963,12 +1966,15 @@
                     listContainer.innerHTML = '<div class="notification-empty">Aucune notification</div>';
                 } else {
                     listContainer.innerHTML = notifications.map(notif => `
-                        <div class="notification-item ${notif.lu ? '' : 'unread'}" onclick="markAsRead(${notif.id})">
-                            <div class="notification-icon-type">${notif.type === 'nouveau_chapitre' ? '📚' : '💬'}</div>
-                            <div class="notification-content">
-                                <div class="notification-message">${notif.message}</div>
-                                <div class="notification-time">${formatTime(notif.created_at)}</div>
+                        <div class="notification-item ${notif.lu ? '' : 'unread'}" style="position: relative;">
+                            <div onclick="markAsRead(${notif.id})" style="flex: 1; display: flex; gap: 0.8rem; cursor: pointer;">
+                                <div class="notification-icon-type">${notif.type === 'nouveau_chapitre' ? '📚' : '💬'}</div>
+                                <div class="notification-content">
+                                    <div class="notification-message">${notif.message}</div>
+                                    <div class="notification-time">${formatTime(notif.created_at)}</div>
+                                </div>
                             </div>
+                            <button onclick="deleteNotification(${notif.id}, event)" style="background: none; border: none; color: #999; cursor: pointer; padding: 0.5rem; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='#999'">🗑️</button>
                         </div>
                     `).join('');
                 }
@@ -2000,6 +2006,38 @@
                 updateNotificationCount();
             } catch (error) {
                 console.error('Erreur marquage tout lu:', error);
+            }
+        }
+        
+        // Supprimer une notification
+        async function deleteNotification(notificationId, event) {
+            event.stopPropagation();
+            
+            try {
+                await fetch(`/api/notifications/${notificationId}`, {
+                    method: 'DELETE'
+                });
+                loadNotifications();
+                updateNotificationCount();
+            } catch (error) {
+                console.error('Erreur suppression notification:', error);
+            }
+        }
+        
+        // Supprimer toutes les notifications
+        async function deleteAllNotifications() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer toutes vos notifications ?')) {
+                return;
+            }
+            
+            try {
+                await fetch('/api/notifications/supprimer-toutes', {
+                    method: 'DELETE'
+                });
+                loadNotifications();
+                updateNotificationCount();
+            } catch (error) {
+                console.error('Erreur suppression toutes notifications:', error);
             }
         }
         
