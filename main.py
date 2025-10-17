@@ -77,6 +77,16 @@ async def startup_event():
         else:
             print("✅ Base de données déjà migrée - Migration ignorée")
             print(f"   (Pour forcer la migration, définir MIGRATE_ON_START=true)")
+        
+        # Toujours vérifier et créer l'admin principal si nécessaire
+        # (utile quand on change de base de données)
+        from database import SessionLocal
+        db = SessionLocal()
+        try:
+            create_default_admin_if_needed(db)
+        finally:
+            db.close()
+            
     except Exception as e:
         print(f"⚠️ Erreur lors de l'initialisation: {e}")
         # Ne pas arrêter l'app, continuer avec les tables existantes
@@ -156,6 +166,7 @@ def create_default_admin_if_needed(db: Session) -> None:
     """Create default admin if none exists"""
     existing_admin = db.query(AdministrateurDB).filter_by(username="kamaodo65").first()
     if not existing_admin:
+        print("👑 Création de l'administrateur principal par défaut...")
         default_admin = AdministrateurDB(
             username="kamaodo65",
             password_hash=hash_password("admin123"),
@@ -165,6 +176,9 @@ def create_default_admin_if_needed(db: Session) -> None:
         )
         db.add(default_admin)
         db.commit()
+        print("✅ Administrateur principal créé avec succès (kamaodo65/admin123)")
+    else:
+        print("✅ Administrateur principal déjà présent")
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[Tuple[str, Dict[str, Any]]]:
     """Authenticate user against PostgreSQL database"""
