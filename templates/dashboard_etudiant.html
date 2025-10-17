@@ -411,8 +411,38 @@
             margin-bottom: 0.5rem;
         }
         
-        /* Mobile Responsive - Version Pro */
+        /* Tablet adjustments (light touch) */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem !important;
+            }
+            
+            /* Onglets de niveaux avec défilement horizontal */
+            .niveau-tabs {
+                overflow-x: auto !important;
+                display: flex !important;
+                gap: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            .niveau-tabs::-webkit-scrollbar {
+                height: 3px !important;
+            }
+            
+            .niveau-tabs::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, #667eea, #764ba2) !important;
+                border-radius: 2px !important;
+            }
+            
+            .niveau-btn {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+        }
+        
+        /* Mobile Responsive - Version Pro */
+        @media (max-width: 600px) {
             .navbar {
                 padding: 1rem !important;
                 flex-direction: column !important;
@@ -457,29 +487,9 @@
                 font-size: 0.85rem !important;
             }
             
-            /* Optimisation des onglets de niveaux */
-            .niveau-tabs {
-                overflow-x: auto !important;
-                display: flex !important;
-                gap: 0.5rem !important;
-                padding-bottom: 0.5rem !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            
-            .niveau-tabs::-webkit-scrollbar {
-                height: 3px !important;
-            }
-            
-            .niveau-tabs::-webkit-scrollbar-thumb {
-                background: linear-gradient(135deg, #667eea, #764ba2) !important;
-                border-radius: 2px !important;
-            }
-            
             .niveau-btn {
                 font-size: 0.85rem !important;
                 padding: 0.6rem 1rem !important;
-                white-space: nowrap !important;
-                flex-shrink: 0 !important;
             }
             
             .niveau-header {

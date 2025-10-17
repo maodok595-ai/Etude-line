@@ -70,41 +70,10 @@
             padding: 0 2rem;
         }
 
-        /* Mobile Responsive */
+        /* Tablet adjustments (light touch) */
         @media screen and (max-width: 768px) {
-            .navbar {
-                padding: 1rem !important;
-                flex-direction: column !important;
-                gap: 1rem !important;
-                text-align: center !important;
-            }
-            
-            .navbar h1 {
-                font-size: 1.4rem !important;
-            }
-            
-            .navbar .user-info {
-                flex-direction: column !important;
-                gap: 0.5rem !important;
-            }
-            
             .container {
-                margin: 1rem auto !important;
                 padding: 0 1rem !important;
-            }
-            
-            .welcome-card {
-                padding: 1.5rem !important;
-                margin-bottom: 1.5rem !important;
-            }
-            
-            .university-logo {
-                width: 120px !important;
-                height: 120px !important;
-            }
-            
-            .university-name {
-                font-size: 1.2rem !important;
             }
             
             .main-content {
@@ -112,29 +81,165 @@
                 gap: 1.5rem !important;
             }
             
-            .card {
-                padding: 1.5rem !important;
-            }
-            
             .form-row {
                 grid-template-columns: 1fr !important;
                 gap: 1rem !important;
             }
-            
-            .form-group {
-                margin-bottom: 1rem !important;
+        }
+        
+        /* Mobile Responsive - Version Pro */
+        @media screen and (max-width: 600px) {
+            .navbar {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                text-align: center !important;
             }
             
-            .form-group input, .form-group select, .form-group textarea {
-                padding: 0.875rem !important;
+            .navbar h1 {
+                font-size: 1.3rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .container {
+                margin: 1rem auto !important;
+                padding: 0 0.75rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1.25rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            
+            .university-logo {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            
+            .university-name {
+                font-size: 1rem !important;
+                line-height: 1.3 !important;
+            }
+            
+            .user-info-box {
+                padding: 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            .card {
+                padding: 1.25rem !important;
+            }
+            
+            .card h2 {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            /* Formulaires optimisés */
+            .form-group {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .form-group label {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 0.75rem !important;
                 font-size: 16px !important; /* Évite le zoom sur iOS */
             }
             
             .btn {
-                padding: 0.75rem 1rem !important;
+                padding: 0.7rem 1rem !important;
                 font-size: 0.9rem !important;
-                width: 100% !important;
-                margin-top: 10px !important;
+            }
+            
+            /* Structure hiérarchique optimisée */
+            .niveau-card {
+                margin-bottom: 1rem !important;
+            }
+            
+            .niveau-header {
+                padding: 0.7rem 1rem !important;
+            }
+            
+            .niveau-header h4 {
+                font-size: 0.95rem !important;
+            }
+            
+            .matiere-header {
+                padding: 0.8rem 1rem !important;
+                font-size: 0.95rem !important;
+            }
+            
+            .matiere-content {
+                padding: 0.5rem !important;
+            }
+            
+            .semestre-section {
+                padding: 0.5rem 1rem !important;
+            }
+            
+            .semestre-header {
+                padding: 0.65rem 0.85rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .chapitre-header-new {
+                padding: 0.65rem 0.85rem !important;
+            }
+            
+            .chapitre-titre {
+                font-size: 0.85rem !important;
+            }
+            
+            .chapitre-content-new {
+                padding: 0.85rem !important;
+            }
+            
+            /* Boutons icônes optimisés */
+            .btn-icon {
+                font-size: 1rem !important;
+                padding: 0.35rem !important;
+            }
+            
+            .action-buttons {
+                gap: 0.4rem !important;
+                flex-wrap: wrap !important;
+            }
+            
+            /* Type badges */
+            .type-badge {
+                font-size: 0.7rem !important;
+                padding: 0.2rem 0.5rem !important;
+            }
+            
+            /* Statistiques */
+            .stat-value {
+                font-size: 1.8rem !important;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem !important;
+            }
+            
+            /* Notification Center */
+            .notification-center {
+                font-size: 0.9rem !important;
+            }
+            
+            .notification-item {
+                padding: 0.75rem !important;
+                font-size: 0.85rem !important;
             }
         }
 
@@ -144,7 +249,7 @@
             }
             
             .navbar h1 {
-                font-size: 1.2rem !important;
+                font-size: 1.1rem !important;
             }
             
             .container {
@@ -156,13 +261,49 @@
                 padding: 1rem !important;
             }
             
+            .university-logo {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .university-name {
+                font-size: 0.95rem !important;
+            }
+            
             .card {
                 padding: 1rem !important;
             }
             
+            .card h2 {
+                font-size: 1rem !important;
+            }
+            
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 0.65rem !important;
+            }
+            
             .btn {
-                padding: 0.5rem 0.75rem !important;
+                padding: 0.6rem 0.85rem !important;
                 font-size: 0.85rem !important;
+            }
+            
+            .niveau-header h4 {
+                font-size: 0.9rem !important;
+            }
+            
+            .matiere-header {
+                padding: 0.7rem 0.85rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .chapitre-titre {
+                font-size: 0.8rem !important;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem !important;
             }
         }
         
@@ -384,19 +525,6 @@
             background: rgba(244, 67, 54, 0.1);
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .container {
-                padding: 0 1rem;
-            }
-        }
         
         /* Styles pour la structure hiérarchique */
         .niveau-card {
