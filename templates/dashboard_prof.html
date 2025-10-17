@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de bord Professeur - Étude LINE</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#6366f1">
@@ -1916,23 +1917,8 @@
     </script>
     
     <script>
-        // Charger le logo de l'université du professeur au chargement de la page
-        document.addEventListener('DOMContentLoaded', async function() {
-            const universiteId = '{{ prof.universite_id }}';
-            console.log('ID université professeur:', universiteId);
-            if (universiteId && universiteId !== 'None' && universiteId !== '') {
-                try {
-                    const response = await fetch(`/api/universite/${universiteId}`);
-                    const data = await response.json();
-                    console.log('Données université professeur:', data);
-                    
-                    // Note: Logo retiré - s'affiche uniquement dans le dashboard étudiant
-                } catch (error) {
-                    console.error('Erreur lors du chargement du logo universitaire:', error);
-                }
-            }
-            
-            // Charger tous les commentaires
+        // Charger tous les commentaires au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('[id^="commentaires-list-"]').forEach(container => {
                 const chapitreId = container.getAttribute('data-chapitre-id');
                 if (chapitreId) {
