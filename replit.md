@@ -50,6 +50,8 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Visual differentiation: professors (blue, 👨‍🏫) and students (green, 👨‍🎓) with distinct styling
   - Real-time interface with async JavaScript functions for loading, posting, and deleting comments
   - XSS protection through HTML escaping and secure form submission
+  - Available in both student and professor dashboards for bidirectional communication
+  - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.

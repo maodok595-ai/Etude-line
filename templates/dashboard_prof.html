@@ -512,6 +512,112 @@
             color: #667eea;
             font-weight: bold;
         }
+        
+        /* Styles pour les commentaires */
+        .commentaires-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .commentaires-section h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .commentaire-form {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .commentaire-form textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .commentaire-form button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .commentaire-form button:hover {
+            background: #5568d3;
+        }
+        
+        .commentaire-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #667eea;
+        }
+        
+        .commentaire-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .commentaire-auteur {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .commentaire-auteur.prof {
+            color: #667eea;
+        }
+        
+        .commentaire-auteur.etudiant {
+            color: #4caf50;
+        }
+        
+        .commentaire-date {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        .commentaire-texte {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .commentaire-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .commentaire-delete:hover {
+            background: #d32f2f;
+        }
+        
+        .commentaires-vide {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -921,6 +1027,20 @@
                                     {% if chapitre.solution_texte %}
                                         <div style="font-size: 0.9rem; color: #666;">{{ chapitre.solution_texte[:50] }}{% if chapitre.solution_texte|length > 50 %}...{% endif %}</div>
                                     {% endif %}
+                                </div>
+                                
+                                <!-- Section Commentaires -->
+                                <div class="commentaires-section">
+                                    <h4>💬 Commentaires & Discussion</h4>
+                                    
+                                    <div class="commentaire-form">
+                                        <textarea id="commentaire-text-{{ chapitre.id }}" placeholder="Écrivez votre commentaire ou répondez aux questions..."></textarea>
+                                        <button onclick="ajouterCommentaire({{ chapitre.id }})">📤 Publier</button>
+                                    </div>
+                                    
+                                    <div id="commentaires-list-{{ chapitre.id }}" data-chapitre-id="{{ chapitre.id }}">
+                                        <div class="loading">⏳ Chargement des commentaires...</div>
+                                    </div>
                                 </div>
                                                             </div>
                                                         </div>
@@ -1354,6 +1474,105 @@
                 arrow.style.transform = 'rotate(0deg)';
             }
         }
+        
+        // === FONCTIONS COMMENTAIRES ===
+        
+        async function chargerCommentaires(chapitreId) {
+            const container = document.getElementById(`commentaires-list-${chapitreId}`);
+            
+            try {
+                const response = await fetch(`/api/commentaires/${chapitreId}`);
+                const commentaires = await response.json();
+                
+                if (commentaires.length === 0) {
+                    container.innerHTML = '<div class="commentaires-vide">Aucun commentaire pour le moment. Soyez le premier à commenter !</div>';
+                    return;
+                }
+                
+                container.innerHTML = commentaires.map(c => {
+                    const date = new Date(c.created_at);
+                    const dateStr = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+                    const icone = c.auteur_type === 'prof' ? '👨‍🏫' : '👨‍🎓';
+                    
+                    return `
+                        <div class="commentaire-item">
+                            <div class="commentaire-header">
+                                <span class="commentaire-auteur ${c.auteur_type}">
+                                    ${icone} ${escapeHtml(c.auteur_nom)}
+                                </span>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span class="commentaire-date">${dateStr}</span>
+                                    <button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="commentaire-texte">${escapeHtml(c.texte)}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="commentaires-vide">Erreur de chargement des commentaires</div>';
+            }
+        }
+        
+        async function ajouterCommentaire(chapitreId) {
+            const textarea = document.getElementById(`commentaire-text-${chapitreId}`);
+            const texte = textarea.value.trim();
+            
+            if (!texte) {
+                alert('Veuillez écrire un commentaire avant de publier');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('chapitre_id', chapitreId);
+                formData.append('texte', texte);
+                
+                const response = await fetch('/api/commentaires', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    textarea.value = '';
+                    chargerCommentaires(chapitreId);
+                } else {
+                    alert('Erreur lors de la publication du commentaire');
+                }
+            } catch (error) {
+                alert('Erreur réseau. Veuillez réessayer.');
+            }
+        }
+        
+        async function supprimerCommentaire(commentaireId, chapitreId) {
+            if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/commentaires/${commentaireId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    chargerCommentaires(chapitreId);
+                } else {
+                    alert('Vous ne pouvez pas supprimer ce commentaire');
+                }
+            } catch (error) {
+                alert('Erreur lors de la suppression');
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
     
     <script>
@@ -1372,6 +1591,14 @@
                     console.error('Erreur lors du chargement du logo universitaire:', error);
                 }
             }
+            
+            // Charger tous les commentaires
+            document.querySelectorAll('[id^="commentaires-list-"]').forEach(container => {
+                const chapitreId = container.getAttribute('data-chapitre-id');
+                if (chapitreId) {
+                    setTimeout(() => chargerCommentaires(chapitreId), 100);
+                }
+            });
         });
     </script>
     
