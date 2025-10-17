@@ -2890,6 +2890,55 @@ async def add_commentaire(
     db.commit()
     db.refresh(nouveau_commentaire)
     
+    # Créer des notifications pour informer les utilisateurs concernés
+    try:
+        # Récupérer le chapitre pour avoir les infos
+        chapitre = db.query(ChapitreCompletDB).filter_by(id=commentaire_data.chapitre_id).first()
+        
+        if chapitre:
+            # Message de notification avec le nom du chapitre
+            message = f"💬 Nouveau commentaire sur '{chapitre.titre}' par {auteur_nom}"
+            
+            if auteur_type == "etudiant":
+                # Si un étudiant commente -> notifier le professeur créateur du chapitre
+                # Récupérer le prof via son username pour avoir son ID
+                prof = db.query(ProfesseurDB).filter_by(username=chapitre.created_by).first()
+                if prof:
+                    notification = NotificationDB(
+                        type='nouveau_commentaire',
+                        message=message,
+                        destinataire_type='prof',
+                        destinataire_id=prof.id,  # ID numérique du prof
+                        lien=f"/dashboard/prof",
+                        chapitre_id=chapitre.id,
+                        universite_id=chapitre.universite_id
+                    )
+                    db.add(notification)
+                
+            elif auteur_type == "prof":
+                # Si un prof commente -> notifier tous les étudiants de la filière/niveau
+                etudiants = db.query(EtudiantDB).filter_by(
+                    filiere_id=chapitre.filiere_id,
+                    niveau=chapitre.niveau
+                ).all()
+                
+                for etudiant in etudiants:
+                    notification = NotificationDB(
+                        type='nouveau_commentaire',
+                        message=message,
+                        destinataire_type='etudiant',
+                        destinataire_id=etudiant.id,
+                        lien=f"/dashboard/etudiant",
+                        chapitre_id=chapitre.id,
+                        universite_id=chapitre.universite_id
+                    )
+                    db.add(notification)
+            
+            db.commit()
+    except Exception as e:
+        # Ne pas bloquer la création du commentaire si les notifications échouent
+        print(f"⚠️ Erreur lors de la création des notifications de commentaire: {e}")
+    
     return {
         "success": True,
         "commentaire": {
