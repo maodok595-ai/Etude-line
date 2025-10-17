@@ -64,33 +64,44 @@ async def startup_event():
                 print(f"ℹ️ Colonne 'actif' déjà existante ou erreur: {e}")
             
             # Créer les index de performance pour optimiser les requêtes
-            try:
-                # Index pour la table commentaires (si elle existe)
-                conn.execute(text("""
-                    CREATE INDEX IF NOT EXISTS idx_commentaires_chapitre 
-                    ON commentaires(chapitre_id)
-                """))
-                conn.execute(text("""
-                    CREATE INDEX IF NOT EXISTS idx_commentaires_auteur 
-                    ON commentaires(auteur_id, type_auteur)
-                """))
-                print("✅ Index créés pour la table commentaires")
-            except Exception as e:
-                pass  # Table pas encore créée
+            # Vérifier d'abord quelles tables existent
+            result = conn.execute(text("""
+                SELECT table_name FROM information_schema.tables 
+                WHERE table_schema = 'public' AND table_name IN ('commentaires', 'notifications')
+            """))
+            existing_tables = {row[0] for row in result}
             
-            try:
-                # Index pour la table notifications (si elle existe)
-                conn.execute(text("""
-                    CREATE INDEX IF NOT EXISTS idx_notifications_destinataire 
-                    ON notifications(destinataire_id, type_destinataire)
-                """))
-                conn.execute(text("""
-                    CREATE INDEX IF NOT EXISTS idx_notifications_lu 
-                    ON notifications(destinataire_id, lu)
-                """))
-                print("✅ Index créés pour la table notifications")
-            except Exception as e:
-                pass  # Table pas encore créée
+            # Index pour la table commentaires (si elle existe)
+            if 'commentaires' in existing_tables:
+                try:
+                    conn.execute(text("""
+                        CREATE INDEX IF NOT EXISTS idx_commentaires_chapitre 
+                        ON commentaires(chapitre_id)
+                    """))
+                    conn.execute(text("""
+                        CREATE INDEX IF NOT EXISTS idx_commentaires_auteur 
+                        ON commentaires(auteur_id, auteur_type)
+                    """))
+                    print("✅ Index créés pour la table commentaires")
+                except Exception as e:
+                    print(f"⚠️ Erreur création index commentaires: {e}")
+                    conn.rollback()
+            
+            # Index pour la table notifications (si elle existe)
+            if 'notifications' in existing_tables:
+                try:
+                    conn.execute(text("""
+                        CREATE INDEX IF NOT EXISTS idx_notifications_destinataire 
+                        ON notifications(destinataire_id, destinataire_type)
+                    """))
+                    conn.execute(text("""
+                        CREATE INDEX IF NOT EXISTS idx_notifications_lue 
+                        ON notifications(destinataire_id, lue)
+                    """))
+                    print("✅ Index créés pour la table notifications")
+                except Exception as e:
+                    print(f"⚠️ Erreur création index notifications: {e}")
+                    conn.rollback()
             
             conn.commit()
         
