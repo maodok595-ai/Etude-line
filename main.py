@@ -22,7 +22,7 @@ from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
-    Content, ChapitreComplet as ChapitreCompletDB
+    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB
 )
 from migration import migrate_data
 
@@ -2790,6 +2790,93 @@ async def get_universite_api(universite_id: str, db: Session = Depends(get_db)):
         }
     
     raise HTTPException(status_code=404, detail="Université non trouvée")
+
+# === ROUTES API - COMMENTAIRES (INTERACTION) ===
+
+@app.get("/api/commentaires/{chapitre_id}")
+async def get_commentaires(chapitre_id: int, db: Session = Depends(get_db)):
+    """Récupérer tous les commentaires d'un chapitre"""
+    commentaires = db.query(CommentaireDB).filter_by(chapitre_id=chapitre_id).order_by(CommentaireDB.created_at.desc()).all()
+    return [{
+        "id": c.id,
+        "texte": c.texte,
+        "auteur_type": c.auteur_type,
+        "auteur_nom": c.auteur_nom,
+        "created_at": c.created_at.isoformat()
+    } for c in commentaires]
+
+@app.post("/api/commentaires")
+async def add_commentaire(
+    request: Request,
+    chapitre_id: int = Form(...),
+    texte: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Ajouter un commentaire sur un chapitre"""
+    role, username, user_data = require_auth(request, db)
+    
+    # Déterminer l'auteur selon le rôle
+    if role == "prof":
+        auteur_type = "prof"
+        auteur_nom = f"{user_data.get('prenom', '')} {user_data.get('nom', '')}"
+        auteur_id = user_data.get('id')
+    elif role == "etudiant":
+        auteur_type = "etudiant"
+        auteur_nom = f"{user_data.get('prenom', '')} {user_data.get('nom', '')}"
+        auteur_id = user_data.get('id')
+    else:
+        raise HTTPException(status_code=403, detail="Seuls les professeurs et étudiants peuvent commenter")
+    
+    # Créer le commentaire
+    nouveau_commentaire = CommentaireDB(
+        texte=texte,
+        chapitre_id=chapitre_id,
+        auteur_type=auteur_type,
+        auteur_id=auteur_id,
+        auteur_nom=auteur_nom
+    )
+    
+    db.add(nouveau_commentaire)
+    db.commit()
+    db.refresh(nouveau_commentaire)
+    
+    return {
+        "success": True,
+        "commentaire": {
+            "id": nouveau_commentaire.id,
+            "texte": nouveau_commentaire.texte,
+            "auteur_type": nouveau_commentaire.auteur_type,
+            "auteur_nom": nouveau_commentaire.auteur_nom,
+            "created_at": nouveau_commentaire.created_at.isoformat()
+        }
+    }
+
+@app.delete("/api/commentaires/{commentaire_id}")
+async def delete_commentaire(
+    request: Request,
+    commentaire_id: int,
+    db: Session = Depends(get_db)
+):
+    """Supprimer un commentaire (seulement l'auteur ou un admin)"""
+    role, username, user_data = require_auth(request, db)
+    
+    commentaire = db.query(CommentaireDB).filter_by(id=commentaire_id).first()
+    if not commentaire:
+        raise HTTPException(status_code=404, detail="Commentaire non trouvé")
+    
+    # Vérifier les permissions
+    if role == "admin":
+        # Les admins peuvent supprimer n'importe quel commentaire
+        db.delete(commentaire)
+        db.commit()
+        return {"success": True, "message": "Commentaire supprimé"}
+    elif (commentaire.auteur_type == role and commentaire.auteur_id == user_data.get('id')):
+        # L'auteur peut supprimer son propre commentaire
+        db.delete(commentaire)
+        db.commit()
+        return {"success": True, "message": "Commentaire supprimé"}
+    else:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez pas supprimer ce commentaire")
 
 if __name__ == "__main__":
     print("=" * 50)

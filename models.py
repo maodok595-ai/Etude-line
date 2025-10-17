@@ -181,3 +181,18 @@ class ChapitreComplet(Base):
     filiere = relationship("Filiere", back_populates="chapitres")
     matiere = relationship("Matiere", back_populates="chapitres")
     professeur = relationship("Professeur", back_populates="chapitres")
+    commentaires = relationship("Commentaire", back_populates="chapitre", cascade="all, delete-orphan")
+
+class Commentaire(Base):
+    __tablename__ = "commentaires"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    texte = Column(Text, nullable=False)
+    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id"), nullable=False)
+    auteur_type = Column(String(20), nullable=False)  # 'professeur' ou 'etudiant'
+    auteur_id = Column(Integer, nullable=False)
+    auteur_nom = Column(String(200), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relations
+    chapitre = relationship("ChapitreComplet", back_populates="commentaires")
