@@ -62,16 +62,6 @@ async def startup_event():
                 print("✅ Colonne 'actif' ajoutée aux professeurs")
             except Exception as e:
                 print(f"ℹ️ Colonne 'actif' déjà existante ou erreur: {e}")
-            
-            try:
-                conn.execute(text("""
-                    ALTER TABLE chapitres_complets 
-                    ADD COLUMN IF NOT EXISTS verrouille BOOLEAN DEFAULT FALSE
-                """))
-                conn.commit()
-                print("✅ Colonne 'verrouille' ajoutée aux chapitres")
-            except Exception as e:
-                print(f"ℹ️ Colonne 'verrouille' déjà existante ou erreur: {e}")
         
         # Vérifier si la migration a déjà été effectuée
         migration_done_file = ".migration_done"
@@ -2711,8 +2701,7 @@ async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db
             "solution_texte": chapitre.solution_texte or "",
             "solution_fichier_nom": chapitre.solution_fichier_nom,
             "solution_fichier_path": chapitre.solution_fichier_path,
-            "created_by": chapitre.created_by,
-            "verrouille": chapitre.verrouille
+            "created_by": chapitre.created_by
         })
     
     # Convert to sorted list structure
