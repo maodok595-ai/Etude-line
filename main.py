@@ -1040,6 +1040,39 @@ async def create_chapitre_complet(
         db.commit()
         db.refresh(nouveau_chapitre)
         
+        # Créer des notifications pour tous les étudiants de la filière
+        try:
+            # Récupérer les informations nécessaires
+            matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
+            filiere = db.query(FiliereDB).filter_by(id=filiere_id).first()
+            
+            matiere_nom = matiere.nom if matiere else "Matière"
+            filiere_nom = filiere.nom if filiere else "Filière"
+            
+            # Récupérer tous les étudiants de cette filière et niveau
+            etudiants = db.query(EtudiantDB).filter_by(
+                filiere_id=filiere_id,
+                niveau=niveau
+            ).all()
+            
+            # Créer une notification pour chaque étudiant
+            for etudiant in etudiants:
+                notification = NotificationDB(
+                    type='nouveau_chapitre',
+                    message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre})",
+                    destinataire_type='etudiant',
+                    destinataire_id=etudiant.id,
+                    lien=f"/dashboard/etudiant",
+                    chapitre_id=nouveau_chapitre.id,
+                    universite_id=universite_id
+                )
+                db.add(notification)
+            
+            db.commit()
+        except Exception as e:
+            # Ne pas bloquer la création du chapitre si les notifications échouent
+            print(f"⚠️ Erreur lors de la création des notifications: {e}")
+        
         return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=303)
         
     except Exception as e:
