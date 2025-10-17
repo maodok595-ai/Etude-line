@@ -1470,7 +1470,7 @@
                 
                 <!-- Moteur de recherche de chapitres -->
                 {% if hierarchie %}
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e0e0e0; position: relative; z-index: 1;">
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 0; border: 2px solid #e0e0e0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <label for="chapitre-search-prof" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
                         🔍 Rechercher un chapitre
                     </label>
@@ -1478,7 +1478,7 @@
                         type="text" 
                         id="chapitre-search-prof" 
                         placeholder="Tapez le titre ou le numéro du chapitre..."
-                        style="width: 100%; padding: 0.875rem 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease; position: relative; z-index: 1;"
+                        style="width: 100%; padding: 0.875rem 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;"
                         oninput="searchChapitresProf(this.value)"
                         onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
                         onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
@@ -1487,7 +1487,7 @@
                 </div>
                 {% endif %}
                 
-                <div class="content-list" style="position: relative; z-index: 0;">
+                <div class="content-list" style="padding-top: 1.5rem;">
                     {% if hierarchie %}
                         <!-- Boucle sur les niveaux -->
                         {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
