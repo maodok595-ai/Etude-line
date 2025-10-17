@@ -1204,11 +1204,11 @@
         
         function getNiveauComplet(code) {
             const niveaux = {
-                'L1': 'Licence 1',
-                'L2': 'Licence 2',
-                'L3': 'Licence 3',
-                'M1': 'Master 1',
-                'M2': 'Master 2'
+                'L1': '📘 Licence 1 (L1)',
+                'L2': '📗 Licence 2 (L2)',
+                'L3': '📙 Licence 3 (L3)',
+                'M1': '📕 Master 1 (M1)',
+                'M2': '📔 Master 2 (M2)'
             };
             return niveaux[code] || code;
         }
@@ -1220,7 +1220,7 @@
                     ${niveau.matieres.map((matiere, mIdx) => `
                         <div class="matiere-item">
                             <div class="matiere-header" onclick="toggleMatiere(this)">
-                                <h3>${matiere.matiere_nom}</h3>
+                                <h3>📚 ${matiere.matiere_nom}</h3>
                                 <span class="toggle-arrow">▸</span>
                             </div>
                             <div class="matiere-content">
