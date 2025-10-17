@@ -178,7 +178,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
         }
         
         .matiere-header:hover {
@@ -301,7 +301,7 @@
             padding: 0.5rem 1rem;
             border-radius: 6px;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .file-link:hover {
@@ -573,7 +573,7 @@
             cursor: pointer;
             font-size: 0.75rem;
             margin-top: 0.5rem;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s;
         }
         
         .commentaire-repondre:hover {
@@ -1010,7 +1010,7 @@
                 targetTextarea.value = `@${auteurNom} `;
                 targetTextarea.focus();
                 // Scroll jusqu'au textarea
-                targetTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetTextarea.scrollIntoView({ behavior: 'auto', block: 'center' });
             }
         }
         
