@@ -172,6 +172,19 @@
                 font-size: 16px !important; /* Évite le zoom sur iOS */
                 padding: 12px !important;
             }
+            
+            /* Bouton Se connecter optimisé pour mobile */
+            .login-btn {
+                padding: 0.65rem 1.2rem !important;
+                font-size: 0.9rem !important;
+                width: auto !important;
+                max-width: 200px !important;
+            }
+            
+            .login-link p {
+                font-size: 0.95rem !important;
+                margin-bottom: 0.5rem !important;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -210,6 +223,22 @@
             
             .hero-image img {
                 height: 150px !important;
+            }
+            
+            /* Bouton Se connecter très petits écrans */
+            .login-btn {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.85rem !important;
+                max-width: 180px !important;
+            }
+            
+            .login-link {
+                padding-top: 15px !important;
+                margin-top: 20px !important;
+            }
+            
+            .login-link p {
+                font-size: 0.85rem !important;
             }
         }
         
@@ -436,6 +465,29 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
+        /* Bouton Se connecter - taille moyenne élégante */
+        .login-btn {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.2);
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
         .error {
             background: #f8d7da;
             color: #721c24;
@@ -627,8 +679,8 @@
         
         <div class="login-link">
             <p>Déjà un compte ?</p>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <a href="/login" style="padding: 1rem 2rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; text-decoration: none; font-size: 1.1rem; font-weight: 600; display: inline-block; transition: all 0.3s ease;">
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="/login" class="login-btn">
                     🔑 Se connecter
                 </a>
             </div>
