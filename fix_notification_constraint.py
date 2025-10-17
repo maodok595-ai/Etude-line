@@ -12,65 +12,73 @@ def fix_notification_constraints():
         try:
             print("🔧 Début de la correction des contraintes de foreign key...")
             
-            # Trouver le nom de la contrainte actuelle pour chapitre_id
+            # Trouver et supprimer TOUTES les contraintes FK sur chapitre_id
             result = conn.execute(text("""
-                SELECT constraint_name 
-                FROM information_schema.table_constraints 
-                WHERE table_name = 'notifications' 
-                AND constraint_type = 'FOREIGN KEY'
-                AND constraint_name LIKE '%chapitre%'
+                SELECT tc.constraint_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu 
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                WHERE tc.table_name = 'notifications' 
+                    AND tc.constraint_type = 'FOREIGN KEY'
+                    AND kcu.column_name = 'chapitre_id'
             """))
-            chapitre_constraint = result.fetchone()
             
-            if chapitre_constraint:
-                constraint_name = chapitre_constraint[0]
-                print(f"📋 Contrainte trouvée: {constraint_name}")
-                
-                # Supprimer l'ancienne contrainte
+            chapitre_constraints = result.fetchall()
+            for constraint in chapitre_constraints:
+                constraint_name = constraint[0]
                 conn.execute(text(f"""
                     ALTER TABLE notifications 
-                    DROP CONSTRAINT IF EXISTS {constraint_name}
+                    DROP CONSTRAINT {constraint_name}
                 """))
-                print("✅ Ancienne contrainte supprimée")
-                
-                # Ajouter la nouvelle contrainte avec ON DELETE SET NULL
-                conn.execute(text("""
-                    ALTER TABLE notifications 
-                    ADD CONSTRAINT notifications_chapitre_id_fkey 
-                    FOREIGN KEY (chapitre_id) 
-                    REFERENCES chapitres_complets(id) 
-                    ON DELETE SET NULL
-                """))
-                print("✅ Nouvelle contrainte ajoutée avec ON DELETE SET NULL")
+                print(f"✅ Contrainte FK sur chapitre_id supprimée: {constraint_name}")
             
-            # Faire de même pour universite_id
-            result = conn.execute(text("""
-                SELECT constraint_name 
-                FROM information_schema.table_constraints 
-                WHERE table_name = 'notifications' 
-                AND constraint_type = 'FOREIGN KEY'
-                AND constraint_name LIKE '%universite%'
+            if not chapitre_constraints:
+                print("ℹ️  Aucune contrainte FK trouvée sur chapitre_id")
+            
+            # Ajouter la nouvelle contrainte avec ON DELETE SET NULL
+            conn.execute(text("""
+                ALTER TABLE notifications 
+                ADD CONSTRAINT notifications_chapitre_id_fkey 
+                FOREIGN KEY (chapitre_id) 
+                REFERENCES chapitres_complets(id) 
+                ON DELETE SET NULL
             """))
-            universite_constraint = result.fetchone()
+            print("✅ Nouvelle contrainte chapitre_id ajoutée avec ON DELETE SET NULL")
             
-            if universite_constraint:
-                constraint_name = universite_constraint[0]
-                print(f"📋 Contrainte université trouvée: {constraint_name}")
-                
+            # Trouver et supprimer TOUTES les contraintes FK sur universite_id
+            result = conn.execute(text("""
+                SELECT tc.constraint_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu 
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                WHERE tc.table_name = 'notifications' 
+                    AND tc.constraint_type = 'FOREIGN KEY'
+                    AND kcu.column_name = 'universite_id'
+            """))
+            
+            universite_constraints = result.fetchall()
+            for constraint in universite_constraints:
+                constraint_name = constraint[0]
                 conn.execute(text(f"""
                     ALTER TABLE notifications 
-                    DROP CONSTRAINT IF EXISTS {constraint_name}
+                    DROP CONSTRAINT {constraint_name}
                 """))
-                print("✅ Ancienne contrainte université supprimée")
-                
-                conn.execute(text("""
-                    ALTER TABLE notifications 
-                    ADD CONSTRAINT notifications_universite_id_fkey 
-                    FOREIGN KEY (universite_id) 
-                    REFERENCES universites(id) 
-                    ON DELETE SET NULL
-                """))
-                print("✅ Nouvelle contrainte université ajoutée avec ON DELETE SET NULL")
+                print(f"✅ Contrainte FK sur universite_id supprimée: {constraint_name}")
+            
+            if not universite_constraints:
+                print("ℹ️  Aucune contrainte FK trouvée sur universite_id")
+            
+            # Ajouter la nouvelle contrainte avec ON DELETE SET NULL
+            conn.execute(text("""
+                ALTER TABLE notifications 
+                ADD CONSTRAINT notifications_universite_id_fkey 
+                FOREIGN KEY (universite_id) 
+                REFERENCES universites(id) 
+                ON DELETE SET NULL
+            """))
+            print("✅ Nouvelle contrainte universite_id ajoutée avec ON DELETE SET NULL")
             
             conn.commit()
             print("🎉 Migration terminée avec succès!")
