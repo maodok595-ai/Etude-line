@@ -1311,6 +1311,9 @@
                                                             <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
                                                         </div>
                                                         <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                            <button class="btn-icon btn-icon-lock" id="lock-btn-{{ chapitre.id }}" onclick="toggleVerrouillage('{{ chapitre.id }}', {{ chapitre.verrouille|tojson }})" title="{{ 'Déverrouiller' if chapitre.verrouille else 'Verrouiller' }}">
+                                                                {{ '🔒' if chapitre.verrouille else '🔓' }}
+                                                            </button>
                                                             <button class="btn-icon" onclick='ouvrirModificationChapitre({
                                                                 "id": "{{ chapitre.id }}",
                                                                 "titre": {{ chapitre.titre|tojson }},
@@ -1795,6 +1798,39 @@
                 form.innerHTML = `<input type="hidden" name="chapitre_id" value="${chapitreId}">`;
                 document.body.appendChild(form);
                 form.submit();
+            }
+        }
+        
+        // Fonction pour verrouiller/déverrouiller un chapitre
+        async function toggleVerrouillage(chapitreId, currentStatus) {
+            try {
+                const response = await fetch(`/api/chapitres/${chapitreId}/verrouiller`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors du verrouillage');
+                }
+                
+                const data = await response.json();
+                
+                // Mettre à jour l'icône et le titre du bouton
+                const lockBtn = document.getElementById(`lock-btn-${chapitreId}`);
+                if (lockBtn) {
+                    lockBtn.innerHTML = data.verrouille ? '🔒' : '🔓';
+                    lockBtn.title = data.verrouille ? 'Déverrouiller' : 'Verrouiller';
+                    lockBtn.onclick = function() { toggleVerrouillage(chapitreId, data.verrouille); };
+                }
+                
+                // Afficher un message de confirmation
+                alert(data.message);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors du verrouillage du chapitre');
             }
         }
         

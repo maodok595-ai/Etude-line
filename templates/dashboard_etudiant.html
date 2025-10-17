@@ -898,12 +898,12 @@
                                         <div class="semestre-title">${semestre.semestre}</div>
                                         ${semestre.chapitres.map(chapitre => `
                                             <div class="chapitre-item">
-                                                <div class="chapitre-header" onclick="toggleChapitre(this)">
-                                                    <span class="chapitre-title">Chapitre ${chapitre.numero} : ${chapitre.titre}</span>
+                                                <div class="chapitre-header" onclick="toggleChapitre(this, ${chapitre.verrouille || false})">
+                                                    <span class="chapitre-title">${chapitre.verrouille ? '🔒 ' : ''}Chapitre ${chapitre.numero} : ${chapitre.titre}</span>
                                                     <span class="toggle-arrow">▸</span>
                                                 </div>
                                                 <div class="chapitre-content">
-                                                    ${renderChapitreContent(chapitre)}
+                                                    ${chapitre.verrouille ? '<p style="color: #f44336; padding: 1rem; text-align: center;">🔒 Contenu verrouillé par le professeur</p>' : renderChapitreContent(chapitre)}
                                                 </div>
                                             </div>
                                         `).join('')}
@@ -1053,10 +1053,11 @@
             arrow.classList.toggle('open');
         }
         
-        function toggleChapitre(header) {
+        function toggleChapitre(header, isVerrouille = false) {
             const content = header.nextElementSibling;
             const arrow = header.querySelector('.toggle-arrow');
             
+            // Permettre l'ouverture pour afficher le message de verrouillage
             content.classList.toggle('show');
             arrow.classList.toggle('open');
         }

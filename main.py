@@ -62,6 +62,16 @@ async def startup_event():
                 print("✅ Colonne 'actif' ajoutée aux professeurs")
             except Exception as e:
                 print(f"ℹ️ Colonne 'actif' déjà existante ou erreur: {e}")
+            
+            try:
+                conn.execute(text("""
+                    ALTER TABLE chapitres_complets 
+                    ADD COLUMN IF NOT EXISTS verrouille BOOLEAN DEFAULT FALSE
+                """))
+                conn.commit()
+                print("✅ Colonne 'verrouille' ajoutée aux chapitres")
+            except Exception as e:
+                print(f"ℹ️ Colonne 'verrouille' déjà existante ou erreur: {e}")
         
         # Vérifier si la migration a déjà été effectuée
         migration_done_file = ".migration_done"
@@ -2623,6 +2633,40 @@ async def modifier_chapitre_complet(
         db.rollback()
         return RedirectResponse(f"/dashboard/prof?error=Erreur lors de la modification: {str(e)}", status_code=303)
 
+@app.put("/api/chapitres/{chapitre_id}/verrouiller")
+async def toggle_verrouiller_chapitre(
+    request: Request,
+    chapitre_id: int,
+    db: Session = Depends(get_db)
+):
+    """Toggle lock status of a chapter (professor only)"""
+    try:
+        role, username, user_data = require_auth(request, db)
+    except HTTPException:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent verrouiller des chapitres")
+    
+    # Find the chapter and verify ownership
+    chapitre = db.query(ChapitreCompletDB).filter_by(
+        id=chapitre_id,
+        created_by=username
+    ).first()
+    
+    if not chapitre:
+        raise HTTPException(status_code=404, detail="Chapitre non trouvé ou accès non autorisé")
+    
+    # Toggle lock status
+    chapitre.verrouille = not chapitre.verrouille
+    db.commit()
+    
+    return {
+        "success": True,
+        "verrouille": chapitre.verrouille,
+        "message": f"Chapitre {'verrouillé' if chapitre.verrouille else 'déverrouillé'} avec succès"
+    }
+
 # API endpoints for hierarchical data
 
 @app.get("/api/chapitres/hierarchy")
@@ -2701,7 +2745,8 @@ async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db
             "solution_texte": chapitre.solution_texte or "",
             "solution_fichier_nom": chapitre.solution_fichier_nom,
             "solution_fichier_path": chapitre.solution_fichier_path,
-            "created_by": chapitre.created_by
+            "created_by": chapitre.created_by,
+            "verrouille": chapitre.verrouille
         })
     
     # Convert to sorted list structure
