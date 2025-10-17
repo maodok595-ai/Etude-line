@@ -1,103 +1,36 @@
 # Étude LINE
 
 ## Overview
-
-Étude LINE is an educational web application built with FastAPI, designed to facilitate content sharing between professors and students. Professors can publish educational content (courses, exercises, solutions) organized hierarchically by university, field, level, semester, subject, and chapter. Students can register and access all content freely. The platform includes a complete authentication system, content management capabilities, and is available as a Progressive Web App (PWA) installable on mobile and desktop devices.
+Étude LINE is an educational web application built with FastAPI, enabling professors to share content (courses, exercises, solutions) with students. Content is hierarchically organized by university, field, level, semester, subject, and chapter. Students can register and access all content freely. The platform features a complete authentication system, robust content management, and is available as an installable Progressive Web App (PWA) for mobile and desktop. The project aims to facilitate seamless educational content dissemination and access.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
 ### UI/UX Decisions
-The application uses a server-side rendered architecture with Jinja2 templates, offering a modern, responsive design using CSS Grid and Flexbox with a gradient color scheme. Key interfaces include:
-- **index.html**: Landing page with role selection.
-- **login.html**: Unified authentication.
-- **dashboard_prof.html**: Professor's content management interface with hierarchical accordion views for chapters, color-coded level cards (L1=green, L2=blue, L3=purple, M1=orange, M2=red), and icon-based actions. Displays university logo and "BIENVENUE A L'[UNIVERSITÉ NAME]" welcome message.
-- **dashboard_etudiant.html**: Student's content consumption interface with an interactive accordion for hierarchical content navigation. Displays university logo and "BIENVENUE A L'[UNIVERSITÉ NAME]" welcome message.
-- **Admin Dashboards**: Modernized admin panels with consistent button-based forms, hidden by default, animated transitions, and real-time search functionality across all entity lists. Secondary admins see university logo and welcome message for their assigned university.
+The application uses a server-side rendered architecture with Jinja2 templates, featuring a modern, responsive design with CSS Grid and Flexbox and a gradient color scheme. Key interfaces include:
+- **Dashboards (Professor, Student, Admin)**: Consistent university branding (logo, welcome message), interactive accordion views for content, color-coded level cards (L1-M2), and icon-based actions. Admin panels have consistent button-based forms, animated transitions, and real-time search.
 - **Homepage UX**: Redesigned student registration with initial welcome view, "S'inscrire" button, and smooth fade-in/fade-out animations.
-- **University Branding**: All dashboards (admin, professor, student) display university branding with consistent styling:
-  - Welcome message "BIENVENUE A L'[UNIVERSITÉ]" in uppercase Poppins font at the top
-  - University logo centered at 150px (desktop) / 120px (mobile) with rounded corners and shadow
-  - User information box below the logo with role-specific details (administrator/professor/student info)
-- **Responsive Design (Oct 17, 2025)**: Fully optimized for mobile, tablet, and PC with professional adaptive layouts:
-  - **Breakpoint strategy**: 480px (small phones), 600px (mobile), 768px (tablet), 1400px (large desktop), 1600px (very large desktop)
-  - **Tablet optimization (≤768px)**: Light touch adjustments - container padding, horizontal scrollable niveau tabs with custom scrollbar, grid simplification
-  - **Mobile optimization (≤600px)**: Complete responsive overhaul - navbar stacked vertically, compact typography, optimized spacing, reduced logo sizes (80px), touch-friendly buttons
-  - **Small phones (≤480px)**: Further refinements - minimal padding, smallest logos (70px), ultra-compact text sizes
-  - **Desktop Pro optimization (≥1400px)**: Enhanced experience for large screens - max-width 1400px, increased padding (3rem), larger logos (130px student/admin, 170px professor), generous spacing, hover effects on cards with elevation
-  - **Ultra-wide desktop (≥1600px)**: Premium experience for very large screens - max-width 1600px, maximum padding (4rem), largest logos (150px student/admin, 190px professor), navbar title 1.8rem, expansive gaps and spacing
-  - **Dashboard-specific enhancements**:
-    - Student dashboard: horizontal scrollable niveau tabs, compact matière/chapitre cards on mobile, hover effects on desktop
-    - Professor dashboard: optimized forms on mobile, hierarchical structure refinements, card hover effects on desktop
-    - Admin dashboard: stat-card hover effects with elevation, expanded grid gaps on desktop
-  - **Homepage responsive (Oct 17, 2025)**: Professional mobile adaptation following same breakpoint strategy - consolidated media queries (768px tablet, 600px mobile, 480px small phones), optimized typography scaling (1.8rem → 1.6rem on mobile), responsive hero image heights (220px → 180px), touch-optimized buttons, improved spacing and padding progression
-  - **No regressions**: Tablets (720-1024px) maintain horizontal navigation and multi-column button layouts without forced stacking
-  - Unified media queries without duplication for consistent responsive behavior across all pages (dashboards, homepage) and screen sizes
+- **Responsive Design**: Fully optimized for mobile, tablet, and PC across various breakpoints (480px to 1600px+). This includes stacked navigation, compact typography, optimized spacing, touch-friendly buttons, and hover effects on larger screens, with specific enhancements for all dashboards and the homepage.
 
 ### Technical Implementations
-- **Authentication & Authorization**: Utilizes bcrypt for password hashing and `itsdangerous` for secure, cookie-based session management. Supports dual registration (professors/students) and unified login with role detection.
-- **User & Content Management**: Separate models for professors and students with role-based access control. Content is organized hierarchically.
-- **University-Based Administration**: Administrators can be assigned to specific universities, restricting their access and management capabilities to data within that institution. A main administrator has global access. Secondary admins see filtered statistics and university-specific branding.
-- **Data Filtering**: Professors can only create content within their assigned university. All dashboard views (professor and admin) dynamically filter data based on user roles and university affiliations.
-- **Cascade Deletion**: Implemented manual cascade deletion for universities, UFRs, and filières to ensure all related entities (students, professors, chapters, subjects) are removed correctly.
-- **Search Functionality**: Pure frontend, real-time, case-insensitive search filtering is implemented across all admin and professor dashboards for entities like admins, professors, students, universities, UFRs, filières, and matières.
-- **Chapter Search Engine (Oct 17, 2025)**: Real-time chapter search functionality in student and professor dashboards:
-  - Search field with focus effects (border color change, shadow) and instant filtering on input
-  - `searchChapitres()` for student dashboard and `searchChapitresProf()` for professor dashboard
-  - Filters chapters by title or number, automatically expands parent containers (matière, semestre, niveau)
-  - Visual feedback with result count: green for matches, red when no chapters found
-  - Clearing search restores full hierarchy without residual styling
-  - Maintains accordion state and allows immediate access to filtered content
-- **Performance Optimization (Oct 2025)**: Implemented migration sentinel system using `.migration_done` file to prevent redundant database migrations at startup. Reduces homepage response time by 58% (0.48s → 0.20s) and database query time by 47% (2.98s → 1.57s). Migration can be forced via `MIGRATE_ON_START=true` environment variable.
-- **Progressive Web App (PWA) (Oct 17, 2025)**: Full PWA implementation enabling installation on mobile/desktop devices. Features include:
-  - Web App Manifest (`/static/manifest.json`) with complete metadata, branded icons (192px, 512px), and shortcuts
-  - Service Worker (`/static/sw.js`) with intelligent caching strategies: cache-first for static assets, network-first for dynamic pages, network-only for API calls
-  - Offline fallback page (`/static/offline.html`) with auto-refresh capabilities
-  - PWA meta tags and iOS-specific tags across all templates
-  - Installable from browser with "Add to Home Screen" functionality
-  - Works offline with cached content when no internet connection available
-- **Interactive Comment System (Oct 17, 2025)**: Real-time commenting and discussion feature for enhanced interaction between professors and students:
-  - Database model `Commentaire` with author tracking, timestamps, and cascade deletion on chapter removal
-  - RESTful API endpoints: GET /api/commentaires/{chapitre_id}, POST /api/commentaires, DELETE /api/commentaires/{id}
-  - Permission-based deletion: users can delete their own comments, admins can delete any comment
-  - Visual differentiation: professors (blue) and students (green) with clean name-only display
-  - Real-time interface with async JavaScript functions for loading, posting, and deleting comments
-  - XSS protection through HTML escaping and secure form submission
-  - Available in both student and professor dashboards for bidirectional communication
-  - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
-  - **Reply functionality**: Click "↩️ Répondre" to auto-fill "@AuthorName" in comment field with scroll-to-form. Uses data-attributes to avoid JavaScript escaping issues with special characters in names.
-  - **Collapsible section (Oct 17, 2025)**: Comments section closed by default with toggle arrow (▸/▼) for cleaner interface
-  - **Collapsible content sections (Oct 17, 2025)**: Cours, Exercices, Solutions sections are collapsible with clickable arrows (▸/▼), all closed by default for cleaner interface in both dashboards
-- **Admin Auto-Provisioning (Oct 17, 2025)**: Automatic main admin creation at every startup to prevent credential loss when switching databases:
-  - Function `create_default_admin_if_needed()` runs after table creation, independent of migration state
-  - Ensures admin "kamaodo65/admin123" always exists, even when `.migration_done` prevents full migration
-  - Idempotent design: checks for existing admin before creation, safe for repeated calls
-  - Works with both DATABASE_URL and EXTERNAL_DATABASE_URL configurations
-  - Logs "✅ Administrateur principal déjà présent" when admin exists, "✅ Administrateur principal créé" when created
-- **Notification System (Oct 17, 2025)**: Real-time notification system to keep students and professors informed of new content and interactions:
-  - Database model `Notification` with type, message, recipient tracking, read status, and timestamps
-  - RESTful API endpoints: GET /api/notifications, GET /api/notifications/count, PUT /api/notifications/lire-toutes, PUT /api/notifications/{id}/lire, DELETE /api/notifications/{id}, DELETE /api/notifications/supprimer-toutes
-  - **Auto-notifications for chapters**: When professors publish new chapters, all students in relevant filière/niveau receive notifications
-  - **Auto-notifications for comments**: 
-    - When a student comments on a chapter → professor (chapter creator) receives notification with chapter title
-    - When a professor comments on a chapter → all students in filière/niveau receive notification with chapter title
-  - UI notification center with bell icon (1.2rem, compact design), unread counter badge (18px), and dropdown popup with notification list
-  - Available in both student and professor dashboards with identical functionality
-  - Graceful error handling: notification failures don't block chapter/comment creation
-  - Visual indicators: emoji icons (📚 for new chapters, 💬 for new comments), timestamp display, read/unread states
-  - Click-to-mark-read functionality with real-time badge updates
-  - "Tout marquer comme lu" batch action for clearing all notifications at once
-  - **Deletion functionality (Oct 17, 2025)**: Individual notification deletion via trash icon (🗑️) with hover effect, bulk deletion via "Supprimer tout" button with confirmation dialog, event.stopPropagation() to prevent unwanted clicks
-  - Optimized layout: compact notification button (gap: 0.8rem) for better navbar alignment with name/logout elements
-  - Optimized button sizes in student dashboard (matière buttons: padding 0.6rem, font-size 1rem for cleaner interface)
+- **Authentication & Authorization**: `bcrypt` for password hashing, `itsdangerous` for secure cookie-based session management, and role-based access control for professors and students.
+- **User & Content Management**: Separate models for professors and students. Content is hierarchically organized.
+- **University-Based Administration**: Administrators are assigned to specific universities, restricting their access to institutional data. A main administrator has global access.
+- **Data Filtering**: Professors can only create content within their assigned university. Dashboards dynamically filter data based on user roles and university affiliations.
+- **Cascade Deletion**: Manual cascade deletion ensures related entities are removed correctly for universities, UFRs, and filières.
+- **Search Functionality**: Pure frontend, real-time, case-insensitive search across all admin and professor dashboards for various entities. A real-time chapter search is implemented for student and professor dashboards, featuring automatic parent container expansion and visual feedback.
+- **Performance Optimization**: Database migration sentinel (`.migration_done`) to prevent redundant migrations at startup, significantly reducing response times. Image optimization converts large PNGs to WebP with lazy loading.
+- **Progressive Web App (PWA)**: Full PWA implementation with a web app manifest, service worker for intelligent caching (cache-first for static, network-first for dynamic), offline fallback page, and PWA/iOS meta tags, enabling installation and offline functionality.
+- **Interactive Comment System**: Real-time commenting feature with a `Commentaire` database model, RESTful API endpoints, permission-based deletion, visual differentiation for professors/students, XSS protection, and a reply functionality. Sections for comments, courses, exercises, and solutions are collapsible.
+- **Admin Auto-Provisioning**: Automatic creation of a default main administrator at every startup to ensure access regardless of database state.
+- **Notification System**: Real-time notification system with a `Notification` database model, RESTful API endpoints, and auto-notifications for new chapters and comments. Features a UI notification center with a bell icon, unread counter, read/unread states, and individual/bulk deletion. Native push notifications with custom sound and vibration are implemented via the Service Worker API, offering system-level alerts and click-to-focus functionality.
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
-- **Session Management**: Cookie-based sessions with automatic role detection and `itsdangerous` for secure, tamper-proof tokens.
-- **Route Protection**: Dependency injection (`current_user`) for automatic authentication and authorization checks.
+- **Session Management**: Cookie-based sessions with `itsdangerous` for secure, tamper-proof tokens and automatic role detection.
+- **Route Protection**: Dependency injection (`current_user`) for automated authentication and authorization checks.
 
 ## External Dependencies
 
@@ -108,15 +41,15 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **Pydantic**: Data validation and settings.
 
 ### Security Dependencies
-- **passlib**: Password hashing library (v1.7.4).
-- **bcrypt**: Bcrypt algorithm (v4.1.3, compatible with passlib).
+- **passlib**: Password hashing library.
+- **bcrypt**: Bcrypt algorithm.
 - **itsdangerous**: Cryptographic signing for session cookies.
 
 ### Database Dependencies
-- **PostgreSQL**: External relational database (configured via `EXTERNAL_DATABASE_URL`).
-- **SQLAlchemy**: ORM for database operations (v2.0.43).
-- **psycopg2-binary**: PostgreSQL adapter for Python (v2.9.10).
-- **alembic**: Database migration tool (v1.16.5).
+- **PostgreSQL**: External relational database.
+- **SQLAlchemy**: ORM for database operations.
+- **psycopg2-binary**: PostgreSQL adapter for Python.
+- **alembic**: Database migration tool.
 
 ### Utility Dependencies
 - **python-multipart**: For handling form data and file uploads.
