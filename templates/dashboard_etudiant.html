@@ -215,11 +215,32 @@
         
         .niveau-header {
             font-size: 1.5rem;
-            color: #667eea;
+            color: white;
             font-weight: 600;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #667eea;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+        }
+        
+        /* Couleurs par niveau (mêmes que dashboard prof) */
+        .niveau-L1 .niveau-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+        
+        .niveau-L2 .niveau-header {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        
+        .niveau-L3 .niveau-header {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+        }
+        
+        .niveau-M1 .niveau-header {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+        
+        .niveau-M2 .niveau-header {
+            background: linear-gradient(135deg, #F44336, #D32F2F);
         }
         
         .matiere-item {
@@ -1184,7 +1205,7 @@
         
         function renderHierarchy(hierarchy) {
             return hierarchy.map(niveau => `
-                <div class="niveau-card">
+                <div class="niveau-card niveau-${niveau.niveau}">
                     <div class="niveau-header">${getNiveauComplet(niveau.niveau)}</div>
                     ${niveau.matieres.map((matiere, mIdx) => `
                         <div class="matiere-item">
