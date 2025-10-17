@@ -52,8 +52,9 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - XSS protection through HTML escaping and secure form submission
   - Available in both student and professor dashboards for bidirectional communication
   - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
-  - **Reply functionality**: Click "↩️ Répondre" to auto-fill "@AuthorName" in comment field with scroll-to-form
+  - **Reply functionality**: Click "↩️ Répondre" to auto-fill "@AuthorName" in comment field with scroll-to-form. Uses data-attributes to avoid JavaScript escaping issues with special characters in names.
   - **Collapsible section (Oct 17, 2025)**: Comments section closed by default with toggle arrow (▸/▼) for cleaner interface
+  - **Collapsible content sections (Oct 17, 2025)**: Cours, Exercices, Solutions sections are collapsible with clickable arrows (▸/▼), all closed by default for cleaner interface in both dashboards
 - **Admin Auto-Provisioning (Oct 17, 2025)**: Automatic main admin creation at every startup to prevent credential loss when switching databases:
   - Function `create_default_admin_if_needed()` runs after table creation, independent of migration state
   - Ensures admin "kamaodo65/admin123" always exists, even when `.migration_done` prevents full migration
