@@ -2634,6 +2634,91 @@
                 }, 300);
             }
         }
+        
+        // Fonction pour soumettre un formulaire en AJAX et recharger la page
+        async function submitFormWithReload(event, formElement) {
+            event.preventDefault();
+            
+            const formData = new FormData(formElement);
+            const submitButton = formElement.querySelector('button[type="submit"]');
+            const originalText = submitButton ? submitButton.textContent : '';
+            
+            // Désactiver le bouton pendant la soumission
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = '⏳ En cours...';
+            }
+            
+            try {
+                const response = await fetch(formElement.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Vérifier si c'est une erreur ou un succès depuis l'URL de redirection
+                    if (response.redirected) {
+                        const url = new URL(response.url);
+                        
+                        // Vérifier d'abord s'il y a une erreur
+                        if (url.searchParams.has('error')) {
+                            const errorMsg = url.searchParams.get('error');
+                            showAlert(decodeURIComponent(errorMsg), 'error');
+                            
+                            // Restaurer le bouton pour permettre une nouvelle tentative
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                                submitButton.textContent = originalText;
+                            }
+                            return; // Ne pas recharger ni réinitialiser le formulaire
+                        }
+                        
+                        // Sinon vérifier s'il y a un message de succès
+                        if (url.searchParams.has('success')) {
+                            const successMsg = url.searchParams.get('success');
+                            showAlert(decodeURIComponent(successMsg), 'success');
+                        } else {
+                            showAlert('Création réussie !', 'success');
+                        }
+                    } else {
+                        showAlert('Création réussie !', 'success');
+                    }
+                    
+                    // Réinitialiser le formulaire
+                    formElement.reset();
+                    
+                    // Recharger la page après un court délai
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showAlert('Une erreur est survenue', 'error');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur de connexion', 'error');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }
+        }
+        
+        // Intercepter automatiquement tous les formulaires de création
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sélectionner tous les formulaires de création admin
+            const createForms = document.querySelectorAll('form[action^="/admin/create-"]');
+            
+            createForms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    submitFormWithReload(event, this);
+                });
+            });
+        });
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
