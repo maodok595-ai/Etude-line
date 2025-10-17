@@ -753,7 +753,10 @@
             // Cours
             if (chapitre.cours_texte || chapitre.cours_fichier_nom) {
                 html += '<div class="content-section">';
-                html += '<h4>📖 Cours</h4>';
+                html += `<h4 onclick="toggleContentSection(${chapitre.id}, 'cours')" style="cursor: pointer;">
+                    <span id="arrow-cours-${chapitre.id}" style="color: #666;">▸</span> 📖 Cours
+                </h4>`;
+                html += `<div id="content-cours-${chapitre.id}" style="display: none;">`;
                 if (chapitre.cours_texte) {
                     html += `<div class="content-text">${escapeHtml(chapitre.cours_texte)}</div>`;
                 }
@@ -777,12 +780,16 @@
                     });
                 }
                 html += '</div>';
+                html += '</div>';
             }
             
             // Exercices
             if (chapitre.exercice_texte || chapitre.exercice_fichier_nom) {
                 html += '<div class="content-section">';
-                html += '<h4>✍️ Exercices</h4>';
+                html += `<h4 onclick="toggleContentSection(${chapitre.id}, 'exercices')" style="cursor: pointer;">
+                    <span id="arrow-exercices-${chapitre.id}" style="color: #666;">▸</span> ✍️ Exercices
+                </h4>`;
+                html += `<div id="content-exercices-${chapitre.id}" style="display: none;">`;
                 if (chapitre.exercice_texte) {
                     html += `<div class="content-text">${escapeHtml(chapitre.exercice_texte)}</div>`;
                 }
@@ -806,12 +813,16 @@
                     });
                 }
                 html += '</div>';
+                html += '</div>';
             }
             
             // Solutions
             if (chapitre.solution_texte || chapitre.solution_fichier_nom) {
                 html += '<div class="content-section">';
-                html += '<h4>✅ Solutions</h4>';
+                html += `<h4 onclick="toggleContentSection(${chapitre.id}, 'solutions')" style="cursor: pointer;">
+                    <span id="arrow-solutions-${chapitre.id}" style="color: #666;">▸</span> ✅ Solutions
+                </h4>`;
+                html += `<div id="content-solutions-${chapitre.id}" style="display: none;">`;
                 if (chapitre.solution_texte) {
                     html += `<div class="content-text">${escapeHtml(chapitre.solution_texte)}</div>`;
                 }
@@ -834,6 +845,7 @@
                         `;
                     });
                 }
+                html += '</div>';
                 html += '</div>';
             }
             
@@ -890,6 +902,20 @@
             } else {
                 content.classList.add('show');
                 arrow.classList.add('open');
+            }
+        }
+        
+        // Fonction pour toggle les sections Cours/Exercices/Solutions
+        function toggleContentSection(chapitreId, type) {
+            const content = document.getElementById(`content-${type}-${chapitreId}`);
+            const arrow = document.getElementById(`arrow-${type}-${chapitreId}`);
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '▸';
             }
         }
         
