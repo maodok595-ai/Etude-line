@@ -54,6 +54,12 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
   - **Reply functionality**: Click "↩️ Répondre" to auto-fill "@AuthorName" in comment field with scroll-to-form
   - **Collapsible section (Oct 17, 2025)**: Comments section closed by default with toggle arrow (▸/▼) for cleaner interface
+- **Admin Auto-Provisioning (Oct 17, 2025)**: Automatic main admin creation at every startup to prevent credential loss when switching databases:
+  - Function `create_default_admin_if_needed()` runs after table creation, independent of migration state
+  - Ensures admin "kamaodo65/admin123" always exists, even when `.migration_done` prevents full migration
+  - Idempotent design: checks for existing admin before creation, safe for repeated calls
+  - Works with both DATABASE_URL and EXTERNAL_DATABASE_URL configurations
+  - Logs "✅ Administrateur principal déjà présent" when admin exists, "✅ Administrateur principal créé" when created
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
