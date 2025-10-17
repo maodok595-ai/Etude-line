@@ -540,7 +540,10 @@
         </div>
         
         <div class="hero-image">
-            <img src="/static/groupe-etude.png" alt="Étudiant, étudiante et professeur travaillant ensemble dans un environnement universitaire moderne">
+            <picture>
+                <source srcset="/static/groupe-etude.webp" type="image/webp">
+                <img src="/static/groupe-etude.png" alt="Étudiant, étudiante et professeur travaillant ensemble dans un environnement universitaire moderne" loading="lazy">
+            </picture>
         </div>
         
         {% if error %}
