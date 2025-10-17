@@ -602,14 +602,31 @@
             background: #f44336;
             color: white;
             border: none;
-            padding: 0.25rem 0.75rem;
+            padding: 0.15rem 0.5rem;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
         
         .commentaire-delete:hover {
             background: #d32f2f;
+        }
+        
+        .commentaire-repondre {
+            background: transparent;
+            color: #667eea;
+            border: 1px solid #667eea;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .commentaire-repondre:hover {
+            background: #667eea;
+            color: white;
         }
         
         .commentaires-vide {
@@ -702,12 +719,13 @@
                                     <span class="commentaire-auteur ${c.auteur_type}">
                                         ${escapeHtml(c.auteur_nom)}
                                     </span>
-                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
                                         <span class="commentaire-date">${dateStr}</span>
                                         <button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>
                                     </div>
                                 </div>
                                 <div class="commentaire-texte">${escapeHtml(c.texte)}</div>
+                                <button class="commentaire-repondre" onclick="repondreCommentaire(${c.id}, '${escapeHtml(c.auteur_nom)}')">↩️ Répondre</button>
                             </div>
                         `;
                     }).join('');
@@ -769,6 +787,28 @@
                     }
                 } catch (error) {
                     alert('Erreur lors de la suppression');
+                }
+            }
+            
+            function repondreCommentaire(commentaireId, auteurNom) {
+                // Trouver le textarea du chapitre en cours
+                const allTextareas = document.querySelectorAll('[id^="commentaire-text-"]');
+                let targetTextarea = null;
+                
+                // Trouver le bon textarea (celui qui est visible)
+                for (const textarea of allTextareas) {
+                    const parent = textarea.closest('.chapitre-content-new');
+                    if (parent && parent.style.display !== 'none') {
+                        targetTextarea = textarea;
+                        break;
+                    }
+                }
+                
+                if (targetTextarea) {
+                    targetTextarea.value = `@${auteurNom} `;
+                    targetTextarea.focus();
+                    // Scroll jusqu'au textarea
+                    targetTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
         </script>
