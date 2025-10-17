@@ -2093,7 +2093,8 @@
         setInterval(updateNotificationCount, 30000);
     </script>
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker désactivé pour éviter les problèmes de cache -->
+    <!--
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -2107,5 +2108,6 @@
             });
         }
     </script>
+    -->
 </body>
 </html>
