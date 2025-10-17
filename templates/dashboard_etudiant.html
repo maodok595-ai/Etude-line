@@ -587,6 +587,37 @@
             padding: 2rem;
             font-style: italic;
         }
+        
+        .commentaires-section h4 {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .commentaires-section h4:hover {
+            opacity: 0.8;
+        }
+        
+        .commentaires-toggle-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .commentaires-toggle-arrow.open {
+            transform: rotate(90deg);
+        }
+        
+        .commentaires-content {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .commentaires-content.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -809,15 +840,20 @@
             // Section Commentaires
             html += `
                 <div class="commentaires-section">
-                    <h4>💬 Commentaires & Discussion</h4>
+                    <h4 onclick="toggleCommentaires(${chapitre.id})">
+                        <span class="commentaires-toggle-arrow" id="commentaires-arrow-${chapitre.id}">▸</span>
+                        💬 Commentaires & Discussion
+                    </h4>
                     
-                    <div class="commentaire-form">
-                        <textarea id="commentaire-text-${chapitre.id}" placeholder="Écrivez votre commentaire ou posez une question..."></textarea>
-                        <button onclick="ajouterCommentaire(${chapitre.id})">📤 Publier</button>
-                    </div>
-                    
-                    <div id="commentaires-list-${chapitre.id}">
-                        <div class="loading">⏳ Chargement des commentaires...</div>
+                    <div class="commentaires-content" id="commentaires-content-${chapitre.id}">
+                        <div class="commentaire-form">
+                            <textarea id="commentaire-text-${chapitre.id}" placeholder="Écrivez votre commentaire ou posez une question..."></textarea>
+                            <button onclick="ajouterCommentaire(${chapitre.id})">📤 Publier</button>
+                        </div>
+                        
+                        <div id="commentaires-list-${chapitre.id}">
+                            <div class="loading">⏳ Chargement des commentaires...</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -842,6 +878,19 @@
             
             content.classList.toggle('show');
             arrow.classList.toggle('open');
+        }
+        
+        function toggleCommentaires(chapitreId) {
+            const content = document.getElementById(`commentaires-content-${chapitreId}`);
+            const arrow = document.getElementById(`commentaires-arrow-${chapitreId}`);
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                arrow.classList.remove('open');
+            } else {
+                content.classList.add('show');
+                arrow.classList.add('open');
+            }
         }
         
         function escapeHtml(text) {

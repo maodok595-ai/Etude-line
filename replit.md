@@ -47,11 +47,13 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Database model `Commentaire` with author tracking, timestamps, and cascade deletion on chapter removal
   - RESTful API endpoints: GET /api/commentaires/{chapitre_id}, POST /api/commentaires, DELETE /api/commentaires/{id}
   - Permission-based deletion: users can delete their own comments, admins can delete any comment
-  - Visual differentiation: professors (blue, 👨‍🏫) and students (green, 👨‍🎓) with distinct styling
+  - Visual differentiation: professors (blue) and students (green) with clean name-only display
   - Real-time interface with async JavaScript functions for loading, posting, and deleting comments
   - XSS protection through HTML escaping and secure form submission
   - Available in both student and professor dashboards for bidirectional communication
   - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
+  - **Reply functionality**: Click "↩️ Répondre" to auto-fill "@AuthorName" in comment field with scroll-to-form
+  - **Collapsible section (Oct 17, 2025)**: Comments section closed by default with toggle arrow (▸/▼) for cleaner interface
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
