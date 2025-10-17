@@ -1826,12 +1826,11 @@
                     lockBtn.onclick = function() { toggleVerrouillage(chapitreId, data.verrouille); };
                 }
                 
-                // Afficher un message de confirmation
-                alert(data.message);
+                // Message de succès visuel sans bloquer l'interface
+                console.log(data.message);
                 
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Erreur lors du verrouillage du chapitre');
             }
         }
         
