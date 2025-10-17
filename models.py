@@ -105,8 +105,8 @@ class Professeur(Base):
     ufr = relationship("UFR", back_populates="professeurs")
     filiere = relationship("Filiere", back_populates="professeurs")
     matiere_obj = relationship("Matiere", back_populates="professeurs")
-    chapitres = relationship("ChapitreComplet", back_populates="professeur")
-    contents = relationship("Content", back_populates="professeur")
+    chapitres = relationship("ChapitreComplet", back_populates="professeur", cascade="all, delete-orphan")
+    contents = relationship("Content", back_populates="professeur", cascade="all, delete-orphan")
 
 class Etudiant(Base):
     __tablename__ = "etudiants"
@@ -139,7 +139,7 @@ class Content(Base):
     fichier_nom = Column(String(500), nullable=True)
     fichier_path = Column(String(1000), nullable=True)
     matiere_id = Column(String, ForeignKey("matieres.id"), nullable=True)
-    created_by = Column(String(100), ForeignKey("professeurs.username"), nullable=False)
+    created_by = Column(String(100), ForeignKey("professeurs.username", ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
@@ -174,7 +174,7 @@ class ChapitreComplet(Base):
     solution_fichier_nom = Column(String(500), nullable=True)
     solution_fichier_path = Column(String(1000), nullable=True)
     
-    created_by = Column(String(100), ForeignKey("professeurs.username"), nullable=False)
+    created_by = Column(String(100), ForeignKey("professeurs.username", ondelete='CASCADE'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
