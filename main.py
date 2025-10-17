@@ -30,6 +30,15 @@ from migration import migrate_data
 app = FastAPI(title="Étude LINE", description="Application éducative")
 templates = Jinja2Templates(directory="templates")
 
+# Middleware pour les en-têtes HTTP (PWA et iframe support)
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Pas de X-Frame-Options pour permettre l'affichage dans iframe
+    # Pas de CSP strict pour permettre les inline scripts
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
