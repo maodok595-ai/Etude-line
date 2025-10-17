@@ -61,13 +61,17 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Idempotent design: checks for existing admin before creation, safe for repeated calls
   - Works with both DATABASE_URL and EXTERNAL_DATABASE_URL configurations
   - Logs "✅ Administrateur principal déjà présent" when admin exists, "✅ Administrateur principal créé" when created
-- **Notification System (Oct 17, 2025)**: Real-time notification system to keep students informed of new content:
+- **Notification System (Oct 17, 2025)**: Real-time notification system to keep students and professors informed of new content and interactions:
   - Database model `Notification` with type, message, recipient tracking, read status, and timestamps
   - RESTful API endpoints: GET /api/notifications, GET /api/notifications/count, PUT /api/notifications/lire-toutes, PUT /api/notifications/{id}/lire
-  - Auto-notification creation when professors publish new chapters, sent to all students in relevant filière/niveau
+  - **Auto-notifications for chapters**: When professors publish new chapters, all students in relevant filière/niveau receive notifications
+  - **Auto-notifications for comments**: 
+    - When a student comments on a chapter → professor (chapter creator) receives notification with chapter title
+    - When a professor comments on a chapter → all students in filière/niveau receive notification with chapter title
   - UI notification center with bell icon (1.2rem, compact design), unread counter badge (18px), and dropdown popup with notification list
-  - Graceful error handling: notification failures don't block chapter creation
-  - Visual indicators: emoji icons (📚 for new chapters), timestamp display, read/unread states
+  - Available in both student and professor dashboards with identical functionality
+  - Graceful error handling: notification failures don't block chapter/comment creation
+  - Visual indicators: emoji icons (📚 for new chapters, 💬 for new comments), timestamp display, read/unread states
   - Click-to-mark-read functionality with real-time badge updates
   - "Tout marquer comme lu" batch action for clearing all notifications at once
   - Optimized layout: compact notification button (gap: 0.8rem) for better navbar alignment with name/logout elements
