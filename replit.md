@@ -77,6 +77,15 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - **Deletion functionality (Oct 17, 2025)**: Individual notification deletion via trash icon (🗑️) with hover effect, bulk deletion via "Supprimer tout" button with confirmation dialog, event.stopPropagation() to prevent unwanted clicks
   - Optimized layout: compact notification button (gap: 0.8rem) for better navbar alignment with name/logout elements
   - Optimized button sizes in student dashboard (matière buttons: padding 0.6rem, font-size 1rem for cleaner interface)
+- **Chapter Locking System (Oct 17, 2025)**: Content access control feature allowing professors to lock/unlock chapters and restrict student access:
+  - Database column `verrouille` (BOOLEAN DEFAULT FALSE) in Chapitres table for tracking lock status
+  - RESTful API endpoint: PUT /api/chapitres/{id}/verrouiller for toggling lock status with professor authentication and ownership verification
+  - GET /api/chapitres/hierarchy returns lock status (`verrouille` boolean) for all chapters
+  - **Professor UI**: Lock/unlock toggle button (🔒/🔓 icons) next to edit/delete actions in chapter list, async JavaScript function `toggleVerrouillage()` for API calls with real-time UI updates
+  - **Student UI**: Locked chapters display 🔒 icon in title, expand to show styled message "🔒 Contenu verrouillé par le professeur" (red text, centered) instead of actual content (courses, exercises, solutions)
+  - Default state: new chapters are unlocked (verrouille=False) for immediate student access unless professor locks them
+  - Security: professors can only lock/unlock their own chapters, enforced by ownership check in API endpoint
+  - Migration pattern: ALTER TABLE ADD COLUMN IF NOT EXISTS for smooth database updates without data loss
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
