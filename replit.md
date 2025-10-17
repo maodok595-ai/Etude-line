@@ -44,6 +44,13 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **Data Filtering**: Professors can only create content within their assigned university. All dashboard views (professor and admin) dynamically filter data based on user roles and university affiliations.
 - **Cascade Deletion**: Implemented manual cascade deletion for universities, UFRs, and filières to ensure all related entities (students, professors, chapters, subjects) are removed correctly.
 - **Search Functionality**: Pure frontend, real-time, case-insensitive search filtering is implemented across all admin and professor dashboards for entities like admins, professors, students, universities, UFRs, filières, and matières.
+- **Chapter Search Engine (Oct 17, 2025)**: Real-time chapter search functionality in student and professor dashboards:
+  - Search field with focus effects (border color change, shadow) and instant filtering on input
+  - `searchChapitres()` for student dashboard and `searchChapitresProf()` for professor dashboard
+  - Filters chapters by title or number, automatically expands parent containers (matière, semestre, niveau)
+  - Visual feedback with result count: green for matches, red when no chapters found
+  - Clearing search restores full hierarchy without residual styling
+  - Maintains accordion state and allows immediate access to filtered content
 - **Performance Optimization (Oct 2025)**: Implemented migration sentinel system using `.migration_done` file to prevent redundant database migrations at startup. Reduces homepage response time by 58% (0.48s → 0.20s) and database query time by 47% (2.98s → 1.57s). Migration can be forced via `MIGRATE_ON_START=true` environment variable.
 - **Progressive Web App (PWA) (Oct 17, 2025)**: Full PWA implementation enabling installation on mobile/desktop devices. Features include:
   - Web App Manifest (`/static/manifest.json`) with complete metadata, branded icons (192px, 512px), and shortcuts
