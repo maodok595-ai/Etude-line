@@ -52,6 +52,24 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - XSS protection through HTML escaping and secure form submission
   - Available in both student and professor dashboards for bidirectional communication
   - Comments section appears below chapter content (courses, exercises, solutions) for contextual discussions
+- **Quiz & Evaluation System (Oct 17, 2025)**: Complete backend system for student assessment with multiple-choice quizzes:
+  - Database models: `Quiz`, `Question`, `ReponseOption`, `TentativeQuiz`, `ReponseEtudiant`
+  - RESTful API for professors: POST /api/quiz/create, GET /api/quiz/chapitre/{id}, DELETE /api/quiz/{id}, POST /api/quiz/{id}/question
+  - RESTful API for students: GET /api/quiz/{id}, POST /api/quiz/{id}/start, POST /api/quiz/tentative/{id}/submit, GET /api/quiz/tentative/{id}/results
+  - Automatic score calculation with percentage-based grading
+  - Support for timed quizzes with optional duration limits
+  - Pass/fail thresholds configurable per quiz
+  - Question management with multiple-choice answers and point values
+  - Complete attempt tracking with detailed results and answer review
+- **Remediation System (Oct 17, 2025)**: Personalized support system for students based on quiz performance:
+  - Database model `Remediation` tracking student performance by chapter
+  - Automatic remediation generation after quiz failure (score < pass threshold)
+  - Intelligent suggestions based on performance level (critical <30%, important <50%)
+  - Score averaging across multiple attempts to track progress
+  - API endpoint GET /api/remediation/etudiant for student dashboard
+  - API endpoint GET /api/remediation/prof/etudiants-difficulte for professor alerts
+  - Actionable recommendations: review course materials, practice exercises, retake quiz, or contact professor
+  - Integration with existing chapter content for targeted learning resources
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
