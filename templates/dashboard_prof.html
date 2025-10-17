@@ -1467,6 +1467,26 @@
             <!-- Liste des chapitres complets hiérarchique -->
             <div class="card">
                 <h3>📚 Mes chapitres complets ({{ chapitres|length }})</h3>
+                
+                <!-- Moteur de recherche de chapitres -->
+                {% if hierarchie %}
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e0e0e0;">
+                    <label for="chapitre-search-prof" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
+                        🔍 Rechercher un chapitre
+                    </label>
+                    <input 
+                        type="text" 
+                        id="chapitre-search-prof" 
+                        placeholder="Tapez le titre ou le numéro du chapitre..."
+                        style="width: 100%; padding: 0.875rem 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;"
+                        oninput="searchChapitresProf(this.value)"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
+                        onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
+                    >
+                    <div id="search-results-prof" style="margin-top: 0.75rem; font-size: 0.9rem; color: #666;"></div>
+                </div>
+                {% endif %}
+                
                 <div class="content-list">
                     {% if hierarchie %}
                         <!-- Boucle sur les niveaux -->
@@ -2111,6 +2131,85 @@
             } else {
                 content.style.display = 'none';
                 arrow.textContent = '▸';
+            }
+        }
+        
+        // Fonction de recherche de chapitres pour professeur
+        function searchChapitresProf(query) {
+            const searchQuery = query.toLowerCase().trim();
+            const chapitres = document.querySelectorAll('.chapitre-item');
+            const matieres = document.querySelectorAll('.matiere-section');
+            const semestres = document.querySelectorAll('.semestre-section');
+            const niveaux = document.querySelectorAll('.niveau-card');
+            let visibleCount = 0;
+            
+            // Si la recherche est vide, afficher tout
+            if (searchQuery === '') {
+                chapitres.forEach(ch => ch.style.display = 'block');
+                matieres.forEach(mat => mat.style.display = 'block');
+                semestres.forEach(sem => sem.style.display = 'block');
+                niveaux.forEach(niv => niv.style.display = 'block');
+                document.getElementById('search-results-prof').textContent = '';
+                return;
+            }
+            
+            // Masquer tous les chapitres d'abord
+            chapitres.forEach(ch => ch.style.display = 'none');
+            
+            // Filtrer et afficher les chapitres correspondants
+            chapitres.forEach(chapitre => {
+                const titre = chapitre.querySelector('.chapitre-titre');
+                if (titre && titre.textContent.toLowerCase().includes(searchQuery)) {
+                    chapitre.style.display = 'block';
+                    visibleCount++;
+                    
+                    // Afficher les parents (semestre, matière, niveau)
+                    const semestreParent = chapitre.closest('.semestre-section');
+                    const matiereParent = chapitre.closest('.matiere-section');
+                    const niveauParent = chapitre.closest('.niveau-card');
+                    
+                    if (semestreParent) semestreParent.style.display = 'block';
+                    if (matiereParent) {
+                        matiereParent.style.display = 'block';
+                        // Ouvrir automatiquement la matière
+                        const matiereContent = matiereParent.querySelector('.matiere-content');
+                        if (matiereContent && matiereContent.style.display === 'none') {
+                            const matiereId = matiereContent.id.replace('matiere-', '');
+                            toggleMatiere(matiereId);
+                        }
+                    }
+                    if (niveauParent) niveauParent.style.display = 'block';
+                }
+            });
+            
+            // Masquer les semestres, matières et niveaux vides
+            semestres.forEach(sem => {
+                const visibleChaps = sem.querySelectorAll('.chapitre-item[style*="display: block"]');
+                if (visibleChaps.length === 0) {
+                    sem.style.display = 'none';
+                }
+            });
+            
+            matieres.forEach(mat => {
+                const visibleSems = mat.querySelectorAll('.semestre-section[style*="display: block"]');
+                if (visibleSems.length === 0) {
+                    mat.style.display = 'none';
+                }
+            });
+            
+            niveaux.forEach(niv => {
+                const visibleMats = niv.querySelectorAll('.matiere-section[style*="display: block"]');
+                if (visibleMats.length === 0) {
+                    niv.style.display = 'none';
+                }
+            });
+            
+            // Afficher le résultat de la recherche
+            const resultsEl = document.getElementById('search-results-prof');
+            if (visibleCount === 0) {
+                resultsEl.innerHTML = '<span style="color: #ef4444;">❌ Aucun chapitre trouvé</span>';
+            } else {
+                resultsEl.innerHTML = `<span style="color: #10b981;">✓ ${visibleCount} chapitre${visibleCount > 1 ? 's' : ''} trouvé${visibleCount > 1 ? 's' : ''}</span>`;
             }
         }
     </script>
