@@ -789,7 +789,14 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
         semester_order = {"S1": 1, "S2": 2}
         semester_sort = semester_order.get(chapitre.semestre, 99)
         
-        return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapitre.chapitre)
+        # Extract chapter number for proper numeric sorting
+        import re
+        chapter_num = 999
+        match = re.search(r'(\d+)', chapitre.chapitre)
+        if match:
+            chapter_num = int(match.group(1))
+        
+        return (uni_nom, ufr_nom, filiere_nom, level_sort, semester_sort, matiere_nom, chapter_num)
     
     prof_chapitres.sort(key=get_sort_key)
     
@@ -1298,7 +1305,14 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
             semester_order = {"S1": 1, "S2": 2}
             semester_sort = semester_order.get(chapitre["semestre"], 99)
             
-            return (level_sort, semester_sort, matiere_nom, chapitre["chapitre"])
+            # Extract chapter number for proper numeric sorting
+            import re
+            chapter_num = 999
+            match = re.search(r'(\d+)', chapitre["chapitre"])
+            if match:
+                chapter_num = int(match.group(1))
+            
+            return (level_sort, semester_sort, matiere_nom, chapter_num)
         
         chapitres_filiere.sort(key=get_student_sort_key)
     
