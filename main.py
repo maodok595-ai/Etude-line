@@ -2633,40 +2633,6 @@ async def modifier_chapitre_complet(
         db.rollback()
         return RedirectResponse(f"/dashboard/prof?error=Erreur lors de la modification: {str(e)}", status_code=303)
 
-@app.put("/api/chapitres/{chapitre_id}/verrouiller")
-async def toggle_verrouiller_chapitre(
-    request: Request,
-    chapitre_id: int,
-    db: Session = Depends(get_db)
-):
-    """Toggle lock status of a chapter (professor only)"""
-    try:
-        role, username, user_data = require_auth(request, db)
-    except HTTPException:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    
-    if role != "prof":
-        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent verrouiller des chapitres")
-    
-    # Find the chapter and verify ownership
-    chapitre = db.query(ChapitreCompletDB).filter_by(
-        id=chapitre_id,
-        created_by=username
-    ).first()
-    
-    if not chapitre:
-        raise HTTPException(status_code=404, detail="Chapitre non trouvé ou accès non autorisé")
-    
-    # Toggle lock status
-    chapitre.verrouille = not chapitre.verrouille
-    db.commit()
-    
-    return {
-        "success": True,
-        "verrouille": chapitre.verrouille,
-        "message": f"Chapitre {'verrouillé' if chapitre.verrouille else 'déverrouillé'} avec succès"
-    }
-
 # API endpoints for hierarchical data
 
 @app.get("/api/chapitres/hierarchy")
