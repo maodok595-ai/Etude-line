@@ -43,6 +43,13 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - PWA meta tags and iOS-specific tags across all templates
   - Installable from browser with "Add to Home Screen" functionality
   - Works offline with cached content when no internet connection available
+- **Interactive Comment System (Oct 17, 2025)**: Real-time commenting and discussion feature for enhanced interaction between professors and students:
+  - Database model `Commentaire` with author tracking, timestamps, and cascade deletion on chapter removal
+  - RESTful API endpoints: GET /api/commentaires/{chapitre_id}, POST /api/commentaires, DELETE /api/commentaires/{id}
+  - Permission-based deletion: users can delete their own comments, admins can delete any comment
+  - Visual differentiation: professors (blue, 👨‍🏫) and students (green, 👨‍🎓) with distinct styling
+  - Real-time interface with async JavaScript functions for loading, posting, and deleting comments
+  - XSS protection through HTML escaping and secure form submission
 
 ### System Design Choices
 - **Monolithic Architecture**: Built on FastAPI, handling all backend logic, database interactions, and API endpoints.
