@@ -62,6 +62,37 @@ async def startup_event():
                 print("✅ Colonne 'actif' ajoutée aux professeurs")
             except Exception as e:
                 print(f"ℹ️ Colonne 'actif' déjà existante ou erreur: {e}")
+            
+            # Créer les index de performance pour optimiser les requêtes
+            try:
+                # Index pour la table commentaires (si elle existe)
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_commentaires_chapitre 
+                    ON commentaires(chapitre_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_commentaires_auteur 
+                    ON commentaires(auteur_id, type_auteur)
+                """))
+                print("✅ Index créés pour la table commentaires")
+            except Exception as e:
+                pass  # Table pas encore créée
+            
+            try:
+                # Index pour la table notifications (si elle existe)
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_notifications_destinataire 
+                    ON notifications(destinataire_id, type_destinataire)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_notifications_lu 
+                    ON notifications(destinataire_id, lu)
+                """))
+                print("✅ Index créés pour la table notifications")
+            except Exception as e:
+                pass  # Table pas encore créée
+            
+            conn.commit()
         
         # Vérifier si la migration a déjà été effectuée
         migration_done_file = ".migration_done"
