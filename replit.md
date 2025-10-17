@@ -13,6 +13,7 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **Dashboards (Professor, Student, Admin)**: Consistent university branding (logo, welcome message), interactive accordion views for content, color-coded level cards (L1-M2), and icon-based actions. Admin panels have consistent button-based forms, animated transitions, and real-time search.
 - **Homepage UX**: Redesigned student registration with initial welcome view, "S'inscrire" button, and smooth fade-in/fade-out animations.
 - **Responsive Design**: Fully optimized for mobile, tablet, and PC across various breakpoints (480px to 1600px+). This includes stacked navigation, compact typography, optimized spacing, touch-friendly buttons, and hover effects on larger screens, with specific enhancements for all dashboards and the homepage.
+- **Professor Chapter Creation Form - Mobile Pro (Oct 17, 2025)**: The chapter creation form features a professional mobile-first design with stable CSS classes (form-header, section-cours, section-exercices, section-solutions, form-warning, form-note) ensuring robust responsive behavior at 600px and 480px breakpoints. Header elements stack vertically, buttons span full width for touch accessibility, and colored sections (cours/exercices/solutions) have optimized padding and typography for small screens.
 
 ### Technical Implementations
 - **Authentication & Authorization**: `bcrypt` for password hashing, `itsdangerous` for secure cookie-based session management, and role-based access control for professors and students.
