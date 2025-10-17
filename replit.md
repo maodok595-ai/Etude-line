@@ -63,7 +63,7 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Logs "✅ Administrateur principal déjà présent" when admin exists, "✅ Administrateur principal créé" when created
 - **Notification System (Oct 17, 2025)**: Real-time notification system to keep students and professors informed of new content and interactions:
   - Database model `Notification` with type, message, recipient tracking, read status, and timestamps
-  - RESTful API endpoints: GET /api/notifications, GET /api/notifications/count, PUT /api/notifications/lire-toutes, PUT /api/notifications/{id}/lire
+  - RESTful API endpoints: GET /api/notifications, GET /api/notifications/count, PUT /api/notifications/lire-toutes, PUT /api/notifications/{id}/lire, DELETE /api/notifications/{id}, DELETE /api/notifications/supprimer-toutes
   - **Auto-notifications for chapters**: When professors publish new chapters, all students in relevant filière/niveau receive notifications
   - **Auto-notifications for comments**: 
     - When a student comments on a chapter → professor (chapter creator) receives notification with chapter title
@@ -74,6 +74,7 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - Visual indicators: emoji icons (📚 for new chapters, 💬 for new comments), timestamp display, read/unread states
   - Click-to-mark-read functionality with real-time badge updates
   - "Tout marquer comme lu" batch action for clearing all notifications at once
+  - **Deletion functionality (Oct 17, 2025)**: Individual notification deletion via trash icon (🗑️) with hover effect, bulk deletion via "Supprimer tout" button with confirmation dialog, event.stopPropagation() to prevent unwanted clicks
   - Optimized layout: compact notification button (gap: 0.8rem) for better navbar alignment with name/logout elements
   - Optimized button sizes in student dashboard (matière buttons: padding 0.6rem, font-size 1rem for cleaner interface)
 
