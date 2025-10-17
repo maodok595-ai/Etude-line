@@ -176,7 +176,6 @@ class ChapitreComplet(Base):
     
     created_by = Column(String(100), ForeignKey("professeurs.username"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    verrouille = Column(Boolean, default=False, nullable=False)
     
     # Relations
     filiere = relationship("Filiere", back_populates="chapitres")
