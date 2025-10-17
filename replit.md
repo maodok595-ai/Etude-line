@@ -23,15 +23,18 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - University logo centered at 150px (desktop) / 120px (mobile) with rounded corners and shadow
   - User information box below the logo with role-specific details (administrator/professor/student info)
 - **Responsive Design (Oct 17, 2025)**: Fully optimized for mobile, tablet, and PC with professional adaptive layouts:
-  - **Breakpoint strategy**: 768px (tablet adjustments), 600px (mobile optimizations), 480px (small phones)
+  - **Breakpoint strategy**: 480px (small phones), 600px (mobile), 768px (tablet), 1400px (large desktop), 1600px (very large desktop)
   - **Tablet optimization (≤768px)**: Light touch adjustments - container padding, horizontal scrollable niveau tabs with custom scrollbar, grid simplification
   - **Mobile optimization (≤600px)**: Complete responsive overhaul - navbar stacked vertically, compact typography, optimized spacing, reduced logo sizes (80px), touch-friendly buttons
   - **Small phones (≤480px)**: Further refinements - minimal padding, smallest logos (70px), ultra-compact text sizes
+  - **Desktop Pro optimization (≥1400px)**: Enhanced experience for large screens - max-width 1400px, increased padding (3rem), larger logos (130px student/admin, 170px professor), generous spacing, hover effects on cards with elevation
+  - **Ultra-wide desktop (≥1600px)**: Premium experience for very large screens - max-width 1600px, maximum padding (4rem), largest logos (150px student/admin, 190px professor), navbar title 1.8rem, expansive gaps and spacing
   - **Dashboard-specific enhancements**:
-    - Student dashboard: horizontal scrollable niveau tabs, compact matière/chapitre cards, optimized content sections
-    - Professor dashboard: optimized forms, hierarchical structure refinements, compact action buttons and badges
+    - Student dashboard: horizontal scrollable niveau tabs, compact matière/chapitre cards on mobile, hover effects on desktop
+    - Professor dashboard: optimized forms on mobile, hierarchical structure refinements, card hover effects on desktop
+    - Admin dashboard: stat-card hover effects with elevation, expanded grid gaps on desktop
   - **No regressions**: Tablets (720-1024px) maintain horizontal navigation and multi-column button layouts without forced stacking
-  - Unified media queries without duplication for consistent responsive behavior across all dashboards
+  - Unified media queries without duplication for consistent responsive behavior across all dashboards and screen sizes
 
 ### Technical Implementations
 - **Authentication & Authorization**: Utilizes bcrypt for password hashing and `itsdangerous` for secure, cookie-based session management. Supports dual registration (professors/students) and unified login with role detection.
