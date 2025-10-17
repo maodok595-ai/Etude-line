@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Étude LINE</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Étude LINE">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #f8fafc;
+            --accent: #6366f1;
+            --success: #10b981;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .navbar::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+        
+        .navbar h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        
+        .navbar a:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Mobile Responsive */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                text-align: center !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .container {
+                margin: 1rem auto !important;
+                padding: 0 1rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .university-logo {
+                width: 90px !important;
+                height: 90px !important;
+            }
+            
+            .university-name {
+                font-size: 1.1rem !important;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            
+            .card {
+                padding: 1.5rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem !important;
+            }
+            
+            .btn {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.9rem !important;
+                width: 100% !important;
+                margin-top: 10px !important;
+            }
+            
+            table {
+                font-size: 0.85rem !important;
+            }
+            
+            th, td {
+                padding: 0.5rem !important;
+            }
+            
+            /* Onglets scrollables sur mobile/tablette */
+            .tabs-container {
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: thin !important;
+                flex-wrap: nowrap !important;
+                padding-bottom: 0.5rem !important;
+            }
+            
+            .tabs-container::-webkit-scrollbar {
+                height: 4px !important;
+            }
+            
+            .tabs-container::-webkit-scrollbar-thumb {
+                background: var(--accent) !important;
+                border-radius: 2px !important;
+            }
+            
+            .tab-btn {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                min-width: auto !important;
+                padding: 0.8rem 1rem !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .navbar {
+                padding: 0.75rem !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .container {
+                margin: 0.5rem auto !important;
+                padding: 0 0.5rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1rem !important;
+            }
+            
+            .card {
+                padding: 1rem !important;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            /* Bouton Compteurs responsive */
+            .stats-toggle-btn {
+                font-size: 0.9rem !important;
+                padding: 0.6rem 1rem !important;
+            }
+            
+            /* Onglets très petits écrans */
+            .tab-btn {
+                padding: 0.6rem 0.8rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #8b5cf6, var(--accent));
+        }
+        
+        .welcome-card h2 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .welcome-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0.3rem 0;
+        }
+        
+        /* Styles pour le logo et nom de l'université (admin secondaire) */
+        .university-welcome {
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+
+        .university-logo {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            margin: 0.75rem auto 1rem;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 0.4rem;
+        }
+
+        .university-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 1.5rem 0;
+            line-height: 1.4;
+        }
+
+        .user-info-box {
+            padding: 0.75rem 1rem;
+            background: rgba(102, 126, 234, 0.08);
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .user-info-box p {
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .user-info-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #8b5cf6);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0.5rem 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stats-toggle-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stats-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .stats-toggle-btn:active {
+            transform: translateY(0);
+        }
+        
+        #stats-arrow {
+            transition: transform 0.3s ease;
+            font-weight: bold;
+        }
+        
+        #stats-container {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        
+        .card h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            letter-spacing: 0.01em;
+        }
+        
+        .password-field {
+            position: relative;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .password-field input {
+            padding-right: 3rem;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+        
+        .toggle-password:hover {
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .prof-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .prof-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .prof-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .prof-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prof-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .prof-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .meta-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        /* Styles pour les onglets */
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tab-btn:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Styles pour les formulaires cachés */
+        .hidden {
+            display: none !important;
+            opacity: 0;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Bouton de création principal */
+        .create-btn {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .create-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .create-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .create-btn:hover::before {
+            left: 100%;
+        }
+        
+        .create-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Bouton d'annulation dans les formulaires */
+        .cancel-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            line-height: 1;
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+        }
+        
+        .cancel-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+        
+        /* En-tête du formulaire avec bouton annuler */
+        .form-header {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-header h3 {
+            margin-right: 3rem;
+        }
+        
+        .academic-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .academic-item h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .academic-code {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-edit:hover {
+            background: #218838;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn-small {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎓 Étude LINE - Administration</h1>
+        <div class="user-info">
+            <span>👨‍💼 {{ admin.prenom }} {{ admin.nom }}</span>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Messages d'alerte -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                document.write('<div class="alert alert-success">✅ ' + urlParams.get('success') + '</div>');
+            }
+            if (urlParams.has('error')) {
+                document.write('<div class="alert alert-error">⚠️ ' + urlParams.get('error') + '</div>');
+            }
+        </script>
+        
+        {% if error %}
+        <div class="alert alert-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="welcome-card">
+            {% if admin.get('is_main_admin') %}
+                <!-- Admin Principal : Affichage standard -->
+                <h2>Bienvenue, {{ admin.prenom }} {{ admin.nom }}</h2>
+                <p><strong>Rôle:</strong> Administrateur Principal</p>
+            {% else %}
+                <!-- Admin Secondaire : Logo + Nom université -->
+                <div class="university-welcome">
+                    <h2 class="university-name">
+                        BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
+                    </h2>
+                    {% if admin_universite and admin_universite.logo_url %}
+                        <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
+                    {% endif %}
+                    <div class="user-info-box">
+                        <p><strong>Prénom et nom :</strong> {{ admin.nom }} {{ admin.prenom }}</p>
+                        <p><strong>Rôle :</strong> Administrateur de l'{{ admin_universite.nom if admin_universite else "Université inconnue" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Bouton pour afficher/cacher les compteurs -->
+        <div style="margin: 1.5rem 0;">
+            <button onclick="toggleStats()" id="stats-toggle-btn" class="stats-toggle-btn">
+                <span id="stats-icon">📊</span> Compteurs
+                <span id="stats-arrow">→</span>
+            </button>
+        </div>
+        
+        <!-- Statistiques du système -->
+        <div class="stats-grid" id="stats-container" style="display: none;">
+            <div class="stat-card">
+                <span class="stat-icon">👨‍🏫</span>
+                <div class="stat-number">{{ stats.users.professeurs }}</div>
+                <div class="stat-label">Professeurs</div>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">👨‍🎓</span>
+                <div class="stat-number">{{ stats.users.etudiants }}</div>
+                <div class="stat-label">Étudiants</div>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">📚</span>
+                <div class="stat-number">{{ stats.chapitres.cours }}</div>
+                <div class="stat-label">Cours</div>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">📝</span>
+                <div class="stat-number">{{ stats.chapitres.exercice }}</div>
+                <div class="stat-label">Exercices</div>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">✅</span>
+                <div class="stat-number">{{ stats.chapitres.solution }}</div>
+                <div class="stat-label">Solutions</div>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">🏛️</span>
+                <div class="stat-number">{{ stats.structure_academique.universites }}</div>
+                <div class="stat-label">Universités</div>
+            </div>
+        </div>
+        
+        <!-- Navigation par onglets -->
+        <div style="margin-bottom: 2rem;">
+            <div class="tabs-container" style="display: flex; gap: 1rem; border-bottom: 2px solid #e9ecef;">
+                <button onclick="showTab('admin')" id="tab-admin" class="tab-btn active">👑 Administrateurs</button>
+                <button onclick="showTab('prof')" id="tab-prof" class="tab-btn">👨‍🏫 Professeurs</button>
+                <button onclick="showTab('universite')" id="tab-universite" class="tab-btn">🏛️ Universités</button>
+                <button onclick="showTab('ufr')" id="tab-ufr" class="tab-btn">🏢 UFR</button>
+                <button onclick="showTab('filiere')" id="tab-filiere" class="tab-btn">📚 Filières</button>
+                <button onclick="showTab('matiere')" id="tab-matiere" class="tab-btn">📖 Matières</button>
+            </div>
+        </div>
+
+        <!-- Contenu des onglets -->
+        
+        <!-- Onglet Administrateurs -->
+        <div id="content-admin" class="tab-content active">
+            <!-- Vue liste -->
+            <div id="admin-list-view">
+                {% if admin.is_main_admin %}
+                <button onclick="toggleForm('admin')" class="create-btn">
+                    ➕ Créer un administrateur
+                </button>
+                {% endif %}
+                
+                <!-- Liste des administrateurs -->
+                <div class="card">
+                    <h3>👑 Administrateurs ({{ admins|length }})</h3>
+                    <input type="search" id="search-admin" class="search-input" 
+                           placeholder="🔍 Rechercher un administrateur..." 
+                           onkeyup="searchAdmin()">
+                    <div id="admin-count" class="search-result-count"></div>
+                    <div class="prof-list" id="admin-items">
+                        {% if admins %}
+                            {% for administrator in admins %}
+                            <div class="prof-item academic-item" style="{% if administrator.get('is_main_admin') %}border-left: 4px solid #f39c12; background: linear-gradient(135deg, #fff7e6, #ffeaa7);{% elif administrator.username == admin.username %}border-left: 4px solid #667eea;{% endif %}">
+                                <div class="prof-name">
+                                    {{ administrator.prenom }} {{ administrator.nom }}
+                                    {% if administrator.get('is_main_admin') %}
+                                        <span style="background: #f39c12; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">PRINCIPAL</span>
+                                    {% elif administrator.username == admin.username %}
+                                        <span style="background: #667eea; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">VOUS</span>
+                                    {% endif %}
+                                </div>
+                                <div class="prof-details">
+                                    <strong>Nom d'utilisateur:</strong> {{ administrator.username }}
+                                </div>
+                                {% if not administrator.get('is_main_admin') and administrator.get('universite_id') %}
+                                <div class="prof-details">
+                                    <strong>Université:</strong> 
+                                    {% for univ in universites %}
+                                        {% if univ.id == administrator.universite_id %}
+                                            {{ univ.nom }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="prof-meta">
+                                    <span class="meta-tag">👑 Administrateur</span>
+                                    {% if administrator.get('is_main_admin') %}
+                                        <span class="meta-tag" style="background: #f39c12; color: white;">Administrateur Principal</span>
+                                    {% endif %}
+                                </div>
+                                {% if not administrator.get('is_main_admin') and admin.get('is_main_admin') %}
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editAdmin('{{ administrator.username }}', '{{ administrator.nom }}', '{{ administrator.prenom }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteAdmin('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                    <button class="btn-small" 
+                                            data-username="{{ administrator.username }}"
+                                            data-fullname="{{ administrator.prenom }} {{ administrator.nom }}"
+                                            onclick="toggleAdminStatus('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}', {{ 'true' if administrator.get('actif') else 'false' }})" 
+                                            style="background: {{ '#28a745' if administrator.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
+                                            title="{{ 'Désactiver' if administrator.get('actif') else 'Activer' }}">
+                                        {{ 'ON' if administrator.get('actif') else 'OFF' }}
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👑 Aucun autre administrateur</p>
+                                <p>Vous êtes actuellement le seul administrateur du système.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            {% if admin.is_main_admin %}
+            <div id="admin-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('admin')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>👑 Créer un administrateur</h3>
+                    </div>
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
+                        <strong>⚠️ Privilège d'administrateur principal</strong><br>
+                        Vous seul pouvez ajouter de nouveaux administrateurs.
+                    </div>
+                    <form action="/admin/create-admin" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="admin-nom">Nom</label>
+                                <input type="text" id="admin-nom" name="nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-prenom">Prénom</label>
+                                <input type="text" id="admin-prenom" name="prenom" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-username">Nom d'utilisateur</label>
+                            <input type="text" id="admin-username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-universite">Université gérée</label>
+                            <select id="admin-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                            <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                                Cet administrateur pourra uniquement gérer les entités de cette université.
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-password">Mot de passe</label>
+                            <div class="password-field">
+                                <input type="password" id="admin-password" name="password" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('admin-password')">
+                                    👁️
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">Créer l'administrateur</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div id="content-prof" class="tab-content">
+            <!-- Vue liste -->
+            <div id="prof-list-view">
+                <button onclick="toggleForm('prof')" class="create-btn">
+                    ➕ Créer un professeur
+                </button>
+                
+                <!-- Liste des professeurs -->
+                <div class="card">
+                    <h3>📚 Professeurs ({{ profs|length }})</h3>
+                    <input type="search" id="search-prof" class="search-input" 
+                           placeholder="🔍 Rechercher un professeur..." 
+                           onkeyup="searchProf()">
+                    <div id="prof-count" class="search-result-count"></div>
+                    <div class="prof-list" id="prof-items">
+                        {% if profs %}
+                            {% for prof in profs %}
+                            <div class="prof-item academic-item">
+                                <div class="prof-name">{{ prof.prenom }} {{ prof.nom }}</div>
+                                <div class="prof-details">@{{ prof.username }}</div>
+                                <div class="prof-meta">
+                                    <span class="meta-tag">{{ prof.specialite }}</span>
+                                    {% if prof.matiere_id %}
+                                        {% for matiere in matieres %}
+                                            {% if matiere.id == prof.matiere_id %}
+                                                <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for filiere in filieres %}
+                                            {% if filiere.id == prof.filiere_id %}
+                                                <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for uni in universites %}
+                                            {% if uni.id == prof.universite_id %}
+                                                <span class="meta-tag">🏛️ {{ uni.nom }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="meta-tag">{{ prof.matiere }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editProf('{{ prof.username }}', '{{ prof.nom }}', '{{ prof.prenom }}', '{{ prof.specialite }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                    {% if admin.is_main_admin %}
+                                    <button class="btn-small" 
+                                            data-username="{{ prof.username }}"
+                                            data-fullname="{{ prof.prenom }} {{ prof.nom }}"
+                                            onclick="toggleProfStatus('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}', {{ 'true' if prof.get('actif') else 'false' }})" 
+                                            style="background: {{ '#28a745' if prof.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
+                                            title="{{ 'Désactiver' if prof.get('actif') else 'Activer' }}">
+                                        {{ 'ON' if prof.get('actif') else 'OFF' }}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👨‍🏫 Aucun professeur créé</p>
+                                <p>Cliquez sur le bouton ci-dessus pour créer le premier professeur.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Liste des étudiants -->
+                <div class="card">
+                    <h3>👨‍🎓 Étudiants ({{ etudiants|length }})</h3>
+                    <input type="search" id="search-etudiant" class="search-input" 
+                           placeholder="🔍 Rechercher un étudiant..." 
+                           onkeyup="searchEtudiant()">
+                    <div id="etudiant-count" class="search-result-count"></div>
+                    <div class="prof-list" id="etudiant-items">
+                        {% if etudiants %}
+                            {% for etudiant in etudiants %}
+                            <div class="prof-item academic-item">
+                                <div class="prof-name">{{ etudiant.prenom }} {{ etudiant.nom }}</div>
+                                <div class="prof-details">@{{ etudiant.username }}</div>
+                                <div class="prof-meta">
+                                    <span class="meta-tag">📚 {{ etudiant.niveau }}</span>
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == etudiant.filiere_id %}
+                                            <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👨‍🎓 Aucun étudiant inscrit</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="prof-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('prof')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>👨‍🏫 Créer un professeur</h3>
+                    </div>
+                    <form action="/admin/create-prof" method="post">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nom">Nom</label>
+                            <input type="text" id="nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prenom">Prénom</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Nom d'utilisateur</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <div class="password-field">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prof-universite">Université</label>
+                            <select id="prof-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-ufr">UFR</label>
+                            <select id="prof-ufr" name="ufr_id" required disabled>
+                                <option value="">Sélectionner d'abord une université</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prof-filiere">Filière</label>
+                            <select id="prof-filiere" name="filiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une UFR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-matiere">Matière</label>
+                            <select id="prof-matiere" name="matiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une filière</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialite">Spécialité du professeur</label>
+                        <input type="text" id="specialite" name="specialite" required placeholder="Ex: Docteur en Mathématiques, Expert en Physique, etc.">
+                    </div>
+                    
+                    <button type="submit" class="btn">Créer le professeur</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Universités -->
+        <div id="content-universite" class="tab-content">
+            <!-- Vue liste -->
+            <div id="universite-list-view">
+                {% if admin.is_main_admin %}
+                <button onclick="toggleForm('universite')" class="create-btn">
+                    ➕ Créer une université
+                </button>
+                {% else %}
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; color: #1565c0; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.2rem;">ℹ️</span>
+                        <span>En tant qu'administrateur secondaire, vous ne pouvez pas créer de nouvelles universités. Cette action est réservée à l'administrateur principal.</span>
+                    </p>
+                </div>
+                {% endif %}
+                
+                <div class="card">
+                    <h3>📋 Universités ({{ universites|length }})</h3>
+                    <input type="search" id="search-universite" class="search-input" 
+                           placeholder="🔍 Rechercher une université..." 
+                           onkeyup="searchUniversite()">
+                    <div id="universite-count" class="search-result-count"></div>
+                    <div class="prof-list" id="universite-items">
+                        {% if universites %}
+                            {% for uni in universites %}
+                            <div class="academic-item">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    {% if uni.logo_url %}
+                                        <img src="{{ uni.logo_url }}" alt="Logo {{ uni.nom }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+                                    {% else %}
+                                        <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd;">
+                                            🏛️
+                                        </div>
+                                    {% endif %}
+                                    <div style="flex-grow: 1;">
+                                        <h4>{{ uni.nom }}</h4>
+                                        <div class="academic-code">Code: {{ uni.code }}</div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons" style="margin-top: 0.5rem;">
+                                    <button class="btn-edit btn-small" onclick="editUniversite('{{ uni.id }}', '{{ uni.nom }}', '{{ uni.code }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-small" onclick="uploadLogo('{{ uni.id }}', '{{ uni.nom }}')" style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                        📸
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteUniversite('{{ uni.id }}', '{{ uni.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏛️ Aucune université créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Formulaire d'upload de logo (caché par défaut) -->
+                <div id="logoUploadForm" style="display: none;" class="card">
+                    <h3>📸 Ajouter un logo à l'université</h3>
+                    <form id="logoForm" action="/admin/upload-logo" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="logoUniversiteId" name="universite_id">
+                        <div class="form-group">
+                            <label for="logoFile">Choisir un logo (JPG, PNG, GIF)</label>
+                            <input type="file" id="logoFile" name="logo" accept="image/*" required>
+                            <small style="color: #666;">Taille recommandée: 500x500 pixels maximum</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button type="submit" class="btn">📸 Télécharger le logo</button>
+                            <button type="button" class="btn" style="background: #666;" onclick="cancelLogoUpload()">Annuler</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="universite-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('universite')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>🏛️ Créer une université</h3>
+                    </div>
+                    <form action="/admin/create-universite" method="post">
+                        <div class="form-group">
+                            <label for="uni-nom">Nom de l'université</label>
+                            <input type="text" id="uni-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="uni-code">Code université</label>
+                            <input type="text" id="uni-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer l'université</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet UFR -->
+        <div id="content-ufr" class="tab-content">
+            <!-- Vue liste -->
+            <div id="ufr-list-view">
+                <button onclick="toggleForm('ufr')" class="create-btn">
+                    ➕ Créer une UFR
+                </button>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0;">📋 UFR ({{ ufrs|length }})</h3>
+                        <input type="search" id="search-ufr" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchUfr()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="ufr-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="ufr-items">
+                        {% if ufrs %}
+                            {% for ufr in ufrs %}
+                            <div class="academic-item">
+                                <h4>{{ ufr.nom }}</h4>
+                                <div class="academic-code">Code: {{ ufr.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for uni in universites %}
+                                        {% if uni.id == ufr.universite_id %}
+                                            Université: {{ uni.nom }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editUfr('{{ ufr.id }}', '{{ ufr.nom }}', '{{ ufr.code }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteUfr('{{ ufr.id }}', '{{ ufr.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏢 Aucune UFR créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="ufr-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('ufr')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>🏢 Créer une UFR</h3>
+                    </div>
+                    <form action="/admin/create-ufr" method="post">
+                        <div class="form-group">
+                            <label for="ufr-universite">Université</label>
+                            <select id="ufr-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ufr-nom">Nom de l'UFR</label>
+                            <input type="text" id="ufr-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ufr-code">Code UFR</label>
+                            <input type="text" id="ufr-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer l'UFR</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Filières -->
+        <div id="content-filiere" class="tab-content">
+            <!-- Vue liste -->
+            <div id="filiere-list-view">
+                <button onclick="toggleForm('filiere')" class="create-btn">
+                    ➕ Créer une filière
+                </button>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0;">📋 Filières ({{ filieres|length }})</h3>
+                        <input type="search" id="search-filiere" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchFiliere()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="filiere-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="filiere-items">
+                        {% if filieres %}
+                            {% for filiere in filieres %}
+                            <div class="academic-item">
+                                <h4>{{ filiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ filiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for ufr in ufrs %}
+                                        {% if ufr.id == filiere.ufr_id %}
+                                            UFR: {{ ufr.nom }}
+                                            {% for uni in universites %}
+                                                {% if uni.id == ufr.universite_id %}
+                                                    ({{ uni.nom }})
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editFiliere('{{ filiere.id }}', '{{ filiere.nom }}', '{{ filiere.code }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteFiliere('{{ filiere.id }}', '{{ filiere.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📚 Aucune filière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="filiere-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('filiere')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>📚 Créer une filière</h3>
+                    </div>
+                    <form action="/admin/create-filiere" method="post">
+                        <div class="form-group">
+                            <label for="fil-ufr">UFR</label>
+                            <select id="fil-ufr" name="ufr_id" required>
+                                <option value="">Sélectionner une UFR</option>
+                                {% for ufr in ufrs %}
+                                <option value="{{ ufr.id }}">{{ ufr.nom }}
+                                    {% for uni in universites %}
+                                        {% if uni.id == ufr.universite_id %}
+                                            ({{ uni.nom }})
+                                        {% endif %}
+                                    {% endfor %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fil-nom">Nom de la filière</label>
+                            <input type="text" id="fil-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fil-code">Code filière</label>
+                            <input type="text" id="fil-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer la filière</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Matières -->
+        <div id="content-matiere" class="tab-content">
+            <!-- Vue liste -->
+            <div id="matiere-list-view">
+                <button onclick="toggleForm('matiere')" class="create-btn">
+                    ➕ Créer une matière
+                </button>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0;">📋 Matières ({{ matieres|length }})</h3>
+                        <input type="search" id="search-matiere" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchMatiere()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="matiere-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="matiere-items">
+                        {% if matieres %}
+                            {% for matiere in matieres %}
+                            <div class="academic-item">
+                                <h4>{{ matiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ matiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == matiere.filiere_id %}
+                                            Filière: {{ filiere.nom }}
+                                            {% for ufr in ufrs %}
+                                                {% if ufr.id == filiere.ufr_id %}
+                                                    ({{ ufr.nom }})
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editMatiere('{{ matiere.id }}', '{{ matiere.nom }}', '{{ matiere.code }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteMatiere('{{ matiere.id }}', '{{ matiere.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📖 Aucune matière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="matiere-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('matiere')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>📖 Créer une matière</h3>
+                    </div>
+                    <form action="/admin/create-matiere" method="post">
+                        <div class="form-group">
+                            <label for="mat-filiere">Filière</label>
+                            <select id="mat-filiere" name="filiere_id" required>
+                                <option value="">Sélectionner une filière</option>
+                                {% for filiere in filieres %}
+                                <option value="{{ filiere.id }}">{{ filiere.nom }}
+                                    {% for ufr in ufrs %}
+                                        {% if ufr.id == filiere.ufr_id %}
+                                            ({{ ufr.nom }})
+                                        {% endif %}
+                                    {% endfor %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mat-nom">Nom de la matière</label>
+                            <input type="text" id="mat-nom" name="nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mat-code">Code matière</label>
+                            <input type="text" id="mat-code" name="code" required>
+                        </div>
+                        <button type="submit" class="btn">Créer la matière</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Désactiver tous les boutons
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Afficher le contenu sélectionné
+            document.getElementById('content-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+        
+        // Toggle des statistiques
+        function toggleStats() {
+            const statsContainer = document.getElementById('stats-container');
+            const arrow = document.getElementById('stats-arrow');
+            const isVisible = statsContainer.style.display !== 'none';
+            
+            if (isVisible) {
+                // Cacher les stats
+                statsContainer.style.display = 'none';
+                arrow.textContent = '→';
+                localStorage.setItem('statsVisible', 'false');
+            } else {
+                // Afficher les stats
+                statsContainer.style.display = 'grid';
+                arrow.textContent = '↓';
+                localStorage.setItem('statsVisible', 'true');
+            }
+        }
+        
+        // Restaurer l'état des statistiques au chargement
+        window.addEventListener('DOMContentLoaded', function() {
+            const statsVisible = localStorage.getItem('statsVisible');
+            if (statsVisible === 'true') {
+                const statsContainer = document.getElementById('stats-container');
+                const arrow = document.getElementById('stats-arrow');
+                statsContainer.style.display = 'grid';
+                arrow.textContent = '↓';
+            }
+        });
+        
+        // Gestion des sélecteurs hiérarchiques pour le formulaire professeur
+        const profUniversiteSelect = document.getElementById('prof-universite');
+        const profUfrSelect = document.getElementById('prof-ufr');
+        const profFiliereSelect = document.getElementById('prof-filiere');
+        const profMatiereSelect = document.getElementById('prof-matiere');
+        
+        // Réinitialise et désactive un sélecteur
+        function resetProfSelect(select, message) {
+            select.innerHTML = `<option value="">${message}</option>`;
+            select.disabled = true;
+            select.value = '';
+        }
+        
+        // Charge les UFR quand une université est sélectionnée
+        profUniversiteSelect.addEventListener('change', async function() {
+            const universiteId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profUfrSelect, 'Chargement des UFR...');
+            resetProfSelect(profFiliereSelect, 'Sélectionner d\'abord une UFR');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (universiteId) {
+                try {
+                    const response = await fetch(`/api/ufrs/${universiteId}`);
+                    const data = await response.json();
+                    
+                    profUfrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
+                    data.ufrs.forEach(ufr => {
+                        const option = document.createElement('option');
+                        option.value = ufr.id;
+                        option.textContent = ufr.nom;
+                        profUfrSelect.appendChild(option);
+                    });
+                    profUfrSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des UFR:', error);
+                    resetProfSelect(profUfrSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les filières quand une UFR est sélectionnée
+        profUfrSelect.addEventListener('change', async function() {
+            const ufrId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profFiliereSelect, 'Chargement des filières...');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (ufrId) {
+                try {
+                    const response = await fetch(`/api/filieres/${ufrId}`);
+                    const data = await response.json();
+                    
+                    profFiliereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    data.filieres.forEach(filiere => {
+                        const option = document.createElement('option');
+                        option.value = filiere.id;
+                        option.textContent = filiere.nom;
+                        profFiliereSelect.appendChild(option);
+                    });
+                    profFiliereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des filières:', error);
+                    resetProfSelect(profFiliereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les matières quand une filière est sélectionnée
+        profFiliereSelect.addEventListener('change', async function() {
+            const filiereId = this.value;
+            
+            // Réinitialise le sélecteur suivant
+            resetProfSelect(profMatiereSelect, 'Chargement des matières...');
+            
+            if (filiereId) {
+                try {
+                    const response = await fetch(`/api/matieres/${filiereId}`);
+                    const data = await response.json();
+                    
+                    profMatiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
+                    data.matieres.forEach(matiere => {
+                        const option = document.createElement('option');
+                        option.value = matiere.id;
+                        option.textContent = matiere.nom;
+                        profMatiereSelect.appendChild(option);
+                    });
+                    profMatiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des matières:', error);
+                    resetProfSelect(profMatiereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Fonctions de recherche pour les listes
+        function searchUfr() {
+            const searchTerm = document.getElementById('search-ufr').value.toLowerCase();
+            const items = document.querySelectorAll('#ufr-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('ufr-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} UFRs` : '';
+        }
+        
+        function searchFiliere() {
+            const searchTerm = document.getElementById('search-filiere').value.toLowerCase();
+            const items = document.querySelectorAll('#filiere-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('filiere-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} filières` : '';
+        }
+        
+        function searchMatiere() {
+            const searchTerm = document.getElementById('search-matiere').value.toLowerCase();
+            const items = document.querySelectorAll('#matiere-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('matiere-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} matières` : '';
+        }
+        
+        function searchAdmin() {
+            const searchTerm = document.getElementById('search-admin').value.toLowerCase();
+            const items = document.querySelectorAll('#admin-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('admin-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} administrateurs` : '';
+        }
+        
+        function searchProf() {
+            const searchTerm = document.getElementById('search-prof').value.toLowerCase();
+            const items = document.querySelectorAll('#prof-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('prof-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} professeurs` : '';
+        }
+        
+        function searchEtudiant() {
+            const searchTerm = document.getElementById('search-etudiant').value.toLowerCase();
+            const items = document.querySelectorAll('#etudiant-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('etudiant-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} étudiants` : '';
+        }
+        
+        function searchUniversite() {
+            const searchTerm = document.getElementById('search-universite').value.toLowerCase();
+            const items = document.querySelectorAll('#universite-items .academic-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('universite-count').textContent = 
+                searchTerm ? `Affichage ${visibleCount} sur ${items.length} universités` : '';
+        }
+        
+        // Functions pour les actions CRUD
+        
+        // Administrateurs
+        function editAdmin(username, nom, prenom) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newPrenom = prompt('Nouveau prénom:', prenom);
+            if (newNom && newPrenom) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-admin';
+                form.innerHTML = `
+                    <input type="hidden" name="username" value="${username}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="prenom" value="${newPrenom}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function toggleAdminStatus(username, fullName, currentStatus) {
+            const action = currentStatus ? 'désactiver' : 'activer';
+            if (confirm(`Êtes-vous sûr de vouloir ${action} l'administrateur "${fullName}" ?`)) {
+                // Trouver le bouton
+                const btn = document.querySelector(`button[data-username="${username}"]`);
+                
+                // MISE À JOUR OPTIMISTE : Changer le bouton immédiatement
+                const optimisticNewStatus = !currentStatus;
+                if (btn) {
+                    btn.textContent = optimisticNewStatus ? 'ON' : 'OFF';
+                    btn.style.background = optimisticNewStatus ? '#28a745' : '#dc3545';
+                    btn.title = optimisticNewStatus ? 'Désactiver' : 'Activer';
+                    btn.disabled = true; // Désactiver pendant la requête
+                }
+                
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                try {
+                    const response = await fetch('/admin/toggle-admin-status', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Confirmer avec le statut du serveur
+                        if (btn) {
+                            const newStatus = data.new_status;
+                            btn.textContent = newStatus ? 'ON' : 'OFF';
+                            btn.style.background = newStatus ? '#28a745' : '#dc3545';
+                            btn.title = newStatus ? 'Désactiver' : 'Activer';
+                            btn.disabled = false;
+                            const fullNameFromBtn = btn.dataset.fullname;
+                            btn.onclick = () => toggleAdminStatus(username, fullNameFromBtn, newStatus);
+                        }
+                        alert(`✅ ${data.message}`);
+                    } else {
+                        // ANNULER le changement optimiste si le serveur refuse
+                        if (btn) {
+                            btn.textContent = currentStatus ? 'ON' : 'OFF';
+                            btn.style.background = currentStatus ? '#28a745' : '#dc3545';
+                            btn.title = currentStatus ? 'Désactiver' : 'Activer';
+                            btn.disabled = false;
+                        }
+                        alert(`❌ ${data.error}`);
+                    }
+                } catch (error) {
+                    // ANNULER le changement optimiste en cas d'erreur
+                    if (btn) {
+                        btn.textContent = currentStatus ? 'ON' : 'OFF';
+                        btn.style.background = currentStatus ? '#28a745' : '#dc3545';
+                        btn.title = currentStatus ? 'Désactiver' : 'Activer';
+                        btn.disabled = false;
+                    }
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors du changement de statut');
+                }
+            }
+        }
+        
+        async function deleteAdmin(username, fullName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'administrateur "${fullName}" ?\\n\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                try {
+                    const response = await fetch('/admin/delete-admin', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteAdmin"]');
+                        let adminElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${username}'`)) {
+                                adminElement = btn.closest('.prof-item');
+                            }
+                        });
+                        if (adminElement) {
+                            adminElement.style.transition = 'opacity 0.3s';
+                            adminElement.style.opacity = '0';
+                            setTimeout(() => adminElement.remove(), 300);
+                        }
+                        alert(`✅ Administrateur "${fullName}" supprimé avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        async function toggleProfStatus(username, fullName, currentStatus) {
+            const action = currentStatus ? 'désactiver' : 'activer';
+            if (confirm(`Êtes-vous sûr de vouloir ${action} le professeur "${fullName}" ?`)) {
+                // Trouver le bouton
+                const btn = document.querySelector(`button[data-username="${username}"]`);
+                
+                // MISE À JOUR OPTIMISTE : Changer le bouton immédiatement
+                const optimisticNewStatus = !currentStatus;
+                if (btn) {
+                    btn.textContent = optimisticNewStatus ? 'ON' : 'OFF';
+                    btn.style.background = optimisticNewStatus ? '#28a745' : '#dc3545';
+                    btn.title = optimisticNewStatus ? 'Désactiver' : 'Activer';
+                    btn.disabled = true; // Désactiver pendant la requête
+                }
+                
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                try {
+                    const response = await fetch('/admin/toggle-prof-status', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Confirmer avec le statut du serveur
+                        if (btn) {
+                            const newStatus = data.new_status;
+                            btn.textContent = newStatus ? 'ON' : 'OFF';
+                            btn.style.background = newStatus ? '#28a745' : '#dc3545';
+                            btn.title = newStatus ? 'Désactiver' : 'Activer';
+                            btn.disabled = false;
+                            const fullNameFromBtn = btn.dataset.fullname;
+                            btn.onclick = () => toggleProfStatus(username, fullNameFromBtn, newStatus);
+                        }
+                        alert(`✅ ${data.message}`);
+                    } else {
+                        // ANNULER le changement optimiste si le serveur refuse
+                        if (btn) {
+                            btn.textContent = currentStatus ? 'ON' : 'OFF';
+                            btn.style.background = currentStatus ? '#28a745' : '#dc3545';
+                            btn.title = currentStatus ? 'Désactiver' : 'Activer';
+                            btn.disabled = false;
+                        }
+                        alert(`❌ ${data.error}`);
+                    }
+                } catch (error) {
+                    // ANNULER le changement optimiste en cas d'erreur
+                    if (btn) {
+                        btn.textContent = currentStatus ? 'ON' : 'OFF';
+                        btn.style.background = currentStatus ? '#28a745' : '#dc3545';
+                        btn.title = currentStatus ? 'Désactiver' : 'Activer';
+                        btn.disabled = false;
+                    }
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors du changement de statut');
+                }
+            }
+        }
+        
+        // Professeurs
+        function editProf(username, nom, prenom, specialite) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newPrenom = prompt('Nouveau prénom:', prenom);
+            const newSpecialite = prompt('Nouvelle spécialité:', specialite);
+            if (newNom && newPrenom && newSpecialite) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-prof';
+                form.innerHTML = `
+                    <input type="hidden" name="username" value="${username}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="prenom" value="${newPrenom}">
+                    <input type="hidden" name="specialite" value="${newSpecialite}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function deleteProf(username, fullName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le professeur "${fullName}" ?\\n\\nTout le contenu publié par ce professeur sera aussi supprimé.\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                try {
+                    const response = await fetch('/admin/delete-prof', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteProf"]');
+                        let profElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${username}'`)) {
+                                profElement = btn.closest('.prof-item');
+                            }
+                        });
+                        if (profElement) {
+                            profElement.style.transition = 'opacity 0.3s';
+                            profElement.style.opacity = '0';
+                            setTimeout(() => profElement.remove(), 300);
+                        }
+                        alert(`✅ Professeur "${fullName}" supprimé avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // Étudiants
+        async function deleteEtudiant(username, fullName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'étudiant "${fullName}" ?\\n\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                try {
+                    const response = await fetch('/admin/delete-etudiant', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteEtudiant"]');
+                        let etudiantElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${username}'`)) {
+                                etudiantElement = btn.closest('.prof-item');
+                            }
+                        });
+                        if (etudiantElement) {
+                            etudiantElement.style.transition = 'opacity 0.3s';
+                            etudiantElement.style.opacity = '0';
+                            setTimeout(() => etudiantElement.remove(), 300);
+                        }
+                        alert(`✅ Étudiant "${fullName}" supprimé avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // Universités
+        function editUniversite(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-universite';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function deleteUniversite(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'université "${nom}" ?\\n\\nTous les UFR, filières, matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                try {
+                    const response = await fetch('/admin/delete-universite', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteUniversite"]');
+                        let uniElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${id}'`)) {
+                                uniElement = btn.closest('.academic-item');
+                            }
+                        });
+                        if (uniElement) {
+                            uniElement.style.transition = 'opacity 0.3s';
+                            uniElement.style.opacity = '0';
+                            setTimeout(() => uniElement.remove(), 300);
+                        }
+                        alert(`✅ Université "${nom}" supprimée avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // UFR
+        function editUfr(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-ufr';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function deleteUfr(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'UFR "${nom}" ?\\n\\nToutes les filières, matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                try {
+                    const response = await fetch('/admin/delete-ufr', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteUfr"]');
+                        let ufrElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${id}'`)) {
+                                ufrElement = btn.closest('.academic-item');
+                            }
+                        });
+                        if (ufrElement) {
+                            ufrElement.style.transition = 'opacity 0.3s';
+                            ufrElement.style.opacity = '0';
+                            setTimeout(() => ufrElement.remove(), 300);
+                        }
+                        alert(`✅ UFR "${nom}" supprimée avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // Filières
+        function editFiliere(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-filiere';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function deleteFiliere(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la filière "${nom}" ?\\n\\nToutes les matières et contenus associés seront supprimés.\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                try {
+                    const response = await fetch('/admin/delete-filiere', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteFiliere"]');
+                        let filiereElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${id}'`)) {
+                                filiereElement = btn.closest('.academic-item');
+                            }
+                        });
+                        if (filiereElement) {
+                            filiereElement.style.transition = 'opacity 0.3s';
+                            filiereElement.style.opacity = '0';
+                            setTimeout(() => filiereElement.remove(), 300);
+                        }
+                        alert(`✅ Filière "${nom}" supprimée avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // Matières
+        function editMatiere(id, nom, code) {
+            const newNom = prompt('Nouveau nom:', nom);
+            const newCode = prompt('Nouveau code:', code);
+            if (newNom && newCode) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/edit-matiere';
+                form.innerHTML = `
+                    <input type="hidden" name="id" value="${id}">
+                    <input type="hidden" name="nom" value="${newNom}">
+                    <input type="hidden" name="code" value="${newCode}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        async function deleteMatiere(id, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la matière "${nom}" ?\\n\\nTout le contenu associé sera supprimé.\\nCette action est irréversible.`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                try {
+                    const response = await fetch('/admin/delete-matiere', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const buttons = document.querySelectorAll('button[onclick*="deleteMatiere"]');
+                        let matiereElement = null;
+                        buttons.forEach(btn => {
+                            if (btn.onclick && btn.onclick.toString().includes(`'${id}'`)) {
+                                matiereElement = btn.closest('.academic-item');
+                            }
+                        });
+                        if (matiereElement) {
+                            matiereElement.style.transition = 'opacity 0.3s';
+                            matiereElement.style.opacity = '0';
+                            setTimeout(() => matiereElement.remove(), 300);
+                        }
+                        alert(`✅ Matière "${nom}" supprimée avec succès`);
+                    } else {
+                        alert('❌ Erreur lors de la suppression');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur lors de la suppression');
+                }
+            }
+        }
+        
+        // Fonctions pour gestion des logos
+        function uploadLogo(universiteId, universiteNom) {
+            document.getElementById('logoUniversiteId').value = universiteId;
+            document.getElementById('logoUploadForm').style.display = 'block';
+            document.querySelector('#logoUploadForm h3').textContent = `📸 Ajouter un logo à "${universiteNom}"`;
+            document.getElementById('logoUploadForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function cancelLogoUpload() {
+            document.getElementById('logoUploadForm').style.display = 'none';
+            document.getElementById('logoForm').reset();
+        }
+        
+        // Fonction pour basculer l'affichage du mot de passe
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = '🙈';
+                button.title = 'Masquer le mot de passe';
+            } else {
+                field.type = 'password';
+                button.textContent = '👁️';
+                button.title = 'Afficher le mot de passe';
+            }
+        }
+        
+        // Fonction universelle pour basculer entre la vue liste et le formulaire de création
+        function toggleForm(formType) {
+            const listView = document.getElementById(`${formType}-list-view`);
+            const formView = document.getElementById(`${formType}-form-view`);
+            
+            if (!listView || !formView) return;
+            
+            if (listView.style.display !== 'none') {
+                // Masquer la vue liste
+                listView.classList.add('fade-out');
+                setTimeout(() => {
+                    listView.style.display = 'none';
+                    listView.classList.remove('fade-out');
+                    
+                    // Afficher le formulaire
+                    formView.style.display = 'block';
+                    formView.classList.remove('hidden');
+                    formView.classList.add('fade-in');
+                    
+                    // Scroll vers le formulaire
+                    formView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            } else {
+                // Masquer le formulaire
+                formView.classList.remove('fade-in');
+                formView.classList.add('fade-out');
+                setTimeout(() => {
+                    formView.style.display = 'none';
+                    formView.classList.remove('fade-out');
+                    formView.classList.add('hidden');
+                    
+                    // Afficher la vue liste
+                    listView.style.display = 'block';
+                    listView.classList.add('fade-in');
+                    
+                    // Scroll vers la liste
+                    listView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+    </script>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
+        © 2025 Maodo Ka - Tous droits réservés | Étude LINE
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker enregistré avec succès:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Échec de l\'enregistrement du Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Professeur - Étude LINE</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Étude LINE">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .navbar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Mobile Responsive */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 1rem !important;
+                text-align: center !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .container {
+                margin: 1rem auto !important;
+                padding: 0 1rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .university-logo {
+                width: 120px !important;
+                height: 120px !important;
+            }
+            
+            .university-name {
+                font-size: 1.2rem !important;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            
+            .card {
+                padding: 1.5rem !important;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem !important;
+            }
+            
+            .form-group input, .form-group select, .form-group textarea {
+                padding: 0.875rem !important;
+                font-size: 16px !important; /* Évite le zoom sur iOS */
+            }
+            
+            .btn {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.9rem !important;
+                width: 100% !important;
+                margin-top: 10px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .navbar {
+                padding: 0.75rem !important;
+            }
+            
+            .navbar h1 {
+                font-size: 1.2rem !important;
+            }
+            
+            .container {
+                margin: 0.5rem auto !important;
+                padding: 0 0.5rem !important;
+            }
+            
+            .welcome-card {
+                padding: 1rem !important;
+            }
+            
+            .card {
+                padding: 1rem !important;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+        
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-card h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-card p {
+            color: #666;
+        }
+        
+        /* Styles pour le logo et nom de l'université */
+        .university-welcome {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .university-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin: 0 auto 1.5rem;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: white;
+            padding: 0.5rem;
+        }
+
+        .university-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 1.5rem 0;
+            line-height: 1.4;
+        }
+
+        .user-info-box {
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .user-info-box p {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .user-info-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .content-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .content-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .content-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .content-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meta-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .content-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .type-cours { background: #d4edda; color: #155724; }
+        .type-exercice { background: #fff3cd; color: #856404; }
+        .type-solution { background: #d1ecf1; color: #0c5460; }
+        
+        /* Styles pour les boutons icônes */
+        .btn-icon {
+            background: transparent;
+            border: none;
+            padding: 0.3rem 0.5rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-icon:hover {
+            background: rgba(255, 152, 0, 0.1);
+            transform: scale(1.2);
+        }
+        
+        .btn-icon-delete:hover {
+            background: rgba(244, 67, 54, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+        
+        /* Styles pour la structure hiérarchique */
+        .niveau-card {
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .niveau-header {
+            padding: 1rem 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .niveau-header h4 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        /* Couleurs par niveau */
+        .niveau-L1 .niveau-header { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .niveau-L2 .niveau-header { background: linear-gradient(135deg, #2196F3, #1976D2); }
+        .niveau-L3 .niveau-header { background: linear-gradient(135deg, #9C27B0, #7B1FA2); }
+        .niveau-M1 .niveau-header { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .niveau-M2 .niveau-header { background: linear-gradient(135deg, #F44336, #D32F2F); }
+        
+        .matiere-section {
+            background: white;
+            margin: 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .matiere-header {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: #f9f9f9;
+            transition: background 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .matiere-header:hover {
+            background: #f0f0f0;
+        }
+        
+        .matiere-nom {
+            flex: 1;
+        }
+        
+        .matiere-content {
+            background: #fff;
+            padding: 0;
+        }
+        
+        .semestre-section {
+            padding: 0.5rem 1.5rem;
+        }
+        
+        .semestre-header {
+            font-weight: 600;
+            color: #555;
+            padding: 0.8rem 1rem;
+            background: #f5f5f5;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+        
+        .chapitre-item {
+            margin: 0.5rem 0;
+        }
+        
+        .chapitre-header-new {
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .chapitre-header-new:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+        
+        .chapitre-titre {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        .chapitre-content-new {
+            padding: 1rem;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            margin-top: -1px;
+        }
+        
+        .arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎓 Étude LINE - Professeur</h1>
+        <div class="user-info">
+            <span>👨‍🏫 {{ prof.prenom }} {{ prof.nom }}</span>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Messages d'alerte -->
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                document.write('<div style="padding: 1rem; border-radius: 8px; margin-bottom: 1rem; background: #d4edda; color: #155724; border: 1px solid #c3e6cb;">✅ ' + urlParams.get('success') + '</div>');
+            }
+            if (urlParams.has('error')) {
+                document.write('<div style="padding: 1rem; border-radius: 8px; margin-bottom: 1rem; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">⚠️ ' + urlParams.get('error') + '</div>');
+            }
+        </script>
+        
+        <div class="welcome-card">
+            <div class="university-welcome">
+                <h2 class="university-name">
+                    BIENVENUE A L'{{ prof_universite.nom if prof_universite else "UNIVERSITÉ INCONNUE" }}
+                </h2>
+                {% if prof_universite and prof_universite.logo_url %}
+                    <img src="{{ prof_universite.logo_url }}" alt="Logo {{ prof_universite.nom }}" class="university-logo">
+                {% endif %}
+                <div class="user-info-box">
+                    <p><strong>👨‍🏫 Professeur :</strong> {{ prof.prenom }} {{ prof.nom }}</p>
+                    <p><strong>🎓 Spécialité :</strong> {{ prof.specialite }}</p>
+                    {% if prof.matiere_id %}
+                        {% for uni in universites %}
+                            {% if uni.id == prof.universite_id %}
+                                <p><strong>🏛️ Université :</strong> {{ uni.nom }}</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% for ufr in ufrs %}
+                            {% if ufr.id == prof.ufr_id %}
+                                <p><strong>🏢 UFR :</strong> {{ ufr.nom }}</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% for filiere in filieres %}
+                            {% if filiere.id == prof.filiere_id %}
+                                <p><strong>📖 Filière :</strong> {{ filiere.nom }}</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% for matiere in matieres %}
+                            {% if matiere.id == prof.matiere_id %}
+                                <p><strong>📚 Matière :</strong> {{ matiere.nom }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p><strong>📚 Matière :</strong> {{ prof.matiere }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Bouton pour ouvrir le formulaire -->
+            <div class="card" style="text-align: center; padding: 2rem;">
+                <button onclick="toggleFormulaireChapitre()" 
+                        style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 1rem 3rem; border-radius: 50px; font-size: 1.3rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">
+                    ➕ Créer un chapitre complet
+                </button>
+            </div>
+            
+            <!-- Formulaire d'ajout de contenu (caché par défaut) -->
+            <div class="card" id="formulaire-chapitre" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">📝 Créer un chapitre complet</h3>
+                    <button onclick="toggleFormulaireChapitre()" 
+                            style="background: #f44336; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        ✕ Fermer
+                    </button>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
+                    <strong>📋 Chapitre complet requis :</strong><br>
+                    Vous devez fournir les <strong>3 éléments obligatoires</strong> pour chaque chapitre :
+                    <ul style="margin: 0.5rem 0 0 1.5rem;">
+                        <li>📚 <strong>Cours</strong> (fichier ou texte)</li>
+                        <li>✏️ <strong>Exercices</strong> (fichier ou texte)</li>
+                        <li>✅ <strong>Solutions</strong> (fichier ou texte)</li>
+                    </ul>
+                </div>
+                <form action="/prof/chapitre-complet" method="post" enctype="multipart/form-data">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="universite">Université</label>
+                            <select id="universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ufr">UFR</label>
+                            <input type="search" id="search-ufr-dropdown" 
+                                   placeholder="🔍 Rechercher..." 
+                                   oninput="filterDropdown('ufr', 'search-ufr-dropdown')"
+                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <select id="ufr" name="ufr_id" required disabled>
+                                <option value="">Sélectionner d'abord une université</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="filiere">Filière</label>
+                            <input type="search" id="search-filiere-dropdown" 
+                                   placeholder="🔍 Rechercher..." 
+                                   oninput="filterDropdown('filiere', 'search-filiere-dropdown')"
+                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <select id="filiere" name="filiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une UFR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="matiere">Matière</label>
+                            <input type="search" id="search-matiere-dropdown" 
+                                   placeholder="🔍 Rechercher..." 
+                                   oninput="filterDropdown('matiere', 'search-matiere-dropdown')"
+                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <select id="matiere" name="matiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une filière</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="niveau">Niveau</label>
+                            <select id="niveau" name="niveau" required>
+                                <option value="">Sélectionner</option>
+                                <option value="L1">Licence 1</option>
+                                <option value="L2">Licence 2</option>
+                                <option value="L3">Licence 3</option>
+                                <option value="M1">Master 1</option>
+                                <option value="M2">Master 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="semestre">Semestre</label>
+                            <select id="semestre" name="semestre" required>
+                                <option value="">Sélectionner</option>
+                                <option value="S1">Semestre 1 (S1)</option>
+                                <option value="S2">Semestre 2 (S2)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chapitre">Chapitre</label>
+                            <input type="text" id="chapitre" name="chapitre" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="titre">Titre du chapitre</label>
+                        <input type="text" id="titre" name="titre" required placeholder="Ex: Les fonctions mathématiques">
+                    </div>
+                    
+                    <!-- Section COURS -->
+                    <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #2e7d32; margin-bottom: 1rem;">📚 COURS (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="cours_texte">Contenu textuel du cours</label>
+                            <textarea id="cours_texte" name="cours_texte" placeholder="Saisissez le contenu du cours..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <label for="cours_fichier" style="margin: 0;">Fichier cours (PDF, Word, PowerPoint...)</label>
+                                <button type="button" onclick="addFileInput('cours')" 
+                                        style="background: #4caf50; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                        title="Ajouter un autre fichier">+</button>
+                            </div>
+                            <div id="cours-files-container">
+                                <input type="file" id="cours_fichier" name="cours_fichier" 
+                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.odt,.odp" style="margin-bottom: 0.5rem;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section EXERCICES -->
+                    <div style="background: #fff8e1; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #f57c00; margin-bottom: 1rem;">✏️ EXERCICES (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="exercice_texte">Contenu textuel des exercices</label>
+                            <textarea id="exercice_texte" name="exercice_texte" placeholder="Saisissez les exercices..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <label for="exercice_fichier" style="margin: 0;">Fichier exercices (PDF, Word, Excel...)</label>
+                                <button type="button" onclick="addFileInput('exercice')" 
+                                        style="background: #ff9800; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                        title="Ajouter un autre fichier">+</button>
+                            </div>
+                            <div id="exercice-files-container">
+                                <input type="file" id="exercice_fichier" name="exercice_fichier" 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section SOLUTIONS -->
+                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h4 style="color: #1976d2; margin-bottom: 1rem;">✅ SOLUTIONS (obligatoire)</h4>
+                        
+                        <div class="form-group">
+                            <label for="solution_texte">Contenu textuel des solutions</label>
+                            <textarea id="solution_texte" name="solution_texte" placeholder="Saisissez les solutions..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <label for="solution_fichier" style="margin: 0;">Fichier solutions (PDF, Word, Excel...)</label>
+                                <button type="button" onclick="addFileInput('solution')" 
+                                        style="background: #2196f3; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                        title="Ajouter un autre fichier">+</button>
+                            </div>
+                            <div id="solution-files-container">
+                                <input type="file" id="solution_fichier" name="solution_fichier" 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 2px dashed #6c757d;">
+                        <small style="color: #495057;">
+                            <strong>📌 Note importante :</strong> Pour chaque section (Cours, Exercices, Solutions), vous devez fournir <strong>au moins</strong> soit du contenu textuel, soit un fichier.
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #2e7d32, #388e3c); font-size: 1.2rem; padding: 1rem 2rem;">
+                        🎯 Créer le chapitre complet
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Liste des chapitres complets hiérarchique -->
+            <div class="card">
+                <h3>📚 Mes chapitres complets ({{ chapitres|length }})</h3>
+                <div class="content-list">
+                    {% if hierarchie %}
+                        <!-- Boucle sur les niveaux -->
+                        {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
+                            {% if niveau in hierarchie %}
+                            <div class="niveau-card niveau-{{ niveau }}">
+                                <div class="niveau-header">
+                                    <h4>
+                                        {% if niveau == "L1" %}📘 Licence 1 (L1)
+                                        {% elif niveau == "L2" %}📗 Licence 2 (L2)
+                                        {% elif niveau == "L3" %}📙 Licence 3 (L3)
+                                        {% elif niveau == "M1" %}📕 Master 1 (M1)
+                                        {% elif niveau == "M2" %}📔 Master 2 (M2)
+                                        {% endif %}
+                                    </h4>
+                                </div>
+                                
+                                <!-- Boucle sur les matières -->
+                                {% for matiere_nom, matiere_data in hierarchie[niveau].items() %}
+                                <div class="matiere-section">
+                                    <div class="matiere-header" onclick="toggleMatiere('{{ niveau }}-{{ matiere_data.matiere_id }}')">
+                                        <span class="arrow" id="arrow-{{ niveau }}-{{ matiere_data.matiere_id }}">▸</span>
+                                        <span class="matiere-nom">📚 {{ matiere_nom }}</span>
+                                    </div>
+                                    
+                                    <div class="matiere-content" id="matiere-{{ niveau }}-{{ matiere_data.matiere_id }}" style="display: none;">
+                                        <!-- Boucle sur les semestres -->
+                                        {% for semestre in ["S1", "S2"] %}
+                                            {% if semestre in matiere_data.semestres %}
+                                            <div class="semestre-section">
+                                                <div class="semestre-header">
+                                                    <span>📅 Semestre {{ semestre[1] }}</span>
+                                                </div>
+                                                
+                                                <!-- Boucle sur les chapitres du semestre -->
+                                                {% for chapitre in matiere_data.semestres[semestre] %}
+                                                <div class="chapitre-item">
+                                                    <!-- Header du chapitre (toujours visible) -->
+                                                    <div class="chapitre-header-new" onclick="toggleChapitre('{{ chapitre.id }}')">
+                                                        <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
+                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                            <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
+                                                        </div>
+                                                        <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                            <button class="btn-icon" onclick='ouvrirModificationChapitre({
+                                                                "id": "{{ chapitre.id }}",
+                                                                "titre": {{ chapitre.titre|tojson }},
+                                                                "cours_texte": {{ chapitre.cours_texte|tojson }},
+                                                                "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
+                                                                "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
+                                                                "exercice_texte": {{ chapitre.exercice_texte|tojson }},
+                                                                "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
+                                                                "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
+                                                                "solution_texte": {{ chapitre.solution_texte|tojson }},
+                                                                "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
+                                                                "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
+                                                            })' title="Modifier">
+                                                                ✏️
+                                                            </button>
+                                                            <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Contenu du chapitre (masqué par défaut) -->
+                                                    <div class="chapitre-content-new" id="chapitre-{{ chapitre.id }}" style="display: none;">
+                                                        <!-- Affichage des 3 sections -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <!-- Cours -->
+                                <div style="background: #f1f8e9; padding: 1rem; border-radius: 8px; border: 1px solid #c8e6c9;">
+                                    <h5 style="color: #2e7d32; margin-bottom: 0.5rem;">📚 Cours</h5>
+                                    {% if chapitre.cours_fichier_nom %}
+                                        {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #4caf50; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   style="background: #2e7d32; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.cours_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.cours_texte[:50] }}{% if chapitre.cours_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Exercices -->
+                                <div style="background: #fffde7; padding: 1rem; border-radius: 8px; border: 1px solid #fff176;">
+                                    <h5 style="color: #f57c00; margin-bottom: 0.5rem;">✏️ Exercices</h5>
+                                    {% if chapitre.exercice_fichier_nom %}
+                                        {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #ff9800; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   style="background: #e65100; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.exercice_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.exercice_texte[:50] }}{% if chapitre.exercice_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Solutions -->
+                                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; border: 1px solid #90caf9;">
+                                    <h5 style="color: #1976d2; margin-bottom: 0.5rem;">✅ Solutions</h5>
+                                    {% if chapitre.solution_fichier_nom %}
+                                        {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #2196f3; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   style="background: #1565c0; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.solution_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.solution_texte[:50] }}{% if chapitre.solution_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            <p>📝 Aucun chapitre complet publié</p>
+                            <p>Utilisez le formulaire pour créer votre premier chapitre complet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Formulaire modal de modification (caché par défaut) -->
+            <div id="modal-modification" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+                <div style="background: white; margin: 2rem auto; max-width: 900px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+                    <div style="background: linear-gradient(135deg, #ff9800, #f57c00); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">✏️ Modifier le chapitre complet</h3>
+                        <button onclick="fermerModification()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">&times;</button>
+                    </div>
+                    
+                    <form id="form-modification" action="/prof/modifier-chapitre-complet" method="post" enctype="multipart/form-data" style="padding: 2rem;">
+                        <input type="hidden" id="mod_chapitre_id" name="chapitre_id">
+                        
+                        <div class="form-group">
+                            <label for="mod_titre">Titre du chapitre</label>
+                            <input type="text" id="mod_titre" name="titre" required>
+                        </div>
+                        
+                        <!-- Section COURS -->
+                        <div style="background: #e8f5e8; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #2e7d32; margin-bottom: 1rem;">📚 COURS</h4>
+                            
+                            <div class="form-group">
+                                <label for="mod_cours_texte">Contenu textuel du cours</label>
+                                <textarea id="mod_cours_texte" name="cours_texte" placeholder="Saisissez le cours..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div id="mod_cours_fichiers_existants" style="margin-bottom: 1rem;"></div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <label style="margin: 0;">Nouveau(x) fichier(s) cours</label>
+                                    <button type="button" onclick="addFileInputMod('cours')" 
+                                            style="background: #4caf50; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                            title="Ajouter un autre fichier">+</button>
+                                </div>
+                                <div id="mod-cours-files-container">
+                                    <input type="file" name="cours_fichier" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.odt,.ods,.odp" style="margin-bottom: 0.5rem;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section EXERCICES -->
+                        <div style="background: #fffde7; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #f57c00; margin-bottom: 1rem;">✏️ EXERCICES</h4>
+                            
+                            <div class="form-group">
+                                <label for="mod_exercice_texte">Contenu textuel des exercices</label>
+                                <textarea id="mod_exercice_texte" name="exercice_texte" placeholder="Saisissez les exercices..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div id="mod_exercice_fichiers_existants" style="margin-bottom: 1rem;"></div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <label style="margin: 0;">Nouveau(x) fichier(s) exercices</label>
+                                    <button type="button" onclick="addFileInputMod('exercice')" 
+                                            style="background: #ff9800; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                            title="Ajouter un autre fichier">+</button>
+                                </div>
+                                <div id="mod-exercice-files-container">
+                                    <input type="file" name="exercice_fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section SOLUTIONS -->
+                        <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #1976d2; margin-bottom: 1rem;">✅ SOLUTIONS</h4>
+                            
+                            <div class="form-group">
+                                <label for="mod_solution_texte">Contenu textuel des solutions</label>
+                                <textarea id="mod_solution_texte" name="solution_texte" placeholder="Saisissez les solutions..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div id="mod_solution_fichiers_existants" style="margin-bottom: 1rem;"></div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <label style="margin: 0;">Nouveau(x) fichier(s) solutions</label>
+                                    <button type="button" onclick="addFileInputMod('solution')" 
+                                            style="background: #2196f3; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" 
+                                            title="Ajouter un autre fichier">+</button>
+                                </div>
+                                <div id="mod-solution-files-container">
+                                    <input type="file" name="solution_fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" onclick="fermerModification()" style="background: #9e9e9e; color: white; border: none; padding: 0.8rem 2rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                Annuler
+                            </button>
+                            <button type="submit" style="background: linear-gradient(135deg, #ff9800, #f57c00); color: white; border: none; padding: 0.8rem 2rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                💾 Sauvegarder les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Gestion des sélecteurs hiérarchiques
+        const universiteSelect = document.getElementById('universite');
+        const ufrSelect = document.getElementById('ufr');
+        const filiereSelect = document.getElementById('filiere');
+        const matiereSelect = document.getElementById('matiere');
+        
+        // Réinitialise et désactive un sélecteur
+        function resetSelect(select, message) {
+            select.innerHTML = `<option value="">${message}</option>`;
+            select.disabled = true;
+            select.value = '';
+        }
+        
+        // Charge les UFR quand une université est sélectionnée
+        universiteSelect.addEventListener('change', async function() {
+            const universiteId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetSelect(ufrSelect, 'Chargement des UFR...');
+            resetSelect(filiereSelect, 'Sélectionner d\'abord une UFR');
+            resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (universiteId) {
+                try {
+                    const response = await fetch(`/api/ufrs/${universiteId}`);
+                    const data = await response.json();
+                    
+                    ufrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
+                    data.ufrs.forEach(ufr => {
+                        const option = document.createElement('option');
+                        option.value = ufr.id;
+                        option.textContent = ufr.nom;
+                        ufrSelect.appendChild(option);
+                    });
+                    ufrSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des UFR:', error);
+                    resetSelect(ufrSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les filières quand une UFR est sélectionnée
+        ufrSelect.addEventListener('change', async function() {
+            const ufrId = this.value;
+            
+            // Réinitialise les sélecteurs suivants
+            resetSelect(filiereSelect, 'Chargement des filières...');
+            resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
+            
+            if (ufrId) {
+                try {
+                    const response = await fetch(`/api/filieres/${ufrId}`);
+                    const data = await response.json();
+                    
+                    filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    data.filieres.forEach(filiere => {
+                        const option = document.createElement('option');
+                        option.value = filiere.id;
+                        option.textContent = filiere.nom;
+                        filiereSelect.appendChild(option);
+                    });
+                    filiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des filières:', error);
+                    resetSelect(filiereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Charge les matières quand une filière est sélectionnée
+        filiereSelect.addEventListener('change', async function() {
+            const filiereId = this.value;
+            
+            // Réinitialise le sélecteur suivant
+            resetSelect(matiereSelect, 'Chargement des matières...');
+            
+            if (filiereId) {
+                try {
+                    const response = await fetch(`/api/matieres/${filiereId}`);
+                    const data = await response.json();
+                    
+                    matiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
+                    data.matieres.forEach(matiere => {
+                        const option = document.createElement('option');
+                        option.value = matiere.id;
+                        option.textContent = matiere.nom;
+                        matiereSelect.appendChild(option);
+                    });
+                    matiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des matières:', error);
+                    resetSelect(matiereSelect, 'Erreur lors du chargement');
+                }
+            }
+        });
+        
+        // Fonction de filtrage pour les dropdowns
+        function filterDropdown(selectId, searchInputId) {
+            const searchTerm = document.getElementById(searchInputId).value.toLowerCase();
+            const select = document.getElementById(selectId);
+            const options = select.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const text = options[i].text.toLowerCase();
+                // Ne jamais cacher la première option (placeholder)
+                if (i === 0 || text.includes(searchTerm) || searchTerm === '') {
+                    options[i].style.display = '';
+                } else {
+                    options[i].style.display = 'none';
+                }
+            }
+        }
+        
+        // Fonctions pour gestion des chapitres
+        function ouvrirModificationChapitre(chapitre) {
+            // Remplir le formulaire avec les données existantes
+            document.getElementById('mod_chapitre_id').value = chapitre.id;
+            document.getElementById('mod_titre').value = chapitre.titre;
+            document.getElementById('mod_cours_texte').value = chapitre.cours_texte || '';
+            document.getElementById('mod_exercice_texte').value = chapitre.exercice_texte || '';
+            document.getElementById('mod_solution_texte').value = chapitre.solution_texte || '';
+            
+            // Afficher les fichiers existants
+            afficherFichiersExistants('cours', chapitre.cours_fichier_nom, chapitre.cours_fichier_path);
+            afficherFichiersExistants('exercice', chapitre.exercice_fichier_nom, chapitre.exercice_fichier_path);
+            afficherFichiersExistants('solution', chapitre.solution_fichier_nom, chapitre.solution_fichier_path);
+            
+            // Afficher le modal
+            document.getElementById('modal-modification').style.display = 'block';
+        }
+        
+        function fermerModification() {
+            document.getElementById('modal-modification').style.display = 'none';
+            // Réinitialiser les compteurs de fichiers
+            fileCountersMod = { cours: 1, exercice: 1, solution: 1 };
+            // Vider les conteneurs de fichiers
+            document.getElementById('mod-cours-files-container').innerHTML = '<input type="file" name="cours_fichier" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.odt,.ods,.odp" style="margin-bottom: 0.5rem;">';
+            document.getElementById('mod-exercice-files-container').innerHTML = '<input type="file" name="exercice_fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">';
+            document.getElementById('mod-solution-files-container').innerHTML = '<input type="file" name="solution_fichier" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods" style="margin-bottom: 0.5rem;">';
+        }
+        
+        function afficherFichiersExistants(type, noms, paths) {
+            const container = document.getElementById(`mod_${type}_fichiers_existants`);
+            container.innerHTML = '';
+            
+            if (!noms || !paths) return;
+            
+            const nomsArray = noms.split('|||');
+            const pathsArray = paths.split('|||');
+            
+            if (nomsArray.length > 0 && nomsArray[0]) {
+                container.innerHTML = '<div style="background: #f5f5f5; padding: 0.8rem; border-radius: 6px;"><strong>📎 Fichiers actuels :</strong></div>';
+                for (let i = 0; i < nomsArray.length; i++) {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.style.cssText = 'background: white; padding: 0.5rem; margin-top: 0.5rem; border-radius: 4px; border: 1px solid #ddd;';
+                    fileDiv.innerHTML = `
+                        <span style="color: #666; font-size: 0.9rem;">📄 ${nomsArray[i]}</span>
+                        <div style="margin-top: 0.3rem; display: flex; gap: 0.5rem;">
+                            <a href="/files/view/${pathsArray[i]}" target="_blank" 
+                               style="background: #2196f3; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; text-decoration: none; font-size: 0.75rem;">
+                                👁️ Voir
+                            </a>
+                            <a href="/files/download/${pathsArray[i]}" 
+                               style="background: #1565c0; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; text-decoration: none; font-size: 0.75rem;">
+                                ⬇️ Télécharger
+                            </a>
+                        </div>
+                    `;
+                    container.appendChild(fileDiv);
+                }
+                const note = document.createElement('div');
+                note.style.cssText = 'margin-top: 0.5rem; padding: 0.5rem; background: #fff3cd; border-radius: 4px; font-size: 0.85rem; color: #856404;';
+                note.innerHTML = '⚠️ Uploader de nouveaux fichiers remplacera les fichiers existants';
+                container.appendChild(note);
+            }
+        }
+        
+        // Compteurs pour les champs de fichiers de modification
+        let fileCountersMod = {
+            cours: 1,
+            exercice: 1,
+            solution: 1
+        };
+        
+        function addFileInputMod(type) {
+            const container = document.getElementById(`mod-${type}-files-container`);
+            const counter = fileCountersMod[type]++;
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;';
+            wrapper.id = `mod-${type}-file-${counter}`;
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.name = `${type}_fichier`;
+            input.accept = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.odt,.ods,.odp';
+            input.style.flex = '1';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.style.cssText = 'background: #f44336; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;';
+            removeBtn.onclick = function() {
+                wrapper.remove();
+            };
+            
+            wrapper.appendChild(input);
+            wrapper.appendChild(removeBtn);
+            container.appendChild(wrapper);
+        }
+        
+        function deleteChapitre(chapitreId, title) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le chapitre "${title}" ?\\n\\nTous les fichiers associés (cours, exercices, solutions) seront définitivement supprimés.\\nCette action est irréversible.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/prof/delete-chapitre';
+                form.innerHTML = `<input type="hidden" name="chapitre_id" value="${chapitreId}">`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Fonction pour afficher/cacher le formulaire de création de chapitre
+        function toggleFormulaireChapitre() {
+            const formulaire = document.getElementById('formulaire-chapitre');
+            if (formulaire.style.display === 'none') {
+                formulaire.style.display = 'block';
+                // Scroll vers le formulaire
+                formulaire.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                formulaire.style.display = 'none';
+            }
+        }
+        
+        // Compteurs pour les champs de fichiers supplémentaires
+        let fileCounters = {
+            cours: 1,
+            exercice: 1,
+            solution: 1
+        };
+        
+        // Fonction pour ajouter un champ de fichier supplémentaire
+        function addFileInput(type) {
+            const container = document.getElementById(`${type}-files-container`);
+            const counter = fileCounters[type]++;
+            
+            // Créer un wrapper pour le nouveau champ avec bouton de suppression
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;';
+            wrapper.id = `${type}-file-${counter}`;
+            
+            // Créer le champ de fichier
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.name = `${type}_fichier_${counter}`;
+            fileInput.style.cssText = 'flex: 1;';
+            
+            // Définir les types de fichiers acceptés selon la section
+            if (type === 'cours') {
+                fileInput.accept = '.pdf,.doc,.docx,.ppt,.pptx,.txt,.odt,.odp';
+            } else if (type === 'exercice') {
+                fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods';
+            } else if (type === 'solution') {
+                fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt,.odt,.ods';
+            }
+            
+            // Créer le bouton de suppression
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.innerHTML = '×';
+            removeBtn.title = 'Supprimer ce champ';
+            removeBtn.style.cssText = 'background: #f44336; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;';
+            removeBtn.onclick = () => wrapper.remove();
+            
+            // Assembler le wrapper
+            wrapper.appendChild(fileInput);
+            wrapper.appendChild(removeBtn);
+            
+            // Ajouter au conteneur
+            container.appendChild(wrapper);
+        }
+        
+        // Fonction pour toggle l'accordéon d'une matière
+        function toggleMatiere(matiereId) {
+            const content = document.getElementById('matiere-' + matiereId);
+            const arrow = document.getElementById('arrow-' + matiereId);
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // Fonction pour toggle l'accordéon d'un chapitre
+        function toggleChapitre(chapitreId) {
+            const content = document.getElementById('chapitre-' + chapitreId);
+            const arrow = document.getElementById('arrow-' + chapitreId);
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+    
+    <script>
+        // Charger le logo de l'université du professeur au chargement de la page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const universiteId = '{{ prof.universite_id }}';
+            console.log('ID université professeur:', universiteId);
+            if (universiteId && universiteId !== 'None' && universiteId !== '') {
+                try {
+                    const response = await fetch(`/api/universite/${universiteId}`);
+                    const data = await response.json();
+                    console.log('Données université professeur:', data);
+                    
+                    // Note: Logo retiré - s'affiche uniquement dans le dashboard étudiant
+                } catch (error) {
+                    console.error('Erreur lors du chargement du logo universitaire:', error);
+                }
+            }
+        });
+    </script>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
+        © 2025 Maodo Ka - Tous droits réservés | Étude LINE
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker enregistré avec succès:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Échec de l\'enregistrement du Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
