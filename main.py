@@ -1129,7 +1129,7 @@ async def download_file(file_path: str):
     
     headers = {
         "Content-Disposition": f'attachment; filename="{file_location.name}"',
-        "Cache-Control": "no-cache"
+        "Cache-Control": "public, max-age=3600"
     }
     
     return FileResponse(
