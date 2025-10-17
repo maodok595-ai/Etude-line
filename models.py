@@ -196,3 +196,19 @@ class Commentaire(Base):
     
     # Relations
     chapitre = relationship("ChapitreComplet", back_populates="commentaires")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(String(50), nullable=False)  # 'nouveau_chapitre', 'nouveau_commentaire'
+    message = Column(String(500), nullable=False)
+    destinataire_type = Column(String(20), nullable=False)  # 'prof' ou 'etudiant'
+    destinataire_id = Column(Integer, nullable=False)
+    lien = Column(String(500), nullable=True)  # URL ou chemin vers la ressource
+    lue = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Métadonnées optionnelles pour faciliter les requêtes
+    chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id"), nullable=True)
+    universite_id = Column(String(36), ForeignKey("universites.id"), nullable=True)

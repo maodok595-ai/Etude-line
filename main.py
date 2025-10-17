@@ -22,7 +22,7 @@ from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
-    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB
+    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB
 )
 from migration import migrate_data
 
