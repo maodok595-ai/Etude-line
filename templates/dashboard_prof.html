@@ -641,6 +641,148 @@
             }
         </script>
         
+        <!-- Définitions des fonctions globales nécessaires -->
+        <script>
+            // Fonction pour toggle l'accordéon d'une matière
+            function toggleMatiere(matiereId) {
+                const content = document.getElementById('matiere-' + matiereId);
+                const arrow = document.getElementById('arrow-' + matiereId);
+                
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                    arrow.style.transform = 'rotate(90deg)';
+                } else {
+                    content.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                }
+            }
+            
+            // Fonction pour toggle l'accordéon d'un chapitre
+            function toggleChapitre(chapitreId) {
+                const content = document.getElementById('chapitre-' + chapitreId);
+                const arrow = document.getElementById('arrow-' + chapitreId);
+                
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                    arrow.style.transform = 'rotate(90deg)';
+                } else {
+                    content.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                }
+            }
+            
+            // Fonction pour ouvrir la gestion des quiz
+            function ouvrirGestionQuiz(chapitreId, chaptitreTitre) {
+                alert(`Gestion des quiz pour le chapitre "${chaptitreTitre}"\n\n` +
+                      `Pour créer un quiz pour ce chapitre:\n` +
+                      `1. Utilisez l'API POST /api/quiz/create avec chapitre_id=${chapitreId}\n` +
+                      `2. Ajoutez des questions avec POST /api/quiz/{quiz_id}/question\n\n` +
+                      `Interface complète à venir dans la prochaine version.`);
+            }
+            
+            // Fonction pour échapper le HTML (protection XSS)
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // === FONCTIONS COMMENTAIRES ===
+            
+            async function chargerCommentaires(chapitreId) {
+                const container = document.getElementById(`commentaires-list-${chapitreId}`);
+                
+                try {
+                    const response = await fetch(`/api/commentaires/${chapitreId}`);
+                    const commentaires = await response.json();
+                    
+                    if (commentaires.length === 0) {
+                        container.innerHTML = '<div class="commentaires-vide">Aucun commentaire pour le moment. Soyez le premier à commenter !</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = commentaires.map(c => {
+                        const date = new Date(c.created_at);
+                        const dateStr = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+                        const icone = c.auteur_type === 'prof' ? '👨‍🏫' : '👨‍🎓';
+                        
+                        return `
+                            <div class="commentaire-item">
+                                <div class="commentaire-header">
+                                    <span class="commentaire-auteur ${c.auteur_type}">
+                                        ${icone} ${escapeHtml(c.auteur_nom)}
+                                    </span>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span class="commentaire-date">${dateStr}</span>
+                                        <button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>
+                                    </div>
+                                </div>
+                                <div class="commentaire-texte">${escapeHtml(c.texte)}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (error) {
+                    container.innerHTML = '<div class="commentaires-vide">Erreur de chargement des commentaires</div>';
+                }
+            }
+            
+            async function ajouterCommentaire(chapitreId) {
+                const textarea = document.getElementById(`commentaire-text-${chapitreId}`);
+                const texte = textarea.value.trim();
+                
+                if (!texte) {
+                    alert('Veuillez saisir un commentaire');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/commentaires', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chapitre_id: chapitreId,
+                            texte: texte
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        textarea.value = '';
+                        chargerCommentaires(chapitreId);
+                    } else {
+                        alert('Erreur lors de l\'ajout du commentaire');
+                    }
+                } catch (error) {
+                    alert('Erreur lors de l\'ajout du commentaire');
+                }
+            }
+            
+            async function supprimerCommentaire(commentaireId, chapitreId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/commentaires/${commentaireId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        chargerCommentaires(chapitreId);
+                    } else {
+                        alert('Vous ne pouvez pas supprimer ce commentaire');
+                    }
+                } catch (error) {
+                    alert('Erreur lors de la suppression');
+                }
+            }
+        </script>
+        
         <div class="welcome-card">
             <div class="university-welcome">
                 <h2 class="university-name">
