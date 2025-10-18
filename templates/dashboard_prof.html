@@ -1915,6 +1915,7 @@
                                                     👁️ Lire
                                                 </a>
                                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
                                                    style="background: #2e7d32; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     ⬇️ Télécharger
                                                 </a>
@@ -1948,6 +1949,7 @@
                                                     👁️ Lire
                                                 </a>
                                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
                                                    style="background: #e65100; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     ⬇️ Télécharger
                                                 </a>
@@ -1981,6 +1983,7 @@
                                                     👁️ Lire
                                                 </a>
                                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
                                                    style="background: #1565c0; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     ⬇️ Télécharger
                                                 </a>
@@ -2298,6 +2301,7 @@
                                 👁️ Voir
                             </a>
                             <a href="/files/download/${pathsArray[i]}" 
+                               class="download-button"
                                style="background: #1565c0; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; text-decoration: none; font-size: 0.75rem;">
                                 ⬇️ Télécharger
                             </a>
@@ -2918,6 +2922,40 @@
                     submitFormWithReload(event, this);
                 });
             }
+        });
+    </script>
+    
+    <!-- Gestion de l'affichage des boutons de téléchargement -->
+    <script>
+        // Charger l'état des téléchargements et afficher/cacher les boutons
+        async function loadDownloadButtonsStatus() {
+            try {
+                const response = await fetch('/api/parametres/telechargements');
+                const data = await response.json();
+                
+                // Récupérer tous les boutons de téléchargement
+                const downloadButtons = document.querySelectorAll('.download-button');
+                
+                if (data.actif) {
+                    // Activer tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'inline-flex';
+                    });
+                } else {
+                    // Désactiver tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état des téléchargements:', error);
+                // En cas d'erreur, afficher les boutons par défaut
+            }
+        }
+        
+        // Charger l'état au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDownloadButtonsStatus();
         });
     </script>
     
