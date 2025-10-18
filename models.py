@@ -107,6 +107,7 @@ class Professeur(Base):
     matiere_obj = relationship("Matiere", back_populates="professeurs")
     chapitres = relationship("ChapitreComplet", back_populates="professeur", cascade="all, delete-orphan")
     contents = relationship("Content", back_populates="professeur", cascade="all, delete-orphan")
+    cours_live = relationship("CoursLive", back_populates="professeur", cascade="all, delete-orphan")
 
 class Etudiant(Base):
     __tablename__ = "etudiants"
@@ -212,3 +213,23 @@ class Notification(Base):
     # Métadonnées optionnelles pour faciliter les requêtes
     chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id", ondelete='SET NULL'), nullable=True)
     universite_id = Column(String(36), ForeignKey("universites.id", ondelete='SET NULL'), nullable=True)
+
+class CoursLive(Base):
+    __tablename__ = "cours_live"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    titre = Column(String(200), nullable=True)
+    professeur_id = Column(Integer, ForeignKey("professeurs.id", ondelete='CASCADE'), nullable=False)
+    universite_id = Column(String(50), nullable=False)
+    ufr_id = Column(String(50), nullable=False)
+    filiere_id = Column(String(50), nullable=False)
+    niveau = Column(String(10), nullable=False)  # L1, L2, L3, M1, M2
+    statut = Column(String(20), default='en_attente', nullable=False)  # en_attente, en_direct, terminé
+    canal_video_id = Column(String(100), nullable=True)
+    date_debut = Column(DateTime, nullable=True)
+    date_fin = Column(DateTime, nullable=True)
+    nombre_participants = Column(Integer, default=0, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relations
+    professeur = relationship("Professeur", back_populates="cours_live")
