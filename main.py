@@ -532,6 +532,144 @@ def get_matiere_name(db: Session, matiere_id: str) -> str:
     return matiere.nom if matiere else "Matière inconnue"
 
 
+# === DELETION HELPERS === 
+# Fonctions centralisées pour gérer les suppressions en cascade
+
+def delete_uploaded_files_for_chapitre(chapitre: ChapitreCompletDB) -> int:
+    """
+    Supprime tous les fichiers uploadés associés à un chapitre
+    Retourne le nombre de fichiers supprimés
+    """
+    files_deleted = 0
+    upload_dir = Path("uploads")
+    
+    # Liste des chemins de fichiers à supprimer
+    file_paths = [
+        chapitre.cours_fichier_path,
+        chapitre.exercice_fichier_path,
+        chapitre.solution_fichier_path
+    ]
+    
+    for file_path in file_paths:
+        if file_path:
+            full_path = upload_dir / file_path
+            try:
+                if full_path.exists():
+                    full_path.unlink()
+                    files_deleted += 1
+                    print(f"✅ Fichier supprimé: {file_path}")
+            except Exception as e:
+                print(f"⚠️ Erreur suppression fichier {file_path}: {e}")
+    
+    return files_deleted
+
+def delete_chapitre_complete(db: Session, chapitre_id: int) -> Dict[str, int]:
+    """
+    Supprime complètement un chapitre avec:
+    - Tous les fichiers uploadés
+    - Tous les commentaires
+    - Toutes les notifications liées
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {"fichiers": 0, "commentaires": 0, "notifications": 0}
+    
+    # Récupérer le chapitre
+    chapitre = db.query(ChapitreCompletDB).filter_by(id=chapitre_id).first()
+    if not chapitre:
+        return stats
+    
+    # 1. Supprimer les fichiers uploadés
+    stats["fichiers"] = delete_uploaded_files_for_chapitre(chapitre)
+    
+    # 2. Supprimer toutes les notifications liées à ce chapitre
+    notifications = db.query(NotificationDB).filter_by(chapitre_id=chapitre_id).all()
+    for notif in notifications:
+        db.delete(notif)
+    stats["notifications"] = len(notifications)
+    
+    # 3. Supprimer tous les commentaires sur ce chapitre
+    commentaires = db.query(CommentaireDB).filter_by(chapitre_id=chapitre_id).all()
+    for comm in commentaires:
+        db.delete(comm)
+    stats["commentaires"] = len(commentaires)
+    
+    # 4. Supprimer le chapitre lui-même
+    db.delete(chapitre)
+    
+    return stats
+
+def delete_all_student_data(db: Session, etudiant_id: int) -> Dict[str, int]:
+    """
+    Supprime toutes les données d'un étudiant:
+    - Tous ses commentaires
+    - Toutes ses notifications
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {"commentaires": 0, "notifications": 0}
+    
+    # 1. Supprimer tous les commentaires de l'étudiant
+    commentaires = db.query(CommentaireDB).filter_by(
+        auteur_type="etudiant",
+        auteur_id=etudiant_id
+    ).all()
+    for comm in commentaires:
+        db.delete(comm)
+    stats["commentaires"] = len(commentaires)
+    
+    # 2. Supprimer toutes les notifications de l'étudiant
+    notifications = db.query(NotificationDB).filter_by(
+        destinataire_type="etudiant",
+        destinataire_id=etudiant_id
+    ).all()
+    for notif in notifications:
+        db.delete(notif)
+    stats["notifications"] = len(notifications)
+    
+    return stats
+
+def delete_all_professor_content(db: Session, professor_username: str) -> Dict[str, int]:
+    """
+    Supprime tout le contenu créé par un professeur:
+    - Tous ses chapitres (avec fichiers, commentaires, notifications)
+    - Toutes ses notifications
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {"chapitres": 0, "fichiers": 0, "commentaires": 0, "notifications": 0}
+    
+    # Récupérer tous les chapitres du professeur
+    chapitres = db.query(ChapitreCompletDB).filter_by(created_by=professor_username).all()
+    
+    for chapitre in chapitres:
+        # Supprimer chaque chapitre complètement
+        chapitre_stats = delete_chapitre_complete(db, chapitre.id)
+        stats["fichiers"] += chapitre_stats["fichiers"]
+        stats["commentaires"] += chapitre_stats["commentaires"]
+        stats["notifications"] += chapitre_stats["notifications"]
+        stats["chapitres"] += 1
+    
+    # Supprimer aussi les commentaires du professeur sur d'autres chapitres
+    prof = db.query(ProfesseurDB).filter_by(username=professor_username).first()
+    if prof:
+        own_commentaires = db.query(CommentaireDB).filter_by(
+            auteur_type="prof",
+            auteur_id=prof.id
+        ).all()
+        for comm in own_commentaires:
+            db.delete(comm)
+        stats["commentaires"] += len(own_commentaires)
+        
+        # Supprimer les notifications du professeur
+        own_notifications = db.query(NotificationDB).filter_by(
+            destinataire_type="prof",
+            destinataire_id=prof.id
+        ).all()
+        for notif in own_notifications:
+            db.delete(notif)
+        stats["notifications"] += len(own_notifications)
+    
+    return stats
+
+
 # Routes
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, db: Session = Depends(get_db)):
