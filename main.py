@@ -2985,14 +2985,14 @@ async def add_commentaire(
         if chapitre:
             # Message de notification avec le nom du chapitre
             message = f"💬 Nouveau commentaire sur '{chapitre.titre}' par {auteur_nom}"
-            logger.info(f"📢 Création de notifications pour commentaire sur chapitre {chapitre.id}")
+            print(f"📢 Création de notifications pour commentaire sur chapitre {chapitre.id}")
             
             if auteur_type == "etudiant":
                 # Si un étudiant commente -> notifier le professeur créateur du chapitre
                 # Récupérer le prof via son username pour avoir son ID
                 prof = db.query(ProfesseurDB).filter_by(username=chapitre.created_by).first()
                 if prof:
-                    logger.info(f"📧 Notification pour professeur {prof.username} (ID: {prof.id})")
+                    print(f"📧 Notification pour professeur {prof.username} (ID: {prof.id})")
                     notification = NotificationDB(
                         type='nouveau_commentaire',
                         message=message,
@@ -3004,7 +3004,7 @@ async def add_commentaire(
                     )
                     db.add(notification)
                 else:
-                    logger.warning(f"⚠️ Professeur créateur '{chapitre.created_by}' non trouvé pour chapitre {chapitre.id}")
+                    print(f"⚠️ Professeur créateur '{chapitre.created_by}' non trouvé pour chapitre {chapitre.id}")
                 
             elif auteur_type == "prof":
                 # Si un prof commente -> notifier tous les étudiants de la filière/niveau
@@ -3013,7 +3013,7 @@ async def add_commentaire(
                     niveau=chapitre.niveau
                 ).all()
                 
-                logger.info(f"📧 Notification pour {len(etudiants)} étudiants (filière {chapitre.filiere_id}, niveau {chapitre.niveau})")
+                print(f"📧 Notification pour {len(etudiants)} étudiants (filière {chapitre.filiere_id}, niveau {chapitre.niveau})")
                 
                 for etudiant in etudiants:
                     notification = NotificationDB(
@@ -3028,14 +3028,14 @@ async def add_commentaire(
                     db.add(notification)
             
             db.commit()
-            logger.info(f"✅ Notifications de commentaire créées avec succès")
+            print(f"✅ Notifications de commentaire créées avec succès")
         else:
-            logger.warning(f"⚠️ Chapitre {commentaire_data.chapitre_id} non trouvé pour créer les notifications")
+            print(f"⚠️ Chapitre {commentaire_data.chapitre_id} non trouvé pour créer les notifications")
     except Exception as e:
         # Ne pas bloquer la création du commentaire si les notifications échouent
-        logger.error(f"⚠️ Erreur lors de la création des notifications de commentaire: {e}")
+        print(f"⚠️ Erreur lors de la création des notifications de commentaire: {e}")
         import traceback
-        logger.error(traceback.format_exc())
+        print(traceback.format_exc())
     
     return {
         "success": True,
