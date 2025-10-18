@@ -1108,10 +1108,18 @@ async def create_chapitre_complet(
             matiere_nom = matiere.nom if matiere else "Matière"
             filiere_nom = filiere.nom if filiere else "Filière"
             
-            # Récupérer tous les étudiants de cette filière et niveau
-            etudiants = db.query(EtudiantDB).filter_by(
-                filiere_id=filiere_id,
-                niveau=niveau
+            # Récupérer tous les étudiants de cette filière qui peuvent voir ce chapitre
+            # Selon le système hiérarchique : les étudiants d'un niveau peuvent voir les chapitres de leur niveau et inférieurs
+            # Donc si on crée un chapitre L1, tous les étudiants (L1, L2, L3, M1, M2) doivent recevoir une notification
+            level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+            chapter_level_value = level_hierarchy.get(niveau, 0)
+            
+            # Récupérer tous les étudiants de la filière dont le niveau >= niveau du chapitre
+            eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
+            
+            etudiants = db.query(EtudiantDB).filter(
+                EtudiantDB.filiere_id == filiere_id,
+                EtudiantDB.niveau.in_(eligible_levels)
             ).all()
             
             # Créer une notification pour chaque étudiant
@@ -1128,6 +1136,7 @@ async def create_chapitre_complet(
                 db.add(notification)
             
             db.commit()
+            print(f"✅ {len(etudiants)} notifications créées pour le nouveau chapitre {chapitre}")
         except Exception as e:
             # Ne pas bloquer la création du chapitre si les notifications échouent
             print(f"⚠️ Erreur lors de la création des notifications: {e}")
