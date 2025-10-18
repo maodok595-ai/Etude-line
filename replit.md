@@ -32,7 +32,16 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **User & Content Management**: Separate models for professors and students. Content is hierarchically organized.
 - **University-Based Administration**: Administrators are assigned to specific universities, restricting their access to institutional data. A main administrator has global access.
 - **Data Filtering**: Professors can only create content within their assigned university. Dashboards dynamically filter data based on user roles and university affiliations.
-- **Cascade Deletion**: Manual cascade deletion ensures related entities are removed correctly for universities, UFRs, and filières.
+- **Complete Cascade Deletion (Oct 18, 2025)**: Comprehensive deletion system with 7 specialized helper functions ensuring total data removal. When deleting any entity, all associated data is permanently removed in a transaction-safe manner:
+  - **Chapitre deletion**: Removes uploaded files (cours, exercices, solutions), all comments, and notifications
+  - **Matière deletion**: Removes all chapters, uploaded files, comments, and notifications
+  - **Professeur deletion**: Removes all created chapters, uploaded files, comments (authored), and notifications
+  - **Étudiant deletion**: Removes all comments (authored) and notifications
+  - **Filière deletion**: Removes all matières, chapters, uploaded files, comments, notifications, assigned professors, and enrolled students
+  - **UFR deletion**: Removes all filières and their entire content hierarchically
+  - **Université deletion**: Removes all UFRs and their entire content (with protection against deleting universities with assigned secondary administrators)
+  - **Administrateur deletion**: Protected against deletion of main admin (maodoka65)
+  - Implementation uses transaction-based approach with automatic rollback on errors, filesystem cleanup for uploaded files, and detailed logging of deletion statistics for each operation
 - **Search Functionality**: Pure frontend, real-time, case-insensitive search across all admin and professor dashboards for various entities. A real-time chapter search is implemented for student and professor dashboards, featuring automatic parent container expansion and visual feedback.
 - **Performance Optimization**: Database migration sentinel (`.migration_done`) to prevent redundant migrations at startup, significantly reducing response times. Image optimization converts large PNGs to WebP with lazy loading.
 - **Progressive Web App (PWA)**: Full PWA implementation with a web app manifest, service worker for intelligent caching (cache-first for static, network-first for dynamic), offline fallback page, and PWA/iOS meta tags, enabling installation and offline functionality. **Custom Install Banner (Oct 18, 2025)**: Persistent installation banner that intercepts the browser's native `beforeinstallprompt` event, displaying a custom UI with gradient styling at the bottom of the page. The banner remains visible indefinitely until the user installs the app or manually closes it (stored in sessionStorage for the current session only), ensuring maximum visibility and installation conversion.

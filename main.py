@@ -2799,10 +2799,12 @@ async def prof_delete_chapitre(
         if not chapitre:
             return RedirectResponse("/dashboard/prof?error=Chapitre non trouvé ou accès non autorisé", status_code=303)
         
-        # Delete chapter from PostgreSQL
-        db.delete(chapitre)
+        # Supprimer complètement le chapitre avec fichiers, commentaires et notifications
+        stats = delete_chapitre_complete(db, chapitre.id)
         db.commit()
-        return RedirectResponse("/dashboard/prof?success=Chapitre supprimé avec succès", status_code=303)
+        
+        print(f"✅ Chapitre {chapitre.titre} supprimé par {prof_username} - {stats['fichiers']} fichiers, {stats['commentaires']} commentaires, {stats['notifications']} notifications")
+        return RedirectResponse("/dashboard/prof?success=Chapitre et toutes ses données supprimés avec succès", status_code=303)
     
     except Exception as e:
         db.rollback()
