@@ -413,6 +413,7 @@ def get_student_profile(db: Session, username: str) -> Optional[Dict[str, str]]:
         filiere = db.query(FiliereDB).filter_by(id=etudiant.filiere_id).first()
         
         profile = {
+            "id": etudiant.id,
             "username": etudiant.username,
             "nom": etudiant.nom,
             "prenom": etudiant.prenom,
