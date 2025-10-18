@@ -1334,10 +1334,10 @@
                             {% for prof in profs %}
                             <div class="prof-item academic-item">
                                 <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('prof-{{ loop.index }}')">
-                                    <span id="arrow-prof-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">▼</span>
+                                    <span id="arrow-prof-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
                                     <span>{{ prof.prenom }} {{ prof.nom }}</span>
                                 </div>
-                                <div id="details-prof-{{ loop.index }}" style="display: block;">
+                                <div id="details-prof-{{ loop.index }}" style="display: none;">
                                 <div class="prof-details">@{{ prof.username }}</div>
                                 <div class="prof-meta">
                                     <span class="meta-tag">{{ prof.specialite }}</span>
@@ -1409,10 +1409,10 @@
                             <div class="prof-item academic-item">
                                 <div style="flex: 1;">
                                     <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ loop.index }}')">
-                                        <span id="arrow-etudiant-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">▼</span>
+                                        <span id="arrow-etudiant-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
                                         <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
                                     </div>
-                                    <div id="details-etudiant-{{ loop.index }}" style="display: block;">
+                                    <div id="details-etudiant-{{ loop.index }}" style="display: none;">
                                     <div class="prof-details">@{{ etudiant.username }}</div>
                                     <div class="prof-meta" style="margin-top: 0.5rem;">
                                         <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ etudiant.niveau }}</span>
@@ -1425,7 +1425,7 @@
                                     </div>
                                     </div>
                                 </div>
-                                <div class="action-buttons" id="actions-etudiant-{{ loop.index }}" style="display: block;">
+                                <div class="action-buttons" id="actions-etudiant-{{ loop.index }}" style="display: none;">
                                     <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
