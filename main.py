@@ -1605,15 +1605,6 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
 
 
 # Admin utility endpoints
-@app.get("/admin/migrate")
-async def force_migration(admin_username: str = Depends(require_admin)):
-    """Force data migration (admin only)"""
-    migrated = migrate_data_to_new_format()
-    if migrated:
-        return {"message": "Migration effectuée avec succès", "migrated": True}
-    else:
-        return {"message": "Aucune migration nécessaire", "migrated": False}
-
 @app.get("/admin/stats")
 async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_main_admin: bool = None, admin_universite_id: str = None):
     """Get system statistics (admin only)"""
@@ -1721,9 +1712,9 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_ma
 
 
 @app.get("/content")
-async def get_content(request: Request, etudiant_username: str = Depends(require_etudiant)):
+async def get_content(request: Request, etudiant_username: str = Depends(require_etudiant), db: Session = Depends(get_db)):
     """Get accessible content for student (API endpoint)"""
-    content = get_accessible_content(etudiant_username)
+    content = get_accessible_content(db, etudiant_username)
     return {"content": content}
 
 @app.get("/dashboard/admin", response_class=HTMLResponse)
