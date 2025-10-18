@@ -22,7 +22,8 @@ from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
-    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB
+    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
+    CoursLive as CoursLiveDB
 )
 from migration import migrate_data
 
@@ -3201,6 +3202,217 @@ async def delete_all_notifications(
     db.commit()
     
     return {"success": True, "message": "Toutes les notifications ont été supprimées"}
+
+# === ROUTES API - COURS EN DIRECT (LIVE) ===
+
+class CoursLiveCreate(BaseModel):
+    titre: Optional[str] = None
+    universite_id: str
+    ufr_id: str
+    filiere_id: str
+    niveau: str
+
+@app.post("/api/cours-live/creer")
+async def creer_cours_live(
+    request: Request,
+    cours_data: CoursLiveCreate,
+    db: Session = Depends(get_db)
+):
+    """Créer un nouveau cours en direct"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent créer des cours en direct")
+    
+    # Créer le cours
+    nouveau_cours = CoursLiveDB(
+        titre=cours_data.titre or f"Cours en direct",
+        professeur_id=user_data.get('id'),
+        universite_id=cours_data.universite_id,
+        ufr_id=cours_data.ufr_id,
+        filiere_id=cours_data.filiere_id,
+        niveau=cours_data.niveau,
+        statut='en_attente',
+        canal_video_id=f"cours_{uuid.uuid4().hex[:12]}"  # ID unique pour ZEGOCLOUD
+    )
+    
+    db.add(nouveau_cours)
+    db.commit()
+    db.refresh(nouveau_cours)
+    
+    return {
+        "success": True,
+        "cours": {
+            "id": nouveau_cours.id,
+            "canal_video_id": nouveau_cours.canal_video_id,
+            "titre": nouveau_cours.titre
+        }
+    }
+
+@app.post("/api/cours-live/{cours_id}/demarrer")
+async def demarrer_cours_live(
+    request: Request,
+    cours_id: int,
+    db: Session = Depends(get_db)
+):
+    """Démarrer un cours en direct"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent démarrer des cours")
+    
+    cours = db.query(CoursLiveDB).filter_by(id=cours_id, professeur_id=user_data.get('id')).first()
+    if not cours:
+        raise HTTPException(status_code=404, detail="Cours non trouvé")
+    
+    cours.statut = 'en_direct'
+    cours.date_debut = datetime.utcnow()
+    db.commit()
+    
+    # Créer des notifications pour les étudiants de la filière/niveau
+    try:
+        prof = db.query(ProfesseurDB).filter_by(id=user_data.get('id')).first()
+        message = f"🔴 {prof.prenom} {prof.nom} est en direct maintenant !"
+        
+        etudiants = db.query(EtudiantDB).filter_by(
+            filiere_id=cours.filiere_id,
+            niveau=cours.niveau
+        ).all()
+        
+        for etudiant in etudiants:
+            notification = NotificationDB(
+                type='cours_live',
+                message=message,
+                destinataire_type='etudiant',
+                destinataire_id=etudiant.id,
+                lien=f"/dashboard/etudiant",
+                universite_id=cours.universite_id
+            )
+            db.add(notification)
+        
+        db.commit()
+        print(f"✅ {len(etudiants)} étudiants notifiés pour le cours live {cours_id}")
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la création des notifications: {e}")
+    
+    return {
+        "success": True,
+        "message": "Cours démarré",
+        "canal_video_id": cours.canal_video_id
+    }
+
+@app.post("/api/cours-live/{cours_id}/terminer")
+async def terminer_cours_live(
+    request: Request,
+    cours_id: int,
+    db: Session = Depends(get_db)
+):
+    """Terminer un cours en direct"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Seuls les professeurs peuvent terminer des cours")
+    
+    cours = db.query(CoursLiveDB).filter_by(id=cours_id, professeur_id=user_data.get('id')).first()
+    if not cours:
+        raise HTTPException(status_code=404, detail="Cours non trouvé")
+    
+    cours.statut = 'terminé'
+    cours.date_fin = datetime.utcnow()
+    db.commit()
+    
+    return {"success": True, "message": "Cours terminé"}
+
+@app.get("/api/cours-live/actifs")
+async def get_cours_live_actifs(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer les cours en direct pour les étudiants"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        return []
+    
+    # Récupérer l'étudiant
+    etudiant = db.query(EtudiantDB).filter_by(id=user_data.get('id')).first()
+    if not etudiant:
+        return []
+    
+    # Trouver les cours en direct pour sa filière et son niveau
+    cours_actifs = db.query(CoursLiveDB).filter_by(
+        filiere_id=etudiant.filiere_id,
+        niveau=etudiant.niveau,
+        statut='en_direct'
+    ).all()
+    
+    result = []
+    for cours in cours_actifs:
+        prof = db.query(ProfesseurDB).filter_by(id=cours.professeur_id).first()
+        if prof:
+            result.append({
+                "id": cours.id,
+                "titre": cours.titre,
+                "canal_video_id": cours.canal_video_id,
+                "professeur_nom": f"{prof.prenom} {prof.nom}",
+                "date_debut": cours.date_debut.isoformat() if cours.date_debut else None,
+                "nombre_participants": cours.nombre_participants
+            })
+    
+    return result
+
+@app.get("/api/cours-live/mes-cours")
+async def get_mes_cours_live(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer les cours du professeur"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "prof":
+        raise HTTPException(status_code=403, detail="Accès réservé aux professeurs")
+    
+    cours = db.query(CoursLiveDB).filter_by(
+        professeur_id=user_data.get('id')
+    ).order_by(CoursLiveDB.created_at.desc()).limit(10).all()
+    
+    return [{
+        "id": c.id,
+        "titre": c.titre,
+        "statut": c.statut,
+        "canal_video_id": c.canal_video_id,
+        "date_debut": c.date_debut.isoformat() if c.date_debut else None,
+        "date_fin": c.date_fin.isoformat() if c.date_fin else None,
+        "nombre_participants": c.nombre_participants
+    } for c in cours]
+
+@app.post("/api/cours-live/{cours_id}/rejoindre")
+async def rejoindre_cours_live(
+    request: Request,
+    cours_id: int,
+    db: Session = Depends(get_db)
+):
+    """Un étudiant rejoint un cours en direct"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Seuls les étudiants peuvent rejoindre")
+    
+    cours = db.query(CoursLiveDB).filter_by(id=cours_id).first()
+    if not cours:
+        raise HTTPException(status_code=404, detail="Cours non trouvé")
+    
+    if cours.statut != 'en_direct':
+        raise HTTPException(status_code=400, detail="Ce cours n'est pas en direct")
+    
+    # Incrémenter le compteur de participants
+    cours.nombre_participants += 1
+    db.commit()
+    
+    return {
+        "success": True,
+        "canal_video_id": cours.canal_video_id
+    }
 
 if __name__ == "__main__":
     print("=" * 50)
