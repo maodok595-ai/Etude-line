@@ -3024,6 +3024,7 @@ async def add_commentaire(
                         universite_id=chapitre.universite_id
                     )
                     db.add(notification)
+                    print(f"✅ 1 notification créée pour le commentaire de {auteur_nom} au professeur")
                 
             elif auteur_type == "prof":
                 # Si un prof commente -> notifier tous les étudiants de la filière/niveau
@@ -3032,6 +3033,7 @@ async def add_commentaire(
                     niveau=chapitre.niveau
                 ).all()
                 
+                notification_count = 0
                 for etudiant in etudiants:
                     notification = NotificationDB(
                         type='nouveau_commentaire',
@@ -3043,6 +3045,9 @@ async def add_commentaire(
                         universite_id=chapitre.universite_id
                     )
                     db.add(notification)
+                    notification_count += 1
+                
+                print(f"✅ {notification_count} notification(s) créée(s) pour le commentaire de {auteur_nom}")
             
             db.commit()
     except Exception as e:
