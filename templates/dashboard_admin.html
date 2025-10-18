@@ -2721,6 +2721,15 @@
             }
         }
         
+        // Sauvegarder l'onglet actif avant soumission d'un formulaire
+        function saveActiveTabBeforeSubmit() {
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) {
+                const activeTabId = activeTab.id.replace('tab-', '');
+                sessionStorage.setItem('activeTab', activeTabId);
+            }
+        }
+        
         // Intercepter automatiquement tous les formulaires de création
         document.addEventListener('DOMContentLoaded', function() {
             // Restaurer l'onglet actif si il a été sauvegardé
@@ -2729,6 +2738,12 @@
                 showTab(savedActiveTab);
                 sessionStorage.removeItem('activeTab');
             }
+            
+            // Attacher le gestionnaire de sauvegarde à tous les formulaires
+            const allForms = document.querySelectorAll('form[action*="/admin/"]');
+            allForms.forEach(form => {
+                form.addEventListener('submit', saveActiveTabBeforeSubmit);
+            });
             
             // Restaurer la position de scroll si elle a été sauvegardée
             const savedScrollPosition = sessionStorage.getItem('scrollPosition');
