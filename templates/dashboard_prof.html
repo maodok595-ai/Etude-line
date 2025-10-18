@@ -1394,6 +1394,13 @@
             
             async function ajouterCommentaire(chapitreId) {
                 const textarea = document.getElementById(`commentaire-text-${chapitreId}`);
+                
+                if (!textarea) {
+                    alert('Erreur: Zone de texte non trouvée');
+                    console.error('Textarea non trouvé pour chapitre:', chapitreId);
+                    return;
+                }
+                
                 const texte = textarea.value.trim();
                 
                 if (!texte) {
