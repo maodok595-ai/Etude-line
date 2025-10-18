@@ -350,10 +350,7 @@ def migrate_data():
         print(f"   - Contenus: {db.query(Content).count()}")
         print(f"   - Chapitres complets: {db.query(ChapitreComplet).count()}")
         
-        # Créer le fichier sentinel pour indiquer que la migration est terminée
-        with open(".migration_done", "w") as f:
-            f.write(f"Migration completed at: {datetime.now().isoformat()}\n")
-        print("✅ Fichier sentinel .migration_done créé")
+        print("✅ Migration terminée - Les données sont maintenant persistantes dans PostgreSQL")
         
     except Exception as e:
         import traceback

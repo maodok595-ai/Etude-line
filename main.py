@@ -115,20 +115,34 @@ async def startup_event():
             
             conn.commit()
         
-        # Vérifier si la migration a déjà été effectuée
-        migration_done_file = ".migration_done"
-        force_migrate = os.getenv("MIGRATE_ON_START", "false").lower() == "true"
-        
-        if not os.path.exists(migration_done_file) or force_migrate:
-            if force_migrate:
-                print("🔄 MIGRATE_ON_START activé - Force la migration...")
+        # Vérifier si la migration a déjà été effectuée en vérifiant la base de données
+        # Au lieu de vérifier un fichier local qui disparaît sur Render
+        from database import SessionLocal
+        db_check = SessionLocal()
+        try:
+            # Vérifier si des données existent déjà dans la base
+            admin_count = db_check.query(AdministrateurDB).count()
+            force_migrate = os.getenv("MIGRATE_ON_START", "false").lower() == "true"
+            
+            if admin_count == 0 or force_migrate:
+                if force_migrate:
+                    print("🔄 MIGRATE_ON_START activé - Force la migration...")
+                else:
+                    print("🔄 Première initialisation - Aucun administrateur trouvé - Migration des données...")
+                migrate_data()
+                print("✅ Migration des données effectuée avec succès")
             else:
-                print("🔄 Première initialisation - Migration des données...")
-            migrate_data()
-            print("✅ Migration des données effectuée avec succès")
-        else:
-            print("✅ Base de données déjà migrée - Migration ignorée")
-            print(f"   (Pour forcer la migration, définir MIGRATE_ON_START=true)")
+                print(f"✅ Base de données déjà initialisée ({admin_count} administrateur(s) trouvé(s)) - Migration ignorée")
+                print(f"   (Pour forcer la migration, définir MIGRATE_ON_START=true)")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la vérification de la base: {e}")
+            print("🔄 Tentative de migration par sécurité...")
+            try:
+                migrate_data()
+            except Exception as migrate_error:
+                print(f"❌ Échec de la migration: {migrate_error}")
+        finally:
+            db_check.close()
         
         # Toujours vérifier et créer l'admin principal si nécessaire
         # (utile quand on change de base de données)
