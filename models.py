@@ -214,3 +214,13 @@ class Notification(Base):
     # Métadonnées optionnelles pour faciliter les requêtes
     chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id", ondelete='SET NULL'), nullable=True)
     universite_id = Column(String(36), ForeignKey("universites.id", ondelete='SET NULL'), nullable=True)
+
+class ParametreSysteme(Base):
+    __tablename__ = "parametres_systeme"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cle = Column(String(100), unique=True, nullable=False)
+    valeur = Column(String(500), nullable=False)
+    description = Column(String(500), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
