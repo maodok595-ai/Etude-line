@@ -212,4 +212,3 @@ class Notification(Base):
     # Métadonnées optionnelles pour faciliter les requêtes
     chapitre_id = Column(Integer, ForeignKey("chapitres_complets.id", ondelete='SET NULL'), nullable=True)
     universite_id = Column(String(36), ForeignKey("universites.id", ondelete='SET NULL'), nullable=True)
-
