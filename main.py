@@ -3027,11 +3027,21 @@ async def add_commentaire(
                     print(f"✅ 1 notification créée pour le commentaire de {auteur_nom} au professeur")
                 
             elif auteur_type == "prof":
-                # Si un prof commente -> notifier tous les étudiants de la filière/niveau
-                etudiants = db.query(EtudiantDB).filter_by(
-                    filiere_id=chapitre.filiere_id,
-                    niveau=chapitre.niveau
+                # Si un prof commente -> notifier tous les étudiants qui peuvent voir ce chapitre
+                # Selon le contrôle hiérarchique : étudiants dont niveau >= niveau du chapitre
+                niveau_ordre = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+                niveau_chapitre_ordre = niveau_ordre.get(chapitre.niveau, 0)
+                
+                # Récupérer tous les étudiants de la filière
+                tous_etudiants = db.query(EtudiantDB).filter_by(
+                    filiere_id=chapitre.filiere_id
                 ).all()
+                
+                # Filtrer ceux qui peuvent voir ce chapitre (niveau >= niveau chapitre)
+                etudiants = [
+                    e for e in tous_etudiants 
+                    if niveau_ordre.get(e.niveau, 0) >= niveau_chapitre_ordre
+                ]
                 
                 notification_count = 0
                 for etudiant in etudiants:
@@ -3047,7 +3057,7 @@ async def add_commentaire(
                     db.add(notification)
                     notification_count += 1
                 
-                print(f"✅ {notification_count} notification(s) créée(s) pour le commentaire de {auteur_nom}")
+                print(f"✅ {notification_count} notification(s) créée(s) pour le commentaire de {auteur_nom} (chapitre {chapitre.niveau}, {len(tous_etudiants)} étudiants dans la filière)")
             
             db.commit()
     except Exception as e:
