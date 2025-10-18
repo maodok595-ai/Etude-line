@@ -1240,16 +1240,11 @@
                 <span id="download-icon">📥</span> Téléchargements
                 <span id="download-status">: Chargement...</span>
             </button>
-            
-            <!-- Bouton statistiques -->
-            <button onclick="toggleStats()" id="stats-toggle-btn" class="stats-toggle-btn">
-                <span id="stats-icon">📊</span> Statistiques universitaire
-                <span id="stats-arrow">→</span>
-            </button>
         </div>
         
-        <!-- Statistiques du système -->
-        <div class="stats-horizontal-container" id="stats-container" style="display: none;">
+        <!-- Statistiques du système (toujours visibles) -->
+        <h3 style="margin: 1.5rem 0 1rem 0; color: #7c3aed; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
+        <div class="stats-horizontal-container" id="stats-container">
             <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
                 <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-1')">
@@ -2110,30 +2105,6 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
         
-        // Toggle des statistiques
-        function toggleStats() {
-            const statsContainer = document.getElementById('stats-container');
-            const arrow = document.getElementById('stats-arrow');
-            const icon = document.getElementById('stats-icon');
-            
-            // Vérifier l'état actuel de manière fiable
-            const currentDisplay = window.getComputedStyle(statsContainer).display;
-            const isVisible = currentDisplay === 'grid';
-            
-            if (isVisible) {
-                // Cacher les stats
-                statsContainer.style.display = 'none';
-                arrow.textContent = '→';
-                if (icon) icon.textContent = '📊';
-                localStorage.setItem('statsVisible', 'false');
-            } else {
-                // Afficher les stats
-                statsContainer.style.display = 'grid';
-                arrow.textContent = '↓';
-                if (icon) icon.textContent = '📉';
-                localStorage.setItem('statsVisible', 'true');
-            }
-        }
         
         // Toggle des téléchargements (admin uniquement)
         async function toggleTelechargements() {
@@ -2198,19 +2169,8 @@
             }
         }
         
-        // Restaurer l'état des statistiques au chargement
+        // Charger l'état des téléchargements au démarrage
         window.addEventListener('DOMContentLoaded', function() {
-            const statsVisible = localStorage.getItem('statsVisible');
-            if (statsVisible === 'true') {
-                const statsContainer = document.getElementById('stats-container');
-                const arrow = document.getElementById('stats-arrow');
-                const icon = document.getElementById('stats-icon');
-                statsContainer.style.display = 'grid';
-                arrow.textContent = '↓';
-                if (icon) icon.textContent = '📉';
-            }
-            
-            // Charger l'état des téléchargements
             loadDownloadStatus();
         });
         
