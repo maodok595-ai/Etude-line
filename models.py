@@ -174,10 +174,12 @@ class ChapitreComplet(Base):
     solution_fichier_nom = Column(String(500), nullable=True)
     solution_fichier_path = Column(String(1000), nullable=True)
     
-    created_by = Column(String(100), ForeignKey("professeurs.username", ondelete='CASCADE'), nullable=False)
+    created_by = Column(String(100), ForeignKey("professeurs.username", ondelete='CASCADE'), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
+    universite = relationship("Universite", foreign_keys=[universite_id])
+    ufr = relationship("UFR", foreign_keys=[ufr_id])
     filiere = relationship("Filiere", back_populates="chapitres")
     matiere = relationship("Matiere", back_populates="chapitres")
     professeur = relationship("Professeur", back_populates="chapitres")

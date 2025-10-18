@@ -1007,34 +1007,24 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
     matieres = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all() if filiere_ids else []
 
     # Get professor's complete chapters with ultra logical sorting
-    prof_chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == prof_username).all()
+    # Use eager loading to avoid N+1 queries
+    from sqlalchemy.orm import joinedload
+    prof_chapitres = db.query(ChapitreCompletDB).filter(
+        ChapitreCompletDB.created_by == prof_username
+    ).options(
+        joinedload(ChapitreCompletDB.universite),
+        joinedload(ChapitreCompletDB.ufr),
+        joinedload(ChapitreCompletDB.filiere),
+        joinedload(ChapitreCompletDB.matiere)
+    ).all()
     
     # Ultra logical sorting: University → UFR → Filiere → Level → Semester → Matiere → Chapter
     def get_sort_key(chapitre):
-        # Get names for sorting instead of IDs
-        uni_nom = ""
-        for uni in universites:
-            if uni.id == chapitre.universite_id:
-                uni_nom = uni.nom
-                break
-        
-        ufr_nom = ""
-        for ufr in ufrs:
-            if ufr.id == chapitre.ufr_id:
-                ufr_nom = ufr.nom
-                break
-        
-        filiere_nom = ""
-        for fil in filieres:
-            if fil.id == chapitre.filiere_id:
-                filiere_nom = fil.nom
-                break
-        
-        matiere_nom = ""
-        for mat in matieres:
-            if mat.id == chapitre.matiere_id:
-                matiere_nom = mat.nom
-                break
+        # Use eager loaded relationships instead of loops
+        uni_nom = chapitre.universite.nom if chapitre.universite else ""
+        ufr_nom = chapitre.ufr.nom if chapitre.ufr else ""
+        filiere_nom = chapitre.filiere.nom if chapitre.filiere else ""
+        matiere_nom = chapitre.matiere.nom if chapitre.matiere else ""
         
         # Custom level order for proper academic progression
         level_order = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
@@ -1061,13 +1051,9 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
         niveau = chapitre.niveau
         semestre = chapitre.semestre
         
-        # Get matiere name
-        matiere_nom = "Matière inconnue"
+        # Use eager loaded relationship instead of loop
+        matiere_nom = chapitre.matiere.nom if chapitre.matiere else "Matière inconnue"
         matiere_id = chapitre.matiere_id
-        for mat in matieres:
-            if mat.id == chapitre.matiere_id:
-                matiere_nom = mat.nom
-                break
         
         # Initialize hierarchical structure
         if niveau not in hierarchie:
