@@ -334,16 +334,30 @@
             }
             
             /* Statistiques */
+            .stats-grid {
+                gap: 0.4rem !important;
+                padding: 0.3rem 0 !important;
+            }
+            
+            .stat-card {
+                min-width: 75px !important;
+                padding: 0.4rem 0.3rem !important;
+            }
+            
             .stat-number {
-                font-size: 1.6rem !important;
+                font-size: 1.3rem !important;
             }
             
             .stat-label {
-                font-size: 0.65rem !important;
+                font-size: 0.55rem !important;
             }
             
             .stat-icon {
-                font-size: 1.3rem !important;
+                font-size: 1rem !important;
+            }
+            
+            .stat-arrow {
+                font-size: 0.5rem !important;
             }
         }
 
@@ -405,6 +419,28 @@
             
             .stat-value {
                 font-size: 1.5rem !important;
+            }
+            
+            /* Stats ultra-compactes pour petits écrans */
+            .stats-grid {
+                gap: 0.3rem !important;
+            }
+            
+            .stat-card {
+                min-width: 70px !important;
+                padding: 0.35rem 0.25rem !important;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem !important;
+            }
+            
+            .stat-label {
+                font-size: 0.5rem !important;
+            }
+            
+            .stat-icon {
+                font-size: 0.9rem !important;
             }
         }
         
@@ -512,24 +548,48 @@
         }
         
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
             margin-bottom: 2rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5rem 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+        }
+        
+        .stats-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .stats-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .stats-grid::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+        
+        .stats-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
         }
         
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border: none;
-            border-radius: 12px;
-            padding: 0.75rem 0.5rem;
+            border-radius: 10px;
+            padding: 0.5rem 0.4rem;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            min-width: 85px;
+            flex-shrink: 0;
         }
         
         .stat-card:hover {
@@ -538,7 +598,7 @@
         }
         
         .stat-arrow {
-            font-size: 0.7rem;
+            font-size: 0.55rem;
             color: currentColor;
             opacity: 0.6;
             transition: transform 0.3s ease, opacity 0.3s ease;
@@ -603,17 +663,17 @@
         }
         
         .stat-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.15rem;
             display: block;
             filter: grayscale(0);
         }
         
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: currentColor;
-            margin: 0.25rem 0;
+            margin: 0.15rem 0;
             font-family: 'Georgia', 'Times New Roman', serif;
             letter-spacing: -0.02em;
             line-height: 1;
@@ -621,10 +681,10 @@
         
         .stat-label {
             color: #666;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.05em;
         }
         
         .stats-toggle-btn {
