@@ -1691,6 +1691,10 @@
                     <form action="/admin/create-ufr" method="post">
                         <div class="form-group">
                             <label for="ufr-universite">Université</label>
+                            <input type="search" id="search-ufr-universite" 
+                                   placeholder="🔍 Rechercher une université..." 
+                                   oninput="filterSelectOptions('search-ufr-universite', 'ufr-universite')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
                             <select id="ufr-universite" name="universite_id" required>
                                 <option value="">Sélectionner une université</option>
                                 {% for uni in universites %}
@@ -1781,6 +1785,10 @@
                     <form action="/admin/create-filiere" method="post">
                         <div class="form-group">
                             <label for="fil-ufr">UFR</label>
+                            <input type="search" id="search-fil-ufr" 
+                                   placeholder="🔍 Rechercher une UFR..." 
+                                   oninput="filterSelectOptions('search-fil-ufr', 'fil-ufr')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
                             <select id="fil-ufr" name="ufr_id" required>
                                 <option value="">Sélectionner une UFR</option>
                                 {% for ufr in ufrs %}
@@ -1877,6 +1885,10 @@
                     <form action="/admin/create-matiere" method="post">
                         <div class="form-group">
                             <label for="mat-filiere">Filière</label>
+                            <input type="search" id="search-mat-filiere" 
+                                   placeholder="🔍 Rechercher une filière..." 
+                                   oninput="filterSelectOptions('search-mat-filiere', 'mat-filiere')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
                             <select id="mat-filiere" name="filiere_id" required>
                                 <option value="">Sélectionner une filière</option>
                                 {% for filiere in filieres %}
@@ -2179,6 +2191,32 @@
             
             document.getElementById('universite-count').textContent = 
                 searchTerm ? `Affichage ${visibleCount} sur ${items.length} universités` : '';
+        }
+        
+        // Fonction pour filtrer les options d'un select en temps réel
+        function filterSelectOptions(searchInputId, selectId) {
+            const searchTerm = document.getElementById(searchInputId).value.toLowerCase();
+            const selectElement = document.getElementById(selectId);
+            const options = selectElement.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const text = option.textContent.toLowerCase();
+                
+                if (text.includes(searchTerm) || option.value === "") {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+            
+            // Si une option filtrée est sélectionnée, réinitialiser la sélection
+            if (selectElement.selectedIndex !== -1) {
+                const selectedOption = options[selectElement.selectedIndex];
+                if (selectedOption.style.display === 'none') {
+                    selectElement.selectedIndex = 0;
+                }
+            }
         }
         
         // Functions pour les actions CRUD
