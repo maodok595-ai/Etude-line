@@ -334,12 +334,16 @@
             }
             
             /* Statistiques */
-            .stat-value {
-                font-size: 1.8rem !important;
+            .stat-number {
+                font-size: 1.6rem !important;
             }
             
             .stat-label {
-                font-size: 0.85rem !important;
+                font-size: 0.65rem !important;
+            }
+            
+            .stat-icon {
+                font-size: 1.3rem !important;
             }
         }
 
@@ -509,27 +513,27 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
             margin-bottom: 2rem;
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 0.5rem;
             text-align: center;
-            box-shadow: var(--shadow);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
         
         .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         .stat-card::before {
@@ -538,30 +542,64 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent), #8b5cf6);
+            height: 3px;
+            background: currentColor;
+        }
+        
+        /* Couleurs individuelles pour chaque carte */
+        .stat-card:nth-child(1) {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba225 100%);
+            color: #667eea;
+        }
+        
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb15 0%, #f5576c25 100%);
+            color: #f5576c;
+        }
+        
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe15 0%, #00f2fe25 100%);
+            color: #4facfe;
+        }
+        
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b15 0%, #38f9d725 100%);
+            color: #43e97b;
+        }
+        
+        .stat-card:nth-child(5) {
+            background: linear-gradient(135deg, #fa709a15 0%, #fee14025 100%);
+            color: #fa709a;
+        }
+        
+        .stat-card:nth-child(6) {
+            background: linear-gradient(135deg, #30cfd015 0%, #330867025 100%);
+            color: #30cfd0;
         }
         
         .stat-icon {
             font-size: 1.5rem;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.25rem;
             display: block;
+            filter: grayscale(0);
         }
         
         .stat-number {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--accent);
-            margin: 0.3rem 0;
-            font-family: 'Poppins', sans-serif;
+            color: currentColor;
+            margin: 0.25rem 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            letter-spacing: -0.02em;
+            line-height: 1;
         }
         
         .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 500;
+            color: #666;
+            font-size: 0.7rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
         }
         
         .stats-toggle-btn {
