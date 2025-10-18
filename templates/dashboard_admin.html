@@ -339,11 +339,6 @@
                 padding: 0.3rem 0 !important;
             }
             
-            .stat-vertical-card {
-                min-width: 160px !important;
-                max-width: 180px !important;
-            }
-            
             .stat-vertical-card h3 {
                 font-size: 0.85rem !important;
             }
@@ -416,11 +411,10 @@
             /* Stats ultra-compactes pour petits écrans */
             .stats-horizontal-container {
                 gap: 0.5rem !important;
+                grid-template-columns: 1fr !important;
             }
             
             .stat-vertical-card {
-                min-width: 140px !important;
-                max-width: 160px !important;
                 padding: 0.75rem !important;
             }
             
@@ -537,38 +531,13 @@
         }
         
         .stats-horizontal-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 0.5rem 0;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar {
-            height: 6px;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.3);
-            border-radius: 3px;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.5);
         }
         
         .stat-vertical-card {
-            min-width: 180px;
-            max-width: 220px;
-            flex-shrink: 0;
             padding: 1rem !important;
         }
         
@@ -1175,6 +1144,7 @@
         
         <!-- Statistiques du système -->
         <div class="stats-horizontal-container" id="stats-container" style="display: none;">
+            <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
                 <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-1')">
                     <span>👨‍🏫 Professeurs</span>
@@ -1195,43 +1165,45 @@
                 </div>
             </div>
             
+            <!-- Ligne 2 : Universités | Cours -->
             <div class="card stat-vertical-card">
                 <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-3')">
-                    <span>📚 Cours</span>
+                    <span>🏛️ Universités</span>
                     <span id="arrow-stat-3" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                 </h3>
                 <div id="content-stat-3" style="display: none; padding-top: 1rem;">
-                    <div class="stat-number-large">{{ stats.chapitres.cours }}</div>
+                    <div class="stat-number-large">{{ stats.structure_academique.universites }}</div>
                 </div>
             </div>
             
             <div class="card stat-vertical-card">
                 <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-4')">
-                    <span>📝 Exercices</span>
+                    <span>📚 Cours</span>
                     <span id="arrow-stat-4" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                 </h3>
                 <div id="content-stat-4" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.chapitres.cours }}</div>
+                </div>
+            </div>
+            
+            <!-- Ligne 3 : Exercices | Solutions -->
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-5')">
+                    <span>📝 Exercices</span>
+                    <span id="arrow-stat-5" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-5" style="display: none; padding-top: 1rem;">
                     <div class="stat-number-large">{{ stats.chapitres.exercice }}</div>
                 </div>
             </div>
             
             <div class="card stat-vertical-card">
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-5')">
-                    <span>✅ Solutions</span>
-                    <span id="arrow-stat-5" style="font-size: 1rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="content-stat-5" style="display: none; padding-top: 1rem;">
-                    <div class="stat-number-large">{{ stats.chapitres.solution }}</div>
-                </div>
-            </div>
-            
-            <div class="card stat-vertical-card">
                 <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-6')">
-                    <span>🏛️ Universités</span>
+                    <span>✅ Solutions</span>
                     <span id="arrow-stat-6" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                 </h3>
                 <div id="content-stat-6" style="display: none; padding-top: 1rem;">
-                    <div class="stat-number-large">{{ stats.structure_academique.universites }}</div>
+                    <div class="stat-number-large">{{ stats.chapitres.solution }}</div>
                 </div>
             </div>
         </div>
