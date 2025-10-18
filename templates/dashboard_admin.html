@@ -334,30 +334,22 @@
             }
             
             /* Statistiques */
-            .stats-grid {
-                gap: 0.4rem !important;
+            .stats-horizontal-container {
+                gap: 0.75rem !important;
                 padding: 0.3rem 0 !important;
             }
             
-            .stat-card {
-                min-width: 75px !important;
-                padding: 0.4rem 0.3rem !important;
+            .stat-vertical-card {
+                min-width: 160px !important;
+                max-width: 180px !important;
             }
             
-            .stat-number {
-                font-size: 1.3rem !important;
+            .stat-vertical-card h3 {
+                font-size: 0.85rem !important;
             }
             
-            .stat-label {
-                font-size: 0.55rem !important;
-            }
-            
-            .stat-icon {
-                font-size: 1rem !important;
-            }
-            
-            .stat-arrow {
-                font-size: 0.5rem !important;
+            .stat-number-large {
+                font-size: 2.5rem !important;
             }
         }
 
@@ -422,25 +414,22 @@
             }
             
             /* Stats ultra-compactes pour petits écrans */
-            .stats-grid {
-                gap: 0.3rem !important;
+            .stats-horizontal-container {
+                gap: 0.5rem !important;
             }
             
-            .stat-card {
-                min-width: 70px !important;
-                padding: 0.35rem 0.25rem !important;
+            .stat-vertical-card {
+                min-width: 140px !important;
+                max-width: 160px !important;
+                padding: 0.75rem !important;
             }
             
-            .stat-number {
-                font-size: 1.2rem !important;
+            .stat-vertical-card h3 {
+                font-size: 0.8rem !important;
             }
             
-            .stat-label {
-                font-size: 0.5rem !important;
-            }
-            
-            .stat-icon {
-                font-size: 0.9rem !important;
+            .stat-number-large {
+                font-size: 2rem !important;
             }
         }
         
@@ -547,9 +536,9 @@
             margin-bottom: 0;
         }
         
-        .stats-grid {
+        .stats-horizontal-container {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             margin-bottom: 2rem;
             overflow-x: auto;
             overflow-y: hidden;
@@ -559,132 +548,42 @@
             scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
         }
         
-        .stats-grid::-webkit-scrollbar {
+        .stats-horizontal-container::-webkit-scrollbar {
             height: 6px;
         }
         
-        .stats-grid::-webkit-scrollbar-track {
+        .stats-horizontal-container::-webkit-scrollbar-track {
             background: transparent;
         }
         
-        .stats-grid::-webkit-scrollbar-thumb {
+        .stats-horizontal-container::-webkit-scrollbar-thumb {
             background: rgba(102, 126, 234, 0.3);
             border-radius: 3px;
         }
         
-        .stats-grid::-webkit-scrollbar-thumb:hover {
+        .stats-horizontal-container::-webkit-scrollbar-thumb:hover {
             background: rgba(102, 126, 234, 0.5);
         }
         
-        .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: none;
-            border-radius: 10px;
-            padding: 0.5rem 0.4rem;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            min-width: 85px;
+        .stat-vertical-card {
+            min-width: 180px;
+            max-width: 220px;
             flex-shrink: 0;
+            padding: 1rem !important;
         }
         
-        .stat-card:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-        
-        .stat-arrow {
-            font-size: 0.55rem;
-            color: currentColor;
-            opacity: 0.6;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            display: inline-block;
-        }
-        
-        .stat-card:hover .stat-arrow {
-            opacity: 1;
-        }
-        
-        .stat-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-            max-height: 0;
-            opacity: 0;
-        }
-        
-        .stat-content.open {
-            max-height: 100px;
-            opacity: 1;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: currentColor;
-        }
-        
-        /* Couleurs individuelles pour chaque carte */
-        .stat-card:nth-child(1) {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba225 100%);
-            color: #667eea;
-        }
-        
-        .stat-card:nth-child(2) {
-            background: linear-gradient(135deg, #f093fb15 0%, #f5576c25 100%);
-            color: #f5576c;
-        }
-        
-        .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, #4facfe15 0%, #00f2fe25 100%);
-            color: #4facfe;
-        }
-        
-        .stat-card:nth-child(4) {
-            background: linear-gradient(135deg, #43e97b15 0%, #38f9d725 100%);
-            color: #43e97b;
-        }
-        
-        .stat-card:nth-child(5) {
-            background: linear-gradient(135deg, #fa709a15 0%, #fee14025 100%);
-            color: #fa709a;
-        }
-        
-        .stat-card:nth-child(6) {
-            background: linear-gradient(135deg, #30cfd015 0%, #330867025 100%);
-            color: #30cfd0;
-        }
-        
-        .stat-icon {
-            font-size: 1.2rem;
-            margin-bottom: 0.15rem;
-            display: block;
-            filter: grayscale(0);
-        }
-        
-        .stat-number {
-            font-size: 1.5rem;
+        .stat-number-large {
+            font-size: 3rem;
             font-weight: 700;
-            color: currentColor;
-            margin: 0.15rem 0;
+            color: var(--accent);
+            text-align: center;
             font-family: 'Georgia', 'Times New Roman', serif;
             letter-spacing: -0.02em;
-            line-height: 1;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 0.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            line-height: 1.2;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .stats-toggle-btn {
@@ -1209,19 +1108,15 @@
                 const content = document.getElementById('content-' + statId);
                 const arrow = document.getElementById('arrow-' + statId);
                 
-                if (content.style.display === 'none') {
+                if (content.style.display === 'none' || content.style.display === '') {
                     content.style.display = 'block';
-                    content.classList.add('open');
                     arrow.textContent = '▼';
-                    arrow.style.transform = 'rotate(0deg)';
+                    arrow.style.transform = 'rotate(90deg)';
                     localStorage.setItem('stat-' + statId, 'open');
                 } else {
-                    content.classList.remove('open');
-                    setTimeout(() => {
-                        content.style.display = 'none';
-                    }, 300);
+                    content.style.display = 'none';
                     arrow.textContent = '►';
-                    arrow.style.transform = 'rotate(-90deg)';
+                    arrow.style.transform = 'rotate(0deg)';
                     localStorage.setItem('stat-' + statId, 'closed');
                 }
             }
@@ -1236,9 +1131,8 @@
                         const arrow = document.getElementById('arrow-' + statId);
                         if (content && arrow) {
                             content.style.display = 'block';
-                            content.classList.add('open');
                             arrow.textContent = '▼';
-                            arrow.style.transform = 'rotate(0deg)';
+                            arrow.style.transform = 'rotate(90deg)';
                         }
                     }
                 }
@@ -1280,71 +1174,65 @@
         </div>
         
         <!-- Statistiques du système -->
-        <div class="stats-grid" id="stats-container" style="display: none;">
-            <div class="stat-card" onclick="toggleStatCard('stat-1')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">👨‍🏫</span>
-                    <span id="arrow-stat-1" class="stat-arrow">►</span>
+        <div class="stats-horizontal-container" id="stats-container" style="display: none;">
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-1')">
+                    <span>👨‍🏫 Professeurs</span>
+                    <span id="arrow-stat-1" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-1" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.users.professeurs }}</div>
                 </div>
-                <div id="content-stat-1" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.users.professeurs }}</div>
-                </div>
-                <div class="stat-label">Professeurs</div>
             </div>
             
-            <div class="stat-card" onclick="toggleStatCard('stat-2')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">👨‍🎓</span>
-                    <span id="arrow-stat-2" class="stat-arrow">►</span>
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-2')">
+                    <span>👨‍🎓 Étudiants</span>
+                    <span id="arrow-stat-2" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-2" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.users.etudiants }}</div>
                 </div>
-                <div id="content-stat-2" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.users.etudiants }}</div>
-                </div>
-                <div class="stat-label">Étudiants</div>
             </div>
             
-            <div class="stat-card" onclick="toggleStatCard('stat-3')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">📚</span>
-                    <span id="arrow-stat-3" class="stat-arrow">►</span>
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-3')">
+                    <span>📚 Cours</span>
+                    <span id="arrow-stat-3" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-3" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.chapitres.cours }}</div>
                 </div>
-                <div id="content-stat-3" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.chapitres.cours }}</div>
-                </div>
-                <div class="stat-label">Cours</div>
             </div>
             
-            <div class="stat-card" onclick="toggleStatCard('stat-4')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">📝</span>
-                    <span id="arrow-stat-4" class="stat-arrow">►</span>
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-4')">
+                    <span>📝 Exercices</span>
+                    <span id="arrow-stat-4" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-4" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.chapitres.exercice }}</div>
                 </div>
-                <div id="content-stat-4" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.chapitres.exercice }}</div>
-                </div>
-                <div class="stat-label">Exercices</div>
             </div>
             
-            <div class="stat-card" onclick="toggleStatCard('stat-5')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">✅</span>
-                    <span id="arrow-stat-5" class="stat-arrow">►</span>
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-5')">
+                    <span>✅ Solutions</span>
+                    <span id="arrow-stat-5" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-5" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.chapitres.solution }}</div>
                 </div>
-                <div id="content-stat-5" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.chapitres.solution }}</div>
-                </div>
-                <div class="stat-label">Solutions</div>
             </div>
             
-            <div class="stat-card" onclick="toggleStatCard('stat-6')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                    <span class="stat-icon">🏛️</span>
-                    <span id="arrow-stat-6" class="stat-arrow">►</span>
+            <div class="card stat-vertical-card">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0; font-size: 0.9rem;" onclick="toggleStatCard('stat-6')">
+                    <span>🏛️ Universités</span>
+                    <span id="arrow-stat-6" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="content-stat-6" style="display: none; padding-top: 1rem;">
+                    <div class="stat-number-large">{{ stats.structure_academique.universites }}</div>
                 </div>
-                <div id="content-stat-6" class="stat-content" style="display: none;">
-                    <div class="stat-number">{{ stats.structure_academique.universites }}</div>
-                </div>
-                <div class="stat-label">Universités</div>
             </div>
         </div>
         
