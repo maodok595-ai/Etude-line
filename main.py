@@ -22,7 +22,8 @@ from database import get_db, create_tables
 from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
-    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB
+    Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
+    ParametreSysteme as ParametreSystemeDB
 )
 from migration import migrate_data
 
@@ -3475,6 +3476,59 @@ async def delete_all_notifications(
     db.commit()
     
     return {"success": True, "message": "Toutes les notifications ont été supprimées"}
+
+# ==================== ROUTES API PARAMÈTRES SYSTÈME ====================
+
+@app.get("/api/parametres/telechargements")
+async def get_telechargements_status(db: Session = Depends(get_db)):
+    """Récupérer l'état d'activation des téléchargements"""
+    parametre = db.query(ParametreSystemeDB).filter_by(cle="telechargements_actifs").first()
+    
+    if not parametre:
+        # Créer le paramètre par défaut s'il n'existe pas
+        parametre = ParametreSystemeDB(
+            cle="telechargements_actifs",
+            valeur="true",
+            description="Active ou désactive les boutons de téléchargement pour tous les utilisateurs"
+        )
+        db.add(parametre)
+        db.commit()
+    
+    return {"actif": parametre.valeur == "true"}
+
+@app.post("/api/parametres/telechargements/toggle")
+async def toggle_telechargements(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Basculer l'état des téléchargements (admin uniquement)"""
+    role, username, user_data = require_auth(request, db)
+    
+    # Vérifier que c'est un administrateur
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    parametre = db.query(ParametreSystemeDB).filter_by(cle="telechargements_actifs").first()
+    
+    if not parametre:
+        # Créer le paramètre s'il n'existe pas
+        parametre = ParametreSystemeDB(
+            cle="telechargements_actifs",
+            valeur="false",
+            description="Active ou désactive les boutons de téléchargement pour tous les utilisateurs"
+        )
+        db.add(parametre)
+    else:
+        # Basculer la valeur
+        parametre.valeur = "false" if parametre.valeur == "true" else "true"
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "actif": parametre.valeur == "true",
+        "message": f"Téléchargements {'activés' if parametre.valeur == 'true' else 'désactivés'}"
+    }
 
 if __name__ == "__main__":
     print("=" * 50)
