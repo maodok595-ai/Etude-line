@@ -1546,15 +1546,27 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     else:
         etudiants = db.query(EtudiantDB).filter(EtudiantDB.universite_id == admin_universite_id).all()
     
-    etudiants_data = [{
-        "id": etud.id,
-        "username": etud.username,
-        "nom": etud.nom,
-        "prenom": etud.prenom,
-        "niveau": etud.niveau,
-        "filiere_id": etud.filiere_id,
-        "universite_id": etud.universite_id
-    } for etud in etudiants]
+    etudiants_data = []
+    for etud in etudiants:
+        # Récupérer les noms de université, UFR et filière
+        universite = db.query(UniversiteDB).filter(UniversiteDB.id == etud.universite_id).first()
+        ufr = db.query(UFRDB).filter(UFRDB.id == etud.ufr_id).first()
+        filiere = db.query(FiliereDB).filter(FiliereDB.id == etud.filiere_id).first()
+        
+        etudiants_data.append({
+            "id": etud.id,
+            "username": etud.username,
+            "nom": etud.nom,
+            "prenom": etud.prenom,
+            "niveau": etud.niveau,
+            "filiere_id": etud.filiere_id,
+            "universite_id": etud.universite_id,
+            "ufr_id": etud.ufr_id,
+            "created_at": etud.created_at,
+            "universite_nom": universite.nom if universite else "N/A",
+            "ufr_nom": ufr.nom if ufr else "N/A",
+            "filiere_nom": filiere.nom if filiere else "N/A"
+        })
     
     # Get academic structure data (filtered for secondary admins)
     if is_main_admin:

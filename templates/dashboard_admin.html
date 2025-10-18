@@ -1339,15 +1339,18 @@
                         {% if etudiants %}
                             {% for etudiant in etudiants %}
                             <div class="prof-item academic-item">
-                                <div class="prof-name">{{ etudiant.prenom }} {{ etudiant.nom }}</div>
-                                <div class="prof-details">@{{ etudiant.username }}</div>
-                                <div class="prof-meta">
-                                    <span class="meta-tag">📚 {{ etudiant.niveau }}</span>
-                                    {% for filiere in filieres %}
-                                        {% if filiere.id == etudiant.filiere_id %}
-                                            <span class="meta-tag">📚 {{ filiere.nom }}</span>
-                                        {% endif %}
-                                    {% endfor %}
+                                <div style="flex: 1;">
+                                    <div class="prof-name">{{ etudiant.prenom }} {{ etudiant.nom }}</div>
+                                    <div class="prof-details">@{{ etudiant.username }}</div>
+                                    <div class="prof-meta" style="margin-top: 0.5rem;">
+                                        <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ etudiant.niveau }}</span>
+                                        <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                    </div>
+                                    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #555; line-height: 1.6;">
+                                        <div style="margin-bottom: 0.2rem;"><strong>🏛️ Université:</strong> {{ etudiant.universite_nom }}</div>
+                                        <div style="margin-bottom: 0.2rem;"><strong>📚 UFR:</strong> {{ etudiant.ufr_nom }}</div>
+                                        <div><strong>📖 Filière:</strong> {{ etudiant.filiere_nom }}</div>
+                                    </div>
                                 </div>
                                 <div class="action-buttons">
                                     <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
