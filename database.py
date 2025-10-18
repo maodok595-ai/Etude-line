@@ -7,11 +7,12 @@ import os
 DATABASE_URL = os.getenv("EXTERNAL_DATABASE_URL") or os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
 
 # Création de l'engine et de la session avec configuration SSL
+# Render PostgreSQL nécessite SSL en mode "require"
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=300,
-    connect_args={"sslmode": "prefer"}
+    connect_args={"sslmode": "require"}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
