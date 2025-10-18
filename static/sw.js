@@ -118,10 +118,11 @@ self.addEventListener('push', (event) => {
     body: data.body || 'Nouvelle notification',
     icon: data.icon || '/static/icons/icon-192.png',
     badge: '/static/icons/icon-192.png',
-    vibrate: [200, 100, 200],
-    tag: 'etude-line-notification',
+    vibrate: [200, 100, 200, 100, 200],
+    tag: 'etude-line-' + Date.now(),
     requireInteraction: false,
     silent: false,
+    renotify: true,
     data: {
       url: data.url || '/',
       timestamp: Date.now()
@@ -161,4 +162,39 @@ self.addEventListener('notificationclick', (event) => {
 // Gestion de la fermeture des notifications
 self.addEventListener('notificationclose', (event) => {
   console.log('[Service Worker] Notification fermée');
+});
+
+// Écouter les messages de la page pour afficher des notifications
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const { title, body, icon, url } = event.data;
+    
+    const options = {
+      body: body || 'Nouvelle notification',
+      icon: icon || '/static/icons/icon-192.png',
+      badge: '/static/icons/icon-192.png',
+      vibrate: [200, 100, 200, 100, 200],
+      tag: 'etude-line-' + Date.now(),
+      requireInteraction: false,
+      silent: false,
+      renotify: true,
+      data: {
+        url: url || '/',
+        timestamp: Date.now()
+      }
+    };
+    
+    self.registration.showNotification(title || '📚 Étude LINE', options)
+      .then(() => {
+        // Envoyer message aux clients pour jouer le son
+        return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      })
+      .then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'PLAY_NOTIFICATION_SOUND'
+          });
+        });
+      });
+  }
 });

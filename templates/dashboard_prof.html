@@ -2543,46 +2543,40 @@
             }
         }
         
-        // Afficher une notification native
+        // Afficher une notification native via Service Worker
         function showNativeNotification(title, body, icon) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                // Vibration si disponible
-                if ('vibrate' in navigator) {
-                    navigator.vibrate([200, 100, 200]);
-                }
-                
-                // Créer la notification
-                const notification = new Notification(title, {
-                    body: body,
-                    icon: icon || '/static/icons/icon-192.png',
-                    badge: '/static/icons/icon-192.png',
-                    tag: 'etude-line-notification',
-                    requireInteraction: false,
-                    silent: false
+            if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+                // Envoyer message au Service Worker pour afficher la notification
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.active.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: title,
+                        body: body,
+                        icon: icon || '/static/icons/icon-192.png',
+                        url: window.location.href
+                    });
                 });
-                
-                // Jouer le son d'alerte SEULEMENT si la page est visible
-                // (respecte les règles autoplay des navigateurs)
-                try {
-                    if (notificationAudio && !document.hidden) {
-                        notificationAudio.currentTime = 0;
-                        notificationAudio.volume = 0.7; // Volume augmenté pour être audible
-                        notificationAudio.play().catch(e => {
-                            console.log('Son non disponible (interaction requise):', e);
-                        });
-                    }
-                } catch (error) {
-                    console.log('Erreur lecture son:', error);
-                }
-                
-                notification.onclick = function() {
-                    window.focus();
-                    this.close();
-                };
-                
-                // Fermer automatiquement après 5 secondes
-                setTimeout(() => notification.close(), 5000);
             }
+        }
+        
+        // Écouter les messages du Service Worker pour jouer le son
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
+                    // Jouer le son personnalisé
+                    try {
+                        if (notificationAudio) {
+                            notificationAudio.currentTime = 0;
+                            notificationAudio.volume = 0.9; // Volume fort pour être bien audible
+                            notificationAudio.play().catch(e => {
+                                console.log('Son non disponible:', e);
+                            });
+                        }
+                    } catch (error) {
+                        console.log('Erreur lecture son:', error);
+                    }
+                }
+            });
         }
         
         // Charger les notifications
