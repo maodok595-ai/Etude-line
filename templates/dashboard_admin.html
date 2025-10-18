@@ -1233,11 +1233,18 @@
             {% endif %}
         </div>
         
-        <!-- Bouton pour afficher/cacher les statistiques universitaires -->
-        <div style="margin: 1.5rem 0;">
+        <!-- Boutons de contrôle -->
+        <div style="margin: 1.5rem 0; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <!-- Bouton statistiques -->
             <button onclick="toggleStats()" id="stats-toggle-btn" class="stats-toggle-btn">
                 <span id="stats-icon">📊</span> Statistiques universitaire
                 <span id="stats-arrow">→</span>
+            </button>
+            
+            <!-- Bouton contrôle téléchargements -->
+            <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                <span id="download-icon">📥</span> Téléchargements
+                <span id="download-status">: Chargement...</span>
             </button>
         </div>
         
@@ -2125,6 +2132,69 @@
             }
         }
         
+        // Toggle des téléchargements (admin uniquement)
+        async function toggleTelechargements() {
+            const statusSpan = document.getElementById('download-status');
+            const iconSpan = document.getElementById('download-icon');
+            const btn = document.getElementById('download-toggle-btn');
+            
+            try {
+                // Désactiver le bouton pendant l'action
+                btn.disabled = true;
+                statusSpan.textContent = ': Traitement...';
+                
+                const response = await fetch('/api/parametres/telechargements/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDownloadButtonStatus(data.actif);
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert('Erreur lors du changement d\'état', 'error');
+                    await loadDownloadStatus(); // Recharger l'état réel
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur de communication avec le serveur', 'error');
+                await loadDownloadStatus(); // Recharger l'état réel
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        // Mettre à jour l'affichage du bouton
+        function updateDownloadButtonStatus(actif) {
+            const statusSpan = document.getElementById('download-status');
+            const iconSpan = document.getElementById('download-icon');
+            const btn = document.getElementById('download-toggle-btn');
+            
+            if (actif) {
+                statusSpan.textContent = ': Activés ✓';
+                btn.style.background = 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)';
+            } else {
+                statusSpan.textContent = ': Désactivés ✗';
+                btn.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+            }
+        }
+        
+        // Charger l'état des téléchargements au démarrage
+        async function loadDownloadStatus() {
+            try {
+                const response = await fetch('/api/parametres/telechargements');
+                const data = await response.json();
+                updateDownloadButtonStatus(data.actif);
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état:', error);
+                document.getElementById('download-status').textContent = ': Erreur';
+            }
+        }
+        
         // Restaurer l'état des statistiques au chargement
         window.addEventListener('DOMContentLoaded', function() {
             const statsVisible = localStorage.getItem('statsVisible');
@@ -2136,6 +2206,9 @@
                 arrow.textContent = '↓';
                 if (icon) icon.textContent = '📉';
             }
+            
+            // Charger l'état des téléchargements
+            loadDownloadStatus();
         });
         
         // Gestion des sélecteurs hiérarchiques pour le formulaire professeur
