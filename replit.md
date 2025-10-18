@@ -46,11 +46,13 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **itsdangerous**: Cryptographic signing for session cookies.
 
 ### Database Dependencies
-- **PostgreSQL**: Persistent relational database provided by Replit, ensuring data permanence across sessions and restarts.
+- **PostgreSQL**: Persistent relational database provided by Replit for development, and Render PostgreSQL (paid) for production deployment.
 - **SQLAlchemy**: ORM for database operations.
 - **psycopg2-binary**: PostgreSQL adapter for Python.
 - **alembic**: Database migration tool.
-- **Data Persistence**: All application data (users, chapters, comments, notifications) is stored in a persistent Replit PostgreSQL database. Files (videos, PDFs, documents) are stored in the local `uploads/` directory which is also persistent.
+- **Data Persistence**: 
+  - **Development (Replit)**: All data stored in Replit PostgreSQL database and local `uploads/` directory.
+  - **Production (Render)**: Application data stored in Render PostgreSQL (external database). Uploaded files (videos, PDFs, documents) require Render Disk configuration to persist across deployments (see `RENDER_DISK_SETUP.md`).
 
 ### Utility Dependencies
 - **python-multipart**: For handling form data and file uploads.
@@ -59,4 +61,6 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **SECRET_KEY**: Essential environment variable for session security.
 
 ### File System Dependencies
-- **Upload Storage**: Local `uploads/` directory for course materials.
+- **Upload Storage**: 
+  - **Development**: Local `uploads/` directory for course materials.
+  - **Production (Render)**: Requires Render Disk mounted at `/opt/render/project/src/uploads` to prevent file loss on redeploys. Configuration guide: `RENDER_DISK_SETUP.md`.
