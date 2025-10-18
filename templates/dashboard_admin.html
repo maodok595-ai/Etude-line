@@ -333,10 +333,18 @@
                 padding: 0.2rem 0.4rem !important;
             }
             
-            /* Statistiques */
+            /* Statistiques - Grille 2x3 sur tablette */
             .stats-horizontal-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 0.75rem !important;
                 padding: 0.3rem 0 !important;
+                overflow-x: visible !important;
+            }
+            
+            .stat-vertical-card {
+                min-width: auto !important;
+                max-width: none !important;
             }
             
             .stat-vertical-card h3 {
@@ -408,13 +416,17 @@
                 font-size: 1.5rem !important;
             }
             
-            /* Stats ultra-compactes pour petits écrans */
+            /* Stats grille 2x3 pour petits écrans */
             .stats-horizontal-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 0.5rem !important;
-                grid-template-columns: 1fr !important;
+                overflow-x: visible !important;
             }
             
             .stat-vertical-card {
+                min-width: auto !important;
+                max-width: none !important;
                 padding: 0.75rem !important;
             }
             
@@ -531,13 +543,38 @@
         }
         
         .stats-horizontal-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.5rem 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+        }
+        
+        .stats-horizontal-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .stats-horizontal-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .stats-horizontal-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+        
+        .stats-horizontal-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
         }
         
         .stat-vertical-card {
+            min-width: 180px;
+            max-width: 220px;
+            flex-shrink: 0;
             padding: 1rem !important;
         }
         
