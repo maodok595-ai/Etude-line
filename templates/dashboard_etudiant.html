@@ -1552,13 +1552,15 @@
             }
             
             try {
-                const formData = new FormData();
-                formData.append('chapitre_id', chapitreId);
-                formData.append('texte', texte);
-                
                 const response = await fetch('/api/commentaires', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chapitre_id: chapitreId,
+                        texte: texte
+                    })
                 });
                 
                 const result = await response.json();
