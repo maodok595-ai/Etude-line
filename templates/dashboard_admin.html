@@ -2186,19 +2186,26 @@
         // Administrateurs
         function editAdmin(username, nom, prenom) {
             const newNom = prompt('Nouveau nom:', nom);
+            if (!newNom) return;
+            
             const newPrenom = prompt('Nouveau prénom:', prenom);
-            if (newNom && newPrenom) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-admin';
-                form.innerHTML = `
-                    <input type="hidden" name="username" value="${username}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="prenom" value="${newPrenom}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+            if (!newPrenom) return;
+            
+            const newUsername = prompt('Nouveau nom d\'utilisateur (laisser vide pour ne pas changer):', username);
+            const newPassword = prompt('Nouveau mot de passe (laisser vide pour ne pas changer):');
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/edit-admin';
+            form.innerHTML = `
+                <input type="hidden" name="username" value="${username}">
+                <input type="hidden" name="nom" value="${newNom}">
+                <input type="hidden" name="prenom" value="${newPrenom}">
+                <input type="hidden" name="new_username" value="${newUsername || ''}">
+                <input type="hidden" name="new_password" value="${newPassword || ''}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         async function toggleAdminStatus(username, fullName, currentStatus) {
@@ -2363,21 +2370,30 @@
         // Professeurs
         function editProf(username, nom, prenom, specialite) {
             const newNom = prompt('Nouveau nom:', nom);
+            if (!newNom) return;
+            
             const newPrenom = prompt('Nouveau prénom:', prenom);
+            if (!newPrenom) return;
+            
             const newSpecialite = prompt('Nouvelle spécialité:', specialite);
-            if (newNom && newPrenom && newSpecialite) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-prof';
-                form.innerHTML = `
-                    <input type="hidden" name="username" value="${username}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="prenom" value="${newPrenom}">
-                    <input type="hidden" name="specialite" value="${newSpecialite}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+            if (!newSpecialite) return;
+            
+            const newUsername = prompt('Nouveau nom d\'utilisateur (laisser vide pour ne pas changer):', username);
+            const newPassword = prompt('Nouveau mot de passe (laisser vide pour ne pas changer):');
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/edit-prof';
+            form.innerHTML = `
+                <input type="hidden" name="username" value="${username}">
+                <input type="hidden" name="nom" value="${newNom}">
+                <input type="hidden" name="prenom" value="${newPrenom}">
+                <input type="hidden" name="specialite" value="${newSpecialite}">
+                <input type="hidden" name="new_username" value="${newUsername || ''}">
+                <input type="hidden" name="new_password" value="${newPassword || ''}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         async function deleteProf(username, fullName) {

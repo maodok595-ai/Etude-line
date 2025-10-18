@@ -2169,9 +2169,11 @@ async def admin_edit_admin(
     username: str = Form(...),
     nom: str = Form(...),
     prenom: str = Form(...),
+    new_username: str = Form(None),
+    new_password: str = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Edit administrator (only for principal admin)"""
+    """Edit administrator (only for principal admin) - can modify username and password"""
 
     admin_username, admin_data = admin_info
     
@@ -2181,13 +2183,30 @@ async def admin_edit_admin(
     
     try:
         admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
-        if admin:
-            admin.nom = nom
-            admin.prenom = prenom
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
-        else:
+        if not admin:
             return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
+        
+        # Mettre à jour nom et prénom
+        admin.nom = nom
+        admin.prenom = prenom
+        
+        # Si un nouveau username est fourni, vérifier qu'il n'existe pas déjà
+        if new_username and new_username.strip() and new_username != username:
+            existing_admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == new_username).first()
+            existing_prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == new_username).first()
+            existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == new_username).first()
+            
+            if existing_admin or existing_prof or existing_etudiant:
+                return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+            
+            admin.username = new_username
+        
+        # Si un nouveau mot de passe est fourni, le hasher
+        if new_password and new_password.strip():
+            admin.password = hash_password(new_password)
+        
+        db.commit()
+        return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
@@ -2327,22 +2346,46 @@ async def admin_edit_prof(
     nom: str = Form(...),
     prenom: str = Form(...),
     specialite: str = Form(...),
+    new_username: str = Form(None),
+    new_password: str = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Edit professor"""
+    """Edit professor - can modify username and password"""
 
     admin_username, admin_data = admin_info
     
     try:
         prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
-        if prof:
-            prof.nom = nom
-            prof.prenom = prenom
-            prof.specialite = specialite
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
-        else:
+        if not prof:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
+        
+        # Mettre à jour nom, prénom et spécialité
+        prof.nom = nom
+        prof.prenom = prenom
+        prof.specialite = specialite
+        
+        # Si un nouveau username est fourni, vérifier qu'il n'existe pas déjà
+        if new_username and new_username.strip() and new_username != username:
+            existing_admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == new_username).first()
+            existing_prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == new_username).first()
+            existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == new_username).first()
+            
+            if existing_admin or existing_prof or existing_etudiant:
+                return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+            
+            # Mettre à jour le username dans les chapitres créés
+            chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == username).all()
+            for chapitre in chapitres:
+                chapitre.created_by = new_username
+            
+            prof.username = new_username
+        
+        # Si un nouveau mot de passe est fourni, le hasher
+        if new_password and new_password.strip():
+            prof.password = hash_password(new_password)
+        
+        db.commit()
+        return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
