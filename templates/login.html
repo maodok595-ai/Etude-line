@@ -449,8 +449,113 @@
         </div>
     </div>
     
+    <!-- Bannière d'installation PWA -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10000; max-width: 500px; width: 90%; animation: slideUp 0.5s ease;">
+        <button onclick="closePWABanner()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.3rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">✕</button>
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📲</div>
+            <h3 style="margin: 0 0 10px 0; font-size: 1.2rem; font-weight: 600;">Installer Étude LINE</h3>
+            <p style="margin: 0 0 15px 0; font-size: 0.95rem; opacity: 0.95;">Ajoutez l'application à votre écran d'accueil pour un accès rapide !</p>
+            <button onclick="installPWA()" style="background: white; color: #667eea; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                🚀 Installer maintenant
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        #pwa-install-banner button:hover {
+            transform: scale(1.05);
+        }
+        
+        @media screen and (max-width: 600px) {
+            #pwa-install-banner {
+                bottom: 10px !important;
+                padding: 15px 20px !important;
+                width: 95% !important;
+            }
+            
+            #pwa-install-banner h3 {
+                font-size: 1.1rem !important;
+            }
+            
+            #pwa-install-banner p {
+                font-size: 0.85rem !important;
+            }
+            
+            #pwa-install-banner button {
+                padding: 10px 20px !important;
+                font-size: 0.9rem !important;
+            }
+        }
+    </style>
+
     <!-- Service Worker Registration -->
     <script>
+        let deferredPrompt;
+        
+        // Intercepter l'événement beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Empêcher le navigateur d'afficher son propre prompt
+            e.preventDefault();
+            
+            // Stocker l'événement pour l'utiliser plus tard
+            deferredPrompt = e;
+            
+            // Vérifier si l'utilisateur a déjà fermé la bannière
+            const bannerClosed = sessionStorage.getItem('pwa-banner-closed');
+            if (!bannerClosed) {
+                // Afficher notre bannière personnalisée
+                document.getElementById('pwa-install-banner').style.display = 'block';
+            }
+            
+            console.log('✅ Prompt d\'installation PWA prêt');
+        });
+        
+        // Fonction pour installer la PWA
+        async function installPWA() {
+            if (!deferredPrompt) {
+                alert('L\'installation n\'est pas disponible pour le moment.');
+                return;
+            }
+            
+            // Afficher le prompt d'installation natif
+            deferredPrompt.prompt();
+            
+            // Attendre le choix de l'utilisateur
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('✅ PWA installée avec succès');
+            } else {
+                console.log('❌ Installation refusée');
+            }
+            
+            // Masquer la bannière
+            document.getElementById('pwa-install-banner').style.display = 'none';
+            
+            // Réinitialiser le prompt
+            deferredPrompt = null;
+        }
+        
+        // Fonction pour fermer la bannière
+        function closePWABanner() {
+            document.getElementById('pwa-install-banner').style.display = 'none';
+            // Sauvegarder dans sessionStorage pour cette session seulement
+            sessionStorage.setItem('pwa-banner-closed', 'true');
+        }
+        
+        // Enregistrer le Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/static/sw.js')
