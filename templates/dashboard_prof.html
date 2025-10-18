@@ -1356,7 +1356,7 @@
             // === FONCTIONS COMMENTAIRES ===
             
             // ID de l'utilisateur connecté (professeur)
-            const currentUserId = {{ prof.id }};
+            const currentUserId = {{ prof.id if prof else 'null' }};
             const currentUserType = 'prof';
             
             async function chargerCommentaires(chapitreId) {
