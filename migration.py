@@ -63,11 +63,11 @@ def create_default_data(db: Session, data: dict):
         )
         db.merge(default_filiere)
     
-    # Créer ou mettre à jour l'administrateur principal
+    # Créer l'administrateur principal SEULEMENT s'il n'existe pas
     existing_admin = db.query(Administrateur).filter_by(username="kamaodo65").first()
-    admin_hash = hash_password_safe("admin123")
     if not existing_admin:
         print("👑 Création de l'administrateur principal...")
+        admin_hash = hash_password_safe("admin123")
         admin = Administrateur(
             username="kamaodo65",
             password_hash=admin_hash,
@@ -78,19 +78,14 @@ def create_default_data(db: Session, data: dict):
         )
         db.add(admin)
     else:
-        print("🔄 Mise à jour du mot de passe de l'administrateur principal...")
-        existing_admin.password_hash = admin_hash
-        # S'assurer que l'admin principal n'a pas d'université
-        if not existing_admin.is_main_admin:
-            existing_admin.is_main_admin = True
-            existing_admin.universite_id = None
+        print("✅ Administrateur principal existe déjà - Aucune modification")
         
-    # Créer ou mettre à jour le professeur par défaut s'il n'y a pas de données JSON
+    # Créer le professeur par défaut SEULEMENT s'il n'existe pas ET qu'il n'y a pas de données JSON
     if not data.get("users", {}).get("prof"):
         existing_prof = db.query(Professeur).filter_by(username="Abdousalam00").first()
-        prof_hash = hash_password_safe("prof123")
         if not existing_prof:
             print("👨‍🏫 Création du professeur par défaut...")
+            prof_hash = hash_password_safe("prof123")
             prof = Professeur(
                 username="Abdousalam00",
                 password_hash=prof_hash,
@@ -100,8 +95,7 @@ def create_default_data(db: Session, data: dict):
             )
             db.add(prof)
         else:
-            print("🔄 Mise à jour du mot de passe du professeur par défaut...")
-            existing_prof.password_hash = prof_hash
+            print("✅ Professeur par défaut existe déjà - Aucune modification")
     
     db.commit()
 
