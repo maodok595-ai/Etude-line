@@ -107,10 +107,10 @@
             padding: 0 2rem;
         }
         
-        /* Desktop Pro Optimizations */
+        /* Desktop Pro Optimizations - Full Width Experience */
         @media (min-width: 1400px) {
             .container {
-                max-width: 1400px;
+                max-width: 95%;
                 padding: 0 3rem;
             }
             
@@ -129,6 +129,7 @@
             
             .stats-grid {
                 gap: 2rem;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             }
             
             .stat-card {
@@ -143,6 +144,7 @@
             
             .main-content {
                 gap: 2rem;
+                grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             }
             
             .card {
@@ -158,16 +160,16 @@
         
         @media (min-width: 1600px) {
             .container {
-                max-width: 1600px;
+                max-width: 96%;
                 padding: 0 4rem;
             }
             
             .navbar {
-                padding: 1.5rem 3rem;
+                padding: 1.5rem 4rem;
             }
             
             .navbar h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
             
             .welcome-card {
@@ -181,10 +183,77 @@
             
             .stats-grid {
                 gap: 2.5rem;
+                grid-template-columns: repeat(6, 1fr);
             }
             
             .main-content {
                 gap: 2.5rem;
+                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 97%;
+                padding: 0 5rem;
+            }
+            
+            .navbar {
+                padding: 2rem 5rem;
+            }
+            
+            .navbar h1 {
+                font-size: 2.2rem;
+            }
+            
+            .welcome-card {
+                padding: 3rem 3.5rem;
+            }
+            
+            .stats-grid {
+                gap: 3rem;
+            }
+            
+            .main-content {
+                gap: 3rem;
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .card {
+                padding: 2.5rem;
+            }
+        }
+        
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 98%;
+                padding: 0 6rem;
+            }
+            
+            .navbar {
+                padding: 2.5rem 6rem;
+            }
+            
+            .navbar h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                gap: 3.5rem;
+            }
+            
+            .main-content {
+                gap: 3.5rem;
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .card {
+                padding: 3rem;
+                font-size: 1.1rem;
+            }
+            
+            .welcome-card h2 {
+                font-size: 2.5rem;
             }
         }
 
