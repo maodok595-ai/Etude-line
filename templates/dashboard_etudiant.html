@@ -1400,7 +1400,7 @@
                                     <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-cours">
                                         👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-cours">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-cours download-button">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
@@ -1433,7 +1433,7 @@
                                     <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-exercice">
                                         👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-exercice">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-exercice download-button">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
@@ -1466,7 +1466,7 @@
                                     <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-solution">
                                         👁️ Lire
                                     </a>
-                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-solution">
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-solution download-button">
                                         ⬇️ Télécharger
                                     </a>
                                 </div>
@@ -1940,6 +1940,54 @@
         
         // Mettre à jour le compteur toutes les 3 secondes (réactivité maximale)
         setInterval(updateNotificationCount, 3000);
+    </script>
+    
+    <!-- Gestion de l'affichage des boutons de téléchargement -->
+    <script>
+        // Charger l'état des téléchargements et afficher/cacher les boutons
+        async function loadDownloadButtonsStatus() {
+            try {
+                const response = await fetch('/api/parametres/telechargements');
+                const data = await response.json();
+                
+                // Récupérer tous les boutons de téléchargement
+                const downloadButtons = document.querySelectorAll('.download-button');
+                
+                if (data.actif) {
+                    // Activer tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'inline-flex';
+                    });
+                } else {
+                    // Désactiver tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état des téléchargements:', error);
+                // En cas d'erreur, afficher les boutons par défaut
+            }
+        }
+        
+        // Charger l'état au démarrage et à chaque rechargement de contenu
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDownloadButtonsStatus();
+        });
+        
+        // Observer les changements du DOM pour appliquer l'état aux nouveaux boutons
+        const observer = new MutationObserver(function() {
+            loadDownloadButtonsStatus();
+        });
+        
+        // Observer les changements dans le conteneur de contenu
+        const contentContainer = document.querySelector('.main-content');
+        if (contentContainer) {
+            observer.observe(contentContainer, {
+                childList: true,
+                subtree: true
+            });
+        }
     </script>
     
     <!-- Service Worker Registration -->
