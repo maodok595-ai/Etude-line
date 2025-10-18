@@ -1641,44 +1641,46 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_ma
         ).count()
     
     # Count content by type (from Content table) - filtré pour admin secondaire
-    content_stats = {}
+    # Use SQL aggregation instead of loading all records
+    from sqlalchemy import func
     if is_main_admin:
-        contents = db.query(Content).all()
+        content_counts = db.query(Content.type, func.count(Content.id)).group_by(Content.type).all()
     else:
         # Filtrer les contenus par université via matière → filière → UFR → université
-        contents = db.query(Content).join(MatiereDB).join(FiliereDB).join(UFRDB).filter(
+        content_counts = db.query(Content.type, func.count(Content.id)).join(MatiereDB).join(FiliereDB).join(UFRDB).filter(
             UFRDB.universite_id == admin_universite_id
-        ).all()
+        ).group_by(Content.type).all()
     
-    for content in contents:
-        content_type = content.type
-        content_stats[content_type] = content_stats.get(content_type, 0) + 1
+    content_stats = {content_type: count for content_type, count in content_counts}
+    total_contents = sum(content_stats.values())
     
     # Count chapitres complets by type (cours, exercice, solution) - filtré pour admin secondaire
+    # Use SQL aggregation with CASE statements instead of loading all records
+    from sqlalchemy import case, or_
+    
     if is_main_admin:
-        chapitres = db.query(ChapitreCompletDB).all()
+        chapitre_query = db.query(ChapitreCompletDB)
     else:
         # Filtrer les chapitres par université
-        chapitres = db.query(ChapitreCompletDB).join(MatiereDB).join(FiliereDB).join(UFRDB).filter(
-            UFRDB.universite_id == admin_universite_id
-        ).all()
+        chapitre_query = db.query(ChapitreCompletDB).filter(
+            ChapitreCompletDB.universite_id == admin_universite_id
+        )
     
+    # Count total chapitres
+    total_chapitres = chapitre_query.count()
+    
+    # Count each type using SQL aggregation
     chapitre_stats = {
-        "cours": 0,
-        "exercice": 0, 
-        "solution": 0
+        "cours": chapitre_query.filter(
+            or_(ChapitreCompletDB.cours_texte.isnot(None), ChapitreCompletDB.cours_fichier_nom.isnot(None))
+        ).count(),
+        "exercice": chapitre_query.filter(
+            or_(ChapitreCompletDB.exercice_texte.isnot(None), ChapitreCompletDB.exercice_fichier_nom.isnot(None))
+        ).count(),
+        "solution": chapitre_query.filter(
+            or_(ChapitreCompletDB.solution_texte.isnot(None), ChapitreCompletDB.solution_fichier_nom.isnot(None))
+        ).count()
     }
-    
-    for chapitre in chapitres:
-        # Compter les cours
-        if chapitre.cours_texte or chapitre.cours_fichier_nom:
-            chapitre_stats["cours"] += 1
-        # Compter les exercices  
-        if chapitre.exercice_texte or chapitre.exercice_fichier_nom:
-            chapitre_stats["exercice"] += 1
-        # Compter les solutions
-        if chapitre.solution_texte or chapitre.solution_fichier_nom:
-            chapitre_stats["solution"] += 1
     
     # Academic structure counts (filtré pour admin secondaire)
     if is_main_admin:
@@ -1695,7 +1697,7 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_ma
         matiere_count = db.query(MatiereDB).join(FiliereDB).join(UFRDB).filter(UFRDB.universite_id == admin_universite_id).count()
     
     # Total content includes both individual contents and chapter components
-    total_content = len(contents) + sum(chapitre_stats.values())
+    total_content = total_contents + sum(chapitre_stats.values())
     
     return {
         "users": {
@@ -1713,7 +1715,7 @@ async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_ma
             "matieres": matiere_count
         },
         "total_content": total_content,
-        "total_chapitres": len(chapitres)
+        "total_chapitres": total_chapitres
     }
 
 
