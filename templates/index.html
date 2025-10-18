@@ -66,6 +66,67 @@
             position: relative;
             overflow: hidden;
         }
+        
+        /* Desktop Pro Optimizations - Full Width Experience */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1300px;
+                padding: 60px 80px;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1500px;
+                padding: 70px 100px;
+            }
+            
+            .header h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1700px;
+                padding: 80px 120px;
+            }
+            
+            .header h1 {
+                font-size: 3.5rem;
+            }
+            
+            .header p {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 2200px;
+                padding: 100px 150px;
+            }
+            
+            .header h1 {
+                font-size: 4rem;
+            }
+            
+            .header p {
+                font-size: 1.5rem;
+            }
+            
+            .role-card {
+                padding: 2.5rem;
+            }
+            
+            .role-card h3 {
+                font-size: 1.8rem;
+            }
+            
+            .role-card p {
+                font-size: 1.2rem;
+            }
+        }
 
         /* Tablet adjustments (light touch) */
         @media screen and (max-width: 768px) {
