@@ -2248,26 +2248,27 @@ async def admin_delete_prof(
     username: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Delete professor and all their content"""
+    """Delete professor and all their content (chapters, files, comments, notifications)"""
 
     admin_username, admin_data = admin_info
     
     try:
         prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
-        if prof:
-            # Supprimer d'abord tout le contenu créé par ce professeur
-            chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == username).all()
-            for chapitre in chapitres:
-                db.delete(chapitre)
-            
-            # Puis supprimer le professeur
-            db.delete(prof)
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Professeur et son contenu supprimés avec succès", status_code=303)
-        else:
+        if not prof:
             return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
+        
+        # Supprimer tout le contenu créé par ce professeur (chapitres, fichiers, commentaires, notifications)
+        stats = delete_all_professor_content(db, username)
+        
+        # Supprimer le professeur
+        db.delete(prof)
+        db.commit()
+        
+        print(f"✅ Professeur {username} supprimé - {stats['chapitres']} chapitres, {stats['fichiers']} fichiers, {stats['commentaires']} commentaires, {stats['notifications']} notifications")
+        return RedirectResponse("/dashboard/admin?success=Professeur et tout son contenu supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
+        print(f"⚠️ Erreur suppression professeur {username}: {e}")
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
 
 
@@ -2279,20 +2280,27 @@ async def admin_delete_etudiant(
     username: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Delete student"""
+    """Delete student and all their data (comments, notifications)"""
 
     admin_username, admin_data = admin_info
     
     try:
         etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
-        if etudiant:
-            db.delete(etudiant)
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Étudiant supprimé avec succès", status_code=303)
-        else:
+        if not etudiant:
             return RedirectResponse("/dashboard/admin?error=Étudiant non trouvé", status_code=303)
+        
+        # Supprimer toutes les données de l'étudiant (commentaires, notifications)
+        stats = delete_all_student_data(db, etudiant.id)
+        
+        # Supprimer l'étudiant
+        db.delete(etudiant)
+        db.commit()
+        
+        print(f"✅ Étudiant {username} supprimé - {stats['commentaires']} commentaires, {stats['notifications']} notifications")
+        return RedirectResponse("/dashboard/admin?success=Étudiant et toutes ses données supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
+        print(f"⚠️ Erreur suppression étudiant {username}: {e}")
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
 
 # University routes
