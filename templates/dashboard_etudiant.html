@@ -1499,7 +1499,7 @@
         // === FONCTIONS COMMENTAIRES ===
         
         // ID de l'utilisateur connecté (étudiant)
-        const currentUserId = {{ student.id }};
+        const currentUserId = {{ student.id if student else 'null' }};
         const currentUserType = 'etudiant';
         
         async function chargerCommentaires(chapitreId) {
