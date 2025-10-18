@@ -1765,9 +1765,23 @@
                     badge.style.display = 'none';
                 }
                 
+                // Mettre à jour le badge de l'icône PWA (même si l'app est fermée)
+                updateAppBadge(data.count);
+                
                 previousNotificationCount = data.count;
             } catch (error) {
                 console.error('Erreur lors de la mise à jour du compteur:', error);
+            }
+        }
+        
+        // Fonction pour mettre à jour le badge sur l'icône PWA installée
+        function updateAppBadge(count) {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'UPDATE_BADGE',
+                    count: count
+                });
+                console.log(`🔔 Badge PWA mis à jour: ${count}`);
             }
         }
         

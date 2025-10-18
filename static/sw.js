@@ -197,4 +197,21 @@ self.addEventListener('message', (event) => {
         });
       });
   }
+  
+  // Mettre à jour le badge de l'icône PWA
+  if (event.data && event.data.type === 'UPDATE_BADGE') {
+    const count = event.data.count || 0;
+    
+    if ('setAppBadge' in navigator) {
+      if (count > 0) {
+        navigator.setAppBadge(count).catch(err => {
+          console.log('[Service Worker] Erreur mise à jour badge:', err);
+        });
+      } else {
+        navigator.clearAppBadge().catch(err => {
+          console.log('[Service Worker] Erreur effacement badge:', err);
+        });
+      }
+    }
+  }
 });
