@@ -1458,24 +1458,23 @@
             function repondreCommentaire(button) {
                 const auteurNom = button.getAttribute('data-auteur');
                 
-                // Trouver le textarea du chapitre en cours
-                const allTextareas = document.querySelectorAll('[id^="commentaire-text-"]');
-                let targetTextarea = null;
-                
-                // Trouver le bon textarea (celui qui est visible)
-                for (const textarea of allTextareas) {
-                    const parent = textarea.closest('.chapitre-content-new');
-                    if (parent && parent.style.display !== 'none') {
-                        targetTextarea = textarea;
-                        break;
-                    }
+                // Remonter depuis le bouton pour trouver la section commentaires
+                const commentairesSection = button.closest('.commentaires-section');
+                if (!commentairesSection) {
+                    console.error('Section commentaires non trouvée');
+                    return;
                 }
+                
+                // Trouver le textarea dans cette section
+                const targetTextarea = commentairesSection.querySelector('[id^="commentaire-text-"]');
                 
                 if (targetTextarea) {
                     targetTextarea.value = `@${auteurNom} `;
                     targetTextarea.focus();
                     // Scroll jusqu'au textarea
-                    targetTextarea.scrollIntoView({ behavior: 'auto', block: 'center' });
+                    targetTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    console.error('Textarea non trouvé dans la section commentaires');
                 }
             }
         </script>
