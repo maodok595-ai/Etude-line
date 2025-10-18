@@ -669,6 +669,113 @@ def delete_all_professor_content(db: Session, professor_username: str) -> Dict[s
     
     return stats
 
+def delete_all_filiere_content(db: Session, filiere_id: str) -> Dict[str, int]:
+    """
+    Supprime tout le contenu d'une filière:
+    - Toutes les matières (avec leurs chapitres, fichiers, commentaires, notifications)
+    - Tous les professeurs de cette filière (avec leur contenu)
+    - Tous les étudiants de cette filière (avec leurs données)
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {
+        "matieres": 0, "chapitres": 0, "fichiers": 0, "commentaires": 0, 
+        "notifications": 0, "professeurs": 0, "etudiants": 0
+    }
+    
+    # 1. Supprimer toutes les matières avec leurs chapitres
+    matieres = db.query(MatiereDB).filter_by(filiere_id=filiere_id).all()
+    for matiere in matieres:
+        chapitres = db.query(ChapitreCompletDB).filter_by(matiere_id=matiere.id).all()
+        for chapitre in chapitres:
+            chap_stats = delete_chapitre_complete(db, chapitre.id)
+            stats["fichiers"] += chap_stats["fichiers"]
+            stats["commentaires"] += chap_stats["commentaires"]
+            stats["notifications"] += chap_stats["notifications"]
+            stats["chapitres"] += 1
+        db.delete(matiere)
+        stats["matieres"] += 1
+    
+    # 2. Supprimer tous les étudiants de cette filière
+    etudiants = db.query(EtudiantDB).filter_by(filiere_id=filiere_id).all()
+    for etudiant in etudiants:
+        student_stats = delete_all_student_data(db, etudiant.id)
+        stats["commentaires"] += student_stats["commentaires"]
+        stats["notifications"] += student_stats["notifications"]
+        db.delete(etudiant)
+        stats["etudiants"] += 1
+    
+    # 3. Supprimer tous les professeurs de cette filière
+    professeurs = db.query(ProfesseurDB).filter_by(filiere_id=filiere_id).all()
+    for prof in professeurs:
+        prof_stats = delete_all_professor_content(db, prof.username)
+        stats["chapitres"] += prof_stats["chapitres"]
+        stats["fichiers"] += prof_stats["fichiers"]
+        stats["commentaires"] += prof_stats["commentaires"]
+        stats["notifications"] += prof_stats["notifications"]
+        db.delete(prof)
+        stats["professeurs"] += 1
+    
+    return stats
+
+def delete_all_ufr_content(db: Session, ufr_id: str) -> Dict[str, int]:
+    """
+    Supprime tout le contenu d'un UFR:
+    - Toutes les filières (avec tout leur contenu)
+    - Tous les professeurs de cet UFR
+    - Tous les étudiants de cet UFR
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {
+        "filieres": 0, "matieres": 0, "chapitres": 0, "fichiers": 0,
+        "commentaires": 0, "notifications": 0, "professeurs": 0, "etudiants": 0
+    }
+    
+    # Supprimer toutes les filières de cet UFR
+    filieres = db.query(FiliereDB).filter_by(ufr_id=ufr_id).all()
+    for filiere in filieres:
+        filiere_stats = delete_all_filiere_content(db, filiere.id)
+        stats["matieres"] += filiere_stats["matieres"]
+        stats["chapitres"] += filiere_stats["chapitres"]
+        stats["fichiers"] += filiere_stats["fichiers"]
+        stats["commentaires"] += filiere_stats["commentaires"]
+        stats["notifications"] += filiere_stats["notifications"]
+        stats["professeurs"] += filiere_stats["professeurs"]
+        stats["etudiants"] += filiere_stats["etudiants"]
+        db.delete(filiere)
+        stats["filieres"] += 1
+    
+    return stats
+
+def delete_all_universite_content(db: Session, universite_id: str) -> Dict[str, int]:
+    """
+    Supprime tout le contenu d'une université:
+    - Tous les UFR (avec tout leur contenu)
+    - Tous les professeurs de cette université
+    - Tous les étudiants de cette université
+    Retourne un dict avec les compteurs de suppressions
+    """
+    stats = {
+        "ufrs": 0, "filieres": 0, "matieres": 0, "chapitres": 0, "fichiers": 0,
+        "commentaires": 0, "notifications": 0, "professeurs": 0, "etudiants": 0
+    }
+    
+    # Supprimer tous les UFR de cette université
+    ufrs = db.query(UFRDB).filter_by(universite_id=universite_id).all()
+    for ufr in ufrs:
+        ufr_stats = delete_all_ufr_content(db, ufr.id)
+        stats["filieres"] += ufr_stats["filieres"]
+        stats["matieres"] += ufr_stats["matieres"]
+        stats["chapitres"] += ufr_stats["chapitres"]
+        stats["fichiers"] += ufr_stats["fichiers"]
+        stats["commentaires"] += ufr_stats["commentaires"]
+        stats["notifications"] += ufr_stats["notifications"]
+        stats["professeurs"] += ufr_stats["professeurs"]
+        stats["etudiants"] += ufr_stats["etudiants"]
+        db.delete(ufr)
+        stats["ufrs"] += 1
+    
+    return stats
+
 
 # Routes
 @app.get("/", response_class=HTMLResponse)
@@ -2352,38 +2459,27 @@ async def admin_delete_universite(
     
     try:
         universite = db.query(UniversiteDB).filter(UniversiteDB.id == id).first()
-        if universite:
-            # Supprimer tous les chapitres des professeurs de cette université
-            profs_universite = db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == id).all()
-            for prof in profs_universite:
-                chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == prof.username).all()
-                for chapitre in chapitres:
-                    db.delete(chapitre)
-            
-            # Supprimer tous les professeurs de cette université
-            db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == id).delete()
-            
-            # Supprimer tous les étudiants liés aux filières de cette université
-            ufrs = db.query(UFRDB).filter(UFRDB.universite_id == id).all()
-            for ufr in ufrs:
-                filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id == ufr.id).all()
-                for filiere in filieres:
-                    # Supprimer les étudiants de cette filière
-                    db.query(EtudiantDB).filter(EtudiantDB.filiere_id == filiere.id).delete()
-                    # Supprimer les matières de cette filière
-                    db.query(MatiereDB).filter(MatiereDB.filiere_id == filiere.id).delete()
-                # Supprimer les filières de cet UFR
-                db.query(FiliereDB).filter(FiliereDB.ufr_id == ufr.id).delete()
-            
-            # Supprimer tous les UFR de cette université
-            db.query(UFRDB).filter(UFRDB.universite_id == id).delete()
-            
-            # Supprimer l'université
-            db.delete(universite)
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Université et toutes ses données supprimées avec succès", status_code=303)
-        else:
+        if not universite:
             return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
+        
+        # Vérifier qu'aucun autre administrateur n'est lié à cette université
+        other_admins = db.query(AdministrateurDB).filter(
+            AdministrateurDB.universite_id == id,
+            AdministrateurDB.is_main_admin == False
+        ).count()
+        
+        if other_admins > 0:
+            return RedirectResponse("/dashboard/admin?error=Impossible de supprimer l'université: des administrateurs y sont encore assignés", status_code=303)
+        
+        # Supprimer tout le contenu de l'université (UFR, filières, matières, chapitres, fichiers, commentaires, notifications, professeurs, étudiants)
+        stats = delete_all_universite_content(db, id)
+        
+        # Supprimer l'université
+        db.delete(universite)
+        db.commit()
+        
+        print(f"✅ Université {universite.nom} supprimée - {stats['ufrs']} UFR, {stats['filieres']} filières, {stats['matieres']} matières, {stats['chapitres']} chapitres, {stats['fichiers']} fichiers, {stats['professeurs']} professeurs, {stats['etudiants']} étudiants")
+        return RedirectResponse("/dashboard/admin?success=Université et tout son contenu supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
@@ -2443,34 +2539,15 @@ async def admin_delete_ufr(
             if ufr.universite_id != admin_data.get("universite_id"):
                 return RedirectResponse("/dashboard/admin?error=Vous ne pouvez supprimer que les UFR de votre université", status_code=303)
         
-        if ufr:
-            # Supprimer tous les chapitres des professeurs de cet UFR
-            profs_ufr = db.query(ProfesseurDB).filter(ProfesseurDB.ufr_id == id).all()
-            for prof in profs_ufr:
-                chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == prof.username).all()
-                for chapitre in chapitres:
-                    db.delete(chapitre)
-            
-            # Supprimer tous les professeurs de cet UFR
-            db.query(ProfesseurDB).filter(ProfesseurDB.ufr_id == id).delete()
-            
-            # Supprimer tous les étudiants et matières liés aux filières de cet UFR
-            filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id == id).all()
-            for filiere in filieres:
-                # Supprimer les étudiants de cette filière
-                db.query(EtudiantDB).filter(EtudiantDB.filiere_id == filiere.id).delete()
-                # Supprimer les matières de cette filière
-                db.query(MatiereDB).filter(MatiereDB.filiere_id == filiere.id).delete()
-            
-            # Supprimer toutes les filières de cet UFR
-            db.query(FiliereDB).filter(FiliereDB.ufr_id == id).delete()
-            
-            # Supprimer l'UFR
-            db.delete(ufr)
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=UFR et toutes ses données supprimées avec succès", status_code=303)
-        else:
-            return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
+        # Supprimer tout le contenu de l'UFR (filières, matières, chapitres, fichiers, commentaires, notifications, professeurs, étudiants)
+        stats = delete_all_ufr_content(db, id)
+        
+        # Supprimer l'UFR
+        db.delete(ufr)
+        db.commit()
+        
+        print(f"✅ UFR {ufr.nom} supprimé - {stats['filieres']} filières, {stats['matieres']} matières, {stats['chapitres']} chapitres, {stats['fichiers']} fichiers, {stats['professeurs']} professeurs, {stats['etudiants']} étudiants")
+        return RedirectResponse("/dashboard/admin?success=UFR et tout son contenu supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
@@ -2532,29 +2609,15 @@ async def admin_delete_filiere(
             if ufr and ufr.universite_id != admin_data.get("universite_id"):
                 return RedirectResponse("/dashboard/admin?error=Vous ne pouvez supprimer que les filières de votre université", status_code=303)
         
-        if filiere:
-            # Supprimer tous les chapitres des professeurs de cette filière
-            profs_filiere = db.query(ProfesseurDB).filter(ProfesseurDB.filiere_id == id).all()
-            for prof in profs_filiere:
-                chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == prof.username).all()
-                for chapitre in chapitres:
-                    db.delete(chapitre)
-            
-            # Supprimer tous les professeurs de cette filière
-            db.query(ProfesseurDB).filter(ProfesseurDB.filiere_id == id).delete()
-            
-            # Supprimer tous les étudiants de cette filière
-            db.query(EtudiantDB).filter(EtudiantDB.filiere_id == id).delete()
-            
-            # Supprimer toutes les matières de cette filière
-            db.query(MatiereDB).filter(MatiereDB.filiere_id == id).delete()
-            
-            # Supprimer la filière
-            db.delete(filiere)
-            db.commit()
-            return RedirectResponse("/dashboard/admin?success=Filière et toutes ses données supprimées avec succès", status_code=303)
-        else:
-            return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
+        # Supprimer tout le contenu de la filière (matières, chapitres, fichiers, commentaires, notifications, professeurs, étudiants)
+        stats = delete_all_filiere_content(db, id)
+        
+        # Supprimer la filière
+        db.delete(filiere)
+        db.commit()
+        
+        print(f"✅ Filière {filiere.nom} supprimée - {stats['matieres']} matières, {stats['chapitres']} chapitres, {stats['fichiers']} fichiers, {stats['professeurs']} professeurs, {stats['etudiants']} étudiants")
+        return RedirectResponse("/dashboard/admin?success=Filière et tout son contenu supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
@@ -2603,7 +2666,7 @@ async def admin_delete_matiere(
     id: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Delete matière and all related content"""
+    """Delete matière and all related content (chapters, files, comments, notifications)"""
 
     admin_username, admin_data = admin_info
     
@@ -2620,12 +2683,26 @@ async def admin_delete_matiere(
                 if ufr and ufr.universite_id != admin_data.get("universite_id"):
                     return RedirectResponse("/dashboard/admin?error=Vous ne pouvez supprimer que les matières de votre université", status_code=303)
         
-        # PostgreSQL s'occupera des suppressions en cascade
+        # Supprimer tous les chapitres de cette matière avec leurs fichiers, commentaires et notifications
+        chapitres = db.query(ChapitreCompletDB).filter_by(matiere_id=id).all()
+        total_stats = {"chapitres": 0, "fichiers": 0, "commentaires": 0, "notifications": 0}
+        
+        for chapitre in chapitres:
+            stats = delete_chapitre_complete(db, chapitre.id)
+            total_stats["fichiers"] += stats["fichiers"]
+            total_stats["commentaires"] += stats["commentaires"]
+            total_stats["notifications"] += stats["notifications"]
+            total_stats["chapitres"] += 1
+        
+        # Supprimer la matière
         db.delete(matiere)
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=Matière et son contenu supprimés avec succès", status_code=303)
+        
+        print(f"✅ Matière {matiere.nom} supprimée - {total_stats['chapitres']} chapitres, {total_stats['fichiers']} fichiers, {total_stats['commentaires']} commentaires, {total_stats['notifications']} notifications")
+        return RedirectResponse("/dashboard/admin?success=Matière et tout son contenu supprimés avec succès", status_code=303)
     except Exception as e:
         db.rollback()
+        print(f"⚠️ Erreur suppression matière {id}: {e}")
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la suppression: {str(e)}", status_code=303)
 
 
