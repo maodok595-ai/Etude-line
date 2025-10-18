@@ -1341,25 +1341,19 @@
                     const files = chapitre.cours_fichier_nom.split('|||');
                     const paths = chapitre.cours_fichier_path.split('|||');
                     files.forEach((file, idx) => {
-                        // Si c'est une vidéo, afficher le lecteur vidéo
-                        if (isVideoFile(file)) {
-                            html += createVideoPlayer(paths[idx], file);
-                        } else {
-                            // Sinon, afficher les boutons normaux
-                            html += `
-                                <div class="file-actions">
-                                    <div class="file-name file-name-cours">📎 ${escapeHtml(file)}</div>
-                                    <div class="file-buttons">
-                                        <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-cours">
-                                            👁️ Lire
-                                        </a>
-                                        <a href="/files/download/${paths[idx]}" class="btn-download btn-download-cours">
-                                            ⬇️ Télécharger
-                                        </a>
-                                    </div>
+                        html += `
+                            <div class="file-actions">
+                                <div class="file-name file-name-cours">📎 ${escapeHtml(file)}</div>
+                                <div class="file-buttons">
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-cours">
+                                        👁️ Lire
+                                    </a>
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-cours">
+                                        ⬇️ Télécharger
+                                    </a>
                                 </div>
-                            `;
-                        }
+                            </div>
+                        `;
                     });
                 }
                 html += '</div>';
@@ -1380,25 +1374,19 @@
                     const files = chapitre.exercice_fichier_nom.split('|||');
                     const paths = chapitre.exercice_fichier_path.split('|||');
                     files.forEach((file, idx) => {
-                        // Si c'est une vidéo, afficher le lecteur vidéo
-                        if (isVideoFile(file)) {
-                            html += createVideoPlayer(paths[idx], file);
-                        } else {
-                            // Sinon, afficher les boutons normaux
-                            html += `
-                                <div class="file-actions">
-                                    <div class="file-name file-name-exercice">📎 ${escapeHtml(file)}</div>
-                                    <div class="file-buttons">
-                                        <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-exercice">
-                                            👁️ Lire
-                                        </a>
-                                        <a href="/files/download/${paths[idx]}" class="btn-download btn-download-exercice">
-                                            ⬇️ Télécharger
-                                        </a>
-                                    </div>
+                        html += `
+                            <div class="file-actions">
+                                <div class="file-name file-name-exercice">📎 ${escapeHtml(file)}</div>
+                                <div class="file-buttons">
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-exercice">
+                                        👁️ Lire
+                                    </a>
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-exercice">
+                                        ⬇️ Télécharger
+                                    </a>
                                 </div>
-                            `;
-                        }
+                            </div>
+                        `;
                     });
                 }
                 html += '</div>';
@@ -1419,25 +1407,19 @@
                     const files = chapitre.solution_fichier_nom.split('|||');
                     const paths = chapitre.solution_fichier_path.split('|||');
                     files.forEach((file, idx) => {
-                        // Si c'est une vidéo, afficher le lecteur vidéo
-                        if (isVideoFile(file)) {
-                            html += createVideoPlayer(paths[idx], file);
-                        } else {
-                            // Sinon, afficher les boutons normaux
-                            html += `
-                                <div class="file-actions">
-                                    <div class="file-name file-name-solution">📎 ${escapeHtml(file)}</div>
-                                    <div class="file-buttons">
-                                        <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-solution">
-                                            👁️ Lire
-                                        </a>
-                                        <a href="/files/download/${paths[idx]}" class="btn-download btn-download-solution">
-                                            ⬇️ Télécharger
-                                        </a>
-                                    </div>
+                        html += `
+                            <div class="file-actions">
+                                <div class="file-name file-name-solution">📎 ${escapeHtml(file)}</div>
+                                <div class="file-buttons">
+                                    <a href="/files/view/${paths[idx]}" target="_blank" class="btn-read btn-read-solution">
+                                        👁️ Lire
+                                    </a>
+                                    <a href="/files/download/${paths[idx]}" class="btn-download btn-download-solution">
+                                        ⬇️ Télécharger
+                                    </a>
                                 </div>
-                            `;
-                        }
+                            </div>
+                        `;
                     });
                 }
                 html += '</div>';
@@ -1518,32 +1500,6 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
-        }
-        
-        // Détecter si un fichier est une vidéo
-        function isVideoFile(filename) {
-            const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.ogg', '.ogv', '.m4v', '.3gp', '.flv'];
-            const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
-            return videoExtensions.includes(ext);
-        }
-        
-        // Créer un lecteur vidéo HTML5
-        function createVideoPlayer(filePath, fileName) {
-            return `
-                <div class="video-container">
-                    <video controls style="width: 100%; max-width: 800px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <source src="/uploads/${filePath}" type="video/mp4">
-                        <source src="/uploads/${filePath}" type="video/webm">
-                        Votre navigateur ne supporte pas la lecture de vidéos.
-                    </video>
-                    <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.85rem; color: #666;">🎬 ${escapeHtml(fileName)}</span>
-                        <a href="/files/download/${filePath}" class="btn-download" style="display: inline-block;">
-                            ⬇️ Télécharger
-                        </a>
-                    </div>
-                </div>
-            `;
         }
         
         // === FONCTIONS COMMENTAIRES ===
