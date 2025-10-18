@@ -45,10 +45,11 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **itsdangerous**: Cryptographic signing for session cookies.
 
 ### Database Dependencies
-- **PostgreSQL**: Relational database.
+- **PostgreSQL**: Persistent relational database provided by Replit, ensuring data permanence across sessions and restarts.
 - **SQLAlchemy**: ORM for database operations.
 - **psycopg2-binary**: PostgreSQL adapter for Python.
 - **alembic**: Database migration tool.
+- **Data Persistence**: All application data (users, chapters, comments, notifications) is stored in a persistent Replit PostgreSQL database. Files (videos, PDFs, documents) are stored in the local `uploads/` directory which is also persistent.
 
 ### Utility Dependencies
 - **python-multipart**: For handling form data and file uploads.
