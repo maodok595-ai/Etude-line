@@ -529,11 +529,36 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
         
         .stat-card:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .stat-arrow {
+            font-size: 0.7rem;
+            color: currentColor;
+            opacity: 0.6;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: inline-block;
+        }
+        
+        .stat-card:hover .stat-arrow {
+            opacity: 1;
+        }
+        
+        .stat-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+        
+        .stat-content.open {
+            max-height: 100px;
+            opacity: 1;
         }
         
         .stat-card::before {
@@ -1119,6 +1144,45 @@
                     icon.textContent = '📊';
                 }
             }
+            
+            function toggleStatCard(statId) {
+                const content = document.getElementById('content-' + statId);
+                const arrow = document.getElementById('arrow-' + statId);
+                
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    content.classList.add('open');
+                    arrow.textContent = '▼';
+                    arrow.style.transform = 'rotate(0deg)';
+                    localStorage.setItem('stat-' + statId, 'open');
+                } else {
+                    content.classList.remove('open');
+                    setTimeout(() => {
+                        content.style.display = 'none';
+                    }, 300);
+                    arrow.textContent = '►';
+                    arrow.style.transform = 'rotate(-90deg)';
+                    localStorage.setItem('stat-' + statId, 'closed');
+                }
+            }
+            
+            // Restaurer l'état des cartes statistiques au chargement
+            window.addEventListener('DOMContentLoaded', function() {
+                for (let i = 1; i <= 6; i++) {
+                    const statId = 'stat-' + i;
+                    const savedState = localStorage.getItem('stat-' + statId);
+                    if (savedState === 'open') {
+                        const content = document.getElementById('content-' + statId);
+                        const arrow = document.getElementById('arrow-' + statId);
+                        if (content && arrow) {
+                            content.style.display = 'block';
+                            content.classList.add('open');
+                            arrow.textContent = '▼';
+                            arrow.style.transform = 'rotate(0deg)';
+                        }
+                    }
+                }
+            });
         </script>
         
         {% if error %}
@@ -1157,39 +1221,69 @@
         
         <!-- Statistiques du système -->
         <div class="stats-grid" id="stats-container" style="display: none;">
-            <div class="stat-card">
-                <span class="stat-icon">👨‍🏫</span>
-                <div class="stat-number">{{ stats.users.professeurs }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-1')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">👨‍🏫</span>
+                    <span id="arrow-stat-1" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-1" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.users.professeurs }}</div>
+                </div>
                 <div class="stat-label">Professeurs</div>
             </div>
             
-            <div class="stat-card">
-                <span class="stat-icon">👨‍🎓</span>
-                <div class="stat-number">{{ stats.users.etudiants }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-2')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">👨‍🎓</span>
+                    <span id="arrow-stat-2" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-2" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.users.etudiants }}</div>
+                </div>
                 <div class="stat-label">Étudiants</div>
             </div>
             
-            <div class="stat-card">
-                <span class="stat-icon">📚</span>
-                <div class="stat-number">{{ stats.chapitres.cours }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-3')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">📚</span>
+                    <span id="arrow-stat-3" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-3" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.chapitres.cours }}</div>
+                </div>
                 <div class="stat-label">Cours</div>
             </div>
             
-            <div class="stat-card">
-                <span class="stat-icon">📝</span>
-                <div class="stat-number">{{ stats.chapitres.exercice }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-4')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">📝</span>
+                    <span id="arrow-stat-4" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-4" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.chapitres.exercice }}</div>
+                </div>
                 <div class="stat-label">Exercices</div>
             </div>
             
-            <div class="stat-card">
-                <span class="stat-icon">✅</span>
-                <div class="stat-number">{{ stats.chapitres.solution }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-5')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">✅</span>
+                    <span id="arrow-stat-5" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-5" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.chapitres.solution }}</div>
+                </div>
                 <div class="stat-label">Solutions</div>
             </div>
             
-            <div class="stat-card">
-                <span class="stat-icon">🏛️</span>
-                <div class="stat-number">{{ stats.structure_academique.universites }}</div>
+            <div class="stat-card" onclick="toggleStatCard('stat-6')">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span class="stat-icon">🏛️</span>
+                    <span id="arrow-stat-6" class="stat-arrow">►</span>
+                </div>
+                <div id="content-stat-6" class="stat-content" style="display: none;">
+                    <div class="stat-number">{{ stats.structure_academique.universites }}</div>
+                </div>
                 <div class="stat-label">Universités</div>
             </div>
         </div>
