@@ -1171,21 +1171,6 @@
                 }
             }
             
-            function toggleStats() {
-                const statsContainer = document.getElementById('stats-container');
-                const arrow = document.getElementById('stats-arrow');
-                const icon = document.getElementById('stats-icon');
-                
-                if (statsContainer.style.display === 'none') {
-                    statsContainer.style.display = 'grid';
-                    arrow.textContent = '↓';
-                    icon.textContent = '📉';
-                } else {
-                    statsContainer.style.display = 'none';
-                    arrow.textContent = '→';
-                    icon.textContent = '📊';
-                }
-            }
             
             function toggleStatCard(statId) {
                 const content = document.getElementById('content-' + statId);
@@ -2122,17 +2107,20 @@
         function toggleStats() {
             const statsContainer = document.getElementById('stats-container');
             const arrow = document.getElementById('stats-arrow');
+            const icon = document.getElementById('stats-icon');
             const isVisible = statsContainer.style.display !== 'none';
             
             if (isVisible) {
                 // Cacher les stats
                 statsContainer.style.display = 'none';
                 arrow.textContent = '→';
+                if (icon) icon.textContent = '📊';
                 localStorage.setItem('statsVisible', 'false');
             } else {
                 // Afficher les stats
                 statsContainer.style.display = 'grid';
                 arrow.textContent = '↓';
+                if (icon) icon.textContent = '📉';
                 localStorage.setItem('statsVisible', 'true');
             }
         }
@@ -2143,8 +2131,10 @@
             if (statsVisible === 'true') {
                 const statsContainer = document.getElementById('stats-container');
                 const arrow = document.getElementById('stats-arrow');
+                const icon = document.getElementById('stats-icon');
                 statsContainer.style.display = 'grid';
                 arrow.textContent = '↓';
+                if (icon) icon.textContent = '📉';
             }
         });
         
