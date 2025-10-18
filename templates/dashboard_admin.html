@@ -1047,6 +1047,7 @@
             }
             
             // Fonction pour afficher/masquer les détails d'un utilisateur (prof/étudiant)
+            // Note: L'état des flèches n'est PAS sauvegardé - tout reste fermé à chaque rechargement
             function toggleUserDetails(userId) {
                 const details = document.getElementById('details-' + userId);
                 const arrow = document.getElementById('arrow-' + userId);
