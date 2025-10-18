@@ -1290,6 +1290,12 @@
         
         <!-- Définitions des fonctions globales nécessaires -->
         <script>
+            // Informations de l'utilisateur connecté
+            const currentUser = {
+                id: {{ prof.id }},
+                type: 'prof'
+            };
+            
             // Fonction pour toggle l'accordéon d'une matière
             function toggleMatiere(matiereId) {
                 const content = document.getElementById('matiere-' + matiereId);
@@ -1371,6 +1377,11 @@
                         const date = new Date(c.created_at);
                         const dateStr = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
                         
+                        // Afficher le bouton supprimer uniquement si l'utilisateur est l'auteur
+                        const isAuthor = (c.auteur_type === currentUser.type && c.auteur_id === currentUser.id);
+                        const deleteButton = isAuthor ? 
+                            `<button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>` : '';
+                        
                         return `
                             <div class="commentaire-item">
                                 <div class="commentaire-header">
@@ -1379,7 +1390,7 @@
                                     </span>
                                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                                         <span class="commentaire-date">${dateStr}</span>
-                                        <button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>
+                                        ${deleteButton}
                                     </div>
                                 </div>
                                 <div class="commentaire-texte">${escapeHtml(c.texte)}</div>
