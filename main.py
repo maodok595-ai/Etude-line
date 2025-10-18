@@ -120,27 +120,54 @@ async def startup_event():
         from database import SessionLocal
         db_check = SessionLocal()
         try:
-            # Vérifier si des données existent déjà dans la base
+            print("\n" + "🔍 DIAGNOSTIC DE LA BASE DE DONNÉES ".center(70, "="))
+            
+            # Compter TOUS les types de données
             admin_count = db_check.query(AdministrateurDB).count()
+            prof_count = db_check.query(ProfesseurDB).count()
+            student_count = db_check.query(EtudiantDB).count()
+            uni_count = db_check.query(UniversiteDB).count()
+            chapter_count = db_check.query(ChapitreCompletDB).count()
+            
+            print(f"📊 Contenu actuel de la base de données :")
+            print(f"   - Administrateurs : {admin_count}")
+            print(f"   - Professeurs     : {prof_count}")
+            print(f"   - Étudiants       : {student_count}")
+            print(f"   - Universités     : {uni_count}")
+            print(f"   - Chapitres       : {chapter_count}")
+            
+            # Vérifier s'il y a des données importantes
+            has_important_data = (admin_count > 0 or prof_count > 0 or 
+                                 student_count > 0 or chapter_count > 0)
+            
             force_migrate = os.getenv("MIGRATE_ON_START", "false").lower() == "true"
             
-            if admin_count == 0 or force_migrate:
-                if force_migrate:
-                    print("🔄 MIGRATE_ON_START activé - Force la migration...")
-                else:
-                    print("🔄 Première initialisation - Aucun administrateur trouvé - Migration des données...")
+            if has_important_data and not force_migrate:
+                print("=" * 70)
+                print("✅ DONNÉES DÉTECTÉES - MIGRATION BLOQUÉE POUR PROTECTION")
+                print("   Vos données sont protégées et ne seront PAS touchées")
+                print("   (Pour forcer la migration malgré tout: MIGRATE_ON_START=true)")
+                print("=" * 70 + "\n")
+            elif admin_count == 0:
+                print("=" * 70)
+                print("🔄 PREMIÈRE INITIALISATION - Aucun admin trouvé")
+                print("   Lancement de la migration pour créer les données initiales...")
+                print("=" * 70)
                 migrate_data()
-                print("✅ Migration des données effectuée avec succès")
-            else:
-                print(f"✅ Base de données déjà initialisée ({admin_count} administrateur(s) trouvé(s)) - Migration ignorée")
-                print(f"   (Pour forcer la migration, définir MIGRATE_ON_START=true)")
+                print("✅ Migration des données effectuée avec succès\n")
+            elif force_migrate:
+                print("=" * 70)
+                print("⚠️  MIGRATE_ON_START ACTIVÉ - Force la migration")
+                print("   ATTENTION : Ceci peut modifier vos données existantes !")
+                print("=" * 70)
+                migrate_data()
+                print("✅ Migration forcée effectuée\n")
         except Exception as e:
             print(f"⚠️ Erreur lors de la vérification de la base: {e}")
-            print("🔄 Tentative de migration par sécurité...")
-            try:
-                migrate_data()
-            except Exception as migrate_error:
-                print(f"❌ Échec de la migration: {migrate_error}")
+            import traceback
+            traceback.print_exc()
+            # NE PAS migrer en cas d'erreur - sécurité avant tout
+            print("❌ Migration annulée par sécurité\n")
         finally:
             db_check.close()
         
