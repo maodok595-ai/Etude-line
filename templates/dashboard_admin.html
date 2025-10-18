@@ -1046,6 +1046,25 @@
                 }
             }
             
+            // Fonction pour afficher/masquer les détails d'un utilisateur (prof/étudiant)
+            function toggleUserDetails(userId) {
+                const details = document.getElementById('details-' + userId);
+                const arrow = document.getElementById('arrow-' + userId);
+                const actions = document.getElementById('actions-' + userId);
+                
+                if (details && arrow) {
+                    if (details.style.display === 'none') {
+                        details.style.display = 'block';
+                        arrow.textContent = '▼';
+                        if (actions) actions.style.display = 'block';
+                    } else {
+                        details.style.display = 'none';
+                        arrow.textContent = '►';
+                        if (actions) actions.style.display = 'none';
+                    }
+                }
+            }
+            
             function toggleStats() {
                 const statsContainer = document.getElementById('stats-container');
                 const arrow = document.getElementById('stats-arrow');
@@ -1314,7 +1333,11 @@
                         {% if profs %}
                             {% for prof in profs %}
                             <div class="prof-item academic-item">
-                                <div class="prof-name">{{ prof.prenom }} {{ prof.nom }}</div>
+                                <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('prof-{{ loop.index }}')">
+                                    <span id="arrow-prof-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">▼</span>
+                                    <span>{{ prof.prenom }} {{ prof.nom }}</span>
+                                </div>
+                                <div id="details-prof-{{ loop.index }}" style="display: block;">
                                 <div class="prof-details">@{{ prof.username }}</div>
                                 <div class="prof-meta">
                                     <span class="meta-tag">{{ prof.specialite }}</span>
@@ -1356,6 +1379,7 @@
                                     </button>
                                     {% endif %}
                                 </div>
+                                </div>
                             </div>
                             {% endfor %}
                         {% else %}
@@ -1384,7 +1408,11 @@
                             {% for etudiant in etudiants %}
                             <div class="prof-item academic-item">
                                 <div style="flex: 1;">
-                                    <div class="prof-name">{{ etudiant.prenom }} {{ etudiant.nom }}</div>
+                                    <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ loop.index }}')">
+                                        <span id="arrow-etudiant-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">▼</span>
+                                        <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
+                                    </div>
+                                    <div id="details-etudiant-{{ loop.index }}" style="display: block;">
                                     <div class="prof-details">@{{ etudiant.username }}</div>
                                     <div class="prof-meta" style="margin-top: 0.5rem;">
                                         <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ etudiant.niveau }}</span>
@@ -1395,8 +1423,9 @@
                                         <div style="margin-bottom: 0.2rem;"><strong>📚 UFR:</strong> {{ etudiant.ufr_nom }}</div>
                                         <div><strong>📖 Filière:</strong> {{ etudiant.filiere_nom }}</div>
                                     </div>
+                                    </div>
                                 </div>
-                                <div class="action-buttons">
+                                <div class="action-buttons" id="actions-etudiant-{{ loop.index }}" style="display: block;">
                                     <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
