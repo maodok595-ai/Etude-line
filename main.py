@@ -794,9 +794,10 @@ async def index(request: Request, db: Session = Depends(get_db)):
                     return RedirectResponse(url="/dashboard/admin", status_code=303)
                 else:
                     return RedirectResponse(url="/dashboard/etudiant", status_code=303)
-    except:
-        # En cas d'erreur de session, on ignore et affiche la page d'accueil
-        pass
+    except Exception as e:
+        # En cas d'erreur de session, logger et continuer
+        import logging
+        logging.warning(f"Session error in index route: {str(e)}")
     
     # Load academic data for form
     universites = get_universites(db)
