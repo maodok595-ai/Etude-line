@@ -2115,7 +2115,10 @@
             const statsContainer = document.getElementById('stats-container');
             const arrow = document.getElementById('stats-arrow');
             const icon = document.getElementById('stats-icon');
-            const isVisible = statsContainer.style.display !== 'none';
+            
+            // Vérifier l'état actuel de manière fiable
+            const currentDisplay = window.getComputedStyle(statsContainer).display;
+            const isVisible = currentDisplay === 'grid';
             
             if (isVisible) {
                 // Cacher les stats
