@@ -1394,8 +1394,10 @@ async def create_chapitre_complet(
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str, request: Request):
-    """Serve uploaded files with proper content type for browser viewing"""
+    """Serve uploaded files with proper content type and video streaming support"""
     import mimetypes
+    import os
+    from fastapi.responses import StreamingResponse
     
     # Remove uploads/ prefix if it exists to avoid double prefix
     if file_path.startswith("uploads/"):
@@ -1415,8 +1417,64 @@ async def serve_uploaded_file(file_path: str, request: Request):
     user_agent = request.headers.get("user-agent", "").lower()
     is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
     
+    # Support streaming vidéo avec requêtes Range
+    if mime_type and mime_type.startswith('video/'):
+        file_size = os.path.getsize(file_location)
+        range_header = request.headers.get("range")
+        
+        if range_header:
+            # Parse range header (format: "bytes=start-end")
+            range_match = range_header.replace("bytes=", "").split("-")
+            start = int(range_match[0]) if range_match[0] else 0
+            end = int(range_match[1]) if range_match[1] else file_size - 1
+            end = min(end, file_size - 1)
+            
+            # Calculer la taille du chunk
+            chunk_size = end - start + 1
+            
+            # Fonction pour lire le chunk de fichier
+            def iter_file():
+                with open(file_location, "rb") as f:
+                    f.seek(start)
+                    remaining = chunk_size
+                    while remaining > 0:
+                        read_size = min(8192, remaining)
+                        data = f.read(read_size)
+                        if not data:
+                            break
+                        remaining -= len(data)
+                        yield data
+            
+            # Headers pour le streaming partiel
+            headers = {
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(chunk_size),
+                "Content-Type": mime_type,
+                "Cache-Control": "public, max-age=3600"
+            }
+            
+            return StreamingResponse(
+                iter_file(),
+                status_code=206,  # Partial Content
+                headers=headers,
+                media_type=mime_type
+            )
+        else:
+            # Pas de range, envoyer le fichier complet
+            headers = {
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(file_size),
+                "Cache-Control": "public, max-age=3600"
+            }
+            return FileResponse(
+                path=file_location,
+                media_type=mime_type,
+                headers=headers
+            )
+    
     # Pour les PDF, optimiser selon le type d'appareil
-    if mime_type == 'application/pdf':
+    elif mime_type == 'application/pdf':
         headers = {}
         
         if is_mobile:
