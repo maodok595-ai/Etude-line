@@ -2939,6 +2939,7 @@ async def get_commentaires(chapitre_id: int, db: Session = Depends(get_db)):
         "id": c.id,
         "texte": c.texte,
         "auteur_type": c.auteur_type,
+        "auteur_id": c.auteur_id,
         "auteur_nom": c.auteur_nom,
         "created_at": c.created_at.isoformat()
     } for c in commentaires]

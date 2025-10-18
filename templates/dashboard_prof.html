@@ -1355,6 +1355,10 @@
             
             // === FONCTIONS COMMENTAIRES ===
             
+            // ID de l'utilisateur connecté (professeur)
+            const currentUserId = {{ prof.id }};
+            const currentUserType = 'prof';
+            
             async function chargerCommentaires(chapitreId) {
                 const container = document.getElementById(`commentaires-list-${chapitreId}`);
                 
@@ -1371,6 +1375,12 @@
                         const date = new Date(c.created_at);
                         const dateStr = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
                         
+                        // Afficher le bouton suppression seulement pour ses propres commentaires
+                        const isOwnComment = (c.auteur_type === currentUserType && c.auteur_id === currentUserId);
+                        const deleteButton = isOwnComment 
+                            ? `<button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>`
+                            : '';
+                        
                         return `
                             <div class="commentaire-item">
                                 <div class="commentaire-header">
@@ -1379,7 +1389,7 @@
                                     </span>
                                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                                         <span class="commentaire-date">${dateStr}</span>
-                                        <button class="commentaire-delete" onclick="supprimerCommentaire(${c.id}, ${chapitreId})">🗑️</button>
+                                        ${deleteButton}
                                     </div>
                                 </div>
                                 <div class="commentaire-texte">${escapeHtml(c.texte)}</div>
