@@ -3,8 +3,31 @@ from sqlalchemy.orm import sessionmaker
 from models import Base
 import os
 
-# Configuration de la base de données
-DATABASE_URL = os.getenv("EXTERNAL_DATABASE_URL") or os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
+# Configuration de la base de données avec diagnostic
+EXTERNAL_DB_URL = os.getenv("EXTERNAL_DATABASE_URL")
+REPLIT_DB_URL = os.getenv("DATABASE_URL")
+
+# PRIORITÉ : EXTERNAL_DATABASE_URL (Render PostgreSQL payante) > DATABASE_URL (Replit)
+if EXTERNAL_DB_URL:
+    DATABASE_URL = EXTERNAL_DB_URL
+    print("=" * 70)
+    print("🔵 CONNEXION À LA BASE DE DONNÉES EXTERNE (RENDER POSTGRESQL)")
+    print(f"   Host: {EXTERNAL_DB_URL.split('@')[1].split('/')[0] if '@' in EXTERNAL_DB_URL else 'unknown'}")
+    print("   ⚠️  ATTENTION : Vos données sont sur cette base - NE PAS LA SUPPRIMER")
+    print("=" * 70)
+elif REPLIT_DB_URL:
+    DATABASE_URL = REPLIT_DB_URL
+    print("=" * 70)
+    print("⚠️  CONNEXION À LA BASE DE DONNÉES REPLIT (LOCALE)")
+    print("   PROBLÈME : Cette base n'est PAS persistante sur Render !")
+    print("   SOLUTION : Configurez EXTERNAL_DATABASE_URL sur Render")
+    print("=" * 70)
+else:
+    DATABASE_URL = "postgresql://user:password@localhost/dbname"
+    print("=" * 70)
+    print("❌ AUCUNE BASE DE DONNÉES CONFIGURÉE !")
+    print("   Utilisation d'une base par défaut (NON FONCTIONNELLE)")
+    print("=" * 70)
 
 # Création de l'engine et de la session avec configuration SSL
 engine = create_engine(
