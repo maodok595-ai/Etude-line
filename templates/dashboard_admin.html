@@ -611,40 +611,48 @@
             margin-bottom: 0;
         }
         
+        /* Statistiques - Affichage Desktop Full Width */
         .stats-horizontal-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
-            overflow-x: auto;
-            overflow-y: hidden;
             padding: 0.5rem 0;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar {
-            height: 6px;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.3);
-            border-radius: 3px;
-        }
-        
-        .stats-horizontal-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.5);
         }
         
         .stat-vertical-card {
-            min-width: 180px;
-            max-width: 220px;
-            flex-shrink: 0;
             padding: 1rem !important;
+        }
+        
+        /* Optimisations Desktop pour les statistiques */
+        @media (min-width: 1400px) {
+            .stats-horizontal-container {
+                gap: 1.5rem;
+            }
+            
+            .stat-vertical-card {
+                padding: 1.5rem !important;
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .stats-horizontal-container {
+                gap: 2rem;
+            }
+            
+            .stat-vertical-card {
+                padding: 1.75rem !important;
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            .stats-horizontal-container {
+                gap: 2.5rem;
+            }
+            
+            .stat-vertical-card {
+                padding: 2rem !important;
+            }
         }
         
         .stat-number-large {
