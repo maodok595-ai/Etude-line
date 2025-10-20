@@ -1,10 +1,6 @@
-modules = ["python-3.11", "postgresql-16"]
+modules = ["python-3.11"]
 [agent]
 expertMode = true
-
-[nix]
-channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "rustc"]
 
 [workflows]
 runButton = "Project"
@@ -22,34 +18,18 @@ args = "Server"
 name = "Server"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "uvicorn main:app --host 0.0.0.0 --port 5000"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 35747
-externalPort = 3003
-
-[[ports]]
-localPort = 41995
-externalPort = 3002
-
-[[ports]]
-localPort = 43327
-externalPort = 3001
-
-[[ports]]
-localPort = 44411
+localPort = 33435
 externalPort = 3000
-
-[deployment]
-deploymentTarget = "autoscale"
-run = ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
