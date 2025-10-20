@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'etude-line-v6';
-const STATIC_CACHE = 'etude-line-static-v6';
-const DYNAMIC_CACHE = 'etude-line-dynamic-v6';
+const CACHE_VERSION = 'etude-line-v4';
+const STATIC_CACHE = 'etude-line-static-v4';
+const DYNAMIC_CACHE = 'etude-line-dynamic-v4';
 
 const STATIC_ASSETS = [
   '/',
@@ -47,15 +47,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Ne mettre en cache QUE les fichiers statiques (CSS, JS, images, etc.)
-  // JAMAIS les pages HTML pour toujours avoir la dernière version
-  if (url.pathname.startsWith('/static/') && !url.pathname.endsWith('.html')) {
+  if (url.pathname.startsWith('/static/')) {
     event.respondWith(cacheFirstStrategy(request));
   } else if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkOnlyStrategy(request));
   } else {
-    // Pour toutes les pages HTML: toujours aller chercher la dernière version (network only)
-    event.respondWith(networkOnlyStrategy(request));
+    event.respondWith(networkFirstStrategy(request));
   }
 });
 
@@ -78,12 +75,20 @@ async function cacheFirstStrategy(request) {
   }
 }
 
-// Cette fonction n'est plus utilisée mais gardée pour compatibilité
 async function networkFirstStrategy(request) {
   try {
     const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, response.clone());
+    }
     return response;
   } catch (error) {
+    const cached = await caches.match(request);
+    if (cached) {
+      return cached;
+    }
+    
     const offlinePage = await caches.match('/static/offline.html');
     return offlinePage || new Response('Offline', { 
       status: 503,
