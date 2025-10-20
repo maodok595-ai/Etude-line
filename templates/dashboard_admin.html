@@ -2965,8 +2965,13 @@
             
             if (!listView || !formView) return;
             
-            if (listView.style.display !== 'none') {
-                // Masquer la vue liste
+            // Vérifier si le formulaire est actuellement caché (classe hidden ou display none)
+            const isFormHidden = formView.classList.contains('hidden') || 
+                                 formView.style.display === 'none' || 
+                                 window.getComputedStyle(formView).display === 'none';
+            
+            if (isFormHidden) {
+                // Le formulaire est caché, donc on affiche le formulaire et cache la liste
                 listView.classList.add('fade-out');
                 setTimeout(() => {
                     listView.style.display = 'none';
@@ -2981,7 +2986,7 @@
                     formView.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 300);
             } else {
-                // Masquer le formulaire
+                // Le formulaire est visible, donc on cache le formulaire et affiche la liste
                 formView.classList.remove('fade-in');
                 formView.classList.add('fade-out');
                 setTimeout(() => {
