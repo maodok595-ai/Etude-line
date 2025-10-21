@@ -1635,48 +1635,68 @@
                 </div>
                 <form action="/prof/chapitre-complet" method="post" enctype="multipart/form-data">
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="universite">Université</label>
-                            <select id="universite" name="universite_id" required>
-                                <option value="">Sélectionner une université</option>
-                                {% for uni in universites %}
-                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
-                                {% endfor %}
-                            </select>
+                    <!-- Université (select unique) -->
+                    <div class="form-group">
+                        <label for="prof-universite-create">Université</label>
+                        <select id="prof-universite-create" name="universite_id" required>
+                            <option value="">Sélectionner une université</option>
+                            {% for uni in universites %}
+                            <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- UFR (multi-select avec checkboxes) -->
+                    <div class="form-group">
+                        <label>UFR (sélection multiple) <span style="color: #dc3545;">*</span></label>
+                        <div class="selection-summary" id="prof-ufr-summary" style="background: #f8f9fa; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; min-height: 40px; border: 2px dashed #dee2e6;">
+                            <small style="color: #6c757d;">Aucune UFR sélectionnée</small>
                         </div>
-                        <div class="form-group">
-                            <label for="ufr">UFR</label>
-                            <input type="search" id="search-ufr-dropdown" 
-                                   placeholder="🔍 Rechercher..." 
-                                   oninput="filterDropdown('ufr', 'search-ufr-dropdown')"
-                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                            <select id="ufr" name="ufr_id" required disabled>
-                                <option value="">Sélectionner d'abord une université</option>
-                            </select>
+                        <div class="checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; max-height: 200px; overflow-y: auto; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                            {% for ufr in ufrs %}
+                            <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid #e9ecef;" data-ufr-id="{{ ufr.id }}">
+                                <input type="checkbox" name="ufr_ids" value="{{ ufr.id }}" 
+                                       onchange="updateProfUfrSelection()" 
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <span style="font-size: 0.9rem;">{{ ufr.nom }}</span>
+                            </label>
+                            {% endfor %}
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="filiere">Filière</label>
-                            <input type="search" id="search-filiere-dropdown" 
-                                   placeholder="🔍 Rechercher..." 
-                                   oninput="filterDropdown('filiere', 'search-filiere-dropdown')"
-                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                            <select id="filiere" name="filiere_id" required disabled>
-                                <option value="">Sélectionner d'abord une UFR</option>
-                            </select>
+                    <!-- Filières (multi-select avec checkboxes, filtrées par UFR sélectionnées) -->
+                    <div class="form-group">
+                        <label>Filières (sélection multiple) <span style="color: #dc3545;">*</span></label>
+                        <div class="selection-summary" id="prof-filiere-summary" style="background: #f8f9fa; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; min-height: 40px; border: 2px dashed #dee2e6;">
+                            <small style="color: #6c757d;">Aucune filière sélectionnée</small>
                         </div>
-                        <div class="form-group">
-                            <label for="matiere">Matière</label>
-                            <input type="search" id="search-matiere-dropdown" 
-                                   placeholder="🔍 Rechercher..." 
-                                   oninput="filterDropdown('matiere', 'search-matiere-dropdown')"
-                                   style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                            <select id="matiere" name="matiere_id" required disabled>
-                                <option value="">Sélectionner d'abord une filière</option>
-                            </select>
+                        <div class="checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; max-height: 200px; overflow-y: auto; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                            {% for filiere in filieres %}
+                            <label class="checkbox-item" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid #e9ecef;" data-filiere-id="{{ filiere.id }}" data-ufr-id="{{ filiere.ufr_id }}">
+                                <input type="checkbox" name="filiere_ids" value="{{ filiere.id }}" 
+                                       onchange="updateProfFiliereSelection()" 
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <span style="font-size: 0.9rem;">{{ filiere.nom }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Matières (multi-select avec checkboxes, filtrées par filières sélectionnées) -->
+                    <div class="form-group">
+                        <label>Matières (sélection multiple) <span style="color: #dc3545;">*</span></label>
+                        <div class="selection-summary" id="prof-matiere-summary" style="background: #f8f9fa; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; min-height: 40px; border: 2px dashed #dee2e6;">
+                            <small style="color: #6c757d;">Aucune matière sélectionnée</small>
+                        </div>
+                        <div class="checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; max-height: 200px; overflow-y: auto; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                            {% for matiere in matieres %}
+                            <label class="checkbox-item" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid #e9ecef;" data-matiere-id="{{ matiere.id }}" data-filiere-id="{{ matiere.filiere_id }}">
+                                <input type="checkbox" name="matiere_ids" value="{{ matiere.id }}" 
+                                       onchange="updateProfMatiereSelection()" 
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <span style="font-size: 0.9rem;">{{ matiere.nom }}</span>
+                            </label>
+                            {% endfor %}
                         </div>
                     </div>
                     
@@ -2898,6 +2918,86 @@
                 }
             }
         }
+        
+        // ===== GESTION MULTI-SELECT CRÉATION CHAPITRE (UFR/FILIÈRES/MATIÈRES) =====
+        
+        function updateProfUfrSelection() {
+            const ufrCheckboxes = document.querySelectorAll('input[name="ufr_ids"]:checked');
+            const filiereCheckboxes = document.querySelectorAll('label.checkbox-item[data-filiere-id]');
+            const selectedUfrIds = Array.from(ufrCheckboxes).map(cb => cb.value);
+            
+            // Mettre à jour le résumé UFR
+            const summaryDiv = document.getElementById('prof-ufr-summary');
+            if (selectedUfrIds.length === 0) {
+                summaryDiv.innerHTML = '<small style="color: #6c757d;">Aucune UFR sélectionnée</small>';
+            } else {
+                const names = Array.from(ufrCheckboxes).map(cb => cb.parentElement.querySelector('span').textContent);
+                summaryDiv.innerHTML = `<strong>${selectedUfrIds.length} UFR sélectionnée(s):</strong> <span style="color: #0d6efd;">${names.join(', ')}</span>`;
+            }
+            
+            // Afficher/masquer les filières selon les UFR sélectionnées
+            filiereCheckboxes.forEach(label => {
+                const filiereUfrId = label.getAttribute('data-ufr-id');
+                if (selectedUfrIds.length === 0 || selectedUfrIds.includes(filiereUfrId)) {
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                    // Décocher les filières non visibles
+                    const checkbox = label.querySelector('input[type="checkbox"]');
+                    if (checkbox.checked) {
+                        checkbox.checked = false;
+                        updateProfFiliereSelection();
+                    }
+                }
+            });
+        }
+        
+        function updateProfFiliereSelection() {
+            const filiereCheckboxes = document.querySelectorAll('input[name="filiere_ids"]:checked');
+            const matiereCheckboxes = document.querySelectorAll('label.checkbox-item[data-matiere-id]');
+            const selectedFiliereIds = Array.from(filiereCheckboxes).map(cb => cb.value);
+            
+            // Mettre à jour le résumé Filière
+            const summaryDiv = document.getElementById('prof-filiere-summary');
+            if (selectedFiliereIds.length === 0) {
+                summaryDiv.innerHTML = '<small style="color: #6c757d;">Aucune filière sélectionnée</small>';
+            } else {
+                const names = Array.from(filiereCheckboxes).map(cb => cb.parentElement.querySelector('span').textContent);
+                summaryDiv.innerHTML = `<strong>${selectedFiliereIds.length} filière(s) sélectionnée(s):</strong> <span style="color: #0d6efd;">${names.join(', ')}</span>`;
+            }
+            
+            // Afficher/masquer les matières selon les filières sélectionnées
+            matiereCheckboxes.forEach(label => {
+                const matiereFiliereId = label.getAttribute('data-filiere-id');
+                if (selectedFiliereIds.length === 0 || selectedFiliereIds.includes(matiereFiliereId)) {
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                    // Décocher les matières non visibles
+                    const checkbox = label.querySelector('input[type="checkbox"]');
+                    if (checkbox.checked) {
+                        checkbox.checked = false;
+                        updateProfMatiereSelection();
+                    }
+                }
+            });
+        }
+        
+        function updateProfMatiereSelection() {
+            const matiereCheckboxes = document.querySelectorAll('input[name="matiere_ids"]:checked');
+            const selectedMatiereIds = Array.from(matiereCheckboxes).map(cb => cb.value);
+            
+            // Mettre à jour le résumé Matière
+            const summaryDiv = document.getElementById('prof-matiere-summary');
+            if (selectedMatiereIds.length === 0) {
+                summaryDiv.innerHTML = '<small style="color: #6c757d;">Aucune matière sélectionnée</small>';
+            } else {
+                const names = Array.from(matiereCheckboxes).map(cb => cb.parentElement.querySelector('span').textContent);
+                summaryDiv.innerHTML = `<strong>${selectedMatiereIds.length} matière(s) sélectionnée(s):</strong> <span style="color: #0d6efd;">${names.join(', ')}</span>`;
+            }
+        }
+        
+        // ===== FIN GESTION MULTI-SELECT =====
         
         // Intercepter automatiquement le formulaire de création de chapitre
         document.addEventListener('DOMContentLoaded', function() {
