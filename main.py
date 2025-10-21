@@ -4043,7 +4043,7 @@ async def validate_student_passage(
         if not etudiant:
             raise HTTPException(status_code=404, detail="Étudiant non trouvé")
         
-        # Vérifier si l'étudiant a déjà validé un passage cette année
+        # Vérifier si l'étudiant a déjà un passage cette année
         from datetime import datetime
         current_year = datetime.now().year
         annee_universitaire = f"{current_year}-{current_year + 1}"
@@ -4053,8 +4053,10 @@ async def validate_student_passage(
             StudentPassageDB.annee_universitaire == annee_universitaire
         ).first()
         
+        # Si un passage existe, on le supprime pour permettre la modification
         if existing_passage:
-            raise HTTPException(status_code=400, detail="Vous avez déjà validé votre passage pour cette année")
+            db.delete(existing_passage)
+            db.flush()  # Appliquer la suppression avant d'ajouter le nouveau
         
         # Sauvegarder l'ancien état
         old_filiere_id = etudiant.filiere_id
