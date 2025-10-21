@@ -2112,7 +2112,7 @@
             <!-- Formulaire de création (caché par défaut) -->
             <div id="passage-form-view" class="hidden">
                 <div class="card" style="position: relative;">
-                    <button type="button" onclick="document.getElementById('passage-form-view').classList.add('hidden'); document.getElementById('passage-form-view').style.display='none'; document.getElementById('passage-list-view').style.display='block';" class="cancel-btn" title="Retour à la liste">⬅️</button>
+                    <button type="button" id="close-passage-btn" class="cancel-btn" title="Retour à la liste">⬅️</button>
                     <div class="form-header">
                         <h3>🎓 Créer une règle de passage</h3>
                     </div>
@@ -3330,18 +3330,23 @@
         
         // ========== HIÉRARCHIE DE PASSAGE ==========
         
-        // Fermer le formulaire de création de passage
-        function closePassageForm() {
-            const formView = document.getElementById('passage-form-view');
-            const listView = document.getElementById('passage-list-view');
+        // Attacher l'événement au bouton de fermeture - VERSION ULTRA SIMPLE
+        window.addEventListener('load', function() {
+            console.log('🔧 Initialisation du bouton de fermeture...');
+            const closeBtn = document.getElementById('close-passage-btn');
+            console.log('Bouton trouvé:', closeBtn);
             
-            if (formView && listView) {
-                formView.classList.add('hidden');
-                formView.style.display = 'none';
-                listView.style.display = 'block';
-                listView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    console.log('⬅️ CLICK sur le bouton de fermeture');
+                    document.getElementById('passage-form-view').style.display = 'none';
+                    document.getElementById('passage-list-view').style.display = 'block';
+                };
+                console.log('✅ Événement attaché au bouton');
+            } else {
+                console.error('❌ Bouton de fermeture non trouvé!');
             }
-        }
+        });
         
         // Charger les filières pour les selects
         async function loadFilieresForPassage() {
