@@ -1031,37 +1031,21 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
     # Get professor's contents
     prof_contents = db.query(Content).filter(Content.created_by == prof_username).all()
     
-    # Get professor object first to access many-to-many relationships
-    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
-    
-    # Get academic structure data filtered by professor's assigned UFRs and filières
-    # Professors can only create chapters in their assigned UFRs and filières
+    # Get academic structure data filtered by professor's university
+    # Professors can only create chapters in their assigned university
     prof_universite_id = user_data.get("universite_id")
     
     # Get only professor's university
     universites = db.query(UniversiteDB).filter_by(id=prof_universite_id).all() if prof_universite_id else []
     
-    # Get ONLY UFRs assigned to this professor (many-to-many relationship)
-    # FALLBACK: If many-to-many is empty (old professor not migrated), use old column
-    if prof and hasattr(prof, 'ufrs') and len(prof.ufrs) > 0:
-        ufrs = prof.ufrs
-    elif prof and hasattr(prof, 'ufr_id') and prof.ufr_id:
-        # Fallback to old single UFR
-        ufrs = db.query(UFRDB).filter_by(id=prof.ufr_id).all()
-    else:
-        ufrs = []
+    # Get only UFRs from professor's university
+    ufrs = db.query(UFRDB).filter_by(universite_id=prof_universite_id).all() if prof_universite_id else []
     
-    # Get ONLY filieres assigned to this professor (many-to-many relationship)
-    # FALLBACK: If many-to-many is empty (old professor not migrated), use old column
-    if prof and hasattr(prof, 'filieres') and len(prof.filieres) > 0:
-        filieres = prof.filieres
-    elif prof and hasattr(prof, 'filiere_id') and prof.filiere_id:
-        # Fallback to old single filière
-        filieres = db.query(FiliereDB).filter_by(id=prof.filiere_id).all()
-    else:
-        filieres = []
+    # Get only filieres from these UFRs
+    ufr_ids = [ufr.id for ufr in ufrs]
+    filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all() if ufr_ids else []
     
-    # Get only matieres from these assigned filieres
+    # Get only matieres from these filieres
     filiere_ids = [filiere.id for filiere in filieres]
     matieres = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all() if filiere_ids else []
 
@@ -1128,6 +1112,8 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
             hierarchie[niveau][matiere_nom]["semestres"][semestre] = []
         
         hierarchie[niveau][matiere_nom]["semestres"][semestre].append(chapitre)
+    
+    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
     
     # Récupérer l'université du professeur pour l'affichage du logo
     prof_universite = None
@@ -1240,6 +1226,9 @@ async def create_chapitre_complet(
     request: Request,
     prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
     universite_id: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
+    matiere_id: str = Form(...),
     niveau: str = Form(...),
     semestre: str = Form(...),
     chapitre: str = Form(...),
@@ -1252,64 +1241,14 @@ async def create_chapitre_complet(
     solution_texte: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    """Create a complete chapter with cours, exercice and solution - MULTI-SELECT VERSION"""
+    """Create a complete chapter with cours, exercice and solution"""
     prof_username, prof_user_data = prof_data
-    
-    # Récupérer les listes d'IDs depuis form_data
-    form_data = await request.form()
-    ufr_ids = form_data.getlist('ufr_ids') if 'ufr_ids' in form_data else []
-    filiere_ids = form_data.getlist('filiere_ids') if 'filiere_ids' in form_data else []
-    matiere_ids = form_data.getlist('matiere_ids') if 'matiere_ids' in form_data else []
-    
-    # Validation: au moins 1 sélection pour chaque
-    if not ufr_ids or not filiere_ids or not matiere_ids:
-        return RedirectResponse(
-            url="/dashboard/prof?error=Vous devez sélectionner au moins 1 UFR, 1 filière et 1 matière", 
-            status_code=303
-        )
     
     # SECURITY: Verify professor can only create chapters in their assigned university
     prof_universite_id = prof_user_data.get("universite_id")
     if prof_universite_id and universite_id != prof_universite_id:
         return RedirectResponse(
             url="/dashboard/prof?error=Vous ne pouvez créer des chapitres que dans votre université", 
-            status_code=303
-        )
-    
-    # SECURITY: Verify all selected UFRs and filières belong to this professor
-    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
-    if not prof:
-        return RedirectResponse(url="/dashboard/prof?error=Professeur introuvable", status_code=303)
-    
-    # Get professor's UFRs (with fallback for non-migrated professors)
-    if hasattr(prof, 'ufrs') and len(prof.ufrs) > 0:
-        prof_ufr_ids = [ufr.id for ufr in prof.ufrs]
-    elif hasattr(prof, 'ufr_id') and prof.ufr_id:
-        prof_ufr_ids = [prof.ufr_id]  # Old single UFR
-    else:
-        prof_ufr_ids = []
-    
-    # Get professor's filières (with fallback for non-migrated professors)
-    if hasattr(prof, 'filieres') and len(prof.filieres) > 0:
-        prof_filiere_ids = [filiere.id for filiere in prof.filieres]
-    elif hasattr(prof, 'filiere_id') and prof.filiere_id:
-        prof_filiere_ids = [prof.filiere_id]  # Old single filière
-    else:
-        prof_filiere_ids = []
-    
-    # Vérifier que toutes les UFR sélectionnées appartiennent au prof
-    invalid_ufrs = [uid for uid in ufr_ids if uid not in prof_ufr_ids]
-    if invalid_ufrs:
-        return RedirectResponse(
-            url="/dashboard/prof?error=Vous ne pouvez pas créer de chapitres dans des UFR qui ne vous sont pas assignées", 
-            status_code=303
-        )
-    
-    # Vérifier que toutes les filières sélectionnées appartiennent au prof
-    invalid_filieres = [fid for fid in filiere_ids if fid not in prof_filiere_ids]
-    if invalid_filieres:
-        return RedirectResponse(
-            url="/dashboard/prof?error=Vous ne pouvez pas créer de chapitres dans des filières qui ne vous sont pas assignées", 
             status_code=303
         )
     
@@ -1320,6 +1259,9 @@ async def create_chapitre_complet(
     # Validate academic level
     if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
         return RedirectResponse(url="/dashboard/prof?error=Niveau d'étude non valide", status_code=303)
+    
+    # Récupérer tous les fichiers uploadés via le formulaire
+    form_data = await request.form()
     
     # Collecter les fichiers pour chaque section
     cours_files = []
@@ -1348,8 +1290,20 @@ async def create_chapitre_complet(
     if errors:
         error_msg = " | ".join(errors)
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
+    
+    # Check if chapter already exists for this context in PostgreSQL
+    existing = db.query(ChapitreCompletDB).filter_by(
+        filiere_id=filiere_id,
+        matiere_id=matiere_id,
+        niveau=niveau,
+        semestre=semestre,
+        chapitre=chapitre
+    ).first()
+    
+    if existing:
+        return RedirectResponse(url="/dashboard/prof?error=Ce chapitre existe déjà pour ce niveau/semestre/matière", status_code=303)
 
-    # Helper function to save multiple files (UNE SEULE FOIS pour tous les chapitres)
+    # Helper function to save multiple files
     async def save_files(files: list, type_folder: str) -> tuple[str, str]:
         """Save multiple files and return names and paths separated by |||"""
         if not files or len(files) == 0:
@@ -1385,119 +1339,87 @@ async def create_chapitre_complet(
         return "|||".join(file_names), "|||".join(file_paths)
     
     try:
-        # Save files ONCE (tous les chapitres vont partager ces mêmes fichiers)
+        # Save files
         cours_nom, cours_path = await save_files(cours_files, "cours")
         exercice_nom, exercice_path = await save_files(exercice_files, "exercices")
         solution_nom, solution_path = await save_files(solution_files, "solutions")
         
-        # Compteurs pour le message de succès
-        created_count = 0
-        skipped_count = 0
+        # Create complete chapter in PostgreSQL
+        nouveau_chapitre = ChapitreCompletDB(
+            universite_id=universite_id,
+            ufr_id=ufr_id,
+            filiere_id=filiere_id,
+            matiere_id=matiere_id,
+            niveau=niveau,
+            semestre=semestre,
+            chapitre=chapitre,
+            titre=titre,
+            # Cours
+            cours_texte=cours_texte,
+            cours_fichier_nom=cours_nom,
+            cours_fichier_path=cours_path,
+            # Exercices
+            exercice_texte=exercice_texte,
+            exercice_fichier_nom=exercice_nom,
+            exercice_fichier_path=exercice_path,
+            # Solutions
+            solution_texte=solution_texte,
+            solution_fichier_nom=solution_nom,
+            solution_fichier_path=solution_path,
+            created_by=prof_username
+        )
         
-        # Récupérer hiérarchie des niveaux pour notifications
-        level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
-        chapter_level_value = level_hierarchy.get(niveau, 0)
-        eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
-        
-        # BOUCLE DE CRÉATION : UFR × Filière × Matière
-        for ufr_id in ufr_ids:
-            for filiere_id in filiere_ids:
-                # Vérifier cohérence : filière appartient à l'UFR
-                filiere = db.query(FiliereDB).filter_by(id=filiere_id).first()
-                if not filiere or filiere.ufr_id != ufr_id:
-                    continue  # Skip si incohérent
-                
-                for matiere_id in matiere_ids:
-                    # Vérifier cohérence : matière appartient à la filière
-                    matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
-                    if not matiere or matiere.filiere_id != filiere_id:
-                        continue  # Skip si incohérent
-                    
-                    # Vérifier si le chapitre existe déjà (anti-doublon)
-                    existing = db.query(ChapitreCompletDB).filter_by(
-                        filiere_id=filiere_id,
-                        matiere_id=matiere_id,
-                        niveau=niveau,
-                        semestre=semestre,
-                        chapitre=chapitre
-                    ).first()
-                    
-                    if existing:
-                        skipped_count += 1
-                        continue  # Skip si déjà existant
-                    
-                    # Créer le chapitre
-                    nouveau_chapitre = ChapitreCompletDB(
-                        universite_id=universite_id,
-                        ufr_id=ufr_id,
-                        filiere_id=filiere_id,
-                        matiere_id=matiere_id,
-                        niveau=niveau,
-                        semestre=semestre,
-                        chapitre=chapitre,
-                        titre=titre,
-                        # Cours (références partagées)
-                        cours_texte=cours_texte,
-                        cours_fichier_nom=cours_nom,
-                        cours_fichier_path=cours_path,
-                        # Exercices (références partagées)
-                        exercice_texte=exercice_texte,
-                        exercice_fichier_nom=exercice_nom,
-                        exercice_fichier_path=exercice_path,
-                        # Solutions (références partagées)
-                        solution_texte=solution_texte,
-                        solution_fichier_nom=solution_nom,
-                        solution_fichier_path=solution_path,
-                        created_by=prof_username
-                    )
-                    
-                    db.add(nouveau_chapitre)
-                    created_count += 1
-        
-        # Commit tous les chapitres créés
+        db.add(nouveau_chapitre)
         db.commit()
+        db.refresh(nouveau_chapitre)
         
-        # Créer des notifications pour les étudiants concernés
+        # Créer des notifications pour tous les étudiants de la filière
         try:
-            # Récupérer tous les étudiants de toutes les filières sélectionnées
-            etudiants = db.query(EtudiantDB).filter(
-                EtudiantDB.filiere_id.in_(filiere_ids),
-                EtudiantDB.niveau.in_(eligible_levels)
-                ).all()
+            # Récupérer les informations nécessaires
+            matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
+            filiere = db.query(FiliereDB).filter_by(id=filiere_id).first()
             
-            # Grouper les notifications par étudiant (éviter doublons)
-            etudiants_notified = set()
+            matiere_nom = matiere.nom if matiere else "Matière"
+            filiere_nom = filiere.nom if filiere else "Filière"
+            
+            # Récupérer tous les étudiants de cette filière qui peuvent voir ce chapitre
+            # Selon le système hiérarchique : les étudiants d'un niveau peuvent voir les chapitres de leur niveau et inférieurs
+            # Donc si on crée un chapitre L1, tous les étudiants (L1, L2, L3, M1, M2) doivent recevoir une notification
+            level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+            chapter_level_value = level_hierarchy.get(niveau, 0)
+            
+            # Récupérer tous les étudiants de la filière dont le niveau >= niveau du chapitre
+            eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
+            
+            etudiants = db.query(EtudiantDB).filter(
+                EtudiantDB.filiere_id == filiere_id,
+                EtudiantDB.niveau.in_(eligible_levels)
+            ).all()
+            
+            # Créer une notification pour chaque étudiant
             for etudiant in etudiants:
-                if etudiant.id not in etudiants_notified:
-                    notification = NotificationDB(
-                        type='nouveau_chapitre',
-                        message=f"📚 {created_count} nouveau(x) chapitre(s) ajouté(s) : {chapitre} - {titre} ({niveau} {semestre})",
-                        destinataire_type='etudiant',
-                        destinataire_id=etudiant.id,
-                        lien=f"/dashboard/etudiant",
-                        universite_id=universite_id
-                    )
-                    db.add(notification)
-                    etudiants_notified.add(etudiant.id)
+                notification = NotificationDB(
+                    type='nouveau_chapitre',
+                    message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre})",
+                    destinataire_type='etudiant',
+                    destinataire_id=etudiant.id,
+                    lien=f"/dashboard/etudiant",
+                    chapitre_id=nouveau_chapitre.id,
+                    universite_id=universite_id
+                )
+                db.add(notification)
             
             db.commit()
-            print(f"✅ {len(etudiants_notified)} étudiants notifiés pour {created_count} chapitres créés")
+            print(f"✅ {len(etudiants)} notifications créées pour le nouveau chapitre {chapitre}")
         except Exception as e:
+            # Ne pas bloquer la création du chapitre si les notifications échouent
             print(f"⚠️ Erreur lors de la création des notifications: {e}")
         
-        # Message de succès détaillé
-        if created_count > 0 and skipped_count > 0:
-            success_msg = f"✅ {created_count} chapitre(s) créé(s) | ⚠️ {skipped_count} déjà existant(s)"
-        elif created_count > 0:
-            success_msg = f"✅ {created_count} chapitre(s) créé(s) avec succès"
-        else:
-            success_msg = f"⚠️ Aucun chapitre créé ({skipped_count} déjà existant(s))"
-        
-        return RedirectResponse(url=f"/dashboard/prof?success={success_msg}", status_code=303)
+        return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
-        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création des chapitres: {str(e)}", status_code=303)
+        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de la création du chapitre: {str(e)}", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str, request: Request):
