@@ -2,10 +2,10 @@
   "name": "Étude LINE - Plateforme Éducative",
   "short_name": "Étude LINE",
   "description": "Plateforme éducative pour professeurs et étudiants - Partagez et accédez à vos cours, exercices et solutions",
-  "start_url": "/?source=pwa",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
   "icons": [
@@ -22,58 +22,16 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "productivity", "utilities"],
+  "categories": ["education", "productivity"],
   "lang": "fr-FR",
   "dir": "ltr",
-  "prefer_related_applications": false,
-  "related_applications": [],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "screenshots": [],
   "shortcuts": [
     {
       "name": "Connexion",
-      "short_name": "Login",
-      "description": "Accéder à votre compte",
-      "url": "/login?source=shortcut",
-      "icons": [
-        {
-          "src": "/static/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Dashboard Étudiant",
-      "short_name": "Étudiant",
-      "description": "Accéder au tableau de bord étudiant",
-      "url": "/dashboard/student?source=shortcut",
-      "icons": [
-        {
-          "src": "/static/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Dashboard Professeur",
-      "short_name": "Professeur",
-      "description": "Accéder au tableau de bord professeur",
-      "url": "/dashboard/prof?source=shortcut",
-      "icons": [
-        {
-          "src": "/static/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Dashboard Admin",
-      "short_name": "Admin",
-      "description": "Accéder au panneau d'administration",
-      "url": "/dashboard/admin?source=shortcut",
+      "short_name": "Connexion",
+      "description": "Se connecter à votre compte",
+      "url": "/login",
       "icons": [
         {
           "src": "/static/icons/icon-192.png",
@@ -82,52 +40,5 @@
         }
       ]
     }
-  ],
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "file",
-          "accept": ["application/pdf", "image/*", "video/*"]
-        }
-      ]
-    }
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+etudeline",
-      "url": "/?protocol=%s"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/upload",
-      "accept": {
-        "application/pdf": [".pdf"],
-        "video/*": [".mp4", ".webm", ".avi"],
-        "image/*": [".png", ".jpg", ".jpeg", ".webp"]
-      },
-      "icons": [
-        {
-          "src": "/static/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ],
-      "launch_type": "single-client"
-    }
-  ],
-  "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
-  },
-  "edge_side_panel": {
-    "preferred_width": 480
-  },
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"]
+  ]
 }

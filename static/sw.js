@@ -1,15 +1,6 @@
-const CACHE_VERSION = 'etude-line-v11';
-const STATIC_CACHE = 'etude-line-static-v11';
-const DYNAMIC_CACHE = 'etude-line-dynamic-v11';
-const FONT_CACHE = 'etude-line-fonts-v11';
-const IMAGE_CACHE = 'etude-line-images-v11';
-
-// Limite de taille des caches (en nombre d'entrées)
-const MAX_CACHE_SIZE = {
-  dynamic: 50,
-  images: 100,
-  fonts: 20
-};
+const CACHE_VERSION = 'etude-line-v10';
+const STATIC_CACHE = 'etude-line-static-v10';
+const DYNAMIC_CACHE = 'etude-line-dynamic-v10';
 
 const STATIC_ASSETS = [
   '/',
@@ -38,7 +29,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          if (![STATIC_CACHE, DYNAMIC_CACHE, FONT_CACHE, IMAGE_CACHE].includes(cache)) {
+          if (cache !== STATIC_CACHE && cache !== DYNAMIC_CACHE) {
             console.log('[Service Worker] Suppression ancien cache:', cache);
             return caches.delete(cache);
           }
@@ -56,16 +47,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Fonts : cache first avec cache dédié
-  if (url.pathname.match(/\.(woff2?|ttf|otf|eot)$/)) {
-    event.respondWith(cacheFirstWithLimit(request, FONT_CACHE, MAX_CACHE_SIZE.fonts));
-  }
-  // Images : cache first avec cache dédié et limite
-  else if (url.pathname.match(/\.(png|jpg|jpeg|webp|svg|gif|ico)$/)) {
-    event.respondWith(cacheFirstWithLimit(request, IMAGE_CACHE, MAX_CACHE_SIZE.images));
-  }
-  // Fichiers statiques CSS/JS : cache first
-  else if (url.pathname.startsWith('/static/')) {
+  // Fichiers statiques : cache first
+  if (url.pathname.startsWith('/static/')) {
     event.respondWith(cacheFirstStrategy(request));
   } 
   // Routes API : network only (jamais de cache)
@@ -147,63 +130,6 @@ async function networkOnlyWithOfflineFallback(request) {
     });
   }
 }
-
-// Stratégie cache-first avec limite de taille
-async function cacheFirstWithLimit(request, cacheName, maxSize) {
-  const cached = await caches.match(request);
-  if (cached) {
-    return cached;
-  }
-  
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(cacheName);
-      
-      // Limiter la taille du cache
-      const keys = await cache.keys();
-      if (keys.length >= maxSize) {
-        // Supprimer le plus ancien
-        await cache.delete(keys[0]);
-      }
-      
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    console.log('[Service Worker] Erreur cache-first-limit:', error);
-    return new Response('Offline', { status: 503 });
-  }
-}
-
-// Nettoyer les caches périodiquement
-async function cleanupCaches() {
-  try {
-    const cacheCleanups = [
-      { name: DYNAMIC_CACHE, max: MAX_CACHE_SIZE.dynamic },
-      { name: IMAGE_CACHE, max: MAX_CACHE_SIZE.images },
-      { name: FONT_CACHE, max: MAX_CACHE_SIZE.fonts }
-    ];
-    
-    for (const { name, max } of cacheCleanups) {
-      const cache = await caches.open(name);
-      const keys = await cache.keys();
-      
-      if (keys.length > max) {
-        const deleteCount = keys.length - max;
-        for (let i = 0; i < deleteCount; i++) {
-          await cache.delete(keys[i]);
-        }
-        console.log(`[Service Worker] Nettoyé ${deleteCount} entrées de ${name}`);
-      }
-    }
-  } catch (error) {
-    console.log('[Service Worker] Erreur nettoyage cache:', error);
-  }
-}
-
-// Nettoyer les caches toutes les heures
-setInterval(cleanupCaches, 3600000);
 
 // Gestion des notifications push
 self.addEventListener('push', (event) => {

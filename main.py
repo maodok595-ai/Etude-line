@@ -10,7 +10,6 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, validator
 from passlib.context import CryptContext
 from itsdangerous import URLSafeTimedSerializer
@@ -50,36 +49,13 @@ UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 app = FastAPI(title="Étude LINE", description="Application éducative")
 templates = Jinja2Templates(directory="templates")
 
-# Add GZip compression middleware for performance
-app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
-
 # Middleware pour les en-têtes HTTP (PWA et iframe support)
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     # Pas de X-Frame-Options pour permettre l'affichage dans iframe
     # Pas de CSP strict pour permettre les inline scripts
-    
-    # Cache control optimisé selon le type de ressource
-    path = request.url.path
-    if path.startswith("/static/"):
-        # Ressources statiques : cache longue durée (1 an) avec immutabilité
-        if any(path.endswith(ext) for ext in ['.css', '.js', '.png', '.jpg', '.jpeg', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf']):
-            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-        else:
-            response.headers["Cache-Control"] = "public, max-age=86400"
-    elif path.startswith("/api/"):
-        # API : jamais de cache
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-    elif path.startswith("/dashboard/"):
-        # Dashboards : pas de cache mais revalidation autorisée
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    else:
-        # Autres pages : courte durée de cache avec revalidation
-        response.headers["Cache-Control"] = "public, max-age=300, must-revalidate"
-    
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
 # Mount static files
@@ -1063,31 +1039,17 @@ async def register_etudiant(
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     """Login form"""
-    # Ne pas rediriger automatiquement si l'utilisateur vient de se déconnecter
-    logout_param = request.query_params.get("logout")
+    user = get_current_user(request)
+    if user:
+        role, username = user
+        if role == "prof":
+            return RedirectResponse(url="/dashboard/prof", status_code=303)
+        elif role == "admin":
+            return RedirectResponse(url="/dashboard/admin", status_code=303)
+        else:
+            return RedirectResponse(url="/dashboard/etudiant", status_code=303)
     
-    if not logout_param:
-        user = get_current_user(request)
-        if user:
-            role, username = user
-            if role == "prof":
-                return RedirectResponse(url="/dashboard/prof", status_code=303)
-            elif role == "admin":
-                return RedirectResponse(url="/dashboard/admin", status_code=303)
-            else:
-                return RedirectResponse(url="/dashboard/etudiant", status_code=303)
-    
-    # Créer la réponse avec suppression du cookie pour s'assurer de la déconnexion
-    response = templates.TemplateResponse("login.html", {"request": request})
-    if logout_param:
-        response.delete_cookie("session")
-        response.delete_cookie("session", path="/")
-        response.delete_cookie("session", domain=None)
-        # Forcer le non-cache de cette page
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-    
-    return response
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
 async def login(
@@ -1124,19 +1086,10 @@ async def login(
 @app.get("/logout")
 async def logout():
     """Logout user"""
-    # Rediriger vers /login avec paramètre pour éviter la re-connexion automatique
-    response = RedirectResponse(url="/login?logout=1", status_code=303)
-    
-    # Supprimer tous les cookies de session possibles
+    response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie("session")
     response.delete_cookie("session", path="/")
     response.delete_cookie("session", domain=None)
-    
-    # Forcer la suppression du cache pour cette réponse
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    
     return response
 
 @app.get("/clear")
