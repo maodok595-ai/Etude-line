@@ -1110,10 +1110,19 @@ async def login(
 @app.get("/logout")
 async def logout():
     """Logout user"""
-    response = RedirectResponse(url="/", status_code=303)
+    # Rediriger vers /login au lieu de / pour éviter la re-connexion automatique
+    response = RedirectResponse(url="/login", status_code=303)
+    
+    # Supprimer tous les cookies de session possibles
     response.delete_cookie("session")
     response.delete_cookie("session", path="/")
     response.delete_cookie("session", domain=None)
+    
+    # Forcer la suppression du cache pour cette réponse
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    
     return response
 
 @app.get("/clear")
