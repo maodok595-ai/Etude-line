@@ -1881,29 +1881,7 @@
                                                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                                                             <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
                                                         </div>
-                                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
-                                                            <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
-                                                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
-                                                                "id": "{{ chapitre.id }}",
-                                                                "titre": {{ chapitre.titre|tojson }},
-                                                                "cours_texte": {{ chapitre.cours_texte|tojson }},
-                                                                "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
-                                                                "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
-                                                                "exercice_texte": {{ chapitre.exercice_texte|tojson }},
-                                                                "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
-                                                                "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
-                                                                "solution_texte": {{ chapitre.solution_texte|tojson }},
-                                                                "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
-                                                                "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
-                                                            })' title="Modifier">
-                                                                ✏️
-                                                            </button>
-                                                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
-                                                                    🗑️
-                                                                </button>
-                                                            </div>
-                                                        </div>
+                                                        <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
                                                     </div>
                                                     
                                                     <!-- Contenu du chapitre (masqué par défaut) -->
@@ -2011,9 +1989,32 @@
                                     {% endif %}
                                     </div>
                                 </div>
-                                
-                                <!-- Section Commentaires -->
-                                <div class="commentaires-section">
+                            </div>
+                            
+                            <!-- Boutons de modification et suppression -->
+                            <div style="display: flex; gap: 0.75rem; justify-content: center; margin: 1.5rem 0; padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
+                                    "id": "{{ chapitre.id }}",
+                                    "titre": {{ chapitre.titre|tojson }},
+                                    "cours_texte": {{ chapitre.cours_texte|tojson }},
+                                    "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
+                                    "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
+                                    "exercice_texte": {{ chapitre.exercice_texte|tojson }},
+                                    "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
+                                    "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
+                                    "solution_texte": {{ chapitre.solution_texte|tojson }},
+                                    "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
+                                    "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
+                                })' style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
+                                    ✏️ Modifier le chapitre
+                                </button>
+                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" style="background: linear-gradient(135deg, #f87171, #ef4444); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); transition: all 0.3s ease;">
+                                    🗑️ Supprimer le chapitre
+                                </button>
+                            </div>
+                            
+                            <!-- Section Commentaires -->
+                            <div class="commentaires-section" style="margin-top: 0;">
                                     <h4 onclick="toggleCommentaires({{ chapitre.id }})">
                                         <span class="commentaires-toggle-arrow" id="commentaires-arrow-{{ chapitre.id }}">▸</span>
                                         💬 Commentaires & Discussion
