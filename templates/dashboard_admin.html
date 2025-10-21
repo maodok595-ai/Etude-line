@@ -2112,7 +2112,7 @@
             <!-- Formulaire de création (caché par défaut) -->
             <div id="passage-form-view" class="hidden">
                 <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('passage')" class="cancel-btn" title="Annuler">✕</button>
+                    <button type="button" onclick="closePassageForm()" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>🎓 Créer une règle de passage</h3>
                     </div>
@@ -3329,6 +3329,19 @@
         });
         
         // ========== HIÉRARCHIE DE PASSAGE ==========
+        
+        // Fermer le formulaire de création de passage
+        function closePassageForm() {
+            const formView = document.getElementById('passage-form-view');
+            const listView = document.getElementById('passage-list-view');
+            
+            if (formView && listView) {
+                formView.classList.add('hidden');
+                formView.style.display = 'none';
+                listView.style.display = 'block';
+                listView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
         
         // Charger les filières pour les selects
         async function loadFilieresForPassage() {
