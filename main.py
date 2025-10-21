@@ -1127,6 +1127,29 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
                 "logo_url": universite_obj.logo_url
             }
     
+    # Récupérer les UFRs et filières affectées au professeur via les relations many-to-many
+    prof_ufrs_affectees = []
+    prof_filieres_affectees = []
+    prof_matieres_affectees = []
+    
+    if prof:
+        # Récupérer toutes les UFRs affectées au professeur
+        prof_ufrs_affectees = prof.ufrs_multiples
+        
+        # Récupérer toutes les filières affectées au professeur
+        prof_filieres_affectees = prof.filieres_multiples
+        
+        # Récupérer toutes les matières de ces filières
+        if prof.matiere_id:
+            matiere_obj = db.query(MatiereDB).filter(MatiereDB.id == prof.matiere_id).first()
+            if matiere_obj:
+                prof_matieres_affectees = [matiere_obj]
+        else:
+            # Si le professeur a des filières affectées, récupérer toutes les matières de ces filières
+            filiere_ids = [f.id for f in prof_filieres_affectees]
+            if filiere_ids:
+                prof_matieres_affectees = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all()
+    
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
         "prof": prof,
@@ -1137,7 +1160,10 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
         "ufrs": ufrs,
         "filieres": filieres,
         "matieres": matieres,
-        "prof_universite": prof_universite
+        "prof_universite": prof_universite,
+        "prof_ufrs_affectees": prof_ufrs_affectees,
+        "prof_filieres_affectees": prof_filieres_affectees,
+        "prof_matieres_affectees": prof_matieres_affectees
     })
 
 @app.post("/prof/content")
