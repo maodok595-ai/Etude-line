@@ -1614,12 +1614,8 @@
                     {% endif %}
                     
                     {% if prof_ufrs_affectees and prof_ufrs_affectees|length > 0 %}
-                        <p><strong>🏢 UFR{{ 's' if prof_ufrs_affectees|length > 1 else '' }} affectée{{ 's' if prof_ufrs_affectees|length > 1 else '' }} :</strong></p>
-                        <ul style="margin: 0.5rem 0 0 1.5rem;">
-                            {% for ufr in prof_ufrs_affectees %}
-                                <li>{{ ufr.nom }}</li>
-                            {% endfor %}
-                        </ul>
+                        <p><strong>🏢 UFR{{ 's' if prof_ufrs_affectees|length > 1 else '' }} affectée{{ 's' if prof_ufrs_affectees|length > 1 else '' }} :</strong> 
+                        {% for ufr in prof_ufrs_affectees %}{{ ufr.nom }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
                     {% endif %}
                 </div>
             </div>
