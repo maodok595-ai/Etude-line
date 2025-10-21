@@ -3350,9 +3350,48 @@
                         selectArrivee.add(optionArrivee);
                     });
                 }
+                
+                // Initialiser la gestion de la checkbox "même filière"
+                initPassageMemeFiliere();
             } catch (error) {
                 console.error('Erreur lors du chargement des filières:', error);
             }
+        }
+        
+        // Gestion de la checkbox "Passage dans la même filière"
+        function initPassageMemeFiliere() {
+            const checkbox = document.getElementById('passage-meme-filiere');
+            const selectDepart = document.getElementById('passage-filiere-depart');
+            const selectArrivee = document.getElementById('passage-filiere-arrivee');
+            const labelArrivee = document.querySelector('label[for="passage-filiere-arrivee"]');
+            
+            if (!checkbox || !selectDepart || !selectArrivee) return;
+            
+            // Event listener sur la checkbox
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Copier la filière de départ vers la filière d'arrivée
+                    selectArrivee.value = selectDepart.value;
+                    selectArrivee.disabled = true;
+                    selectArrivee.style.opacity = '0.6';
+                    selectArrivee.style.cursor = 'not-allowed';
+                    if (labelArrivee) labelArrivee.style.opacity = '0.6';
+                } else {
+                    // Réactiver la sélection manuelle
+                    selectArrivee.disabled = false;
+                    selectArrivee.style.opacity = '1';
+                    selectArrivee.style.cursor = 'pointer';
+                    if (labelArrivee) labelArrivee.style.opacity = '1';
+                }
+            });
+            
+            // Event listener sur la filière de départ
+            selectDepart.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    // Si "même filière" est coché, synchroniser automatiquement
+                    selectArrivee.value = this.value;
+                }
+            });
         }
         
         // Charger les règles de passage
