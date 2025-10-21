@@ -115,6 +115,7 @@ class Professeur(Base):
     filiere_id = Column(String, ForeignKey("filieres.id"), nullable=True, index=True)
     matiere_id = Column(String, ForeignKey("matieres.id"), nullable=True, index=True)
     matiere = Column(String(200), nullable=True)
+    photo_profil = Column(String(500), nullable=True)  # Chemin vers la photo de profil
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations - Anciennes (one-to-many) pour rétrocompatibilité

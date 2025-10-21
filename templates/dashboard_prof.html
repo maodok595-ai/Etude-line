@@ -1593,9 +1593,27 @@
                     <div style="position: relative; z-index: 1;">
                         <!-- En-tête avec avatar et nom -->
                         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
-                            <div style="width: 55px; height: 55px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
-                                👨‍🏫
+                            <!-- Avatar avec upload photo -->
+                            <div style="position: relative; width: 55px; height: 55px;">
+                                <div style="width: 55px; height: 55px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 3px 10px rgba(0,0,0,0.15); overflow: hidden; cursor: pointer; position: relative;" onclick="document.getElementById('upload-photo-input').click();">
+                                    {% if prof.photo_profil %}
+                                        <img src="/{{ prof.photo_profil }}" alt="{{ prof.prenom }} {{ prof.nom }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <span>👨‍🏫</span>
+                                    {% endif %}
+                                    
+                                    <!-- Overlay au survol -->
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                                        <span style="color: white; font-size: 1.5rem;">📷</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Formulaire d'upload caché -->
+                                <form action="/prof/upload-photo" method="post" enctype="multipart/form-data" id="upload-photo-form" style="display: none;">
+                                    <input type="file" id="upload-photo-input" name="photo" accept="image/*" onchange="document.getElementById('upload-photo-form').submit();">
+                                </form>
                             </div>
+                            
                             <div>
                                 <h3 style="color: white; margin: 0; font-size: 1.3rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                     {{ prof.prenom }} {{ prof.nom }}
