@@ -4125,6 +4125,57 @@ async def toggle_telechargements(
         "message": f"Téléchargements {'activés' if parametre.valeur == 'true' else 'désactivés'}"
     }
 
+@app.get("/api/parametres/passage-classe")
+async def get_passage_classe_status(db: Session = Depends(get_db)):
+    """Récupérer l'état d'activation du passage en classe supérieure"""
+    parametre = db.query(ParametreSystemeDB).filter_by(cle="passage_classe_actif").first()
+    
+    if not parametre:
+        # Créer le paramètre par défaut s'il n'existe pas (activé par défaut)
+        parametre = ParametreSystemeDB(
+            cle="passage_classe_actif",
+            valeur="true",
+            description="Active ou désactive la fonction de passage en classe supérieure pour tous les étudiants"
+        )
+        db.add(parametre)
+        db.commit()
+    
+    return {"actif": parametre.valeur == "true"}
+
+@app.post("/api/parametres/passage-classe/toggle")
+async def toggle_passage_classe(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Basculer l'état du passage en classe supérieure (admin uniquement)"""
+    role, username, user_data = require_auth(request, db)
+    
+    # Vérifier que c'est un administrateur
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    parametre = db.query(ParametreSystemeDB).filter_by(cle="passage_classe_actif").first()
+    
+    if not parametre:
+        # Créer le paramètre s'il n'existe pas (désactivé)
+        parametre = ParametreSystemeDB(
+            cle="passage_classe_actif",
+            valeur="false",
+            description="Active ou désactive la fonction de passage en classe supérieure pour tous les étudiants"
+        )
+        db.add(parametre)
+    else:
+        # Basculer la valeur
+        parametre.valeur = "false" if parametre.valeur == "true" else "true"
+    
+    db.commit()
+    
+    return {
+        "success": True,
+        "actif": parametre.valeur == "true",
+        "message": f"Passage en classe supérieure {'activé' if parametre.valeur == 'true' else 'désactivé'}"
+    }
+
 if __name__ == "__main__":
     print("=" * 50)
     print("🎓 Étude LINE - Application Éducative")
