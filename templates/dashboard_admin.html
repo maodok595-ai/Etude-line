@@ -1358,6 +1358,70 @@
         
         <!-- Onglet Administrateurs -->
         <div id="content-admin" class="tab-content active">
+            <!-- Formulaire de création -->
+            {% if admin.is_main_admin %}
+            <div id="admin-form-view">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0 0 1rem;" onclick="toggleSection('admin-creation')">
+                    <span>👑 Créer un administrateur</span>
+                    <span id="arrow-admin-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="admin-creation" style="display: none;">
+                    <div class="card" style="position: relative;">
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
+                            <strong>⚠️ Privilège d'administrateur principal</strong><br>
+                            Vous seul pouvez ajouter de nouveaux administrateurs.
+                        </div>
+                        <form action="/admin/create-admin" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="admin-nom">Nom</label>
+                                <input type="text" id="admin-nom" name="nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-prenom">Prénom</label>
+                                <input type="text" id="admin-prenom" name="prenom" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-username">Nom d'utilisateur</label>
+                            <input type="text" id="admin-username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-universite">Université gérée</label>
+                            <input type="search" id="search-admin-universite" 
+                                   placeholder="🔍 Rechercher une université..." 
+                                   oninput="filterSelectOptions('search-admin-universite', 'admin-universite')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
+                            <select id="admin-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                            <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                                Cet administrateur pourra uniquement gérer les entités de cette université.
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-password">Mot de passe</label>
+                            <div class="password-field">
+                                <input type="password" id="admin-password" name="password" autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('admin-password')">
+                                    👁️
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">Créer l'administrateur</button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Vue liste -->
             <div id="admin-list-view">
                 
@@ -1433,70 +1497,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Formulaire de création -->
-            {% if admin.is_main_admin %}
-            <div id="admin-form-view">
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('admin-creation')">
-                    <span>👑 Créer un administrateur</span>
-                    <span id="arrow-admin-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="admin-creation" style="display: none;">
-                    <div class="card" style="position: relative;">
-                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
-                            <strong>⚠️ Privilège d'administrateur principal</strong><br>
-                            Vous seul pouvez ajouter de nouveaux administrateurs.
-                        </div>
-                        <form action="/admin/create-admin" method="post">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="admin-nom">Nom</label>
-                                <input type="text" id="admin-nom" name="nom" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="admin-prenom">Prénom</label>
-                                <input type="text" id="admin-prenom" name="prenom" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-username">Nom d'utilisateur</label>
-                            <input type="text" id="admin-username" name="username" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-universite">Université gérée</label>
-                            <input type="search" id="search-admin-universite" 
-                                   placeholder="🔍 Rechercher une université..." 
-                                   oninput="filterSelectOptions('search-admin-universite', 'admin-universite')"
-                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="admin-universite" name="universite_id" required>
-                                <option value="">Sélectionner une université</option>
-                                {% for uni in universites %}
-                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
-                                {% endfor %}
-                            </select>
-                            <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
-                                Cet administrateur pourra uniquement gérer les entités de cette université.
-                            </small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-password">Mot de passe</label>
-                            <div class="password-field">
-                                <input type="password" id="admin-password" name="password" autocomplete="new-password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('admin-password')">
-                                    👁️
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn">Créer l'administrateur</button>
-                    </form>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
 
         <div id="content-prof" class="tab-content">
