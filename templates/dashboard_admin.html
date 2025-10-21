@@ -2114,14 +2114,24 @@
             <!-- Vue liste -->
             <div id="passage-list-view">
                 
-                <h3 style="margin: 2rem 0 1rem;">📘 Règles de passage existantes</h3>
-                <div id="passage-list-container">
-                    <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-regles')">
+                    <span>📘 Règles de passage existantes</span>
+                    <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="passage-regles" style="display: none;">
+                    <div id="passage-list-container">
+                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
+                    </div>
                 </div>
                 
-                <h3 style="margin: 2rem 0 1rem;">📊 Statistiques des passages</h3>
-                <div id="passage-stats-container">
-                    <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-stats')">
+                    <span>📊 Statistiques des passages</span>
+                    <span id="arrow-passage-stats" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="passage-stats" style="display: none;">
+                    <div id="passage-stats-container">
+                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
+                    </div>
                 </div>
             </div>
             
