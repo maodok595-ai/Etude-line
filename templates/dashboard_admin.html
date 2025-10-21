@@ -3514,22 +3514,22 @@
                 if (!container) return;
                 
                 let html = `
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                            <h3 style="color: white;">Total passages</h3>
-                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.total}</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 0.75rem 1rem;">
+                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Total passages</h3>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.total}</div>
                         </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
-                            <h3 style="color: white;">Passés</h3>
-                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.passes}</div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 0.75rem 1rem;">
+                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Passés</h3>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.passes}</div>
                         </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);">
-                            <h3 style="color: white;">Redoublants</h3>
-                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.redoublants}</div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); padding: 0.75rem 1rem;">
+                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Redoublants</h3>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.redoublants}</div>
                         </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);">
-                            <h3 style="color: white;">Changements filière</h3>
-                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.changements_filiere}</div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); padding: 0.75rem 1rem;">
+                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Changements filière</h3>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.changements_filiere}</div>
                         </div>
                     </div>
                 `;
