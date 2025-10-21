@@ -4310,15 +4310,23 @@ async def toggle_passage_classe(
     }
 
 if __name__ == "__main__":
+    import os
+    
+    # Utiliser la variable PORT de Render ou 5000 par défaut (développement local)
+    port = int(os.environ.get("PORT", 5000))
+    
+    # Détecter l'environnement (production ou développement)
+    is_production = os.environ.get("RENDER") is not None
+    
     print("=" * 50)
     print("🎓 Étude LINE - Application Éducative")
     print("=" * 50)
-    print(f"🌐 Application démarrée sur: http://0.0.0.0:5000")
+    print(f"🌐 Application démarrée sur: http://0.0.0.0:{port}")
     print("💰 Accès gratuit pour tous les étudiants")
-    print(f"🔗 Webhook Wave URL: http://0.0.0.0:5000/webhook/wave")
-    
+    print(f"🔗 Webhook Wave URL: http://0.0.0.0:{port}/webhook/wave")
+    print(f"🖥️  Environnement: {'PRODUCTION (Render)' if is_production else 'DÉVELOPPEMENT (Local)'}")
     print("🎓 Système de paiement supprimé - accès libre")
-    
     print("=" * 50)
     
-    uvicorn.run(app, host="0.0.0.0", port=5000, reload=True)
+    # En production: pas de reload, en développement: reload activé
+    uvicorn.run(app, host="0.0.0.0", port=port, reload=not is_production)
