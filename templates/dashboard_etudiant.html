@@ -1196,7 +1196,7 @@
         </div>
         
         <!-- Bouton de passage en classe supérieure -->
-        <div style="display: flex; justify-content: center; margin: 1.5rem 0;">
+        <div id="passage-classe-container" style="display: flex; justify-content: center; margin: 1.5rem 0;">
             <button onclick="openPassageModal()" 
                     style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); transition: all 0.3s ease;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(139, 92, 246, 0.4)';"
@@ -1940,7 +1940,24 @@
             }
         });
         
+        // Vérifier l'état du passage en classe supérieure
+        async function checkPassageClasseStatus() {
+            try {
+                const response = await fetch('/api/parametres/passage-classe');
+                const data = await response.json();
+                
+                const container = document.getElementById('passage-classe-container');
+                if (container) {
+                    container.style.display = data.actif ? 'flex' : 'none';
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état du passage:', error);
+                // En cas d'erreur, afficher le bouton par défaut
+            }
+        }
+        
         // Load content on page load
+        checkPassageClasseStatus();
         loadContent();
         updateNotificationCount();
         
