@@ -2148,6 +2148,8 @@
         
         // NOUVELLE LOGIQUE : Charger automatiquement les UFR affectées au prof au chargement de la page
         async function loadProfessorUFRs() {
+            if (!ufrSelect) return;
+            
             resetSelect(ufrSelect, 'Chargement de vos UFR...');
             
             try {
@@ -2188,63 +2190,69 @@
         }
         
         // MODIFICATION : Charge uniquement les filières affectées au prof pour l'UFR sélectionné
-        ufrSelect.addEventListener('change', async function() {
-            const ufrId = this.value;
-            
-            // Réinitialise les sélecteurs suivants
-            resetSelect(filiereSelect, 'Chargement de vos filières...');
-            resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
-            
-            if (ufrId) {
-                try {
-                    const response = await fetch(`/api/prof/filieres/${ufrId}`);
-                    const data = await response.json();
-                    
-                    if (data.filieres && data.filieres.length > 0) {
-                        filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
-                        data.filieres.forEach(filiere => {
-                            const option = document.createElement('option');
-                            option.value = filiere.id;
-                            option.textContent = filiere.nom;
-                            filiereSelect.appendChild(option);
-                        });
-                        filiereSelect.disabled = false;
-                    } else {
-                        resetSelect(filiereSelect, 'Aucune filière affectée dans cette UFR');
+        if (ufrSelect) {
+            ufrSelect.addEventListener('change', async function() {
+                const ufrId = this.value;
+                
+                // Réinitialise les sélecteurs suivants
+                if (filiereSelect) resetSelect(filiereSelect, 'Chargement de vos filières...');
+                if (matiereSelect) resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
+                
+                if (ufrId) {
+                    try {
+                        const response = await fetch(`/api/prof/filieres/${ufrId}`);
+                        const data = await response.json();
+                        
+                        if (data.filieres && data.filieres.length > 0 && filiereSelect) {
+                            filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                            data.filieres.forEach(filiere => {
+                                const option = document.createElement('option');
+                                option.value = filiere.id;
+                                option.textContent = filiere.nom;
+                                filiereSelect.appendChild(option);
+                            });
+                            filiereSelect.disabled = false;
+                        } else if (filiereSelect) {
+                            resetSelect(filiereSelect, 'Aucune filière affectée dans cette UFR');
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors du chargement des filières:', error);
+                        if (filiereSelect) resetSelect(filiereSelect, 'Erreur lors du chargement');
                     }
-                } catch (error) {
-                    console.error('Erreur lors du chargement des filières:', error);
-                    resetSelect(filiereSelect, 'Erreur lors du chargement');
                 }
-            }
-        });
+            });
+        }
         
         // Charge les matières quand une filière est sélectionnée
-        filiereSelect.addEventListener('change', async function() {
-            const filiereId = this.value;
-            
-            // Réinitialise le sélecteur suivant
-            resetSelect(matiereSelect, 'Chargement des matières...');
-            
-            if (filiereId) {
-                try {
-                    const response = await fetch(`/api/matieres/${filiereId}`);
-                    const data = await response.json();
-                    
-                    matiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
-                    data.matieres.forEach(matiere => {
-                        const option = document.createElement('option');
-                        option.value = matiere.id;
-                        option.textContent = matiere.nom;
-                        matiereSelect.appendChild(option);
-                    });
-                    matiereSelect.disabled = false;
-                } catch (error) {
-                    console.error('Erreur lors du chargement des matières:', error);
-                    resetSelect(matiereSelect, 'Erreur lors du chargement');
+        if (filiereSelect) {
+            filiereSelect.addEventListener('change', async function() {
+                const filiereId = this.value;
+                
+                // Réinitialise le sélecteur suivant
+                if (matiereSelect) resetSelect(matiereSelect, 'Chargement des matières...');
+                
+                if (filiereId) {
+                    try {
+                        const response = await fetch(`/api/matieres/${filiereId}`);
+                        const data = await response.json();
+                        
+                        if (matiereSelect) {
+                            matiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
+                            data.matieres.forEach(matiere => {
+                                const option = document.createElement('option');
+                                option.value = matiere.id;
+                                option.textContent = matiere.nom;
+                                matiereSelect.appendChild(option);
+                            });
+                            matiereSelect.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors du chargement des matières:', error);
+                        if (matiereSelect) resetSelect(matiereSelect, 'Erreur lors du chargement');
+                    }
                 }
-            }
-        });
+            });
+        }
         
         // Fonction de filtrage pour les dropdowns
         function filterDropdown(selectId, searchInputId) {
