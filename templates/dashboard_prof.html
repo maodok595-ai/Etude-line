@@ -1899,7 +1899,7 @@
                                         {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem; word-break: break-word; max-width: 100%;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem; overflow-wrap: break-word; word-wrap: break-word; max-width: 100%;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -1933,7 +1933,7 @@
                                         {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem; word-break: break-word; max-width: 100%;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem; overflow-wrap: break-word; word-wrap: break-word; max-width: 100%;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -1967,7 +1967,7 @@
                                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; word-break: break-word; max-width: 100%;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; overflow-wrap: break-word; word-wrap: break-word; max-width: 100%;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
