@@ -333,10 +333,9 @@
             .chapitre-titre {
                 font-size: 0.85rem !important;
                 flex: 1;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                min-width: 150px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                min-width: 0;
             }
             
             .chapitre-content-new {
@@ -576,10 +575,9 @@
             .chapitre-titre {
                 font-size: 0.8rem !important;
                 flex: 1;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                min-width: 120px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                min-width: 0;
             }
             
             .stat-value {
@@ -988,10 +986,9 @@
             color: #333;
             font-size: 0.95rem;
             flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 200px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
         }
         
         .chapitre-content-new {
@@ -1923,7 +1920,7 @@
                                         {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -1957,7 +1954,7 @@
                                         {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -1991,7 +1988,7 @@
                                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
