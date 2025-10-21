@@ -3220,6 +3220,58 @@ async def get_matieres_api(filiere_id: str, db: Session = Depends(get_db)):
     matieres = get_matieres_by_filiere(db, filiere_id)
     return {"matieres": matieres}
 
+# APIs spécifiques pour les professeurs - filtrage par affectations
+@app.get("/api/prof/ufrs")
+async def get_prof_ufrs_api(request: Request, db: Session = Depends(get_db)):
+    """Get only UFRs assigned to the logged-in professor"""
+    prof_username, prof_user_data = require_prof(request, db)
+    
+    # Récupérer le professeur avec ses UFR affectées
+    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
+    
+    if not prof:
+        return {"ufrs": []}
+    
+    # Récupérer uniquement les UFR affectées au professeur via la relation many-to-many
+    ufrs_assigned = prof.ufrs_multiples
+    
+    return {
+        "ufrs": [
+            {
+                "id": ufr.id,
+                "nom": ufr.nom,
+                "code": ufr.code
+            } for ufr in ufrs_assigned
+        ]
+    }
+
+@app.get("/api/prof/filieres/{ufr_id}")
+async def get_prof_filieres_api(ufr_id: str, request: Request, db: Session = Depends(get_db)):
+    """Get only filières assigned to the logged-in professor within a specific UFR"""
+    prof_username, prof_user_data = require_prof(request, db)
+    
+    # Récupérer le professeur avec ses filières affectées
+    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
+    
+    if not prof:
+        return {"filieres": []}
+    
+    # Filtrer uniquement les filières affectées au prof ET appartenant à l'UFR sélectionné
+    filieres_assigned = [
+        filiere for filiere in prof.filieres_multiples 
+        if filiere.ufr_id == ufr_id
+    ]
+    
+    return {
+        "filieres": [
+            {
+                "id": filiere.id,
+                "nom": filiere.nom,
+                "code": filiere.code
+            } for filiere in filieres_assigned
+        ]
+    }
+
 # APIs pour l'administration - récupérer toutes les données
 @app.get("/api/universites")
 async def get_all_universites_api(db: Session = Depends(get_db)):
