@@ -1341,9 +1341,13 @@
             <!-- Vue liste -->
             <div id="admin-list-view">
                 {% if admin.is_main_admin %}
-                <button onclick="toggleForm('admin')" class="create-btn">
-                    ➕ Créer un administrateur
-                </button>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;" 
+                        onclick="toggleForm('admin')">
+                        <span>👑 Créer un administrateur</span>
+                        <span id="arrow-form-admin" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
+                    </h3>
+                </div>
                 {% endif %}
                 
                 <!-- Liste des administrateurs -->
@@ -2099,9 +2103,13 @@
         <div class="card">
             <!-- Vue liste -->
             <div id="passage-list-view">
-                <button onclick="toggleForm('passage')" class="create-btn">
-                    ➕ Créer une règle de passage
-                </button>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;" 
+                        onclick="toggleForm('passage')">
+                        <span>🎓 Créer une règle de passage</span>
+                        <span id="arrow-form-passage" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
+                    </h3>
+                </div>
                 
                 <h3 style="margin: 2rem 0 1rem;">📘 Règles de passage existantes</h3>
                 <div id="passage-list-container">
@@ -3167,6 +3175,7 @@
         function toggleForm(formType) {
             const listView = document.getElementById(`${formType}-list-view`);
             const formView = document.getElementById(`${formType}-form-view`);
+            const arrow = document.getElementById(`arrow-form-${formType}`);
             
             if (!listView || !formView) return;
             
@@ -3177,6 +3186,9 @@
             
             if (isFormHidden) {
                 // Le formulaire est caché, donc on affiche le formulaire et cache la liste
+                // Mettre à jour la flèche si elle existe
+                if (arrow) arrow.textContent = '▲';
+                
                 listView.classList.add('fade-out');
                 setTimeout(() => {
                     listView.style.display = 'none';
@@ -3192,6 +3204,9 @@
                 }, 300);
             } else {
                 // Le formulaire est visible, donc on cache le formulaire et affiche la liste
+                // Mettre à jour la flèche si elle existe
+                if (arrow) arrow.textContent = '▼';
+                
                 formView.classList.remove('fade-in');
                 formView.classList.add('fade-out');
                 setTimeout(() => {
@@ -3208,6 +3223,7 @@
                 }, 300);
             }
         }
+
         
         // Fonction pour soumettre un formulaire en AJAX et recharger la page
         async function submitFormWithReload(event, formElement) {
@@ -3618,4 +3634,4 @@
         }
     </script>
 </body>
-</html>
+</html><!-- Cache buster v1761064306 -->
