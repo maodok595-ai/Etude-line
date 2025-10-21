@@ -1127,6 +1127,17 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
                 "logo_url": universite_obj.logo_url
             }
     
+    # Récupérer les UFR et filières affectées au professeur via relations many-to-many
+    prof_ufrs_assigned = []
+    prof_filieres_assigned = []
+    
+    if prof:
+        # Récupérer les UFR multiples via la relation many-to-many
+        prof_ufrs_assigned = [{"id": ufr.id, "nom": ufr.nom} for ufr in prof.ufrs_multiples]
+        
+        # Récupérer les filières multiples via la relation many-to-many
+        prof_filieres_assigned = [{"id": filiere.id, "nom": filiere.nom} for filiere in prof.filieres_multiples]
+    
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
         "prof": prof,
@@ -1137,7 +1148,9 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
         "ufrs": ufrs,
         "filieres": filieres,
         "matieres": matieres,
-        "prof_universite": prof_universite
+        "prof_universite": prof_universite,
+        "prof_ufrs_assigned": prof_ufrs_assigned,
+        "prof_filieres_assigned": prof_filieres_assigned
     })
 
 @app.post("/prof/content")

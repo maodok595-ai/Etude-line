@@ -1585,29 +1585,25 @@
                 <div class="user-info-box">
                     <p><strong>👨‍🏫 Professeur :</strong> {{ prof.prenom }} {{ prof.nom }}</p>
                     <p><strong>🎓 Spécialité :</strong> {{ prof.specialite }}</p>
-                    {% if prof.matiere_id %}
-                        {% for uni in universites %}
-                            {% if uni.id == prof.universite_id %}
-                                <p><strong>🏛️ Université :</strong> {{ uni.nom }}</p>
-                            {% endif %}
-                        {% endfor %}
-                        {% for ufr in ufrs %}
-                            {% if ufr.id == prof.ufr_id %}
-                                <p><strong>🏢 UFR :</strong> {{ ufr.nom }}</p>
-                            {% endif %}
-                        {% endfor %}
-                        {% for filiere in filieres %}
-                            {% if filiere.id == prof.filiere_id %}
-                                <p><strong>📖 Filière :</strong> {{ filiere.nom }}</p>
-                            {% endif %}
-                        {% endfor %}
-                        {% for matiere in matieres %}
-                            {% if matiere.id == prof.matiere_id %}
-                                <p><strong>📚 Matière :</strong> {{ matiere.nom }}</p>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <p><strong>📚 Matière :</strong> {{ prof.matiere }}</p>
+                    
+                    {% if prof_universite %}
+                        <p><strong>🏛️ Université :</strong> {{ prof_universite.nom }}</p>
+                    {% endif %}
+                    
+                    {% if prof_ufrs_assigned and prof_ufrs_assigned|length > 0 %}
+                        <p><strong>🏢 UFR affectées :</strong>
+                            {% for ufr in prof_ufrs_assigned %}
+                                <span style="display: inline-block; background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 5px; margin: 0.1rem; font-size: 0.85rem;">{{ ufr.nom }}</span>
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    
+                    {% if prof_filieres_assigned and prof_filieres_assigned|length > 0 %}
+                        <p><strong>📖 Filières affectées :</strong>
+                            {% for filiere in prof_filieres_assigned %}
+                                <span style="display: inline-block; background: #f3e5f5; color: #7b1fa2; padding: 0.2rem 0.5rem; border-radius: 5px; margin: 0.1rem; font-size: 0.85rem;">{{ filiere.nom }}</span>
+                            {% endfor %}
+                        </p>
                     {% endif %}
                 </div>
             </div>
