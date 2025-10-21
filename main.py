@@ -4142,7 +4142,7 @@ async def validate_student_passage(
 # ==================== ROUTES API PARAMÈTRES SYSTÈME ====================
 
 @app.get("/api/parametres/telechargements")
-async def get_telechargements_status(request: Request, universite_id: int = None, db: Session = Depends(get_db)):
+async def get_telechargements_status(request: Request, universite_id: str = None, db: Session = Depends(get_db)):
     """Récupérer l'état d'activation des téléchargements pour l'université de l'utilisateur"""
     try:
         role, username, user_data = require_auth(request, db)
@@ -4226,7 +4226,7 @@ async def toggle_telechargements(
     }
 
 @app.get("/api/parametres/passage-classe")
-async def get_passage_classe_status(request: Request, universite_id: int = None, db: Session = Depends(get_db)):
+async def get_passage_classe_status(request: Request, universite_id: str = None, db: Session = Depends(get_db)):
     """Récupérer l'état d'activation du passage en classe supérieure pour l'université de l'utilisateur"""
     try:
         role, username, user_data = require_auth(request, db)

@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'etude-line-v9';
-const STATIC_CACHE = 'etude-line-static-v9';
-const DYNAMIC_CACHE = 'etude-line-dynamic-v9';
+const CACHE_VERSION = 'etude-line-v10';
+const STATIC_CACHE = 'etude-line-static-v10';
+const DYNAMIC_CACHE = 'etude-line-dynamic-v10';
 
 const STATIC_ASSETS = [
   '/',
@@ -47,11 +47,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Fichiers statiques : cache first
   if (url.pathname.startsWith('/static/')) {
     event.respondWith(cacheFirstStrategy(request));
-  } else if (url.pathname.startsWith('/api/')) {
+  } 
+  // Routes API : network only (jamais de cache)
+  else if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkOnlyStrategy(request));
-  } else {
+  } 
+  // Dashboards et pages dynamiques : network only (toujours à jour)
+  else if (url.pathname.startsWith('/dashboard/')) {
+    event.respondWith(networkOnlyStrategy(request));
+  } 
+  // Autres pages (login, homepage) : network first avec fallback cache
+  else {
     event.respondWith(networkFirstStrategy(request));
   }
 });
