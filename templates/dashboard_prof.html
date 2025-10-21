@@ -967,7 +967,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 0.8rem;
             background: #fafafa;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
@@ -986,7 +986,7 @@
             flex: 1;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            max-width: 100%;
+            min-width: 0;
         }
         
         .chapitre-content-new {
@@ -1879,11 +1879,9 @@
                                                 <div class="chapitre-item">
                                                     <!-- Header du chapitre (toujours visible) -->
                                                     <div class="chapitre-header-new" onclick="toggleChapitre('{{ chapitre.id }}')">
-                                                        <div style="display: flex; align-items: center; gap: 0.8rem; flex: 1;">
-                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
-                                                            <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
-                                                        </div>
-                                                        <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                        <span class="arrow" id="arrow-{{ chapitre.id }}" style="flex-shrink: 0;">▸</span>
+                                                        <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
+                                                        <div class="action-buttons" style="display: flex; gap: 0.3rem; flex-shrink: 0;" onclick="event.stopPropagation();">
                                                             <button class="btn-icon" onclick='ouvrirModificationChapitre({
                                                                 "id": "{{ chapitre.id }}",
                                                                 "titre": {{ chapitre.titre|tojson }},
