@@ -2111,33 +2111,9 @@
     <!-- Onglet Hiérarchie de passage -->
     <div id="content-passage" class="tab-content">
         <div class="card">
-            <!-- Vue liste -->
-            <div id="passage-list-view">
-                
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-regles')">
-                    <span>📘 Règles de passage existantes</span>
-                    <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="passage-regles" style="display: none;">
-                    <div id="passage-list-container">
-                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
-                    </div>
-                </div>
-                
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-stats')">
-                    <span>📊 Statistiques des passages</span>
-                    <span id="arrow-passage-stats" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="passage-stats" style="display: none;">
-                    <div id="passage-stats-container">
-                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Formulaire de création -->
             <div id="passage-form-view">
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-creation')">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0 0 1rem;" onclick="toggleSection('passage-creation')">
                     <span>🎓 Créer une règle de passage</span>
                     <span id="arrow-passage-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
                 </h3>
@@ -2196,6 +2172,30 @@
                         </div>
                         <button type="submit" class="btn">Créer la règle de passage</button>
                     </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vue liste -->
+            <div id="passage-list-view">
+                
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-regles')">
+                    <span>📘 Règles de passage existantes</span>
+                    <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="passage-regles" style="display: none;">
+                    <div id="passage-list-container">
+                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
+                    </div>
+                </div>
+                
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-stats')">
+                    <span>📊 Statistiques des passages</span>
+                    <span id="arrow-passage-stats" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="passage-stats" style="display: none;">
+                    <div id="passage-stats-container">
+                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
                     </div>
                 </div>
             </div>
