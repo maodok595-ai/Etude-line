@@ -1635,18 +1635,14 @@
                 </div>
                 <form action="/prof/chapitre-complet" method="post" enctype="multipart/form-data">
                     
+                    <!-- Université pré-sélectionnée automatiquement (cachée) -->
+                    {% if universites and universites|length > 0 %}
+                    <input type="hidden" id="universite" name="universite_id" value="{{ universites[0].id }}" required>
+                    {% endif %}
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="universite">Université</label>
-                            <select id="universite" name="universite_id" required>
-                                <option value="">Sélectionner une université</option>
-                                {% for uni in universites %}
-                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="ufr">UFR</label>
+                            <label for="ufr">UFR affectée</label>
                             <input type="search" id="search-ufr-dropdown" 
                                    placeholder="🔍 Rechercher..." 
                                    oninput="filterDropdown('ufr', 'search-ufr-dropdown')"
@@ -1659,7 +1655,7 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="filiere">Filière</label>
+                            <label for="filiere">Filière affectée</label>
                             <input type="search" id="search-filiere-dropdown" 
                                    placeholder="🔍 Rechercher..." 
                                    oninput="filterDropdown('filiere', 'search-filiere-dropdown')"
@@ -2150,20 +2146,15 @@
             select.value = '';
         }
         
-        // Charge les UFR quand une université est sélectionnée
-        universiteSelect.addEventListener('change', async function() {
-            const universiteId = this.value;
+        // NOUVELLE LOGIQUE : Charger automatiquement les UFR affectées au prof au chargement de la page
+        async function loadProfessorUFRs() {
+            resetSelect(ufrSelect, 'Chargement de vos UFR...');
             
-            // Réinitialise les sélecteurs suivants
-            resetSelect(ufrSelect, 'Chargement des UFR...');
-            resetSelect(filiereSelect, 'Sélectionner d\'abord une UFR');
-            resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
-            
-            if (universiteId) {
-                try {
-                    const response = await fetch(`/api/ufrs/${universiteId}`);
-                    const data = await response.json();
-                    
+            try {
+                const response = await fetch('/api/prof/ufrs');
+                const data = await response.json();
+                
+                if (data.ufrs && data.ufrs.length > 0) {
                     ufrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
                     data.ufrs.forEach(ufr => {
                         const option = document.createElement('option');
@@ -2172,34 +2163,55 @@
                         ufrSelect.appendChild(option);
                     });
                     ufrSelect.disabled = false;
-                } catch (error) {
-                    console.error('Erreur lors du chargement des UFR:', error);
-                    resetSelect(ufrSelect, 'Erreur lors du chargement');
+                } else {
+                    resetSelect(ufrSelect, 'Aucune UFR affectée');
                 }
+            } catch (error) {
+                console.error('Erreur lors du chargement des UFR:', error);
+                resetSelect(ufrSelect, 'Erreur lors du chargement');
             }
+        }
+        
+        // Charger les UFR dès le chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfessorUFRs();
         });
         
-        // Charge les filières quand une UFR est sélectionnée
+        // MODIFICATION : Ignorer le changement d'université (pas utilisé maintenant)
+        if (universiteSelect) {
+            universiteSelect.addEventListener('change', async function() {
+                // Si l'université change, recharger les UFR du prof
+                loadProfessorUFRs();
+                resetSelect(filiereSelect, 'Sélectionner d\'abord une UFR');
+                resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
+            });
+        }
+        
+        // MODIFICATION : Charge uniquement les filières affectées au prof pour l'UFR sélectionné
         ufrSelect.addEventListener('change', async function() {
             const ufrId = this.value;
             
             // Réinitialise les sélecteurs suivants
-            resetSelect(filiereSelect, 'Chargement des filières...');
+            resetSelect(filiereSelect, 'Chargement de vos filières...');
             resetSelect(matiereSelect, 'Sélectionner d\'abord une filière');
             
             if (ufrId) {
                 try {
-                    const response = await fetch(`/api/filieres/${ufrId}`);
+                    const response = await fetch(`/api/prof/filieres/${ufrId}`);
                     const data = await response.json();
                     
-                    filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
-                    data.filieres.forEach(filiere => {
-                        const option = document.createElement('option');
-                        option.value = filiere.id;
-                        option.textContent = filiere.nom;
-                        filiereSelect.appendChild(option);
-                    });
-                    filiereSelect.disabled = false;
+                    if (data.filieres && data.filieres.length > 0) {
+                        filiereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
+                        data.filieres.forEach(filiere => {
+                            const option = document.createElement('option');
+                            option.value = filiere.id;
+                            option.textContent = filiere.nom;
+                            filiereSelect.appendChild(option);
+                        });
+                        filiereSelect.disabled = false;
+                    } else {
+                        resetSelect(filiereSelect, 'Aucune filière affectée dans cette UFR');
+                    }
                 } catch (error) {
                     console.error('Erreur lors du chargement des filières:', error);
                     resetSelect(filiereSelect, 'Erreur lors du chargement');
