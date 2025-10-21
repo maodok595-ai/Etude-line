@@ -1584,37 +1584,37 @@
                 {% endif %}
                 
                 <!-- Carte d'informations professeur moderne -->
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 2rem; margin-top: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 1.2rem; margin-top: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; overflow: hidden;">
                     <!-- Effet de décoration -->
-                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-                    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                    <div style="position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -20px; left: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 50%;"></div>
                     
                     <!-- Contenu principal -->
                     <div style="position: relative; z-index: 1;">
                         <!-- En-tête avec avatar et nom -->
-                        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
-                            <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;">
+                            <div style="width: 55px; height: 55px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
                                 👨‍🏫
                             </div>
                             <div>
-                                <h3 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <h3 style="color: white; margin: 0; font-size: 1.3rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                     {{ prof.prenom }} {{ prof.nom }}
                                 </h3>
-                                <p style="color: rgba(255,255,255,0.9); margin: 0.3rem 0 0 0; font-size: 1.1rem; font-weight: 500;">
+                                <p style="color: rgba(255,255,255,0.9); margin: 0.2rem 0 0 0; font-size: 0.95rem; font-weight: 500;">
                                     🎓 {{ prof.specialite }}
                                 </p>
                             </div>
                         </div>
                         
                         <!-- Grille d'informations -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem;">
                             <!-- Université -->
                             {% if prof_universite %}
-                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.2);">
-                                <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 0.3rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
+                                <div style="color: rgba(255,255,255,0.8); font-size: 0.75rem; margin-bottom: 0.2rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">
                                     🏛️ Université
                                 </div>
-                                <div style="color: white; font-size: 1rem; font-weight: 600;">
+                                <div style="color: white; font-size: 0.9rem; font-weight: 600;">
                                     {{ prof_universite.nom }}
                                 </div>
                             </div>
@@ -1622,13 +1622,13 @@
                             
                             <!-- UFR affectées -->
                             {% if prof_ufrs_assigned and prof_ufrs_assigned|length > 0 %}
-                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.2);">
-                                <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    🏢 UFR Affectées ({{ prof_ufrs_assigned|length }})
+                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
+                                <div style="color: rgba(255,255,255,0.8); font-size: 0.75rem; margin-bottom: 0.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">
+                                    🏢 UFR ({{ prof_ufrs_assigned|length }})
                                 </div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
                                     {% for ufr in prof_ufrs_assigned %}
-                                    <span style="background: rgba(33, 150, 243, 0.9); color: white; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15); white-space: nowrap;">
+                                    <span style="background: rgba(33, 150, 243, 0.9); color: white; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12); white-space: nowrap;">
                                         {{ ufr.nom }}
                                     </span>
                                     {% endfor %}
@@ -1638,13 +1638,13 @@
                             
                             <!-- Filières affectées -->
                             {% if prof_filieres_assigned and prof_filieres_assigned|length > 0 %}
-                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255,255,255,0.2);">
-                                <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    📖 Filières Affectées ({{ prof_filieres_assigned|length }})
+                            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 10px; padding: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
+                                <div style="color: rgba(255,255,255,0.8); font-size: 0.75rem; margin-bottom: 0.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">
+                                    📖 Filières ({{ prof_filieres_assigned|length }})
                                 </div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
                                     {% for filiere in prof_filieres_assigned %}
-                                    <span style="background: rgba(156, 39, 176, 0.9); color: white; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15); white-space: nowrap;">
+                                    <span style="background: rgba(156, 39, 176, 0.9); color: white; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12); white-space: nowrap;">
                                         {{ filiere.nom }}
                                     </span>
                                     {% endfor %}
