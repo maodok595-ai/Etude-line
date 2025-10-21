@@ -340,39 +340,6 @@
                 padding: 0.85rem !important;
             }
             
-            /* Grille des sections en colonne sur mobile */
-            .chapitre-content-new > div[style*="grid"] {
-                grid-template-columns: 1fr !important;
-                gap: 0.75rem !important;
-                margin-top: 0.75rem !important;
-            }
-            
-            /* Sections Cours/Exercices/Solutions optimisées */
-            .chapitre-content-new > div > div[style*="background"] {
-                padding: 0.75rem !important;
-                border-radius: 6px !important;
-            }
-            
-            .chapitre-content-new h5 {
-                font-size: 0.9rem !important;
-                margin-bottom: 0.4rem !important;
-            }
-            
-            /* Boutons Modifier/Supprimer optimisés */
-            .chapitre-content-new > div[style*="justify-content: center"] {
-                flex-direction: row !important;
-                gap: 0.4rem !important;
-                padding: 0.5rem !important;
-                margin: 0.5rem 0 !important;
-            }
-            
-            .chapitre-content-new > div[style*="justify-content: center"] button {
-                width: auto !important;
-                justify-content: center !important;
-                padding: 0.35rem 0.7rem !important;
-                font-size: 0.75rem !important;
-            }
-            
             /* Boutons icônes optimisés */
             .btn-icon {
                 font-size: 1rem !important;
@@ -921,7 +888,6 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            background: white;
         }
         
         .niveau-header {
@@ -992,9 +958,10 @@
         
         .chapitre-item {
             background: white;
+            border-radius: 8px;
             margin-bottom: 0.75rem;
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            overflow: hidden;
         }
         
         .chapitre-header-new {
@@ -1005,7 +972,6 @@
             justify-content: space-between;
             background: white;
             transition: background 0.3s ease;
-            border-radius: 8px 8px 0 0;
         }
         
         .chapitre-header-new:hover {
@@ -1016,16 +982,15 @@
             font-weight: 500;
             color: #333;
             font-size: 0.95rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         .chapitre-content-new {
             padding: 1rem;
             background: #fafafa;
-            border-top: 1px solid #e0e0e0;
-            border-radius: 0 0 8px 8px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            margin-top: -1px;
         }
         
         .arrow {
@@ -1853,7 +1818,7 @@
                 
                 <!-- Moteur de recherche de chapitres -->
                 {% if hierarchie %}
-                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 0; border: 2px solid #e0e0e0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <label for="chapitre-search-prof" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #333;">
                         🔍 Rechercher un chapitre
                     </label>
@@ -1912,7 +1877,29 @@
                                                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                                                             <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
                                                         </div>
-                                                        <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                            <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
+                                                                "id": "{{ chapitre.id }}",
+                                                                "titre": {{ chapitre.titre|tojson }},
+                                                                "cours_texte": {{ chapitre.cours_texte|tojson }},
+                                                                "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
+                                                                "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
+                                                                "exercice_texte": {{ chapitre.exercice_texte|tojson }},
+                                                                "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
+                                                                "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
+                                                                "solution_texte": {{ chapitre.solution_texte|tojson }},
+                                                                "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
+                                                                "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
+                                                            })' title="Modifier">
+                                                                ✏️
+                                                            </button>
+                                                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     
                                                     <!-- Contenu du chapitre (masqué par défaut) -->
@@ -2020,32 +2007,9 @@
                                     {% endif %}
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Boutons de modification et suppression -->
-                            <div style="display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 0.5rem;">
-                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
-                                    "id": "{{ chapitre.id }}",
-                                    "titre": {{ chapitre.titre|tojson }},
-                                    "cours_texte": {{ chapitre.cours_texte|tojson }},
-                                    "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
-                                    "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
-                                    "exercice_texte": {{ chapitre.exercice_texte|tojson }},
-                                    "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
-                                    "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
-                                    "solution_texte": {{ chapitre.solution_texte|tojson }},
-                                    "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
-                                    "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
-                                })' style="background: #667eea; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                    ✏️ Modifier
-                                </button>
-                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" style="background: #ef4444; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                    🗑️ Supprimer
-                                </button>
-                            </div>
-                            
-                            <!-- Section Commentaires -->
-                            <div class="commentaires-section" style="margin-top: 0;">
+                                
+                                <!-- Section Commentaires -->
+                                <div class="commentaires-section">
                                     <h4 onclick="toggleCommentaires({{ chapitre.id }})">
                                         <span class="commentaires-toggle-arrow" id="commentaires-arrow-{{ chapitre.id }}">▸</span>
                                         💬 Commentaires & Discussion
@@ -2062,9 +2026,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                {% endfor %}
+                                                    {% endfor %}
                                                 </div>
                                             {% endif %}
                                         {% endfor %}
