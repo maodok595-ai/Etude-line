@@ -919,10 +919,8 @@
         .niveau-card {
             margin-bottom: 1.5rem;
             border-radius: 12px;
-            overflow: visible;
+            overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 1;
             background: white;
         }
         
@@ -930,9 +928,6 @@
             padding: 0.8rem 1.2rem;
             color: white;
             font-weight: 600;
-            position: relative;
-            z-index: 2;
-            border-radius: 12px 12px 0 0;
         }
         
         .niveau-header h4 {
@@ -997,10 +992,9 @@
         
         .chapitre-item {
             background: white;
-            border-radius: 8px;
             margin-bottom: 0.75rem;
             border: 1px solid #e0e0e0;
-            overflow: hidden;
+            border-radius: 8px;
         }
         
         .chapitre-header-new {
@@ -1011,6 +1005,7 @@
             justify-content: space-between;
             background: white;
             transition: background 0.3s ease;
+            border-radius: 8px 8px 0 0;
         }
         
         .chapitre-header-new:hover {
@@ -1029,10 +1024,8 @@
         .chapitre-content-new {
             padding: 1rem;
             background: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            margin-top: -1px;
+            border-top: 1px solid #e0e0e0;
+            border-radius: 0 0 8px 8px;
         }
         
         .arrow {
