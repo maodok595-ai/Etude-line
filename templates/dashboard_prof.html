@@ -340,6 +340,38 @@
                 padding: 0.85rem !important;
             }
             
+            /* Grille des sections en colonne sur mobile */
+            .chapitre-content-new > div[style*="grid"] {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+                margin-top: 0.75rem !important;
+            }
+            
+            /* Sections Cours/Exercices/Solutions optimisées */
+            .chapitre-content-new > div > div[style*="background"] {
+                padding: 0.75rem !important;
+                border-radius: 6px !important;
+            }
+            
+            .chapitre-content-new h5 {
+                font-size: 0.9rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            
+            /* Boutons Modifier/Supprimer optimisés */
+            .chapitre-content-new > div[style*="justify-content: center"] {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                padding: 0.75rem !important;
+            }
+            
+            .chapitre-content-new > div[style*="justify-content: center"] button {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+            
             /* Boutons icônes optimisés */
             .btn-icon {
                 font-size: 1rem !important;
