@@ -3401,15 +3401,19 @@
                 if (this.checked) {
                     // Copier la filière de départ vers la filière d'arrivée
                     selectArrivee.value = selectDepart.value;
-                    selectArrivee.disabled = true;
+                    // NE PAS utiliser disabled (empêche l'envoi du formulaire)
+                    // Utiliser pointer-events et style pour simuler un champ désactivé
                     selectArrivee.style.opacity = '0.6';
+                    selectArrivee.style.pointerEvents = 'none';
                     selectArrivee.style.cursor = 'not-allowed';
+                    selectArrivee.setAttribute('data-locked', 'true');
                     if (labelArrivee) labelArrivee.style.opacity = '0.6';
                 } else {
                     // Réactiver la sélection manuelle
-                    selectArrivee.disabled = false;
                     selectArrivee.style.opacity = '1';
+                    selectArrivee.style.pointerEvents = 'auto';
                     selectArrivee.style.cursor = 'pointer';
+                    selectArrivee.removeAttribute('data-locked');
                     if (labelArrivee) labelArrivee.style.opacity = '1';
                 }
             });
