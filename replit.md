@@ -23,6 +23,7 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
   - **Database**: Database-based migration detection (checking admin count instead of local files to ensure Render compatibility), database indexes on all foreign key columns (`universite_id`, `ufr_id`, `filiere_id`, `matiere_id`, `created_by`) with composite indexes on notifications table (`destinataire_id`, `lue`) and passage tables, eager loading with `joinedload()` to eliminate N+1 queries in professor dashboard, SQL aggregations for admin statistics instead of Python loops.
   - **API & Network**: Notification polling reduced from 3 seconds to 30 seconds (10x reduction in API calls) for student and professor dashboards, GZip compression middleware (compresslevel 6, minimum 1KB) for all HTTP responses.
   - **Caching**: Intelligent HTTP cache headers with path-based rules: static assets (CSS/JS/images/fonts) cached for 1 year with immutability flag, API routes use no-store/no-cache directives, dashboards use must-revalidate, other pages use 5-minute cache with revalidation.
+  - **Resource Loading**: Preconnect/DNS-prefetch for Google Fonts CDN, preload for critical resources (manifest, icons), asynchronous font loading with media="print" trick to avoid render-blocking, noscript fallback for fonts.
   - **Images**: PNG to WebP conversion with lazy loading for optimal bandwidth usage.
   - **Logging**: Improved error logging for session management.
 - **Progressive Web App (PWA)**: Advanced PWA implementation with:
