@@ -258,6 +258,12 @@
                 font-size: 0.85rem !important;
             }
             
+            .user-info-box p,
+            .user-info-box ul,
+            .user-info-box ul li {
+                font-size: 0.85rem !important;
+            }
+            
             .card {
                 padding: 1.25rem !important;
             }
@@ -682,18 +688,35 @@
         }
 
         .user-info-box {
-            padding: 1rem;
-            background: rgba(102, 126, 234, 0.1);
+            padding: 0.75rem 1rem;
+            background: rgba(102, 126, 234, 0.08);
             border-radius: 8px;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
+            border-left: 3px solid #667eea;
         }
 
         .user-info-box p {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .user-info-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .user-info-box ul {
+            margin: 0.5rem 0 0.8rem 1.5rem;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+        
+        .user-info-box ul li {
+            margin-bottom: 0.3rem;
             color: #333;
         }
-
-        .user-info-box p:last-child {
+        
+        .user-info-box ul li:last-child {
             margin-bottom: 0;
         }
         
