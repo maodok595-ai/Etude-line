@@ -1621,26 +1621,6 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                    
-                    {% if prof_filieres_affectees and prof_filieres_affectees|length > 0 %}
-                        <p><strong>📖 Filière{{ 's' if prof_filieres_affectees|length > 1 else '' }} affectée{{ 's' if prof_filieres_affectees|length > 1 else '' }} :</strong></p>
-                        <ul style="margin: 0.5rem 0 0 1.5rem;">
-                            {% for filiere in prof_filieres_affectees %}
-                                <li>{{ filiere.nom }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    
-                    {% if prof_matieres_affectees and prof_matieres_affectees|length > 0 %}
-                        <p><strong>📚 Matière{{ 's' if prof_matieres_affectees|length > 1 else '' }} :</strong></p>
-                        <ul style="margin: 0.5rem 0 0 1.5rem;">
-                            {% for matiere in prof_matieres_affectees %}
-                                <li>{{ matiere.nom }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% elif prof.matiere %}
-                        <p><strong>📚 Matière :</strong> {{ prof.matiere }}</p>
-                    {% endif %}
                 </div>
             </div>
         </div>
