@@ -1437,15 +1437,17 @@
             <!-- Formulaire de création -->
             {% if admin.is_main_admin %}
             <div id="admin-form-view">
-                <div class="card" style="position: relative;">
-                    <div class="form-header">
-                        <h3>👑 Créer un administrateur</h3>
-                    </div>
-                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
-                        <strong>⚠️ Privilège d'administrateur principal</strong><br>
-                        Vous seul pouvez ajouter de nouveaux administrateurs.
-                    </div>
-                    <form action="/admin/create-admin" method="post">
+                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('admin-creation')">
+                    <span>👑 Créer un administrateur</span>
+                    <span id="arrow-admin-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                </h3>
+                <div id="admin-creation" style="display: none;">
+                    <div class="card" style="position: relative;">
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
+                            <strong>⚠️ Privilège d'administrateur principal</strong><br>
+                            Vous seul pouvez ajouter de nouveaux administrateurs.
+                        </div>
+                        <form action="/admin/create-admin" method="post">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="admin-nom">Nom</label>
@@ -1491,6 +1493,7 @@
                         
                         <button type="submit" class="btn">Créer l'administrateur</button>
                     </form>
+                    </div>
                 </div>
             </div>
             {% endif %}
