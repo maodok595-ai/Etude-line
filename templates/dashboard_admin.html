@@ -3394,24 +3394,6 @@
         
         // ========== HIÉRARCHIE DE PASSAGE ==========
         
-        // Attacher l'événement au bouton de fermeture - VERSION ULTRA SIMPLE
-        window.addEventListener('load', function() {
-            console.log('🔧 Initialisation du bouton de fermeture...');
-            const closeBtn = document.getElementById('close-passage-btn');
-            console.log('Bouton trouvé:', closeBtn);
-            
-            if (closeBtn) {
-                closeBtn.onclick = function() {
-                    console.log('⬅️ CLICK sur le bouton de fermeture');
-                    document.getElementById('passage-form-view').style.display = 'none';
-                    document.getElementById('passage-list-view').style.display = 'block';
-                };
-                console.log('✅ Événement attaché au bouton');
-            } else {
-                console.error('❌ Bouton de fermeture non trouvé!');
-            }
-        });
-        
         // Charger les filières pour les selects
         async function loadFilieresForPassage() {
             try {
