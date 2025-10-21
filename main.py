@@ -1609,9 +1609,10 @@ async def view_file(file_path: str):
     )
 
 @app.get("/files/download/{file_path:path}")
-async def download_file(file_path: str):
-    """Forcer le téléchargement du fichier (attachment)"""
+async def download_file(file_path: str, db: Session = Depends(get_db)):
+    """Forcer le téléchargement du fichier avec le titre du chapitre dans le nom"""
     import mimetypes
+    import urllib.parse
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1621,12 +1622,75 @@ async def download_file(file_path: str):
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
+    # Rechercher le chapitre contenant ce fichier
+    full_path = str(file_location)
+    chapitre = db.query(ChapitreCompletDB).filter(
+        (ChapitreCompletDB.cours_fichier_path.like(f"%{full_path}%")) |
+        (ChapitreCompletDB.exercice_fichier_path.like(f"%{full_path}%")) |
+        (ChapitreCompletDB.solution_fichier_path.like(f"%{full_path}%"))
+    ).first()
+    
+    # Déterminer le nom de fichier à utiliser
+    download_filename = file_location.name  # Nom par défaut (UUID)
+    
+    if chapitre:
+        # Déterminer le type de contenu et le nom original
+        original_name = None
+        content_type = None
+        
+        if chapitre.cours_fichier_path and full_path in chapitre.cours_fichier_path:
+            content_type = "Cours"
+            # Trouver le nom original correspondant
+            if chapitre.cours_fichier_nom:
+                paths = chapitre.cours_fichier_path.split("|||")
+                names = chapitre.cours_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        original_name = names[i]
+                        break
+        
+        elif chapitre.exercice_fichier_path and full_path in chapitre.exercice_fichier_path:
+            content_type = "Exercices"
+            if chapitre.exercice_fichier_nom:
+                paths = chapitre.exercice_fichier_path.split("|||")
+                names = chapitre.exercice_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        original_name = names[i]
+                        break
+        
+        elif chapitre.solution_fichier_path and full_path in chapitre.solution_fichier_path:
+            content_type = "Solutions"
+            if chapitre.solution_fichier_nom:
+                paths = chapitre.solution_fichier_path.split("|||")
+                names = chapitre.solution_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        original_name = names[i]
+                        break
+        
+        # Créer un nom de fichier descriptif
+        if original_name:
+            # Nettoyer le titre du chapitre pour le nom de fichier
+            safe_titre = "".join(c for c in chapitre.titre if c.isalnum() or c in (' ', '-', '_')).strip()
+            safe_titre = safe_titre.replace(' ', '_')[:50]  # Limiter la longueur
+            
+            # Extraire l'extension du nom original
+            file_extension = Path(original_name).suffix
+            base_name = Path(original_name).stem
+            
+            # Format: Chapitre_X_-_Titre_-_Type_-_NomOriginal.ext
+            download_filename = f"Chap_{chapitre.chapitre}_-_{safe_titre}_-_{content_type}_-_{base_name}{file_extension}"
+    
     mime_type, _ = mimetypes.guess_type(str(file_location))
     if mime_type is None:
         mime_type = 'application/octet-stream'
     
+    # Encoder le nom de fichier pour supporter les caractères spéciaux
+    encoded_filename = urllib.parse.quote(download_filename)
+    
     headers = {
-        "Content-Disposition": f'attachment; filename="{file_location.name}"',
+        "Content-Disposition": f'attachment; filename="{download_filename}"; filename*=UTF-8\'\'{encoded_filename}',
         "Cache-Control": "private, no-store, must-revalidate"
     }
     
@@ -1634,7 +1698,7 @@ async def download_file(file_path: str):
         path=file_location,
         media_type=mime_type,
         headers=headers,
-        filename=file_location.name
+        filename=download_filename
     )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
