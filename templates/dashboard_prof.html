@@ -1873,10 +1873,13 @@
                                                 <div class="chapitre-item">
                                                     <!-- Header du chapitre (toujours visible) -->
                                                     <div class="chapitre-header-new" onclick="toggleChapitre('{{ chapitre.id }}')">
-                                                        <span class="arrow" id="arrow-{{ chapitre.id }}" style="flex-shrink: 0;">▸</span>
-                                                        <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
-                                                        <div class="action-buttons" style="display: flex; gap: 0.3rem; flex-shrink: 0;" onclick="event.stopPropagation();">
-                                                            <button class="btn-icon" onclick='ouvrirModificationChapitre({
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                                                            <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
+                                                        </div>
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                            <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
                                                                 "id": "{{ chapitre.id }}",
                                                                 "titre": {{ chapitre.titre|tojson }},
                                                                 "cours_texte": {{ chapitre.cours_texte|tojson }},
@@ -1891,9 +1894,10 @@
                                                             })' title="Modifier">
                                                                 ✏️
                                                             </button>
-                                                            <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
-                                                                🗑️
-                                                            </button>
+                                                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     
