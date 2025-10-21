@@ -2080,6 +2080,7 @@
     <script>
         // Ouvrir le modal de passage
         async function openPassageModal() {
+            console.log('🎓 Ouverture du modal de passage...');
             const modal = document.getElementById('passage-modal');
             const loading = document.getElementById('passage-loading');
             const content = document.getElementById('passage-content');
@@ -2093,12 +2094,20 @@
             alreadyDone.style.display = 'none';
             
             try {
+                console.log('📡 Appel de l\'API /api/etudiant/passage/options...');
                 const response = await fetch('/api/etudiant/passage/options');
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
+                console.log('📦 Données reçues:', data);
                 
                 loading.style.display = 'none';
                 
                 if (data.statut_passage === 'validé' || data.statut_passage === 'redoublant') {
+                    console.log('✅ Passage déjà validé avec statut:', data.statut_passage);
                     alreadyDone.style.display = 'block';
                     return;
                 }
@@ -2109,12 +2118,16 @@
                 const optionsContainer = document.getElementById('passage-options');
                 optionsContainer.innerHTML = '';
                 
+                console.log(`📚 Nombre d'options disponibles: ${data.options.length}`);
+                
                 if (data.options.length === 0) {
-                    optionsContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucune option de passage disponible</p>';
+                    console.log('⚠️ Aucune option de passage disponible');
+                    optionsContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucune option de passage disponible pour votre filière actuelle.<br>Contactez l\'administration pour plus d\'informations.</p>';
                     return;
                 }
                 
-                data.options.forEach(option => {
+                data.options.forEach((option, index) => {
+                    console.log(`  Option ${index + 1}:`, option);
                     const optionCard = document.createElement('div');
                     optionCard.onclick = () => selectPassageOption('passage', option.filiere_id, option.niveau);
                     optionCard.style.cssText = 'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.5rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);';
@@ -2140,8 +2153,10 @@
                     optionsContainer.appendChild(optionCard);
                 });
                 
+                console.log('✅ Modal affiché avec succès');
+                
             } catch (err) {
-                console.error('Erreur:', err);
+                console.error('❌ Erreur lors du chargement des options:', err);
                 loading.style.display = 'none';
                 error.style.display = 'block';
                 document.getElementById('passage-error-message').textContent = err.message || 'Impossible de charger les options';
