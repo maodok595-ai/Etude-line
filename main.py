@@ -1633,9 +1633,10 @@ async def view_file(file_path: str):
     )
 
 @app.get("/files/download/{file_path:path}")
-async def download_file(file_path: str):
-    """Forcer le téléchargement du fichier (attachment)"""
+async def download_file(file_path: str, db: Session = Depends(get_db)):
+    """Forcer le téléchargement du fichier (attachment) avec le nom original"""
     import mimetypes
+    from urllib.parse import quote
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1645,12 +1646,38 @@ async def download_file(file_path: str):
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
+    # Chercher le nom original du fichier dans la base de données
+    original_filename = file_location.name  # Par défaut, utiliser le nom technique
+    
+    try:
+        # Rechercher dans les chapitres complets
+        chapitre = db.query(ChapitreCompletDB).filter(
+            (ChapitreCompletDB.cours_fichier_path == file_path) |
+            (ChapitreCompletDB.exercice_fichier_path == file_path) |
+            (ChapitreCompletDB.solution_fichier_path == file_path)
+        ).first()
+        
+        if chapitre:
+            # Déterminer quel type de fichier et utiliser le nom original
+            if chapitre.cours_fichier_path == file_path and chapitre.cours_fichier_nom:
+                original_filename = chapitre.cours_fichier_nom
+            elif chapitre.exercice_fichier_path == file_path and chapitre.exercice_fichier_nom:
+                original_filename = chapitre.exercice_fichier_nom
+            elif chapitre.solution_fichier_path == file_path and chapitre.solution_fichier_nom:
+                original_filename = chapitre.solution_fichier_nom
+    except Exception as e:
+        # En cas d'erreur, continuer avec le nom technique
+        print(f"⚠️ Erreur lors de la recherche du nom original: {e}")
+    
     mime_type, _ = mimetypes.guess_type(str(file_location))
     if mime_type is None:
         mime_type = 'application/octet-stream'
     
+    # Encoder le nom du fichier pour gérer les caractères spéciaux (accents, etc.)
+    encoded_filename = quote(original_filename)
+    
     headers = {
-        "Content-Disposition": f'attachment; filename="{file_location.name}"',
+        "Content-Disposition": f'attachment; filename="{original_filename}"; filename*=UTF-8\'\'{encoded_filename}',
         "Cache-Control": "private, no-store, must-revalidate"
     }
     
@@ -1658,7 +1685,7 @@ async def download_file(file_path: str):
         path=file_location,
         media_type=mime_type,
         headers=headers,
-        filename=file_location.name
+        filename=original_filename
     )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
