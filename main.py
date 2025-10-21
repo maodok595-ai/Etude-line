@@ -3933,7 +3933,7 @@ async def get_student_passage_options(
         # Récupérer le dernier passage validé de l'étudiant (si existe)
         dernier_passage = db.query(StudentPassageDB).filter(
             StudentPassageDB.student_id == etudiant.id
-        ).order_by(StudentPassageDB.created_at.desc()).first()
+        ).order_by(StudentPassageDB.date_validation.desc()).first()
         
         # Enrichir avec les noms des filières
         options = []
