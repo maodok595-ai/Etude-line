@@ -1,9 +1,26 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
 Base = declarative_base()
+
+# Tables de liaison pour les relations many-to-many
+professeur_ufrs = Table(
+    'professeur_ufrs',
+    Base.metadata,
+    Column('professeur_id', Integer, ForeignKey('professeurs.id', ondelete='CASCADE'), primary_key=True),
+    Column('ufr_id', String, ForeignKey('ufrs.id', ondelete='CASCADE'), primary_key=True),
+    Column('created_at', DateTime, default=datetime.utcnow)
+)
+
+professeur_filieres = Table(
+    'professeur_filieres',
+    Base.metadata,
+    Column('professeur_id', Integer, ForeignKey('professeurs.id', ondelete='CASCADE'), primary_key=True),
+    Column('filiere_id', String, ForeignKey('filieres.id', ondelete='CASCADE'), primary_key=True),
+    Column('created_at', DateTime, default=datetime.utcnow)
+)
 
 class Universite(Base):
     __tablename__ = "universites"
@@ -93,20 +110,24 @@ class Professeur(Base):
     specialite = Column(String(200), nullable=False)
     actif = Column(Boolean, default=True)
     universite_id = Column(String, ForeignKey("universites.id"), nullable=True, index=True)
+    # ANCIENNES COLONNES - Gardées pour rétrocompatibilité
     ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=True, index=True)
     filiere_id = Column(String, ForeignKey("filieres.id"), nullable=True, index=True)
     matiere_id = Column(String, ForeignKey("matieres.id"), nullable=True, index=True)
-    # Rétrocompatibilité
     matiere = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relations
+    # Relations - Anciennes (one-to-many) pour rétrocompatibilité
     universite = relationship("Universite", back_populates="professeurs")
-    ufr = relationship("UFR", back_populates="professeurs")
-    filiere = relationship("Filiere", back_populates="professeurs")
+    ufr = relationship("UFR", back_populates="professeurs", foreign_keys=[ufr_id])
+    filiere = relationship("Filiere", back_populates="professeurs", foreign_keys=[filiere_id])
     matiere_obj = relationship("Matiere", back_populates="professeurs")
     chapitres = relationship("ChapitreComplet", back_populates="professeur", cascade="all, delete-orphan")
     contents = relationship("Content", back_populates="professeur", cascade="all, delete-orphan")
+    
+    # NOUVELLES RELATIONS Many-to-Many
+    ufrs_multiples = relationship("UFR", secondary=professeur_ufrs, backref="professeurs_multiples")
+    filieres_multiples = relationship("Filiere", secondary=professeur_filieres, backref="professeurs_multiples")
 
 class Etudiant(Base):
     __tablename__ = "etudiants"

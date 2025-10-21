@@ -1499,26 +1499,25 @@
                                 <div id="details-prof-{{ loop.index }}" style="display: none;">
                                 <div class="prof-details">@{{ prof.username }}</div>
                                 <div class="prof-meta">
-                                    <span class="meta-tag">{{ prof.specialite }}</span>
-                                    {% if prof.matiere_id %}
-                                        {% for matiere in matieres %}
-                                            {% if matiere.id == prof.matiere_id %}
-                                                <span class="meta-tag">📖 {{ matiere.nom }}</span>
-                                            {% endif %}
+                                    <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ prof.specialite }}</span>
+                                    
+                                    {% if prof.ufrs %}
+                                        {% for ufr in prof.ufrs %}
+                                            <span class="meta-tag" style="background: #fff3e0; color: #f57c00;">📚 {{ ufr.nom }}</span>
                                         {% endfor %}
-                                        {% for filiere in filieres %}
-                                            {% if filiere.id == prof.filiere_id %}
-                                                <span class="meta-tag">📚 {{ filiere.nom }}</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% for uni in universites %}
-                                            {% if uni.id == prof.universite_id %}
-                                                <span class="meta-tag">🏛️ {{ uni.nom }}</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        <span class="meta-tag">{{ prof.matiere }}</span>
                                     {% endif %}
+                                    
+                                    {% if prof.filieres %}
+                                        {% for filiere in prof.filieres %}
+                                            <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📖 {{ filiere.nom }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    {% for uni in universites %}
+                                        {% if uni.id == prof.universite_id %}
+                                            <span class="meta-tag" style="background: #e8f5e9; color: #388e3c;">🏛️ {{ uni.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                                 <div class="action-buttons">
                                     <button class="btn-edit btn-small" onclick="editProf('{{ prof.username }}', '{{ prof.nom }}', '{{ prof.prenom }}', '{{ prof.specialite }}')" title="Modifier">
@@ -1601,37 +1600,27 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="prof-ufr">UFR</label>
+                            <label>UFR (au moins une requise) <span style="color: #e74c3c;">*</span></label>
+                            <p style="color: #666; font-size: 0.85rem; margin: 0.5rem 0;">Sélectionnez une ou plusieurs UFR où ce professeur enseigne</p>
                             <input type="search" id="search-prof-ufr" 
                                    placeholder="🔍 Rechercher une UFR..." 
-                                   oninput="filterSelectOptions('search-prof-ufr', 'prof-ufr')"
+                                   oninput="filterCheckboxes('search-prof-ufr', 'prof-ufr-checkboxes')"
                                    style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="prof-ufr" name="ufr_id" required disabled>
-                                <option value="">Sélectionner d'abord une université</option>
-                            </select>
+                            <div id="prof-ufr-checkboxes" class="checkbox-group" style="max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.5rem; background: #fafafa;">
+                                <p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d'abord une université</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prof-filiere">Filière</label>
-                            <input type="search" id="search-prof-filiere" 
-                                   placeholder="🔍 Rechercher une filière..." 
-                                   oninput="filterSelectOptions('search-prof-filiere', 'prof-filiere')"
-                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="prof-filiere" name="filiere_id" required disabled>
-                                <option value="">Sélectionner d'abord une UFR</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="prof-matiere">Matière</label>
-                            <input type="search" id="search-prof-matiere" 
-                                   placeholder="🔍 Rechercher une matière..." 
-                                   oninput="filterSelectOptions('search-prof-matiere', 'prof-matiere')"
-                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="prof-matiere" name="matiere_id" required disabled>
-                                <option value="">Sélectionner d'abord une filière</option>
-                            </select>
+                    <div class="form-group">
+                        <label>Filières (au moins une requise) <span style="color: #e74c3c;">*</span></label>
+                        <p style="color: #666; font-size: 0.85rem; margin: 0.5rem 0;">Sélectionnez une ou plusieurs filières où ce professeur enseigne</p>
+                        <input type="search" id="search-prof-filiere" 
+                               placeholder="🔍 Rechercher une filière..." 
+                               oninput="filterCheckboxes('search-prof-filiere', 'prof-filiere-checkboxes')"
+                               style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
+                        <div id="prof-filiere-checkboxes" class="checkbox-group" style="max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.5rem; background: #fafafa;">
+                            <p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d'abord au moins une UFR</p>
                         </div>
                     </div>
                     
@@ -2177,101 +2166,149 @@
             loadDownloadStatus();
         });
         
-        // Gestion des sélecteurs hiérarchiques pour le formulaire professeur
+        // Gestion des checkboxes multiples pour le formulaire professeur
         const profUniversiteSelect = document.getElementById('prof-universite');
-        const profUfrSelect = document.getElementById('prof-ufr');
-        const profFiliereSelect = document.getElementById('prof-filiere');
-        const profMatiereSelect = document.getElementById('prof-matiere');
+        const profUfrCheckboxes = document.getElementById('prof-ufr-checkboxes');
+        const profFiliereCheckboxes = document.getElementById('prof-filiere-checkboxes');
         
-        // Réinitialise et désactive un sélecteur
-        function resetProfSelect(select, message) {
-            select.innerHTML = `<option value="">${message}</option>`;
-            select.disabled = true;
-            select.value = '';
+        // Fonction pour filtrer les checkboxes
+        function filterCheckboxes(searchInputId, checkboxContainerId) {
+            const searchTerm = document.getElementById(searchInputId).value.toLowerCase();
+            const container = document.getElementById(checkboxContainerId);
+            const labels = container.querySelectorAll('label');
+            
+            labels.forEach(label => {
+                const text = label.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                }
+            });
         }
         
         // Charge les UFR quand une université est sélectionnée
         profUniversiteSelect.addEventListener('change', async function() {
             const universiteId = this.value;
             
-            // Réinitialise les sélecteurs suivants
-            resetProfSelect(profUfrSelect, 'Chargement des UFR...');
-            resetProfSelect(profFiliereSelect, 'Sélectionner d\'abord une UFR');
-            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            // Réinitialise les checkboxes
+            profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Chargement...</p>';
+            profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord au moins une UFR</p>';
             
             if (universiteId) {
                 try {
                     const response = await fetch(`/api/ufrs/${universiteId}`);
                     const data = await response.json();
                     
-                    profUfrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
+                    if (data.ufrs.length === 0) {
+                        profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Aucune UFR disponible</p>';
+                        return;
+                    }
+                    
+                    profUfrCheckboxes.innerHTML = '';
                     data.ufrs.forEach(ufr => {
-                        const option = document.createElement('option');
-                        option.value = ufr.id;
-                        option.textContent = ufr.nom;
-                        profUfrSelect.appendChild(option);
+                        const label = document.createElement('label');
+                        label.style.cssText = 'display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
+                        label.onmouseover = () => label.style.background = '#e3f2fd';
+                        label.onmouseout = () => label.style.background = 'transparent';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'ufr_ids';
+                        checkbox.value = ufr.id;
+                        checkbox.style.cssText = 'margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer;';
+                        checkbox.addEventListener('change', updateFiliereCheckboxes);
+                        
+                        const span = document.createElement('span');
+                        span.textContent = ufr.nom;
+                        span.style.cssText = 'flex: 1; font-size: 0.95rem;';
+                        
+                        label.appendChild(checkbox);
+                        label.appendChild(span);
+                        profUfrCheckboxes.appendChild(label);
                     });
-                    profUfrSelect.disabled = false;
                 } catch (error) {
                     console.error('Erreur lors du chargement des UFR:', error);
-                    resetProfSelect(profUfrSelect, 'Erreur lors du chargement');
+                    profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 1rem;">Erreur lors du chargement</p>';
                 }
+            } else {
+                profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord une université</p>';
             }
         });
         
-        // Charge les filières quand une UFR est sélectionnée
-        profUfrSelect.addEventListener('change', async function() {
-            const ufrId = this.value;
+        // Met à jour les filières en fonction des UFR sélectionnées
+        async function updateFiliereCheckboxes() {
+            const selectedUfrIds = Array.from(document.querySelectorAll('input[name="ufr_ids"]:checked')).map(cb => cb.value);
             
-            // Réinitialise les sélecteurs suivants
-            resetProfSelect(profFiliereSelect, 'Chargement des filières...');
-            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
+            if (selectedUfrIds.length === 0) {
+                profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord au moins une UFR</p>';
+                return;
+            }
             
-            if (ufrId) {
-                try {
+            profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Chargement...</p>';
+            
+            try {
+                // Charger les filières pour toutes les UFR sélectionnées
+                const allFilieres = new Map(); // Utilise Map pour éviter les doublons
+                
+                for (const ufrId of selectedUfrIds) {
                     const response = await fetch(`/api/filieres/${ufrId}`);
                     const data = await response.json();
-                    
-                    profFiliereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
                     data.filieres.forEach(filiere => {
-                        const option = document.createElement('option');
-                        option.value = filiere.id;
-                        option.textContent = filiere.nom;
-                        profFiliereSelect.appendChild(option);
+                        allFilieres.set(filiere.id, filiere);
                     });
-                    profFiliereSelect.disabled = false;
-                } catch (error) {
-                    console.error('Erreur lors du chargement des filières:', error);
-                    resetProfSelect(profFiliereSelect, 'Erreur lors du chargement');
                 }
-            }
-        });
-        
-        // Charge les matières quand une filière est sélectionnée
-        profFiliereSelect.addEventListener('change', async function() {
-            const filiereId = this.value;
-            
-            // Réinitialise le sélecteur suivant
-            resetProfSelect(profMatiereSelect, 'Chargement des matières...');
-            
-            if (filiereId) {
-                try {
-                    const response = await fetch(`/api/matieres/${filiereId}`);
-                    const data = await response.json();
+                
+                if (allFilieres.size === 0) {
+                    profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Aucune filière disponible</p>';
+                    return;
+                }
+                
+                profFiliereCheckboxes.innerHTML = '';
+                allFilieres.forEach(filiere => {
+                    const label = document.createElement('label');
+                    label.style.cssText = 'display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
+                    label.onmouseover = () => label.style.background = '#f3e5f5';
+                    label.onmouseout = () => label.style.background = 'transparent';
                     
-                    profMatiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
-                    data.matieres.forEach(matiere => {
-                        const option = document.createElement('option');
-                        option.value = matiere.id;
-                        option.textContent = matiere.nom;
-                        profMatiereSelect.appendChild(option);
-                    });
-                    profMatiereSelect.disabled = false;
-                } catch (error) {
-                    console.error('Erreur lors du chargement des matières:', error);
-                    resetProfSelect(profMatiereSelect, 'Erreur lors du chargement');
-                }
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'filiere_ids';
+                    checkbox.value = filiere.id;
+                    checkbox.style.cssText = 'margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer;';
+                    
+                    const span = document.createElement('span');
+                    span.textContent = filiere.nom;
+                    span.style.cssText = 'flex: 1; font-size: 0.95rem;';
+                    
+                    label.appendChild(checkbox);
+                    label.appendChild(span);
+                    profFiliereCheckboxes.appendChild(label);
+                });
+            } catch (error) {
+                console.error('Erreur lors du chargement des filières:', error);
+                profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 1rem;">Erreur lors du chargement</p>';
             }
+        }
+        
+        // Validation du formulaire professeur
+        document.querySelector('form[action="/admin/create-prof"]').addEventListener('submit', function(e) {
+            const selectedUfrs = document.querySelectorAll('input[name="ufr_ids"]:checked');
+            const selectedFilieres = document.querySelectorAll('input[name="filiere_ids"]:checked');
+            
+            if (selectedUfrs.length === 0) {
+                e.preventDefault();
+                alert('⚠️ Veuillez sélectionner au moins une UFR');
+                return false;
+            }
+            
+            if (selectedFilieres.length === 0) {
+                e.preventDefault();
+                alert('⚠️ Veuillez sélectionner au moins une filière');
+                return false;
+            }
+            
+            return true;
         });
         
         // Fonctions de recherche pour les listes

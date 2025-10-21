@@ -1793,19 +1793,54 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     else:
         profs = db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == admin_universite_id).all()
     
-    profs_data = [{
-        "id": prof.id,
-        "username": prof.username,
-        "nom": prof.nom,
-        "prenom": prof.prenom,
-        "specialite": prof.specialite,
-        "matiere": prof.matiere,
-        "actif": prof.actif,
-        "universite_id": prof.universite_id,
-        "ufr_id": prof.ufr_id,
-        "filiere_id": prof.filiere_id,
-        "matiere_id": prof.matiere_id
-    } for prof in profs]
+    profs_data = []
+    for prof in profs:
+        # Récupérer les UFR multiples via la table de liaison
+        from sqlalchemy import text
+        ufr_results = db.execute(text("""
+            SELECT u.id, u.nom 
+            FROM ufrs u
+            INNER JOIN professeur_ufrs pu ON u.id = pu.ufr_id
+            WHERE pu.professeur_id = :prof_id
+        """), {"prof_id": prof.id}).fetchall()
+        
+        ufrs = [{"id": row[0], "nom": row[1]} for row in ufr_results] if ufr_results else []
+        
+        # Récupérer les filières multiples via la table de liaison
+        filiere_results = db.execute(text("""
+            SELECT f.id, f.nom 
+            FROM filieres f
+            INNER JOIN professeur_filieres pf ON f.id = pf.filiere_id
+            WHERE pf.professeur_id = :prof_id
+        """), {"prof_id": prof.id}).fetchall()
+        
+        filieres = [{"id": row[0], "nom": row[1]} for row in filiere_results] if filiere_results else []
+        
+        # Fallback pour anciens professeurs (compatibilité)
+        if not ufrs and prof.ufr_id:
+            ufr = db.query(UFRDB).filter(UFRDB.id == prof.ufr_id).first()
+            if ufr:
+                ufrs = [{"id": ufr.id, "nom": ufr.nom}]
+        
+        if not filieres and prof.filiere_id:
+            filiere = db.query(FiliereDB).filter(FiliereDB.id == prof.filiere_id).first()
+            if filiere:
+                filieres = [{"id": filiere.id, "nom": filiere.nom}]
+        
+        profs_data.append({
+            "id": prof.id,
+            "username": prof.username,
+            "nom": prof.nom,
+            "prenom": prof.prenom,
+            "specialite": prof.specialite,
+            "actif": prof.actif,
+            "universite_id": prof.universite_id,
+            "ufrs": ufrs,
+            "filieres": filieres,
+            "ufr_id": prof.ufr_id,
+            "filiere_id": prof.filiere_id,
+            "matiere": prof.matiere
+        })
     
     # Get students (filtered by university for secondary admins)
     if is_main_admin:
@@ -1942,12 +1977,11 @@ async def admin_create_prof(
     password: str = Form(...),
     specialite: str = Form(...),
     universite_id: str = Form(...),
-    ufr_id: str = Form(...),
-    filiere_id: str = Form(...),
-    matiere_id: str = Form(...),
+    ufr_ids: List[str] = Form(...),
+    filiere_ids: List[str] = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Admin creates new professor with hierarchical structure"""
+    """Admin creates new professor with multiple UFRs and filières"""
     admin_username, admin_data = admin_info
     
     try:
@@ -1959,38 +1993,57 @@ async def admin_create_prof(
         if existing_admin or existing_prof or existing_etudiant:
             return RedirectResponse(url="/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
         
-        # Validate hierarchical relationships
+        # Validate university exists
         universite = db.query(UniversiteDB).filter(UniversiteDB.id == universite_id).first()
         if not universite:
             return RedirectResponse(url="/dashboard/admin?error=Université non trouvée", status_code=303)
         
-        ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
-        if not ufr:
-            return RedirectResponse(url="/dashboard/admin?error=UFR non valide pour cette université", status_code=303)
+        # Validate at least one UFR and one filière selected
+        if not ufr_ids or not filiere_ids:
+            return RedirectResponse(url="/dashboard/admin?error=Sélectionnez au moins une UFR et une filière", status_code=303)
         
-        filiere = db.query(FiliereDB).filter(FiliereDB.id == filiere_id, FiliereDB.ufr_id == ufr_id).first()
-        if not filiere:
-            return RedirectResponse(url="/dashboard/admin?error=Filière non valide pour cette UFR", status_code=303)
+        # Validate all UFRs belong to the selected university
+        for ufr_id in ufr_ids:
+            ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
+            if not ufr:
+                return RedirectResponse(url=f"/dashboard/admin?error=UFR {ufr_id} non valide pour cette université", status_code=303)
         
-        matiere = db.query(MatiereDB).filter(MatiereDB.id == matiere_id, MatiereDB.filiere_id == filiere_id).first()
-        if not matiere:
-            return RedirectResponse(url="/dashboard/admin?error=Matière non valide pour cette filière", status_code=303)
+        # Validate all filières are valid (belong to the selected UFRs)
+        valid_filiere_ids = set()
+        for ufr_id in ufr_ids:
+            filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id == ufr_id).all()
+            valid_filiere_ids.update([f.id for f in filieres])
         
-        # Create new professor with hierarchical structure
+        for filiere_id in filiere_ids:
+            if filiere_id not in valid_filiere_ids:
+                return RedirectResponse(url=f"/dashboard/admin?error=Filière {filiere_id} non valide pour les UFR sélectionnées", status_code=303)
+        
+        # Create new professor (without UFR/filière, using many-to-many relations)
         new_prof = ProfesseurDB(
             username=username,
             password_hash=hash_password(password),
             nom=nom,
             prenom=prenom,
             specialite=specialite,
-            universite_id=universite_id,
-            ufr_id=ufr_id,
-            filiere_id=filiere_id,
-            matiere_id=matiere_id,
-            matiere=matiere.nom
+            universite_id=universite_id
         )
         
         db.add(new_prof)
+        db.flush()
+        
+        # Add UFR relationships
+        from sqlalchemy import text
+        for ufr_id in ufr_ids:
+            db.execute(text(
+                "INSERT INTO professeur_ufrs (professeur_id, ufr_id) VALUES (:prof_id, :ufr_id)"
+            ), {"prof_id": new_prof.id, "ufr_id": ufr_id})
+        
+        # Add filière relationships
+        for filiere_id in filiere_ids:
+            db.execute(text(
+                "INSERT INTO professeur_filieres (professeur_id, filiere_id) VALUES (:prof_id, :filiere_id)"
+            ), {"prof_id": new_prof.id, "filiere_id": filiere_id})
+        
         db.commit()
         return RedirectResponse(url="/dashboard/admin?success=Professeur créé avec succès", status_code=303)
         
