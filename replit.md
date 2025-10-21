@@ -32,6 +32,7 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **Monolithic Architecture**: FastAPI handles all backend logic, database interactions, and API endpoints.
 - **Session Management**: Cookie-based sessions with `itsdangerous` for secure tokens and automatic role detection.
 - **Route Protection**: Dependency injection for automated authentication and authorization.
+- **Production Deployment**: Optimized for Render deployment with dynamic port configuration (PORT environment variable), automatic production/development mode detection (RENDER environment variable), disabled reload in production, and Gunicorn with Uvicorn workers for better stability. See `GUIDE_DEPLOIEMENT_RENDER.md` for complete deployment instructions.
 
 ## External Dependencies
 
@@ -64,4 +65,10 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 ### File System Dependencies
 - **Upload Storage**: 
   - **Development**: Local `uploads/` directory for course materials.
-  - **Production (Render)**: Requires Render Disk mounted at `/opt/render/project/src/uploads` to prevent file loss on redeploys. Configuration guide: `RENDER_DISK_SETUP.md`.
+  - **Production (Render)**: Requires Render Disk mounted at `/opt/render/project/src/uploads` to prevent file loss on redeploys. Configuration guide: `GUIDE_DEPLOIEMENT_RENDER.md`.
+
+### Deployment Configuration
+- **render.yaml**: Blueprint configuration file for automatic Render deployment setup with web service, PostgreSQL database, and persistent disk for uploads.
+- **Production Start Command**: `gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
+- **Build Command**: `pip install -r requirements.txt`
+- **Required Environment Variables**: DATABASE_URL, SECRET_KEY, SESSION_SECRET, PYTHON_VERSION (3.11.2)
