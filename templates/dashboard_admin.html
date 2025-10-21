@@ -1240,6 +1240,12 @@
                 <span id="download-icon">📥</span> Téléchargements
                 <span id="download-status">: Chargement...</span>
             </button>
+            
+            <!-- Bouton contrôle passage en classe supérieure -->
+            <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <span id="passage-icon">🎓</span> Passage classe sup.
+                <span id="passage-status">: Chargement...</span>
+            </button>
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
@@ -2238,7 +2244,75 @@
         // Charger l'état des téléchargements au démarrage
         window.addEventListener('DOMContentLoaded', function() {
             loadDownloadStatus();
+            loadPassageClasseStatus();
         });
+        
+        // === CONTRÔLE DU PASSAGE EN CLASSE SUPÉRIEURE ===
+        
+        // Basculer l'état du passage en classe supérieure
+        async function togglePassageClasse() {
+            const statusSpan = document.getElementById('passage-status');
+            const iconSpan = document.getElementById('passage-icon');
+            const btn = document.getElementById('passage-toggle-btn');
+            
+            try {
+                // Désactiver le bouton pendant l'action
+                btn.disabled = true;
+                statusSpan.textContent = ': Traitement...';
+                
+                const response = await fetch('/api/parametres/passage-classe/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updatePassageClasseButtonStatus(data.actif);
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert('Erreur lors du changement d\'état', 'error');
+                    await loadPassageClasseStatus(); // Recharger l'état réel
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur de communication avec le serveur', 'error');
+                await loadPassageClasseStatus(); // Recharger l'état réel
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        // Mettre à jour l'affichage du bouton passage
+        function updatePassageClasseButtonStatus(actif) {
+            const statusSpan = document.getElementById('passage-status');
+            const iconSpan = document.getElementById('passage-icon');
+            const btn = document.getElementById('passage-toggle-btn');
+            
+            if (actif) {
+                statusSpan.textContent = ': Activé ✓';
+                btn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
+            } else {
+                statusSpan.textContent = ': Désactivé ✗';
+                btn.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+            }
+        }
+        
+        // Charger l'état du passage en classe supérieure au démarrage
+        async function loadPassageClasseStatus() {
+            try {
+                const response = await fetch('/api/parametres/passage-classe');
+                const data = await response.json();
+                updatePassageClasseButtonStatus(data.actif);
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état:', error);
+                document.getElementById('passage-status').textContent = ': Erreur';
+            }
+        }
+        
+        // === FIN CONTRÔLE DU PASSAGE EN CLASSE SUPÉRIEURE ===
         
         // Gestion des checkboxes multiples pour le formulaire professeur
         const profUniversiteSelect = document.getElementById('prof-universite');
