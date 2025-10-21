@@ -294,6 +294,62 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 
+# Cookie configuration helpers for secure session management
+def set_secure_cookie(response, key: str, value: str, max_age: int = 86400):
+    """
+    Set a secure session cookie with appropriate settings for production (Render) and development.
+    
+    Production (HTTPS): secure=True, samesite='lax'
+    Development (HTTP): secure=False, samesite='lax'
+    """
+    if IS_RENDER:
+        # Production sur Render (HTTPS)
+        response.set_cookie(
+            key=key,
+            value=value,
+            httponly=True,
+            secure=True,          # HTTPS requis
+            samesite='lax',       # Protection CSRF tout en permettant navigation normale
+            max_age=max_age,
+            path="/"
+        )
+    else:
+        # Développement local (HTTP)
+        response.set_cookie(
+            key=key,
+            value=value,
+            httponly=True,
+            secure=False,         # HTTP local
+            samesite='lax',
+            max_age=max_age,
+            path="/"
+        )
+
+def delete_secure_cookie(response, key: str):
+    """
+    Delete a session cookie with all possible configurations to ensure proper removal.
+    """
+    if IS_RENDER:
+        # Production sur Render (HTTPS)
+        response.delete_cookie(
+            key=key,
+            path="/",
+            secure=True,
+            samesite='lax'
+        )
+    else:
+        # Développement local (HTTP)
+        response.delete_cookie(
+            key=key,
+            path="/",
+            secure=False,
+            samesite='lax'
+        )
+    
+    # Fallback: toujours essayer de supprimer avec paramètres par défaut
+    response.delete_cookie(key, path="/")
+    response.set_cookie(key, "", expires=0, max_age=0, path="/")
+
 # Data models
 class UserProf(BaseModel):
     username: str
@@ -954,8 +1010,7 @@ async def index(request: Request, db: Session = Depends(get_db)):
     })
     
     # Forcer la suppression du cookie de session corrompu
-    response.delete_cookie("session")
-    response.delete_cookie("session", path="/")
+    delete_secure_cookie(response, "session")
     
     return response
 
@@ -1008,7 +1063,7 @@ async def register_prof(
     # Create session and redirect
     session_token = create_session_token(username, "prof")
     response = RedirectResponse(url="/dashboard/prof", status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    set_secure_cookie(response, "session", session_token)
     
     return response
 
@@ -1056,7 +1111,7 @@ async def register_etudiant(
     # Create session and redirect to dashboard (automatic login)
     session_token = create_session_token(username, "etudiant")
     response = RedirectResponse(url="/dashboard/etudiant", status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    set_secure_cookie(response, "session", session_token)
     
     return response
 
@@ -1103,7 +1158,7 @@ async def login(
         redirect_url = "/dashboard/etudiant"
     
     response = RedirectResponse(url=redirect_url, status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    set_secure_cookie(response, "session", session_token)
     
     return response
 
@@ -1111,19 +1166,14 @@ async def login(
 async def logout():
     """Logout user"""
     response = RedirectResponse(url="/", status_code=303)
-    response.delete_cookie("session")
-    response.delete_cookie("session", path="/")
-    response.delete_cookie("session", domain=None)
+    delete_secure_cookie(response, "session")
     return response
 
 @app.get("/clear")
 async def clear_session():
     """Force clear all cookies and redirect to home"""
     response = RedirectResponse(url="/", status_code=303)
-    response.delete_cookie("session")
-    response.delete_cookie("session", path="/")
-    response.delete_cookie("session", domain=None)
-    response.set_cookie("session", "", expires=0, max_age=0)
+    delete_secure_cookie(response, "session")
     return response
 
 @app.get("/dashboard/prof", response_class=HTMLResponse)
