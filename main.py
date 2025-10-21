@@ -1063,17 +1063,31 @@ async def register_etudiant(
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
     """Login form"""
-    user = get_current_user(request)
-    if user:
-        role, username = user
-        if role == "prof":
-            return RedirectResponse(url="/dashboard/prof", status_code=303)
-        elif role == "admin":
-            return RedirectResponse(url="/dashboard/admin", status_code=303)
-        else:
-            return RedirectResponse(url="/dashboard/etudiant", status_code=303)
+    # Ne pas rediriger automatiquement si l'utilisateur vient de se déconnecter
+    logout_param = request.query_params.get("logout")
     
-    return templates.TemplateResponse("login.html", {"request": request})
+    if not logout_param:
+        user = get_current_user(request)
+        if user:
+            role, username = user
+            if role == "prof":
+                return RedirectResponse(url="/dashboard/prof", status_code=303)
+            elif role == "admin":
+                return RedirectResponse(url="/dashboard/admin", status_code=303)
+            else:
+                return RedirectResponse(url="/dashboard/etudiant", status_code=303)
+    
+    # Créer la réponse avec suppression du cookie pour s'assurer de la déconnexion
+    response = templates.TemplateResponse("login.html", {"request": request})
+    if logout_param:
+        response.delete_cookie("session")
+        response.delete_cookie("session", path="/")
+        response.delete_cookie("session", domain=None)
+        # Forcer le non-cache de cette page
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+    
+    return response
 
 @app.post("/login")
 async def login(
@@ -1110,8 +1124,8 @@ async def login(
 @app.get("/logout")
 async def logout():
     """Logout user"""
-    # Rediriger vers /login au lieu de / pour éviter la re-connexion automatique
-    response = RedirectResponse(url="/login", status_code=303)
+    # Rediriger vers /login avec paramètre pour éviter la re-connexion automatique
+    response = RedirectResponse(url="/login?logout=1", status_code=303)
     
     # Supprimer tous les cookies de session possibles
     response.delete_cookie("session")
