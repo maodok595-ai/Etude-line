@@ -3358,14 +3358,43 @@
             }
         }
         
+        // Helper: Comparaison des niveaux académiques
+        function compareNiveaux(niveau1, niveau2) {
+            const ordre = {'L1': 1, 'L2': 2, 'L3': 3, 'M1': 4, 'M2': 5};
+            return ordre[niveau1] - ordre[niveau2];
+        }
+        
+        // Validation du formulaire de passage
+        function validatePassageForm(event) {
+            const checkbox = document.getElementById('passage-meme-filiere');
+            const niveauDepart = document.getElementById('passage-niveau-depart').value;
+            const niveauArrivee = document.getElementById('passage-niveau-arrivee').value;
+            
+            if (checkbox && checkbox.checked) {
+                // Validation pour passage dans la même filière
+                if (compareNiveaux(niveauArrivee, niveauDepart) <= 0) {
+                    event.preventDefault();
+                    alert('⚠️ Pour un passage dans la même filière, le niveau d\'arrivée doit être supérieur au niveau de départ.\n\nExemple correct: L1 → L2, L2 → L3, L3 → M1\nExemple incorrect: L2 → L1, L3 → L3');
+                    return false;
+                }
+            }
+            return true;
+        }
+        
         // Gestion de la checkbox "Passage dans la même filière"
         function initPassageMemeFiliere() {
             const checkbox = document.getElementById('passage-meme-filiere');
             const selectDepart = document.getElementById('passage-filiere-depart');
             const selectArrivee = document.getElementById('passage-filiere-arrivee');
             const labelArrivee = document.querySelector('label[for="passage-filiere-arrivee"]');
+            const form = document.querySelector('form[action="/admin/create-passage"]');
             
             if (!checkbox || !selectDepart || !selectArrivee) return;
+            
+            // Ajouter validation au formulaire
+            if (form) {
+                form.addEventListener('submit', validatePassageForm);
+            }
             
             // Event listener sur la checkbox
             checkbox.addEventListener('change', function() {
