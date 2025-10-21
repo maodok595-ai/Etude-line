@@ -1988,7 +1988,7 @@
                                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
                                         <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
