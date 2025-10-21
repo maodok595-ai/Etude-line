@@ -55,9 +55,9 @@ self.addEventListener('fetch', (event) => {
   else if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkOnlyStrategy(request));
   } 
-  // Dashboards et pages dynamiques : network only (toujours à jour)
+  // Dashboards et pages dynamiques : network only avec fallback offline (toujours à jour)
   else if (url.pathname.startsWith('/dashboard/')) {
-    event.respondWith(networkOnlyStrategy(request));
+    event.respondWith(networkOnlyWithOfflineFallback(request));
   } 
   // Autres pages (login, homepage) : network first avec fallback cache
   else {
@@ -113,6 +113,20 @@ async function networkOnlyStrategy(request) {
     return new Response(JSON.stringify({ error: 'Connexion réseau requise' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function networkOnlyWithOfflineFallback(request) {
+  try {
+    const response = await fetch(request);
+    return response;
+  } catch (error) {
+    // Pour les pages HTML, afficher la page offline
+    const offlinePage = await caches.match('/static/offline.html');
+    return offlinePage || new Response('Offline', { 
+      status: 503,
+      statusText: 'Service Unavailable' 
     });
   }
 }
