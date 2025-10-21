@@ -141,12 +141,14 @@ class Etudiant(Base):
     universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
     ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=False, index=True)
     filiere_id = Column(String, ForeignKey("filieres.id"), nullable=False, index=True)
+    statut_passage = Column(String(20), nullable=True)  # null, 'en_attente', 'validé', 'redoublant'
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
     universite = relationship("Universite", back_populates="etudiants")
     ufr = relationship("UFR", back_populates="etudiants")
     filiere = relationship("Filiere", back_populates="etudiants")
+    passages = relationship("StudentPassage", back_populates="etudiant", cascade="all, delete-orphan")
 
 class Content(Base):
     __tablename__ = "contents"
@@ -245,3 +247,51 @@ class ParametreSysteme(Base):
     description = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class PassageHierarchy(Base):
+    """Règles de passage académique définies par l'administrateur"""
+    __tablename__ = "passage_hierarchy"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete='CASCADE'), nullable=False, index=True)
+    filiere_depart_id = Column(String, ForeignKey("filieres.id", ondelete='CASCADE'), nullable=False, index=True)
+    niveau_depart = Column(String(10), nullable=False)
+    filiere_arrivee_id = Column(String, ForeignKey("filieres.id", ondelete='CASCADE'), nullable=False, index=True)
+    niveau_arrivee = Column(String(10), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relations
+    universite = relationship("Universite", foreign_keys=[universite_id])
+    filiere_depart = relationship("Filiere", foreign_keys=[filiere_depart_id])
+    filiere_arrivee = relationship("Filiere", foreign_keys=[filiere_arrivee_id])
+    
+    # Index composite pour optimiser les recherches
+    __table_args__ = (
+        Index('idx_passage_depart', 'universite_id', 'filiere_depart_id', 'niveau_depart'),
+        Index('idx_passage_arrivee', 'universite_id', 'filiere_arrivee_id', 'niveau_arrivee'),
+    )
+
+class StudentPassage(Base):
+    """Historique des passages académiques des étudiants"""
+    __tablename__ = "student_passage"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    student_id = Column(Integer, ForeignKey("etudiants.id", ondelete='CASCADE'), nullable=False, index=True)
+    old_filiere_id = Column(String, ForeignKey("filieres.id", ondelete='SET NULL'), nullable=True)
+    old_niveau = Column(String(10), nullable=False)
+    new_filiere_id = Column(String, ForeignKey("filieres.id", ondelete='SET NULL'), nullable=True)
+    new_niveau = Column(String(10), nullable=True)
+    statut = Column(String(20), nullable=False)  # 'passé' ou 'redoublant'
+    date_validation = Column(DateTime, default=datetime.utcnow)
+    annee_universitaire = Column(String(20), nullable=True)  # Ex: "2024-2025"
+    
+    # Relations
+    etudiant = relationship("Etudiant", back_populates="passages")
+    old_filiere = relationship("Filiere", foreign_keys=[old_filiere_id])
+    new_filiere = relationship("Filiere", foreign_keys=[new_filiere_id])
+    
+    # Index pour optimiser les requêtes
+    __table_args__ = (
+        Index('idx_student_passage_student', 'student_id', 'date_validation'),
+        Index('idx_student_passage_statut', 'statut', 'annee_universitaire'),
+    )

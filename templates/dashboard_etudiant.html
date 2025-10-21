@@ -1195,6 +1195,16 @@
             </div>
         </div>
         
+        <!-- Bouton de passage en classe supérieure -->
+        <div style="display: flex; justify-content: center; margin: 1.5rem 0;">
+            <button onclick="openPassageModal()" 
+                    style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(139, 92, 246, 0.4)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.3)';">
+                🎓 Passer en classe supérieure
+            </button>
+        </div>
+        
         <div id="loading" class="loading">
             <p>⏳ Chargement de vos contenus...</p>
         </div>
@@ -2006,6 +2016,183 @@
                     });
             });
         }
+    </script>
+    
+    <!-- Modal de passage en classe supérieure -->
+    <div id="passage-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+            <div style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <!-- En-tête -->
+                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 1.5rem; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 1.5rem;">🎓 Passage en classe supérieure</h2>
+                    <button onclick="closePassageModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; line-height: 1;">✕</button>
+                </div>
+                
+                <!-- Contenu -->
+                <div style="padding: 2rem;">
+                    <div id="passage-loading" style="text-align: center; padding: 2rem;">
+                        <p>⏳ Chargement des options...</p>
+                    </div>
+                    
+                    <div id="passage-content" style="display: none;">
+                        <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                            <p style="margin: 0; color: #1e40af;"><strong>📚 Votre situation actuelle :</strong></p>
+                            <p style="margin: 0.5rem 0 0 0; color: #1e3a8a;" id="current-info">-</p>
+                        </div>
+                        
+                        <h3 style="margin: 1.5rem 0 1rem 0; color: #333;">Choisissez votre orientation :</h3>
+                        <div id="passage-options" style="display: grid; gap: 1rem;">
+                            <!-- Les options seront insérées ici -->
+                        </div>
+                        
+                        <!-- Séparateur -->
+                        <div style="border-top: 2px dashed #e5e7eb; margin: 2rem 0;"></div>
+                        
+                        <!-- Option Redoublant -->
+                        <div onclick="selectPassageOption('redoublant', null, null)" 
+                             style="background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); color: white; padding: 1.5rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(220, 38, 38, 0.2);"
+                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(220, 38, 38, 0.3)';"
+                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(220, 38, 38, 0.2)';">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span style="font-size: 2rem;">⛔</span>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem;">Redoublant</h4>
+                                    <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Rester dans le même niveau et filière</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="passage-error" style="display: none; text-align: center; padding: 2rem; color: #dc2626;">
+                        <p>❌ Une erreur s'est produite</p>
+                        <p id="passage-error-message" style="font-size: 0.9rem;"></p>
+                    </div>
+                    
+                    <div id="passage-already-done" style="display: none; text-align: center; padding: 2rem;">
+                        <p style="font-size: 1.2rem; color: #16a34a;">✅ Passage déjà validé</p>
+                        <p style="color: #666;">Vous avez déjà validé votre passage pour cette année universitaire.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Ouvrir le modal de passage
+        async function openPassageModal() {
+            const modal = document.getElementById('passage-modal');
+            const loading = document.getElementById('passage-loading');
+            const content = document.getElementById('passage-content');
+            const error = document.getElementById('passage-error');
+            const alreadyDone = document.getElementById('passage-already-done');
+            
+            modal.style.display = 'block';
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            error.style.display = 'none';
+            alreadyDone.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/etudiant/passage/options');
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                
+                if (data.statut_passage === 'validé' || data.statut_passage === 'redoublant') {
+                    alreadyDone.style.display = 'block';
+                    return;
+                }
+                
+                content.style.display = 'block';
+                document.getElementById('current-info').textContent = `${data.current_filiere} - ${data.current_niveau}`;
+                
+                const optionsContainer = document.getElementById('passage-options');
+                optionsContainer.innerHTML = '';
+                
+                if (data.options.length === 0) {
+                    optionsContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucune option de passage disponible</p>';
+                    return;
+                }
+                
+                data.options.forEach(option => {
+                    const optionCard = document.createElement('div');
+                    optionCard.onclick = () => selectPassageOption('passage', option.filiere_id, option.niveau);
+                    optionCard.style.cssText = 'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.5rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);';
+                    optionCard.onmouseover = function() {
+                        this.style.transform = 'translateY(-2px)';
+                        this.style.boxShadow = '0 6px 12px rgba(16, 185, 129, 0.3)';
+                    };
+                    optionCard.onmouseout = function() {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.2)';
+                    };
+                    
+                    optionCard.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">📚</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.1rem;">${option.filiere_nom}</h4>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Niveau: ${option.niveau}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    optionsContainer.appendChild(optionCard);
+                });
+                
+            } catch (err) {
+                console.error('Erreur:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                document.getElementById('passage-error-message').textContent = err.message || 'Impossible de charger les options';
+            }
+        }
+        
+        // Fermer le modal
+        function closePassageModal() {
+            document.getElementById('passage-modal').style.display = 'none';
+        }
+        
+        // Sélectionner une option de passage
+        async function selectPassageOption(type, filiereId, niveau) {
+            if (!confirm(`Êtes-vous sûr de valider ce choix ? Cette action est irréversible.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/etudiant/passage/valider', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        filiere_id: filiereId,
+                        niveau: niveau
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    closePassageModal();
+                    window.location.reload(); // Recharger la page pour voir le nouveau niveau
+                } else {
+                    alert('❌ Erreur: ' + (data.message || 'Une erreur s\'est produite'));
+                }
+            } catch (err) {
+                console.error('Erreur:', err);
+                alert('❌ Erreur de communication avec le serveur');
+            }
+        }
+        
+        // Fermer le modal en cliquant à l'extérieur
+        document.getElementById('passage-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePassageModal();
+            }
+        });
     </script>
 </body>
 </html>

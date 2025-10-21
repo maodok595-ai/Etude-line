@@ -1319,6 +1319,7 @@
                 <button onclick="showTab('ufr')" id="tab-ufr" class="tab-btn">🏢 UFR</button>
                 <button onclick="showTab('filiere')" id="tab-filiere" class="tab-btn">📚 Filières</button>
                 <button onclick="showTab('matiere')" id="tab-matiere" class="tab-btn">📖 Matières</button>
+                <button onclick="showTab('passage')" id="tab-passage" class="tab-btn">🎓 Hiérarchie de passage</button>
             </div>
         </div>
 
@@ -2076,6 +2077,79 @@
                             <input type="text" id="mat-code" name="code" required>
                         </div>
                         <button type="submit" class="btn">Créer la matière</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglet Hiérarchie de passage -->
+    <div id="content-passage" class="tab-content">
+        <div class="card">
+            <!-- Vue liste -->
+            <div id="passage-list-view">
+                <button onclick="toggleForm('passage')" class="create-btn">
+                    ➕ Créer une règle de passage
+                </button>
+                
+                <h3 style="margin: 2rem 0 1rem;">📘 Règles de passage existantes</h3>
+                <div id="passage-list-container">
+                    <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
+                </div>
+                
+                <h3 style="margin: 2rem 0 1rem;">📊 Statistiques des passages</h3>
+                <div id="passage-stats-container">
+                    <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
+                </div>
+            </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            <div id="passage-form-view" class="hidden">
+                <div class="card" style="position: relative;">
+                    <button type="button" onclick="toggleForm('passage')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>🎓 Créer une règle de passage</h3>
+                    </div>
+                    <form action="/admin/create-passage" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="passage-filiere-depart">Filière de départ</label>
+                                <select id="passage-filiere-depart" name="filiere_depart_id" required>
+                                    <option value="">Sélectionner une filière</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="passage-niveau-depart">Niveau de départ</label>
+                                <select id="passage-niveau-depart" name="niveau_depart" required>
+                                    <option value="">Sélectionner un niveau</option>
+                                    <option value="L1">L1</option>
+                                    <option value="L2">L2</option>
+                                    <option value="L3">L3</option>
+                                    <option value="M1">M1</option>
+                                    <option value="M2">M2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="passage-filiere-arrivee">Filière d'arrivée</label>
+                                <select id="passage-filiere-arrivee" name="filiere_arrivee_id" required>
+                                    <option value="">Sélectionner une filière</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="passage-niveau-arrivee">Niveau d'arrivée</label>
+                                <select id="passage-niveau-arrivee" name="niveau_arrivee" required>
+                                    <option value="">Sélectionner un niveau</option>
+                                    <option value="L1">L1</option>
+                                    <option value="L2">L2</option>
+                                    <option value="L3">L3</option>
+                                    <option value="M1">M1</option>
+                                    <option value="M2">M2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">Créer la règle de passage</button>
                     </form>
                 </div>
             </div>
@@ -3167,6 +3241,165 @@
                 });
             });
         });
+        
+        // ========== HIÉRARCHIE DE PASSAGE ==========
+        
+        // Charger les filières pour les selects
+        async function loadFilieresForPassage() {
+            try {
+                const response = await fetch('/api/admin/filieres');
+                const data = await response.json();
+                
+                const selectDepart = document.getElementById('passage-filiere-depart');
+                const selectArrivee = document.getElementById('passage-filiere-arrivee');
+                
+                if (selectDepart && selectArrivee) {
+                    selectDepart.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    selectArrivee.innerHTML = '<option value="">Sélectionner une filière</option>';
+                    
+                    data.forEach(filiere => {
+                        const optionDepart = new Option(filiere.nom, filiere.id);
+                        const optionArrivee = new Option(filiere.nom, filiere.id);
+                        selectDepart.add(optionDepart);
+                        selectArrivee.add(optionArrivee);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des filières:', error);
+            }
+        }
+        
+        // Charger les règles de passage
+        async function loadPassageRules() {
+            try {
+                const response = await fetch('/api/admin/passage-hierarchy');
+                const data = await response.json();
+                
+                const container = document.getElementById('passage-list-container');
+                if (!container) return;
+                
+                if (data.passages.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucune règle de passage définie</p>';
+                    return;
+                }
+                
+                let html = '<div style="display: grid; gap: 1rem;">';
+                data.passages.forEach(passage => {
+                    html += `
+                        <div class="user-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-left: 4px solid #8b5cf6;">
+                            <div>
+                                <strong style="color: #8b5cf6;">📚 ${passage.filiere_depart} (${passage.niveau_depart})</strong>
+                                <span style="margin: 0 1rem; color: #666;">→</span>
+                                <strong style="color: #16a34a;">📚 ${passage.filiere_arrivee} (${passage.niveau_arrivee})</strong>
+                                ${passage.universite_nom ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">🏛️ ${passage.universite_nom}</div>` : ''}
+                            </div>
+                            <button onclick="deletePassageRule(${passage.id})" class="btn-small" style="background: #dc2626; color: white;" title="Supprimer">
+                                🗑️
+                            </button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Erreur lors du chargement des règles:', error);
+                document.getElementById('passage-list-container').innerHTML = '<p style="text-align: center; color: #dc2626; padding: 1rem;">Erreur de chargement</p>';
+            }
+        }
+        
+        // Charger les statistiques
+        async function loadPassageStats() {
+            try {
+                const response = await fetch('/api/admin/passage/statistiques');
+                const data = await response.json();
+                
+                const container = document.getElementById('passage-stats-container');
+                if (!container) return;
+                
+                let html = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <h3 style="color: white;">Total passages</h3>
+                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.total}</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                            <h3 style="color: white;">Passés</h3>
+                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.passes}</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);">
+                            <h3 style="color: white;">Redoublants</h3>
+                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.redoublants}</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);">
+                            <h3 style="color: white;">Changements filière</h3>
+                            <div style="font-size: 2rem; font-weight: bold; color: white;">${data.changements_filiere}</div>
+                        </div>
+                    </div>
+                `;
+                
+                if (data.recent_passages && data.recent_passages.length > 0) {
+                    html += '<h4 style="margin-bottom: 1rem;">Passages récents</h4>';
+                    html += '<div style="display: grid; gap: 0.5rem;">';
+                    data.recent_passages.forEach(p => {
+                        const badgeColor = p.statut === 'passé' ? '#16a34a' : '#ea580c';
+                        html += `
+                            <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span><strong>${p.nom}</strong>: ${p.ancien_niveau} → ${p.nouveau_niveau}</span>
+                                <span style="background: ${badgeColor}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">
+                                    ${p.statut}
+                                </span>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Erreur lors du chargement des statistiques:', error);
+                document.getElementById('passage-stats-container').innerHTML = '<p style="text-align: center; color: #dc2626; padding: 1rem;">Erreur de chargement</p>';
+            }
+        }
+        
+        // Supprimer une règle de passage
+        async function deletePassageRule(passageId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette règle de passage ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/passage/${passageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('Règle supprimée avec succès', 'success');
+                    loadPassageRules();
+                } else {
+                    showAlert('Erreur lors de la suppression', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur de communication avec le serveur', 'error');
+            }
+        }
+        
+        // Initialiser l'onglet passage quand il est ouvert
+        const originalShowTab = showTab;
+        showTab = function(tabName) {
+            originalShowTab(tabName);
+            
+            if (tabName === 'passage') {
+                loadFilieresForPassage();
+                loadPassageRules();
+                loadPassageStats();
+            }
+        };
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">

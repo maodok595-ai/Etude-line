@@ -23,7 +23,7 @@ from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
     Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
-    ParametreSysteme as ParametreSystemeDB
+    ParametreSysteme as ParametreSystemeDB, PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
 )
 from migration import migrate_data
 
@@ -89,6 +89,17 @@ async def startup_event():
                 print("✅ Colonne 'actif' ajoutée aux professeurs")
             except Exception as e:
                 print(f"ℹ️ Colonne 'actif' déjà existante ou erreur: {e}")
+            
+            # Migration: Ajouter la colonne 'statut_passage' aux étudiants
+            try:
+                conn.execute(text("""
+                    ALTER TABLE etudiants 
+                    ADD COLUMN IF NOT EXISTS statut_passage VARCHAR(20)
+                """))
+                conn.commit()
+                print("✅ Colonne 'statut_passage' ajoutée aux étudiants")
+            except Exception as e:
+                print(f"ℹ️ Colonne 'statut_passage' déjà existante ou erreur: {e}")
             
             # Créer les index de performance pour optimiser les requêtes
             # Vérifier d'abord quelles tables existent
@@ -2276,6 +2287,234 @@ async def admin_create_matiere(
         db.rollback()
         return RedirectResponse(url=f"/dashboard/admin?error=Erreur lors de la création: {str(e)}", status_code=303)
 
+# ========== ROUTES HIÉRARCHIE DE PASSAGE ==========
+
+@app.post("/admin/create-passage")
+async def admin_create_passage(
+    request: Request,
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    filiere_depart_id: str = Form(...),
+    niveau_depart: str = Form(...),
+    filiere_arrivee_id: str = Form(...),
+    niveau_arrivee: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Créer une règle de passage académique"""
+    admin_username, admin_data = admin_info
+    
+    try:
+        # Récupérer l'université de l'admin
+        universite_id = admin_data.get("universite_id")
+        
+        # Vérifier que les filières existent
+        filiere_depart = db.query(FiliereDB).filter(FiliereDB.id == filiere_depart_id).first()
+        filiere_arrivee = db.query(FiliereDB).filter(FiliereDB.id == filiere_arrivee_id).first()
+        
+        if not filiere_depart or not filiere_arrivee:
+            return RedirectResponse(url="/dashboard/admin?error=Filière invalide", status_code=303)
+        
+        # Vérifier que les filières appartiennent à l'université de l'admin (si admin secondaire)
+        if not admin_data.get("is_main_admin", False):
+            ufr_depart = db.query(UFRDB).filter(UFRDB.id == filiere_depart.ufr_id).first()
+            ufr_arrivee = db.query(UFRDB).filter(UFRDB.id == filiere_arrivee.ufr_id).first()
+            
+            if (not ufr_depart or not ufr_arrivee or 
+                ufr_depart.universite_id != universite_id or 
+                ufr_arrivee.universite_id != universite_id):
+                return RedirectResponse(url="/dashboard/admin?error=Vous ne pouvez créer des règles que pour votre université", status_code=303)
+        else:
+            # Admin principal : récupérer l'université de la filière de départ
+            ufr_depart = db.query(UFRDB).filter(UFRDB.id == filiere_depart.ufr_id).first()
+            universite_id = ufr_depart.universite_id if ufr_depart else None
+        
+        if not universite_id:
+            return RedirectResponse(url="/dashboard/admin?error=Université invalide", status_code=303)
+        
+        # Vérifier si cette règle existe déjà
+        existing_rule = db.query(PassageHierarchyDB).filter(
+            PassageHierarchyDB.universite_id == universite_id,
+            PassageHierarchyDB.filiere_depart_id == filiere_depart_id,
+            PassageHierarchyDB.niveau_depart == niveau_depart,
+            PassageHierarchyDB.filiere_arrivee_id == filiere_arrivee_id,
+            PassageHierarchyDB.niveau_arrivee == niveau_arrivee
+        ).first()
+        
+        if existing_rule:
+            return RedirectResponse(url="/dashboard/admin?error=Cette règle de passage existe déjà", status_code=303)
+        
+        # Créer la nouvelle règle
+        new_passage = PassageHierarchyDB(
+            universite_id=universite_id,
+            filiere_depart_id=filiere_depart_id,
+            niveau_depart=niveau_depart,
+            filiere_arrivee_id=filiere_arrivee_id,
+            niveau_arrivee=niveau_arrivee
+        )
+        
+        db.add(new_passage)
+        db.commit()
+        return RedirectResponse(url="/dashboard/admin?success=Règle de passage créée avec succès", status_code=303)
+        
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(url=f"/dashboard/admin?error=Erreur: {str(e)}", status_code=303)
+
+@app.delete("/admin/passage/{passage_id}")
+async def admin_delete_passage(
+    passage_id: int,
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Supprimer une règle de passage"""
+    admin_username, admin_data = admin_info
+    
+    try:
+        passage = db.query(PassageHierarchyDB).filter(PassageHierarchyDB.id == passage_id).first()
+        if not passage:
+            raise HTTPException(status_code=404, detail="Règle non trouvée")
+        
+        # Vérifier que l'admin a le droit de supprimer cette règle
+        if not admin_data.get("is_main_admin", False):
+            if passage.universite_id != admin_data.get("universite_id"):
+                raise HTTPException(status_code=403, detail="Non autorisé")
+        
+        db.delete(passage)
+        db.commit()
+        return {"success": True, "message": "Règle supprimée avec succès"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@app.get("/api/admin/passage-hierarchy")
+async def get_passage_hierarchy(
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Récupérer toutes les règles de passage pour l'admin"""
+    admin_username, admin_data = admin_info
+    
+    try:
+        # Filtrer par université si admin secondaire
+        query = db.query(PassageHierarchyDB)
+        if not admin_data.get("is_main_admin", False):
+            query = query.filter(PassageHierarchyDB.universite_id == admin_data.get("universite_id"))
+        
+        passages = query.all()
+        
+        # Enrichir avec les noms des filières
+        result = []
+        for passage in passages:
+            filiere_depart = db.query(FiliereDB).filter(FiliereDB.id == passage.filiere_depart_id).first()
+            filiere_arrivee = db.query(FiliereDB).filter(FiliereDB.id == passage.filiere_arrivee_id).first()
+            universite = db.query(UniversiteDB).filter(UniversiteDB.id == passage.universite_id).first()
+            
+            result.append({
+                "id": passage.id,
+                "universite_nom": universite.nom if universite else "Inconnue",
+                "filiere_depart": filiere_depart.nom if filiere_depart else "Inconnue",
+                "niveau_depart": passage.niveau_depart,
+                "filiere_arrivee": filiere_arrivee.nom if filiere_arrivee else "Inconnue",
+                "niveau_arrivee": passage.niveau_arrivee,
+                "created_at": passage.created_at.isoformat() if passage.created_at else None
+            })
+        
+        return {"passages": result}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@app.get("/api/admin/passage/statistiques")
+async def get_passage_statistiques(
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Récupérer les statistiques des passages académiques"""
+    admin_username, admin_data = admin_info
+    
+    try:
+        # Filtrer par université si admin secondaire
+        query = db.query(StudentPassageDB)
+        if not admin_data.get("is_main_admin", False):
+            # Récupérer les IDs des étudiants de l'université de l'admin
+            student_ids = db.query(EtudiantDB.id).filter(
+                EtudiantDB.universite_id == admin_data.get("universite_id")
+            ).all()
+            student_ids = [sid[0] for sid in student_ids]
+            query = query.filter(StudentPassageDB.student_id.in_(student_ids))
+        
+        all_passages = query.all()
+        
+        # Calculer les statistiques
+        total = len(all_passages)
+        passes = len([p for p in all_passages if p.statut == "passé"])
+        redoublants = len([p for p in all_passages if p.statut == "redoublant"])
+        
+        # Changements de filière
+        changements_filiere = len([
+            p for p in all_passages 
+            if p.statut == "passé" and p.old_filiere_id != p.new_filiere_id
+        ])
+        
+        # Liste des étudiants ayant validé récemment
+        recent_passages = query.order_by(StudentPassageDB.date_validation.desc()).limit(10).all()
+        
+        recent_list = []
+        for passage in recent_passages:
+            etudiant = db.query(EtudiantDB).filter(EtudiantDB.id == passage.student_id).first()
+            if etudiant:
+                recent_list.append({
+                    "nom": f"{etudiant.prenom} {etudiant.nom}",
+                    "statut": passage.statut,
+                    "ancien_niveau": passage.old_niveau,
+                    "nouveau_niveau": passage.new_niveau if passage.new_niveau else passage.old_niveau,
+                    "date": passage.date_validation.isoformat() if passage.date_validation else None
+                })
+        
+        return {
+            "total": total,
+            "passes": passes,
+            "redoublants": redoublants,
+            "changements_filiere": changements_filiere,
+            "recent_passages": recent_list
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@app.get("/api/admin/filieres")
+async def get_all_filieres(
+    admin_info: Tuple[str, Dict[str, Any]] = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """Récupérer toutes les filières pour l'admin"""
+    admin_username, admin_data = admin_info
+    
+    try:
+        # Filtrer par université si admin secondaire
+        query = db.query(FiliereDB)
+        
+        if not admin_data.get("is_main_admin", False):
+            # Récupérer les UFRs de l'université de l'admin
+            ufr_ids = db.query(UFRDB.id).filter(
+                UFRDB.universite_id == admin_data.get("universite_id")
+            ).all()
+            ufr_ids = [ufr_id[0] for ufr_id in ufr_ids]
+            query = query.filter(FiliereDB.ufr_id.in_(ufr_ids))
+        
+        filieres = query.all()
+        
+        return [{
+            "id": f.id,
+            "nom": f.nom,
+            "code": f.code
+        } for f in filieres]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
 
 # Routes pour modification et suppression
 
@@ -3665,6 +3904,173 @@ async def delete_all_notifications(
     db.commit()
     
     return {"success": True, "message": "Toutes les notifications ont été supprimées"}
+
+# ==================== ROUTES API PASSAGE ÉTUDIANT ====================
+
+@app.get("/api/etudiant/passage/options")
+async def get_student_passage_options(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer les options de passage disponibles pour l'étudiant"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Accès réservé aux étudiants")
+    
+    try:
+        etudiant = db.query(EtudiantDB).filter_by(id=user_data.get('id')).first()
+        if not etudiant:
+            raise HTTPException(status_code=404, detail="Étudiant non trouvé")
+        
+        # Récupérer les règles de passage pour la filière et le niveau actuels de l'étudiant
+        passages = db.query(PassageHierarchyDB).filter(
+            PassageHierarchyDB.universite_id == etudiant.universite_id,
+            PassageHierarchyDB.filiere_depart_id == etudiant.filiere_id,
+            PassageHierarchyDB.niveau_depart == etudiant.niveau
+        ).all()
+        
+        # Enrichir avec les noms des filières
+        options = []
+        for passage in passages:
+            filiere_arrivee = db.query(FiliereDB).filter(FiliereDB.id == passage.filiere_arrivee_id).first()
+            if filiere_arrivee:
+                options.append({
+                    "filiere_id": passage.filiere_arrivee_id,
+                    "filiere_nom": filiere_arrivee.nom,
+                    "niveau": passage.niveau_arrivee
+                })
+        
+        # Récupérer les informations actuelles de l'étudiant
+        filiere_actuelle = db.query(FiliereDB).filter(FiliereDB.id == etudiant.filiere_id).first()
+        
+        return {
+            "current_filiere": filiere_actuelle.nom if filiere_actuelle else "Inconnue",
+            "current_niveau": etudiant.niveau,
+            "options": options,
+            "statut_passage": etudiant.statut_passage
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@app.post("/api/etudiant/passage/valider")
+async def validate_student_passage(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Valider le choix de passage de l'étudiant"""
+    role, username, user_data = require_auth(request, db)
+    
+    if role != "etudiant":
+        raise HTTPException(status_code=403, detail="Accès réservé aux étudiants")
+    
+    try:
+        # Récupérer les données du formulaire
+        data = await request.json()
+        choix_type = data.get("type")  # "passage" ou "redoublant"
+        filiere_id = data.get("filiere_id")  # null si redoublant
+        niveau = data.get("niveau")  # null si redoublant
+        
+        etudiant = db.query(EtudiantDB).filter_by(id=user_data.get('id')).first()
+        if not etudiant:
+            raise HTTPException(status_code=404, detail="Étudiant non trouvé")
+        
+        # Vérifier si l'étudiant a déjà validé un passage cette année
+        from datetime import datetime
+        current_year = datetime.now().year
+        annee_universitaire = f"{current_year}-{current_year + 1}"
+        
+        existing_passage = db.query(StudentPassageDB).filter(
+            StudentPassageDB.student_id == etudiant.id,
+            StudentPassageDB.annee_universitaire == annee_universitaire
+        ).first()
+        
+        if existing_passage:
+            raise HTTPException(status_code=400, detail="Vous avez déjà validé votre passage pour cette année")
+        
+        # Sauvegarder l'ancien état
+        old_filiere_id = etudiant.filiere_id
+        old_niveau = etudiant.niveau
+        
+        if choix_type == "redoublant":
+            # Redoublement : pas de changement de niveau/filière
+            statut = "redoublant"
+            new_filiere_id = old_filiere_id
+            new_niveau = old_niveau
+            etudiant.statut_passage = "redoublant"
+            
+        elif choix_type == "passage":
+            # Passage normal : vérifier que le choix est valide
+            if not filiere_id or not niveau:
+                raise HTTPException(status_code=400, detail="Filière et niveau requis pour un passage")
+            
+            # Vérifier que cette option existe dans les règles
+            passage_valide = db.query(PassageHierarchyDB).filter(
+                PassageHierarchyDB.universite_id == etudiant.universite_id,
+                PassageHierarchyDB.filiere_depart_id == old_filiere_id,
+                PassageHierarchyDB.niveau_depart == old_niveau,
+                PassageHierarchyDB.filiere_arrivee_id == filiere_id,
+                PassageHierarchyDB.niveau_arrivee == niveau
+            ).first()
+            
+            if not passage_valide:
+                raise HTTPException(status_code=400, detail="Option de passage non autorisée")
+            
+            statut = "passé"
+            new_filiere_id = filiere_id
+            new_niveau = niveau
+            
+            # Mettre à jour l'étudiant
+            etudiant.filiere_id = new_filiere_id
+            etudiant.niveau = new_niveau
+            etudiant.statut_passage = "validé"
+            
+        else:
+            raise HTTPException(status_code=400, detail="Type de choix invalide")
+        
+        # Créer l'historique du passage
+        passage_history = StudentPassageDB(
+            student_id=etudiant.id,
+            old_filiere_id=old_filiere_id,
+            old_niveau=old_niveau,
+            new_filiere_id=new_filiere_id,
+            new_niveau=new_niveau,
+            statut=statut,
+            annee_universitaire=annee_universitaire,
+            date_validation=datetime.utcnow()
+        )
+        
+        db.add(passage_history)
+        db.commit()
+        
+        # Créer une notification pour l'étudiant
+        message = "✅ Votre passage a été validé avec succès" if statut == "passé" else "📝 Vous êtes inscrit en tant que redoublant"
+        notification = NotificationDB(
+            type='passage_valide',
+            message=message,
+            destinataire_type='etudiant',
+            destinataire_id=etudiant.id,
+            lien="/dashboard/etudiant"
+        )
+        db.add(notification)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Passage validé avec succès",
+            "statut": statut,
+            "nouveau_niveau": new_niveau,
+            "nouvelle_filiere_id": new_filiere_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 # ==================== ROUTES API PARAMÈTRES SYSTÈME ====================
 
