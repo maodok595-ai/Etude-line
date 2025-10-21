@@ -65,16 +65,16 @@
         }
         
         .container {
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
+            max-width: 90%;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
         
         /* Desktop Pro Optimizations - Full Width Experience */
         @media (min-width: 1400px) {
             .container {
-                max-width: 100%;
-                padding: 0;
+                max-width: 95%;
+                padding: 0 3rem;
             }
             
             .welcome-card {
@@ -111,8 +111,8 @@
         
         @media (min-width: 1600px) {
             .container {
-                max-width: 100%;
-                padding: 0;
+                max-width: 96%;
+                padding: 0 4rem;
             }
             
             .navbar {
@@ -143,8 +143,8 @@
         
         @media (min-width: 1920px) {
             .container {
-                max-width: 100%;
-                padding: 0;
+                max-width: 97%;
+                padding: 0 5rem;
             }
             
             .navbar {
@@ -170,8 +170,8 @@
         
         @media (min-width: 2560px) {
             .container {
-                max-width: 100%;
-                padding: 0;
+                max-width: 98%;
+                padding: 0 6rem;
             }
             
             .navbar {
@@ -733,10 +733,9 @@
         
         .card {
             background: white;
-            border-radius: 0;
-            padding: 1rem;
-            box-shadow: none;
-            border: none;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .card h3 {
@@ -983,9 +982,6 @@
             font-weight: 500;
             color: #333;
             font-size: 0.95rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         .chapitre-content-new {
@@ -1881,123 +1877,139 @@
                                                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                                                             <span class="chapitre-titre">📖 Chapitre {{ chapitre.chapitre }} : {{ chapitre.titre }}</span>
                                                         </div>
-                                                        <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                            <span class="arrow" id="arrow-{{ chapitre.id }}">▸</span>
+                                                            <div class="action-buttons" style="display: flex; gap: 0.3rem;" onclick="event.stopPropagation();">
+                                                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
+                                                                "id": "{{ chapitre.id }}",
+                                                                "titre": {{ chapitre.titre|tojson }},
+                                                                "cours_texte": {{ chapitre.cours_texte|tojson }},
+                                                                "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
+                                                                "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
+                                                                "exercice_texte": {{ chapitre.exercice_texte|tojson }},
+                                                                "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
+                                                                "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
+                                                                "solution_texte": {{ chapitre.solution_texte|tojson }},
+                                                                "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
+                                                                "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
+                                                            })' title="Modifier">
+                                                                ✏️
+                                                            </button>
+                                                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" title="Supprimer">
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     
                                                     <!-- Contenu du chapitre (masqué par défaut) -->
                                                     <div class="chapitre-content-new" id="chapitre-{{ chapitre.id }}" style="display: none;">
-                                                        
-                                                        <!-- Cours -->
-                                                        <div class="content-section">
-                                                            <h4 onclick="toggleContentSection({{ chapitre.id }}, 'cours')" style="cursor: pointer;">
-                                                                <span id="arrow-cours-{{ chapitre.id }}" style="color: #666;">▸</span> 📖 Cours
-                                                            </h4>
-                                                            <div id="content-cours-{{ chapitre.id }}" style="display: none;">
-                                                                {% if chapitre.cours_texte %}
-                                                                    <div class="content-text">{{ chapitre.cours_texte }}</div>
-                                                                {% endif %}
-                                                                {% if chapitre.cours_fichier_nom %}
-                                                                    {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
-                                                                    {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
-                                                                    {% for i in range(fichier_noms|length) %}
-                                                                    <div class="file-actions">
-                                                                        <div class="file-name file-name-cours">📎 {{ fichier_noms[i] }}</div>
-                                                                        <div class="file-buttons">
-                                                                            <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" class="btn-read btn-read-cours">
-                                                                                👁️ Lire
-                                                                            </a>
-                                                                            <a href="/files/download/{{ fichier_paths[i] }}" class="btn-download btn-download-cours download-button">
-                                                                                ⬇️ Télécharger
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <!-- Exercices -->
-                                                        <div class="content-section">
-                                                            <h4 onclick="toggleContentSection({{ chapitre.id }}, 'exercices')" style="cursor: pointer;">
-                                                                <span id="arrow-exercices-{{ chapitre.id }}" style="color: #666;">▸</span> ✍️ Exercices
-                                                            </h4>
-                                                            <div id="content-exercices-{{ chapitre.id }}" style="display: none;">
-                                                                {% if chapitre.exercice_texte %}
-                                                                    <div class="content-text">{{ chapitre.exercice_texte }}</div>
-                                                                {% endif %}
-                                                                {% if chapitre.exercice_fichier_nom %}
-                                                                    {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
-                                                                    {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
-                                                                    {% for i in range(fichier_noms|length) %}
-                                                                    <div class="file-actions">
-                                                                        <div class="file-name file-name-exercice">📎 {{ fichier_noms[i] }}</div>
-                                                                        <div class="file-buttons">
-                                                                            <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" class="btn-read btn-read-exercice">
-                                                                                👁️ Lire
-                                                                            </a>
-                                                                            <a href="/files/download/{{ fichier_paths[i] }}" class="btn-download btn-download-exercice download-button">
-                                                                                ⬇️ Télécharger
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <!-- Solutions -->
-                                                        <div class="content-section">
-                                                            <h4 onclick="toggleContentSection({{ chapitre.id }}, 'solutions')" style="cursor: pointer;">
-                                                                <span id="arrow-solutions-{{ chapitre.id }}" style="color: #666;">▸</span> ✅ Solutions
-                                                            </h4>
-                                                            <div id="content-solutions-{{ chapitre.id }}" style="display: none;">
-                                                                {% if chapitre.solution_texte %}
-                                                                    <div class="content-text">{{ chapitre.solution_texte }}</div>
-                                                                {% endif %}
-                                                                {% if chapitre.solution_fichier_nom %}
-                                                                    {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
-                                                                    {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
-                                                                    {% for i in range(fichier_noms|length) %}
-                                                                    <div class="file-actions">
-                                                                        <div class="file-name file-name-solution">📎 {{ fichier_noms[i] }}</div>
-                                                                        <div class="file-buttons">
-                                                                            <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" class="btn-read btn-read-solution">
-                                                                                👁️ Lire
-                                                                            </a>
-                                                                            <a href="/files/download/{{ fichier_paths[i] }}" class="btn-download btn-download-solution download-button">
-                                                                                ⬇️ Télécharger
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            </div>
-                                                        </div>
-                            
-                            <!-- Boutons de modification et suppression -->
-                            <div style="display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 0.5rem;">
-                                <button class="btn-icon" onclick='ouvrirModificationChapitre({
-                                    "id": "{{ chapitre.id }}",
-                                    "titre": {{ chapitre.titre|tojson }},
-                                    "cours_texte": {{ chapitre.cours_texte|tojson }},
-                                    "cours_fichier_nom": {{ chapitre.cours_fichier_nom|tojson }},
-                                    "cours_fichier_path": {{ chapitre.cours_fichier_path|tojson }},
-                                    "exercice_texte": {{ chapitre.exercice_texte|tojson }},
-                                    "exercice_fichier_nom": {{ chapitre.exercice_fichier_nom|tojson }},
-                                    "exercice_fichier_path": {{ chapitre.exercice_fichier_path|tojson }},
-                                    "solution_texte": {{ chapitre.solution_texte|tojson }},
-                                    "solution_fichier_nom": {{ chapitre.solution_fichier_nom|tojson }},
-                                    "solution_fichier_path": {{ chapitre.solution_fichier_path|tojson }}
-                                })' style="background: #667eea; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
-                                    ✏️ Modifier
-                                </button>
-                                <button class="btn-icon btn-icon-delete" onclick="deleteChapitre('{{ chapitre.id }}', '{{ chapitre.titre }}')" style="background: #ef4444; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
-                                    🗑️ Supprimer
-                                </button>
-                            </div>
-                            
-                            <!-- Section Commentaires -->
-                            <div class="commentaires-section" style="margin-top: 0;">
+                                                        <!-- Affichage des 3 sections -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <!-- Cours -->
+                                <div style="background: #f1f8e9; padding: 1rem; border-radius: 8px; border: 1px solid #c8e6c9;">
+                                    <h5 onclick="toggleSection('cours-{{ chapitre.id }}')" style="color: #2e7d32; margin-bottom: 0.5rem; cursor: pointer;">
+                                        <span id="arrow-cours-{{ chapitre.id }}" style="color: #666;">▸</span> 📚 Cours
+                                    </h5>
+                                    <div id="content-cours-{{ chapitre.id }}" style="display: none;">
+                                    {% if chapitre.cours_fichier_nom %}
+                                        {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #4caf50; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
+                                                   style="background: #2e7d32; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.cours_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.cours_texte[:50] }}{% if chapitre.cours_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Exercices -->
+                                <div style="background: #fffde7; padding: 1rem; border-radius: 8px; border: 1px solid #fff176;">
+                                    <h5 onclick="toggleSection('exercices-{{ chapitre.id }}')" style="color: #f57c00; margin-bottom: 0.5rem; cursor: pointer;">
+                                        <span id="arrow-exercices-{{ chapitre.id }}" style="color: #666;">▸</span> ✏️ Exercices
+                                    </h5>
+                                    <div id="content-exercices-{{ chapitre.id }}" style="display: none;">
+                                    {% if chapitre.exercice_fichier_nom %}
+                                        {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #ff9800; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
+                                                   style="background: #e65100; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.exercice_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.exercice_texte[:50] }}{% if chapitre.exercice_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Solutions -->
+                                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; border: 1px solid #90caf9;">
+                                    <h5 onclick="toggleSection('solutions-{{ chapitre.id }}')" style="color: #1976d2; margin-bottom: 0.5rem; cursor: pointer;">
+                                        <span id="arrow-solutions-{{ chapitre.id }}" style="color: #666;">▸</span> ✅ Solutions
+                                    </h5>
+                                    <div id="content-solutions-{{ chapitre.id }}" style="display: none;">
+                                    {% if chapitre.solution_fichier_nom %}
+                                        {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
+                                        {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
+                                        {% for i in range(fichier_noms|length) %}
+                                        <div class="file-info" style="margin-bottom: 0.5rem;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                                📎 {{ fichier_noms[i] }}
+                                            </div>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
+                                                   style="background: #2196f3; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    👁️ Lire
+                                                </a>
+                                                <a href="/files/download/{{ fichier_paths[i] }}" 
+                                                   class="download-button"
+                                                   style="background: #1565c0; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                                    ⬇️ Télécharger
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if chapitre.solution_texte %}
+                                        <div style="font-size: 0.9rem; color: #666;">{{ chapitre.solution_texte[:50] }}{% if chapitre.solution_texte|length > 50 %}...{% endif %}</div>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Section Commentaires -->
+                                <div class="commentaires-section">
                                     <h4 onclick="toggleCommentaires({{ chapitre.id }})">
                                         <span class="commentaires-toggle-arrow" id="commentaires-arrow-{{ chapitre.id }}">▸</span>
                                         💬 Commentaires & Discussion
