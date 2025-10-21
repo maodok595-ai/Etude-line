@@ -1450,9 +1450,9 @@
             }
             
             // Fonction pour toggle les sections Cours/Exercices/Solutions
-            function toggleSection(sectionId) {
-                const content = document.getElementById('content-' + sectionId);
-                const arrow = document.getElementById('arrow-' + sectionId);
+            function toggleContentSection(chapitreId, type) {
+                const content = document.getElementById(`content-${type}-${chapitreId}`);
+                const arrow = document.getElementById(`arrow-${type}-${chapitreId}`);
                 
                 if (content.style.display === 'none' || content.style.display === '') {
                     content.style.display = 'block';
