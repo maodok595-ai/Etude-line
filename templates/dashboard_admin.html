@@ -3410,12 +3410,28 @@
                 
                 let html = '<div style="display: grid; gap: 1rem;">';
                 data.passages.forEach(passage => {
+                    // Détection du passage dans la même filière
+                    const memeFiliere = passage.filiere_depart === passage.filiere_arrivee;
+                    const badgeMemeFiliere = memeFiliere 
+                        ? `<span style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 1rem; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);">☑️ MÊME FILIÈRE</span>`
+                        : '';
+                    
                     html += `
-                        <div class="user-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-left: 4px solid #8b5cf6;">
-                            <div>
-                                <strong style="color: #8b5cf6;">📚 ${passage.filiere_depart} (${passage.niveau_depart})</strong>
-                                <span style="margin: 0 1rem; color: #666;">→</span>
-                                <strong style="color: #16a34a;">📚 ${passage.filiere_arrivee} (${passage.niveau_arrivee})</strong>
+                        <div class="user-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-left: 4px solid ${memeFiliere ? '#3b82f6' : '#8b5cf6'};">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    ${memeFiliere 
+                                        ? `<strong style="color: #3b82f6;">📚 ${passage.filiere_depart}</strong>
+                                           <span style="color: #666;">:</span>
+                                           <span style="color: #8b5cf6; font-weight: 600;">${passage.niveau_depart}</span>
+                                           <span style="margin: 0 0.5rem; color: #3b82f6; font-weight: bold;">→</span>
+                                           <span style="color: #16a34a; font-weight: 600;">${passage.niveau_arrivee}</span>
+                                           ${badgeMemeFiliere}`
+                                        : `<strong style="color: #8b5cf6;">📚 ${passage.filiere_depart} (${passage.niveau_depart})</strong>
+                                           <span style="margin: 0 1rem; color: #666;">→</span>
+                                           <strong style="color: #16a34a;">📚 ${passage.filiere_arrivee} (${passage.niveau_arrivee})</strong>`
+                                    }
+                                </div>
                                 ${passage.universite_nom ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">🏛️ ${passage.universite_nom}</div>` : ''}
                             </div>
                             <button onclick="deletePassageRule(${passage.id})" class="btn-small" style="background: #dc2626; color: white;" title="Supprimer">
