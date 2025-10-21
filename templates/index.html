@@ -672,17 +672,17 @@
                     <form action="/register/etudiant" method="post">
                         <div class="form-group">
                             <label for="etud-nom">Nom</label>
-                            <input type="text" id="etud-nom" name="nom" required>
+                            <input type="text" id="etud-nom" name="nom" autocomplete="family-name" aria-label="Votre nom de famille" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-prenom">Prénom</label>
-                            <input type="text" id="etud-prenom" name="prenom" required>
+                            <input type="text" id="etud-prenom" name="prenom" autocomplete="given-name" aria-label="Votre prénom" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-username">Nom d'utilisateur</label>
-                            <input type="text" id="etud-username" name="username" required>
+                            <input type="text" id="etud-username" name="username" autocomplete="username" aria-label="Choisissez un nom d'utilisateur" required>
                         </div>
                         
                         <div class="form-group">
@@ -697,7 +697,7 @@
                         
                         <div class="form-group">
                             <label for="etud-universite">Université</label>
-                            <select id="etud-universite" name="universite_id" required>
+                            <select id="etud-universite" name="universite_id" aria-label="Sélectionnez votre université" aria-required="true" required>
                                 <option value="">Sélectionner une université</option>
                                 {% for uni in universites %}
                                 <option value="{{ uni.id }}">{{ uni.nom }}</option>
@@ -707,21 +707,21 @@
                         
                         <div class="form-group">
                             <label for="etud-ufr">UFR</label>
-                            <select id="etud-ufr" name="ufr_id" required disabled>
+                            <select id="etud-ufr" name="ufr_id" aria-label="Sélectionnez votre UFR" aria-required="true" required disabled>
                                 <option value="">Sélectionner d'abord une université</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-filiere">Filière</label>
-                            <select id="etud-filiere" name="filiere_id" required disabled>
+                            <select id="etud-filiere" name="filiere_id" aria-label="Sélectionnez votre filière" aria-required="true" required disabled>
                                 <option value="">Sélectionner d'abord une UFR</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-niveau">Niveau</label>
-                            <select id="etud-niveau" name="niveau" required>
+                            <select id="etud-niveau" name="niveau" aria-label="Sélectionnez votre niveau d'études" aria-required="true" required>
                                 <option value="">Sélectionner un niveau</option>
                                 <option value="L1">Licence 1 (L1)</option>
                                 <option value="L2">Licence 2 (L2)</option>
