@@ -2084,11 +2084,6 @@
                         <p>❌ Une erreur s'est produite</p>
                         <p id="passage-error-message" style="font-size: 0.9rem;"></p>
                     </div>
-                    
-                    <div id="passage-already-done" style="display: none; text-align: center; padding: 2rem;">
-                        <p style="font-size: 1.2rem; color: #16a34a;">✅ Passage déjà validé</p>
-                        <p style="color: #666;">Vous avez déjà validé votre passage pour cette année universitaire.</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -2102,13 +2097,11 @@
             const loading = document.getElementById('passage-loading');
             const content = document.getElementById('passage-content');
             const error = document.getElementById('passage-error');
-            const alreadyDone = document.getElementById('passage-already-done');
             
             modal.style.display = 'block';
             loading.style.display = 'block';
             content.style.display = 'none';
             error.style.display = 'none';
-            alreadyDone.style.display = 'none';
             
             try {
                 console.log('📡 Appel de l\'API /api/etudiant/passage/options...');
@@ -2122,18 +2115,44 @@
                 console.log('📦 Données reçues:', data);
                 
                 loading.style.display = 'none';
-                
-                if (data.statut_passage === 'validé' || data.statut_passage === 'redoublant') {
-                    console.log('✅ Passage déjà validé avec statut:', data.statut_passage);
-                    alreadyDone.style.display = 'block';
-                    return;
-                }
-                
                 content.style.display = 'block';
+                
+                // Afficher les infos actuelles
                 document.getElementById('current-info').textContent = `${data.current_filiere} - ${data.current_niveau}`;
                 
                 const optionsContainer = document.getElementById('passage-options');
                 optionsContainer.innerHTML = '';
+                
+                // Afficher le choix actuel si déjà validé
+                if (data.statut_passage === 'validé' || data.statut_passage === 'redoublant') {
+                    console.log('✅ Passage déjà validé avec statut:', data.statut_passage);
+                    
+                    // Afficher un bandeau informatif en haut
+                    const choixActuel = document.createElement('div');
+                    choixActuel.style.cssText = 'background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);';
+                    
+                    let choixText = '';
+                    if (data.statut_passage === 'redoublant') {
+                        choixText = `<strong>🔄 Votre choix actuel : Redoublant</strong><br><small>Vous avez choisi de redoubler votre niveau actuel</small>`;
+                    } else {
+                        // Chercher le choix dans les options
+                        const currentChoice = data.options.find(opt => opt.is_current_choice);
+                        if (currentChoice) {
+                            choixText = `<strong>✅ Votre choix actuel : ${currentChoice.filiere_nom} - ${currentChoice.niveau}</strong><br><small>Vous pouvez modifier votre choix en sélectionnant une autre option ci-dessous</small>`;
+                        } else {
+                            choixText = `<strong>✅ Choix enregistré</strong><br><small>Vous pouvez modifier votre choix en sélectionnant une option ci-dessous</small>`;
+                        }
+                    }
+                    
+                    choixActuel.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">💡</span>
+                            <div>${choixText}</div>
+                        </div>
+                    `;
+                    
+                    optionsContainer.appendChild(choixActuel);
+                }
                 
                 console.log(`📚 Nombre d'options disponibles: ${data.options.length}`);
                 
@@ -2187,7 +2206,12 @@
         
         // Sélectionner une option de passage
         async function selectPassageOption(type, filiereId, niveau) {
-            if (!confirm(`Êtes-vous sûr de valider ce choix ? Cette action est irréversible.`)) {
+            // Message de confirmation adapté
+            const message = type === 'redoublant' 
+                ? `Confirmez-vous votre choix de redoubler votre niveau actuel ?\n\nℹ️ Vous pourrez modifier ce choix tant que l'administration n'aura pas désactivé le système de passage.`
+                : `Confirmez-vous ce choix de passage ?\n\nℹ️ Vous pourrez modifier ce choix tant que l'administration n'aura pas désactivé le système de passage.`;
+            
+            if (!confirm(message)) {
                 return;
             }
             

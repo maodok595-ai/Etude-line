@@ -3930,15 +3930,29 @@ async def get_student_passage_options(
             PassageHierarchyDB.niveau_depart == etudiant.niveau
         ).all()
         
+        # Récupérer le dernier passage validé de l'étudiant (si existe)
+        dernier_passage = db.query(StudentPassageDB).filter(
+            StudentPassageDB.student_id == etudiant.id
+        ).order_by(StudentPassageDB.created_at.desc()).first()
+        
         # Enrichir avec les noms des filières
         options = []
         for passage in passages:
             filiere_arrivee = db.query(FiliereDB).filter(FiliereDB.id == passage.filiere_arrivee_id).first()
             if filiere_arrivee:
+                # Marquer l'option actuelle si elle correspond au dernier choix
+                is_current_choice = False
+                if dernier_passage and etudiant.statut_passage == 'validé':
+                    is_current_choice = (
+                        dernier_passage.new_filiere_id == passage.filiere_arrivee_id and
+                        dernier_passage.new_niveau == passage.niveau_arrivee
+                    )
+                
                 options.append({
                     "filiere_id": passage.filiere_arrivee_id,
                     "filiere_nom": filiere_arrivee.nom,
-                    "niveau": passage.niveau_arrivee
+                    "niveau": passage.niveau_arrivee,
+                    "is_current_choice": is_current_choice
                 })
         
         # Récupérer les informations actuelles de l'étudiant
