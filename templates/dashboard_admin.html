@@ -1360,15 +1360,6 @@
         <div id="content-admin" class="tab-content active">
             <!-- Vue liste -->
             <div id="admin-list-view">
-                {% if admin.is_main_admin %}
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;" 
-                        onclick="toggleForm('admin')">
-                        <span>👑 Créer un administrateur</span>
-                        <span id="arrow-form-admin" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
-                    </h3>
-                </div>
-                {% endif %}
                 
                 <!-- Liste des administrateurs -->
                 <div class="card">
@@ -1443,11 +1434,10 @@
                 </div>
             </div>
             
-            <!-- Formulaire de création (caché par défaut) -->
+            <!-- Formulaire de création -->
             {% if admin.is_main_admin %}
-            <div id="admin-form-view" class="hidden">
+            <div id="admin-form-view">
                 <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('admin')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>👑 Créer un administrateur</h3>
                     </div>
@@ -2123,13 +2113,6 @@
         <div class="card">
             <!-- Vue liste -->
             <div id="passage-list-view">
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;" 
-                        onclick="toggleForm('passage')">
-                        <span>🎓 Créer une règle de passage</span>
-                        <span id="arrow-form-passage" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
-                    </h3>
-                </div>
                 
                 <h3 style="margin: 2rem 0 1rem;">📘 Règles de passage existantes</h3>
                 <div id="passage-list-container">
@@ -2142,10 +2125,9 @@
                 </div>
             </div>
             
-            <!-- Formulaire de création (caché par défaut) -->
-            <div id="passage-form-view" class="hidden">
+            <!-- Formulaire de création -->
+            <div id="passage-form-view">
                 <div class="card" style="position: relative;">
-                    <button type="button" id="close-passage-btn" class="cancel-btn" title="Retour à la liste">⬅️</button>
                     <div class="form-header">
                         <h3>🎓 Créer une règle de passage</h3>
                     </div>
