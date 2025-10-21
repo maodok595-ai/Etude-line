@@ -1127,17 +1127,6 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
                 "logo_url": universite_obj.logo_url
             }
     
-    # Récupérer les UFR et filières affectées au professeur via relations many-to-many
-    prof_ufrs_assigned = []
-    prof_filieres_assigned = []
-    
-    if prof:
-        # Récupérer les UFR multiples via la relation many-to-many
-        prof_ufrs_assigned = [{"id": ufr.id, "nom": ufr.nom} for ufr in prof.ufrs_multiples]
-        
-        # Récupérer les filières multiples via la relation many-to-many
-        prof_filieres_assigned = [{"id": filiere.id, "nom": filiere.nom} for filiere in prof.filieres_multiples]
-    
     return templates.TemplateResponse("dashboard_prof.html", {
         "request": request,
         "prof": prof,
@@ -1148,60 +1137,8 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
         "ufrs": ufrs,
         "filieres": filieres,
         "matieres": matieres,
-        "prof_universite": prof_universite,
-        "prof_ufrs_assigned": prof_ufrs_assigned,
-        "prof_filieres_assigned": prof_filieres_assigned
+        "prof_universite": prof_universite
     })
-
-@app.post("/prof/upload-photo")
-async def upload_professor_photo(
-    request: Request,
-    photo: UploadFile = File(...),
-    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
-    db: Session = Depends(get_db)
-):
-    """Upload professor profile photo"""
-    prof_username, prof_user_data = prof_data
-    
-    # Vérifier que c'est une image
-    if not photo.content_type.startswith('image/'):
-        return RedirectResponse(url="/dashboard/prof?error=Veuillez uploader une image (JPG, PNG, etc.)", status_code=303)
-    
-    # Créer le dossier pour les photos de profil
-    upload_dir = Path("uploads") / "photos_profil"
-    upload_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Générer un nom unique pour la photo
-    file_extension = Path(photo.filename).suffix
-    unique_filename = f"prof_{prof_username}_{uuid.uuid4()}{file_extension}"
-    photo_path = upload_dir / unique_filename
-    
-    try:
-        # Sauvegarder la photo
-        content = await photo.read()
-        with open(photo_path, "wb") as f:
-            f.write(content)
-        
-        # Mettre à jour le professeur dans la base de données
-        prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
-        if prof:
-            # Supprimer l'ancienne photo si elle existe
-            if prof.photo_profil and Path(prof.photo_profil).exists():
-                try:
-                    Path(prof.photo_profil).unlink()
-                except:
-                    pass
-            
-            # Enregistrer le nouveau chemin
-            prof.photo_profil = str(photo_path)
-            db.commit()
-            
-            return RedirectResponse(url="/dashboard/prof?success=Photo de profil mise à jour avec succès", status_code=303)
-        else:
-            return RedirectResponse(url="/dashboard/prof?error=Professeur non trouvé", status_code=303)
-    
-    except Exception as e:
-        return RedirectResponse(url=f"/dashboard/prof?error=Erreur lors de l'upload: {str(e)}", status_code=303)
 
 @app.post("/prof/content")
 async def create_content(
