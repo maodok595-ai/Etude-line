@@ -4142,13 +4142,14 @@ async def validate_student_passage(
 # ==================== ROUTES API PARAMÈTRES SYSTÈME ====================
 
 @app.get("/api/parametres/telechargements")
-async def get_telechargements_status(request: Request, db: Session = Depends(get_db)):
+async def get_telechargements_status(request: Request, universite_id: int = None, db: Session = Depends(get_db)):
     """Récupérer l'état d'activation des téléchargements pour l'université de l'utilisateur"""
     try:
         role, username, user_data = require_auth(request, db)
         
-        # Récupérer l'université de l'utilisateur
-        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+        # Si universite_id n'est pas fourni en query param, le récupérer de l'utilisateur
+        if not universite_id:
+            universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
         
         if not universite_id:
             # Fallback : retourner activé par défaut si pas d'université
@@ -4186,8 +4187,17 @@ async def toggle_telechargements(
     if role != "admin":
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
-    # Récupérer l'université de l'admin
-    universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+    # Essayer de récupérer universite_id depuis le body JSON
+    universite_id = None
+    try:
+        body = await request.json()
+        universite_id = body.get('universite_id') if body else None
+    except:
+        pass
+    
+    # Si pas fourni dans le body, récupérer de l'admin
+    if not universite_id:
+        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
     
     if not universite_id:
         raise HTTPException(status_code=400, detail="Université non trouvée")
@@ -4216,13 +4226,14 @@ async def toggle_telechargements(
     }
 
 @app.get("/api/parametres/passage-classe")
-async def get_passage_classe_status(request: Request, db: Session = Depends(get_db)):
+async def get_passage_classe_status(request: Request, universite_id: int = None, db: Session = Depends(get_db)):
     """Récupérer l'état d'activation du passage en classe supérieure pour l'université de l'utilisateur"""
     try:
         role, username, user_data = require_auth(request, db)
         
-        # Récupérer l'université de l'utilisateur
-        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+        # Si universite_id n'est pas fourni en query param, le récupérer de l'utilisateur
+        if not universite_id:
+            universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
         
         if not universite_id:
             # Fallback : retourner activé par défaut si pas d'université
@@ -4260,8 +4271,17 @@ async def toggle_passage_classe(
     if role != "admin":
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
-    # Récupérer l'université de l'admin
-    universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+    # Essayer de récupérer universite_id depuis le body JSON
+    universite_id = None
+    try:
+        body = await request.json()
+        universite_id = body.get('universite_id') if body else None
+    except:
+        pass
+    
+    # Si pas fourni dans le body, récupérer de l'admin
+    if not universite_id:
+        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
     
     if not universite_id:
         raise HTTPException(status_code=400, detail="Université non trouvée")
