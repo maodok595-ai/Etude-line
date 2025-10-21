@@ -1236,9 +1236,29 @@
         <!-- Contrôles des fonctionnalités -->
         <div style="margin: 1.5rem 0;">
             <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
-                ⚙️ Contrôles des fonctionnalités <span style="color: #8b5cf6; font-weight: 500;">({{ admin_universite.nom if admin_universite else "Votre université" }})</span>
+                ⚙️ Contrôles des fonctionnalités
+                {% if not admin.get('is_main_admin') and admin_universite %}
+                    <span style="color: #8b5cf6; font-weight: 500;">({{ admin_universite.nom }})</span>
+                {% endif %}
             </h3>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            
+            {% if admin.get('is_main_admin') %}
+            <!-- Sélecteur d'université pour l'admin principal -->
+            <div style="margin-bottom: 1rem;">
+                <label for="universite-selector" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                    🏛️ Sélectionnez une université à gérer:
+                </label>
+                <select id="universite-selector" onchange="loadUniversiteSettings()" 
+                        style="width: 100%; max-width: 400px; padding: 0.75rem; border: 2px solid #8b5cf6; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                    <option value="">-- Choisir une université --</option>
+                    {% for univ in universites %}
+                    <option value="{{ univ.id }}">{{ univ.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            
+            <div id="controls-container" style="display: {% if admin.get('is_main_admin') %}none{% else %}flex{% endif %}; gap: 1rem; flex-wrap: wrap;">
                 <!-- Bouton contrôle téléchargements -->
                 <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
                     <span id="download-icon">📥</span> Téléchargements
@@ -2202,6 +2222,29 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
         
+        // Variable globale pour stocker l'université sélectionnée (admin principal uniquement)
+        let selectedUniversiteId = null;
+        
+        // Charger les paramètres d'une université sélectionnée (admin principal)
+        async function loadUniversiteSettings() {
+            const selector = document.getElementById('universite-selector');
+            const controlsContainer = document.getElementById('controls-container');
+            
+            selectedUniversiteId = selector.value;
+            
+            if (!selectedUniversiteId) {
+                // Masquer les contrôles si aucune université n'est sélectionnée
+                controlsContainer.style.display = 'none';
+                return;
+            }
+            
+            // Afficher les contrôles
+            controlsContainer.style.display = 'flex';
+            
+            // Charger les statuts pour l'université sélectionnée
+            await loadDownloadStatus();
+            await loadPassageClasseStatus();
+        }
         
         // Toggle des téléchargements (admin uniquement)
         async function toggleTelechargements() {
@@ -2214,11 +2257,15 @@
                 btn.disabled = true;
                 statusSpan.textContent = ': Traitement...';
                 
+                // Préparer le body avec universite_id si admin principal
+                const body = selectedUniversiteId ? JSON.stringify({ universite_id: selectedUniversiteId }) : null;
+                
                 const response = await fetch('/api/parametres/telechargements/toggle', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: body
                 });
                 
                 const data = await response.json();
@@ -2257,7 +2304,12 @@
         // Charger l'état des téléchargements au démarrage
         async function loadDownloadStatus() {
             try {
-                const response = await fetch('/api/parametres/telechargements');
+                // Ajouter universite_id en query param si admin principal
+                const url = selectedUniversiteId 
+                    ? `/api/parametres/telechargements?universite_id=${selectedUniversiteId}`
+                    : '/api/parametres/telechargements';
+                    
+                const response = await fetch(url);
                 const data = await response.json();
                 updateDownloadButtonStatus(data.actif);
             } catch (error) {
@@ -2285,11 +2337,15 @@
                 btn.disabled = true;
                 statusSpan.textContent = ': Traitement...';
                 
+                // Préparer le body avec universite_id si admin principal
+                const body = selectedUniversiteId ? JSON.stringify({ universite_id: selectedUniversiteId }) : null;
+                
                 const response = await fetch('/api/parametres/passage-classe/toggle', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: body
                 });
                 
                 const data = await response.json();
@@ -2328,7 +2384,12 @@
         // Charger l'état du passage en classe supérieure au démarrage
         async function loadPassageClasseStatus() {
             try {
-                const response = await fetch('/api/parametres/passage-classe');
+                // Ajouter universite_id en query param si admin principal
+                const url = selectedUniversiteId 
+                    ? `/api/parametres/passage-classe?universite_id=${selectedUniversiteId}`
+                    : '/api/parametres/passage-classe';
+                    
+                const response = await fetch(url);
                 const data = await response.json();
                 updatePassageClasseButtonStatus(data.actif);
             } catch (error) {
