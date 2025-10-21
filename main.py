@@ -23,7 +23,8 @@ from models import (
     Universite as UniversiteDB, UFR as UFRDB, Filiere as FiliereDB, Matiere as MatiereDB,
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
     Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
-    ParametreSysteme as ParametreSystemeDB, PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
+    ParametreSysteme as ParametreSystemeDB, ParametreUniversite as ParametreUniversiteDB,
+    PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
 )
 from migration import migrate_data
 
@@ -100,6 +101,56 @@ async def startup_event():
                 print("✅ Colonne 'statut_passage' ajoutée aux étudiants")
             except Exception as e:
                 print(f"ℹ️ Colonne 'statut_passage' déjà existante ou erreur: {e}")
+            
+            # Migration: Créer la table parametres_universite et migrer les données
+            try:
+                # Créer la table si elle n'existe pas (create_tables() l'a déjà créée)
+                # Vérifier si la table a déjà des données
+                result = conn.execute(text("""
+                    SELECT COUNT(*) FROM parametres_universite
+                """))
+                count = result.scalar()
+                
+                if count == 0:
+                    # Récupérer les paramètres globaux existants
+                    result_downloads = conn.execute(text("""
+                        SELECT valeur FROM parametres_systeme WHERE cle = 'telechargements_actifs'
+                    """))
+                    downloads_row = result_downloads.fetchone()
+                    downloads_actifs = downloads_row[0] == 'true' if downloads_row else True
+                    
+                    result_passage = conn.execute(text("""
+                        SELECT valeur FROM parametres_systeme WHERE cle = 'passage_classe_actif'
+                    """))
+                    passage_row = result_passage.fetchone()
+                    passage_actif = passage_row[0] == 'true' if passage_row else True
+                    
+                    # Migrer vers toutes les universités existantes
+                    result_unis = conn.execute(text("""
+                        SELECT id FROM universites
+                    """))
+                    universites = result_unis.fetchall()
+                    
+                    for uni in universites:
+                        conn.execute(text("""
+                            INSERT INTO parametres_universite 
+                            (universite_id, telechargements_actifs, passage_classe_actif, created_at, updated_at)
+                            VALUES (:uni_id, :downloads, :passage, NOW(), NOW())
+                            ON CONFLICT (universite_id) DO NOTHING
+                        """), {
+                            'uni_id': uni[0],
+                            'downloads': downloads_actifs,
+                            'passage': passage_actif
+                        })
+                    
+                    conn.commit()
+                    print(f"✅ Paramètres migrés pour {len(universites)} université(s)")
+                else:
+                    print(f"ℹ️ Paramètres université déjà présents ({count} enregistrements)")
+                    
+            except Exception as e:
+                print(f"⚠️ Erreur migration parametres_universite: {e}")
+                conn.rollback()
             
             # Créer les index de performance pour optimiser les requêtes
             # Vérifier d'abord quelles tables existent
@@ -4089,105 +4140,151 @@ async def validate_student_passage(
 # ==================== ROUTES API PARAMÈTRES SYSTÈME ====================
 
 @app.get("/api/parametres/telechargements")
-async def get_telechargements_status(db: Session = Depends(get_db)):
-    """Récupérer l'état d'activation des téléchargements"""
-    parametre = db.query(ParametreSystemeDB).filter_by(cle="telechargements_actifs").first()
-    
-    if not parametre:
-        # Créer le paramètre par défaut s'il n'existe pas
-        parametre = ParametreSystemeDB(
-            cle="telechargements_actifs",
-            valeur="true",
-            description="Active ou désactive les boutons de téléchargement pour tous les utilisateurs"
-        )
-        db.add(parametre)
-        db.commit()
-    
-    return {"actif": parametre.valeur == "true"}
+async def get_telechargements_status(request: Request, db: Session = Depends(get_db)):
+    """Récupérer l'état d'activation des téléchargements pour l'université de l'utilisateur"""
+    try:
+        role, username, user_data = require_auth(request, db)
+        
+        # Récupérer l'université de l'utilisateur
+        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+        
+        if not universite_id:
+            # Fallback : retourner activé par défaut si pas d'université
+            return {"actif": True}
+        
+        # Récupérer les paramètres de l'université
+        parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
+        
+        if not parametre:
+            # Créer le paramètre par défaut pour cette université
+            parametre = ParametreUniversiteDB(
+                universite_id=universite_id,
+                telechargements_actifs=True,
+                passage_classe_actif=True
+            )
+            db.add(parametre)
+            db.commit()
+        
+        return {"actif": parametre.telechargements_actifs}
+    except HTTPException:
+        raise
+    except Exception as e:
+        # En cas d'erreur, retourner activé par défaut
+        return {"actif": True}
 
 @app.post("/api/parametres/telechargements/toggle")
 async def toggle_telechargements(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Basculer l'état des téléchargements (admin uniquement)"""
+    """Basculer l'état des téléchargements pour l'université de l'admin"""
     role, username, user_data = require_auth(request, db)
     
     # Vérifier que c'est un administrateur
     if role != "admin":
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
-    parametre = db.query(ParametreSystemeDB).filter_by(cle="telechargements_actifs").first()
+    # Récupérer l'université de l'admin
+    universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+    
+    if not universite_id:
+        raise HTTPException(status_code=400, detail="Université non trouvée")
+    
+    # Récupérer ou créer les paramètres de l'université
+    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
     
     if not parametre:
-        # Créer le paramètre s'il n'existe pas
-        parametre = ParametreSystemeDB(
-            cle="telechargements_actifs",
-            valeur="false",
-            description="Active ou désactive les boutons de téléchargement pour tous les utilisateurs"
+        # Créer le paramètre avec téléchargements désactivés
+        parametre = ParametreUniversiteDB(
+            universite_id=universite_id,
+            telechargements_actifs=False,
+            passage_classe_actif=True
         )
         db.add(parametre)
     else:
         # Basculer la valeur
-        parametre.valeur = "false" if parametre.valeur == "true" else "true"
+        parametre.telechargements_actifs = not parametre.telechargements_actifs
     
     db.commit()
     
     return {
         "success": True,
-        "actif": parametre.valeur == "true",
-        "message": f"Téléchargements {'activés' if parametre.valeur == 'true' else 'désactivés'}"
+        "actif": parametre.telechargements_actifs,
+        "message": f"Téléchargements {'activés' if parametre.telechargements_actifs else 'désactivés'}"
     }
 
 @app.get("/api/parametres/passage-classe")
-async def get_passage_classe_status(db: Session = Depends(get_db)):
-    """Récupérer l'état d'activation du passage en classe supérieure"""
-    parametre = db.query(ParametreSystemeDB).filter_by(cle="passage_classe_actif").first()
-    
-    if not parametre:
-        # Créer le paramètre par défaut s'il n'existe pas (activé par défaut)
-        parametre = ParametreSystemeDB(
-            cle="passage_classe_actif",
-            valeur="true",
-            description="Active ou désactive la fonction de passage en classe supérieure pour tous les étudiants"
-        )
-        db.add(parametre)
-        db.commit()
-    
-    return {"actif": parametre.valeur == "true"}
+async def get_passage_classe_status(request: Request, db: Session = Depends(get_db)):
+    """Récupérer l'état d'activation du passage en classe supérieure pour l'université de l'utilisateur"""
+    try:
+        role, username, user_data = require_auth(request, db)
+        
+        # Récupérer l'université de l'utilisateur
+        universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+        
+        if not universite_id:
+            # Fallback : retourner activé par défaut si pas d'université
+            return {"actif": True}
+        
+        # Récupérer les paramètres de l'université
+        parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
+        
+        if not parametre:
+            # Créer le paramètre par défaut pour cette université
+            parametre = ParametreUniversiteDB(
+                universite_id=universite_id,
+                telechargements_actifs=True,
+                passage_classe_actif=True
+            )
+            db.add(parametre)
+            db.commit()
+        
+        return {"actif": parametre.passage_classe_actif}
+    except HTTPException:
+        raise
+    except Exception as e:
+        # En cas d'erreur, retourner activé par défaut
+        return {"actif": True}
 
 @app.post("/api/parametres/passage-classe/toggle")
 async def toggle_passage_classe(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Basculer l'état du passage en classe supérieure (admin uniquement)"""
+    """Basculer l'état du passage en classe supérieure pour l'université de l'admin"""
     role, username, user_data = require_auth(request, db)
     
     # Vérifier que c'est un administrateur
     if role != "admin":
         raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
     
-    parametre = db.query(ParametreSystemeDB).filter_by(cle="passage_classe_actif").first()
+    # Récupérer l'université de l'admin
+    universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+    
+    if not universite_id:
+        raise HTTPException(status_code=400, detail="Université non trouvée")
+    
+    # Récupérer ou créer les paramètres de l'université
+    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
     
     if not parametre:
-        # Créer le paramètre s'il n'existe pas (désactivé)
-        parametre = ParametreSystemeDB(
-            cle="passage_classe_actif",
-            valeur="false",
-            description="Active ou désactive la fonction de passage en classe supérieure pour tous les étudiants"
+        # Créer le paramètre avec passage désactivé
+        parametre = ParametreUniversiteDB(
+            universite_id=universite_id,
+            telechargements_actifs=True,
+            passage_classe_actif=False
         )
         db.add(parametre)
     else:
         # Basculer la valeur
-        parametre.valeur = "false" if parametre.valeur == "true" else "true"
+        parametre.passage_classe_actif = not parametre.passage_classe_actif
     
     db.commit()
     
     return {
         "success": True,
-        "actif": parametre.valeur == "true",
-        "message": f"Passage en classe supérieure {'activé' if parametre.valeur == 'true' else 'désactivé'}"
+        "actif": parametre.passage_classe_actif,
+        "message": f"Passage en classe supérieure {'activé' if parametre.passage_classe_actif else 'désactivé'}"
     }
 
 if __name__ == "__main__":

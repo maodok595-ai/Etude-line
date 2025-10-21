@@ -248,6 +248,20 @@ class ParametreSysteme(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class ParametreUniversite(Base):
+    """Paramètres configurables par université (téléchargements, passage de classe, etc.)"""
+    __tablename__ = "parametres_universite"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete='CASCADE'), unique=True, nullable=False, index=True)
+    telechargements_actifs = Column(Boolean, default=True, nullable=False)
+    passage_classe_actif = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relations
+    universite = relationship("Universite", foreign_keys=[universite_id])
+
 class PassageHierarchy(Base):
     """Règles de passage académique définies par l'administrateur"""
     __tablename__ = "passage_hierarchy"

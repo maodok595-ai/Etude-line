@@ -1233,19 +1233,24 @@
             {% endif %}
         </div>
         
-        <!-- Boutons de contrôle -->
-        <div style="margin: 1.5rem 0; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <!-- Bouton contrôle téléchargements -->
-            <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
-                <span id="download-icon">📥</span> Téléchargements
-                <span id="download-status">: Chargement...</span>
-            </button>
-            
-            <!-- Bouton contrôle passage en classe supérieure -->
-            <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                <span id="passage-icon">🎓</span> Passage classe sup.
-                <span id="passage-status">: Chargement...</span>
-            </button>
+        <!-- Contrôles des fonctionnalités -->
+        <div style="margin: 1.5rem 0;">
+            <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
+                ⚙️ Contrôles des fonctionnalités <span style="color: #8b5cf6; font-weight: 500;">({{ admin_universite.nom if admin_universite else "Votre université" }})</span>
+            </h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <!-- Bouton contrôle téléchargements -->
+                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                    <span id="download-icon">📥</span> Téléchargements
+                    <span id="download-status">: Chargement...</span>
+                </button>
+                
+                <!-- Bouton contrôle passage en classe supérieure -->
+                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <span id="passage-icon">🎓</span> Passage classe sup.
+                    <span id="passage-status">: Chargement...</span>
+                </button>
+            </div>
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
