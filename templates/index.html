@@ -606,10 +606,30 @@
             color: #ef4444;
             transform: rotate(90deg);
         }
+        /* Skip to content link for accessibility */
+        .skip-to-content {
+            position: absolute;
+            left: -9999px;
+            z-index: 999;
+            padding: 1rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 0 0 var(--radius) 0;
+            font-weight: 600;
+        }
+        
+        .skip-to-content:focus {
+            left: 0;
+            top: 0;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-to-content">Aller au contenu principal</a>
+    
+    <div class="container" role="main" id="main-content">
         <div class="header">
             <h1>✨ Étude LINE</h1>
             <p>Plateforme éducative pour professeurs et étudiants</p>
@@ -623,7 +643,7 @@
         </div>
         
         {% if error %}
-        <div class="error">
+        <div class="error" role="alert" aria-live="polite">
             ⚠️ {{ error }}
         </div>
         {% endif %}
@@ -637,7 +657,7 @@
                     <p style="text-align: center; color: var(--text-secondary); margin-bottom: 24px; font-size: 1.05rem;">
                         Accédez à tous les cours, exercices et solutions de votre filière
                     </p>
-                    <button onclick="toggleInscription()" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <button onclick="toggleInscription()" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2);" aria-label="Afficher le formulaire d'inscription étudiant">
                         📝 S'inscrire
                     </button>
                 </div>
@@ -669,7 +689,7 @@
                             <label for="etud-password">Mot de passe</label>
                             <div class="password-field">
                                 <input type="password" id="etud-password" name="password" autocomplete="new-password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('etud-password')">
+                                <button type="button" class="toggle-password" onclick="togglePassword('etud-password')" aria-label="Afficher/masquer le mot de passe" title="Afficher le mot de passe">
                                     👁️
                                 </button>
                             </div>

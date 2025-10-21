@@ -366,6 +366,23 @@
                 font-size: 1.75rem;
             }
         }
+        /* Skip to content link for accessibility */
+        .skip-to-content {
+            position: absolute;
+            left: -9999px;
+            z-index: 999;
+            padding: 1rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 0 0 var(--radius) 0;
+            font-weight: 600;
+        }
+        
+        .skip-to-content:focus {
+            left: 0;
+            top: 0;
+        }
     </style>
     <script>
         // Gestion du changement d'arrière-plan en fonction de l'université sélectionnée
@@ -403,20 +420,23 @@
     </script>
 </head>
 <body>
-    <div class="login-container">
+    <!-- Skip to content for accessibility -->
+    <a href="#login-form" class="skip-to-content">Aller au formulaire de connexion</a>
+    
+    <div class="login-container" role="main" id="login-form">
         <div class="header">
             <h1>✨ Connexion</h1>
             <p>Accédez à votre espace Étude LINE</p>
         </div>
         
         {% if error %}
-        <div class="error">
+        <div class="error" role="alert" aria-live="polite">
             ⚠️ {{ error }}
         </div>
         {% endif %}
         
         {% if success %}
-        <div class="success">
+        <div class="success" role="status" aria-live="polite">
             ✅ {{ success }}
         </div>
         {% endif %}
@@ -424,7 +444,7 @@
         <form action="/login" method="post">
             <div class="form-group">
                 <label for="user_type">Type d'utilisateur</label>
-                <select id="user_type" name="user_type" required style="width: 100%; padding: 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
+                <select id="user_type" name="user_type" required aria-required="true" aria-label="Sélectionnez votre type d'utilisateur" style="width: 100%; padding: 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
                     <option value="">Sélectionner votre rôle</option>
                     <option value="etudiant">👨‍🎓 Étudiant</option>
                     <option value="prof">👨‍🏫 Professeur</option>
