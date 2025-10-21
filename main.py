@@ -294,62 +294,6 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 
-# Cookie configuration helpers for secure session management
-def set_secure_cookie(response, key: str, value: str, max_age: int = 86400):
-    """
-    Set a secure session cookie with appropriate settings for production (Render) and development.
-    
-    Production (HTTPS): secure=True, samesite='lax'
-    Development (HTTP): secure=False, samesite='lax'
-    """
-    if IS_RENDER:
-        # Production sur Render (HTTPS)
-        response.set_cookie(
-            key=key,
-            value=value,
-            httponly=True,
-            secure=True,          # HTTPS requis
-            samesite='lax',       # Protection CSRF tout en permettant navigation normale
-            max_age=max_age,
-            path="/"
-        )
-    else:
-        # Développement local (HTTP)
-        response.set_cookie(
-            key=key,
-            value=value,
-            httponly=True,
-            secure=False,         # HTTP local
-            samesite='lax',
-            max_age=max_age,
-            path="/"
-        )
-
-def delete_secure_cookie(response, key: str):
-    """
-    Delete a session cookie with all possible configurations to ensure proper removal.
-    """
-    if IS_RENDER:
-        # Production sur Render (HTTPS)
-        response.delete_cookie(
-            key=key,
-            path="/",
-            secure=True,
-            samesite='lax'
-        )
-    else:
-        # Développement local (HTTP)
-        response.delete_cookie(
-            key=key,
-            path="/",
-            secure=False,
-            samesite='lax'
-        )
-    
-    # Fallback: toujours essayer de supprimer avec paramètres par défaut
-    response.delete_cookie(key, path="/")
-    response.set_cookie(key, "", expires=0, max_age=0, path="/")
-
 # Data models
 class UserProf(BaseModel):
     username: str
@@ -1010,7 +954,8 @@ async def index(request: Request, db: Session = Depends(get_db)):
     })
     
     # Forcer la suppression du cookie de session corrompu
-    delete_secure_cookie(response, "session")
+    response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
     
     return response
 
@@ -1018,7 +963,7 @@ async def index(request: Request, db: Session = Depends(get_db)):
 async def register_page(request: Request, db: Session = Depends(get_db)):
     """Registration page for students"""
     universites = get_universites(db)
-    return templates.TemplateResponse("index.html", {
+    return templates.TemplateResponse("inscription.html", {
         "request": request,
         "universites": universites
     })
@@ -1063,7 +1008,7 @@ async def register_prof(
     # Create session and redirect
     session_token = create_session_token(username, "prof")
     response = RedirectResponse(url="/dashboard/prof", status_code=303)
-    set_secure_cookie(response, "session", session_token)
+    response.set_cookie("session", session_token, httponly=True)
     
     return response
 
@@ -1111,7 +1056,7 @@ async def register_etudiant(
     # Create session and redirect to dashboard (automatic login)
     session_token = create_session_token(username, "etudiant")
     response = RedirectResponse(url="/dashboard/etudiant", status_code=303)
-    set_secure_cookie(response, "session", session_token)
+    response.set_cookie("session", session_token, httponly=True)
     
     return response
 
@@ -1158,7 +1103,7 @@ async def login(
         redirect_url = "/dashboard/etudiant"
     
     response = RedirectResponse(url=redirect_url, status_code=303)
-    set_secure_cookie(response, "session", session_token)
+    response.set_cookie("session", session_token, httponly=True)
     
     return response
 
@@ -1166,14 +1111,19 @@ async def login(
 async def logout():
     """Logout user"""
     response = RedirectResponse(url="/", status_code=303)
-    delete_secure_cookie(response, "session")
+    response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
+    response.delete_cookie("session", domain=None)
     return response
 
 @app.get("/clear")
 async def clear_session():
     """Force clear all cookies and redirect to home"""
     response = RedirectResponse(url="/", status_code=303)
-    delete_secure_cookie(response, "session")
+    response.delete_cookie("session")
+    response.delete_cookie("session", path="/")
+    response.delete_cookie("session", domain=None)
+    response.set_cookie("session", "", expires=0, max_age=0)
     return response
 
 @app.get("/dashboard/prof", response_class=HTMLResponse)
@@ -1683,10 +1633,9 @@ async def view_file(file_path: str):
     )
 
 @app.get("/files/download/{file_path:path}")
-async def download_file(file_path: str, db: Session = Depends(get_db)):
-    """Forcer le téléchargement du fichier (attachment) avec le nom original"""
+async def download_file(file_path: str):
+    """Forcer le téléchargement du fichier (attachment)"""
     import mimetypes
-    from urllib.parse import quote
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1696,44 +1645,12 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
-    # Chercher le nom original du fichier dans la base de données
-    original_filename = file_location.name  # Par défaut, utiliser le nom technique
-    
-    try:
-        # Rechercher dans les chapitres complets
-        from sqlalchemy import or_
-        chapitre = db.query(ChapitreCompletDB).filter(
-            or_(
-                ChapitreCompletDB.cours_fichier_path == file_path,
-                ChapitreCompletDB.exercice_fichier_path == file_path,
-                ChapitreCompletDB.solution_fichier_path == file_path
-            )
-        ).first()
-        
-        if chapitre:
-            # Déterminer quel type de fichier et utiliser le nom original
-            if chapitre.cours_fichier_path and chapitre.cours_fichier_path == file_path and chapitre.cours_fichier_nom:
-                original_filename = chapitre.cours_fichier_nom
-            elif chapitre.exercice_fichier_path and chapitre.exercice_fichier_path == file_path and chapitre.exercice_fichier_nom:
-                original_filename = chapitre.exercice_fichier_nom
-            elif chapitre.solution_fichier_path and chapitre.solution_fichier_path == file_path and chapitre.solution_fichier_nom:
-                original_filename = chapitre.solution_fichier_nom
-    except Exception as e:
-        # En cas d'erreur, continuer avec le nom technique
-        print(f"⚠️ Erreur lors de la recherche du nom original: {e}")
-    
     mime_type, _ = mimetypes.guess_type(str(file_location))
     if mime_type is None:
         mime_type = 'application/octet-stream'
     
-    # Encoder le nom du fichier pour gérer les caractères spéciaux (accents, etc.)
-    try:
-        encoded_filename = quote(str(original_filename))
-    except:
-        encoded_filename = original_filename
-    
     headers = {
-        "Content-Disposition": f'attachment; filename="{original_filename}"; filename*=UTF-8\'\'{encoded_filename}',
+        "Content-Disposition": f'attachment; filename="{file_location.name}"',
         "Cache-Control": "private, no-store, must-revalidate"
     }
     
@@ -1741,7 +1658,7 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
         path=file_location,
         media_type=mime_type,
         headers=headers,
-        filename=original_filename
+        filename=file_location.name
     )
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)

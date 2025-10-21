@@ -3,18 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Connectez-vous à Étude LINE pour accéder à votre espace personnel - professeur, étudiant ou administrateur.">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Connexion - Étude LINE | Accédez à votre compte</title>
-    
-    <!-- Resource Hints pour optimiser le chargement -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Preload des ressources critiques -->
-    <link rel="preload" href="/static/manifest.json" as="fetch" crossorigin>
-    <link rel="preload" href="/static/icons/icon-192.png" as="image">
-    
+    <title>Connexion - Étude LINE</title>
     <link rel="icon" type="image/png" href="/static/favicon.png">
     
     <!-- PWA Meta Tags -->
@@ -25,9 +14,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     
-    <!-- Fonts avec display=swap pour éviter FOIT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1a1a1a;
@@ -366,23 +353,6 @@
                 font-size: 1.75rem;
             }
         }
-        /* Skip to content link for accessibility */
-        .skip-to-content {
-            position: absolute;
-            left: -9999px;
-            z-index: 999;
-            padding: 1rem 1.5rem;
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 0 0 var(--radius) 0;
-            font-weight: 600;
-        }
-        
-        .skip-to-content:focus {
-            left: 0;
-            top: 0;
-        }
     </style>
     <script>
         // Gestion du changement d'arrière-plan en fonction de l'université sélectionnée
@@ -420,23 +390,20 @@
     </script>
 </head>
 <body>
-    <!-- Skip to content for accessibility -->
-    <a href="#login-form" class="skip-to-content">Aller au formulaire de connexion</a>
-    
-    <div class="login-container" role="main" id="login-form">
+    <div class="login-container">
         <div class="header">
             <h1>✨ Connexion</h1>
             <p>Accédez à votre espace Étude LINE</p>
         </div>
         
         {% if error %}
-        <div class="error" role="alert" aria-live="polite">
+        <div class="error">
             ⚠️ {{ error }}
         </div>
         {% endif %}
         
         {% if success %}
-        <div class="success" role="status" aria-live="polite">
+        <div class="success">
             ✅ {{ success }}
         </div>
         {% endif %}
@@ -444,7 +411,7 @@
         <form action="/login" method="post">
             <div class="form-group">
                 <label for="user_type">Type d'utilisateur</label>
-                <select id="user_type" name="user_type" required aria-required="true" aria-label="Sélectionnez votre type d'utilisateur" style="width: 100%; padding: 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
+                <select id="user_type" name="user_type" required style="width: 100%; padding: 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
                     <option value="">Sélectionner votre rôle</option>
                     <option value="etudiant">👨‍🎓 Étudiant</option>
                     <option value="prof">👨‍🏫 Professeur</option>
@@ -454,14 +421,14 @@
             
             <div class="form-group">
                 <label for="username">Nom d'utilisateur</label>
-                <input type="text" id="username" name="username" autocomplete="username" aria-label="Entrez votre nom d'utilisateur" aria-required="true" required>
+                <input type="text" id="username" name="username" required>
             </div>
             
             <div class="form-group">
                 <label for="password">Mot de passe</label>
                 <div class="password-field">
-                    <input type="password" id="password" name="password" autocomplete="current-password" aria-label="Entrez votre mot de passe" aria-required="true" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Afficher/masquer le mot de passe" title="Afficher le mot de passe">
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
                         👁️
                     </button>
                 </div>

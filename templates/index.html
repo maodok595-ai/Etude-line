@@ -3,20 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Étude LINE - Plateforme éducative pour professeurs et étudiants. Partagez et accédez à vos cours, exercices et solutions en ligne.">
-    <meta name="keywords" content="éducation, cours en ligne, étude, université, professeur, étudiant">
-    <meta name="author" content="Maodo Ka">
-    <title>Étude LINE - Plateforme Éducative | Accueil</title>
-    
-    <!-- Resource Hints pour optimiser le chargement -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-    
-    <!-- Preload des ressources critiques -->
-    <link rel="preload" href="/static/manifest.json" as="fetch" crossorigin>
-    <link rel="preload" href="/static/icons/icon-192.png" as="image">
-    
+    <title>Étude LINE - Accueil</title>
     <link rel="icon" type="image/png" href="/static/favicon.png">
     
     <!-- PWA Meta Tags -->
@@ -27,9 +14,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     
-    <!-- Fonts avec display=swap pour éviter FOIT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.js" rel="stylesheet">
     <style>
         :root {
@@ -606,30 +591,10 @@
             color: #ef4444;
             transform: rotate(90deg);
         }
-        /* Skip to content link for accessibility */
-        .skip-to-content {
-            position: absolute;
-            left: -9999px;
-            z-index: 999;
-            padding: 1rem 1.5rem;
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 0 0 var(--radius) 0;
-            font-weight: 600;
-        }
-        
-        .skip-to-content:focus {
-            left: 0;
-            top: 0;
-        }
     </style>
 </head>
 <body>
-    <!-- Skip to content for accessibility -->
-    <a href="#main-content" class="skip-to-content">Aller au contenu principal</a>
-    
-    <div class="container" role="main" id="main-content">
+    <div class="container">
         <div class="header">
             <h1>✨ Étude LINE</h1>
             <p>Plateforme éducative pour professeurs et étudiants</p>
@@ -643,7 +608,7 @@
         </div>
         
         {% if error %}
-        <div class="error" role="alert" aria-live="polite">
+        <div class="error">
             ⚠️ {{ error }}
         </div>
         {% endif %}
@@ -657,7 +622,7 @@
                     <p style="text-align: center; color: var(--text-secondary); margin-bottom: 24px; font-size: 1.05rem;">
                         Accédez à tous les cours, exercices et solutions de votre filière
                     </p>
-                    <button onclick="toggleInscription()" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2);" aria-label="Afficher le formulaire d'inscription étudiant">
+                    <button onclick="toggleInscription()" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2);">
                         📝 S'inscrire
                     </button>
                 </div>
@@ -672,24 +637,24 @@
                     <form action="/register/etudiant" method="post">
                         <div class="form-group">
                             <label for="etud-nom">Nom</label>
-                            <input type="text" id="etud-nom" name="nom" autocomplete="family-name" aria-label="Votre nom de famille" required>
+                            <input type="text" id="etud-nom" name="nom" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-prenom">Prénom</label>
-                            <input type="text" id="etud-prenom" name="prenom" autocomplete="given-name" aria-label="Votre prénom" required>
+                            <input type="text" id="etud-prenom" name="prenom" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-username">Nom d'utilisateur</label>
-                            <input type="text" id="etud-username" name="username" autocomplete="username" aria-label="Choisissez un nom d'utilisateur" required>
+                            <input type="text" id="etud-username" name="username" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-password">Mot de passe</label>
                             <div class="password-field">
                                 <input type="password" id="etud-password" name="password" autocomplete="new-password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('etud-password')" aria-label="Afficher/masquer le mot de passe" title="Afficher le mot de passe">
+                                <button type="button" class="toggle-password" onclick="togglePassword('etud-password')">
                                     👁️
                                 </button>
                             </div>
@@ -697,7 +662,7 @@
                         
                         <div class="form-group">
                             <label for="etud-universite">Université</label>
-                            <select id="etud-universite" name="universite_id" aria-label="Sélectionnez votre université" aria-required="true" required>
+                            <select id="etud-universite" name="universite_id" required>
                                 <option value="">Sélectionner une université</option>
                                 {% for uni in universites %}
                                 <option value="{{ uni.id }}">{{ uni.nom }}</option>
@@ -707,21 +672,21 @@
                         
                         <div class="form-group">
                             <label for="etud-ufr">UFR</label>
-                            <select id="etud-ufr" name="ufr_id" aria-label="Sélectionnez votre UFR" aria-required="true" required disabled>
+                            <select id="etud-ufr" name="ufr_id" required disabled>
                                 <option value="">Sélectionner d'abord une université</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-filiere">Filière</label>
-                            <select id="etud-filiere" name="filiere_id" aria-label="Sélectionnez votre filière" aria-required="true" required disabled>
+                            <select id="etud-filiere" name="filiere_id" required disabled>
                                 <option value="">Sélectionner d'abord une UFR</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="etud-niveau">Niveau</label>
-                            <select id="etud-niveau" name="niveau" aria-label="Sélectionnez votre niveau d'études" aria-required="true" required>
+                            <select id="etud-niveau" name="niveau" required>
                                 <option value="">Sélectionner un niveau</option>
                                 <option value="L1">Licence 1 (L1)</option>
                                 <option value="L2">Licence 2 (L2)</option>
