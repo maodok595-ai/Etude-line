@@ -1651,19 +1651,22 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
     
     try:
         # Rechercher dans les chapitres complets
+        from sqlalchemy import or_
         chapitre = db.query(ChapitreCompletDB).filter(
-            (ChapitreCompletDB.cours_fichier_path == file_path) |
-            (ChapitreCompletDB.exercice_fichier_path == file_path) |
-            (ChapitreCompletDB.solution_fichier_path == file_path)
+            or_(
+                ChapitreCompletDB.cours_fichier_path == file_path,
+                ChapitreCompletDB.exercice_fichier_path == file_path,
+                ChapitreCompletDB.solution_fichier_path == file_path
+            )
         ).first()
         
         if chapitre:
             # Déterminer quel type de fichier et utiliser le nom original
-            if chapitre.cours_fichier_path == file_path and chapitre.cours_fichier_nom:
+            if chapitre.cours_fichier_path and chapitre.cours_fichier_path == file_path and chapitre.cours_fichier_nom:
                 original_filename = chapitre.cours_fichier_nom
-            elif chapitre.exercice_fichier_path == file_path and chapitre.exercice_fichier_nom:
+            elif chapitre.exercice_fichier_path and chapitre.exercice_fichier_path == file_path and chapitre.exercice_fichier_nom:
                 original_filename = chapitre.exercice_fichier_nom
-            elif chapitre.solution_fichier_path == file_path and chapitre.solution_fichier_nom:
+            elif chapitre.solution_fichier_path and chapitre.solution_fichier_path == file_path and chapitre.solution_fichier_nom:
                 original_filename = chapitre.solution_fichier_nom
     except Exception as e:
         # En cas d'erreur, continuer avec le nom technique
@@ -1674,7 +1677,10 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
         mime_type = 'application/octet-stream'
     
     # Encoder le nom du fichier pour gérer les caractères spéciaux (accents, etc.)
-    encoded_filename = quote(original_filename)
+    try:
+        encoded_filename = quote(str(original_filename))
+    except:
+        encoded_filename = original_filename
     
     headers = {
         "Content-Disposition": f'attachment; filename="{original_filename}"; filename*=UTF-8\'\'{encoded_filename}',
