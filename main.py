@@ -27,6 +27,23 @@ from models import (
 )
 from migration import migrate_data
 
+# === CONFIGURATION STOCKAGE FICHIERS ===
+# Détection automatique de l'environnement pour utiliser le bon chemin de stockage
+IS_RENDER = os.getenv("RENDER") == "true"
+if IS_RENDER:
+    # En production sur Render : utiliser le Render Disk monté
+    UPLOADS_DIR = Path("/opt/render/project/src/uploads")
+    print(f"📁 Environnement: RENDER (production)")
+    print(f"💾 Stockage: Render Disk → {UPLOADS_DIR}")
+else:
+    # En développement (Replit) : utiliser le dossier local
+    UPLOADS_DIR = Path("uploads")
+    print(f"📁 Environnement: LOCAL (développement)")
+    print(f"💾 Stockage: Dossier local → {UPLOADS_DIR}")
+
+# Créer le dossier s'il n'existe pas
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Initialize FastAPI app
 app = FastAPI(title="Étude LINE", description="Application éducative")
 templates = Jinja2Templates(directory="templates")
@@ -583,7 +600,7 @@ def delete_uploaded_files_for_chapitre(chapitre: ChapitreCompletDB) -> int:
     Retourne le nombre de fichiers supprimés
     """
     files_deleted = 0
-    upload_dir = Path("uploads")
+    upload_dir = UPLOADS_DIR
     
     # Liste des chemins de fichiers à supprimer
     file_paths = [
@@ -1204,7 +1221,7 @@ async def create_content(
     
     if fichier and fichier.filename:
         # Create upload directory for this content type
-        upload_dir = Path("uploads") / type
+        upload_dir = UPLOADS_DIR / type
         upload_dir.mkdir(parents=True, exist_ok=True)
         
         # Generate unique filename
@@ -1335,7 +1352,7 @@ async def create_chapitre_complet(
         if not files or len(files) == 0:
             return None, None
         
-        upload_dir = Path("uploads") / type_folder
+        upload_dir = UPLOADS_DIR / type_folder
         upload_dir.mkdir(parents=True, exist_ok=True)
         
         file_names = []
@@ -1456,7 +1473,7 @@ async def serve_uploaded_file(file_path: str, request: Request):
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]  # Remove "uploads/" prefix
     
-    file_location = Path("uploads") / file_path
+    file_location = UPLOADS_DIR / file_path
     
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -1509,7 +1526,7 @@ async def view_file(file_path: str):
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
     
-    file_location = Path("uploads") / file_path
+    file_location = UPLOADS_DIR / file_path
     
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -1537,7 +1554,7 @@ async def download_file(file_path: str):
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
     
-    file_location = Path("uploads") / file_path
+    file_location = UPLOADS_DIR / file_path
     
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -3000,7 +3017,7 @@ async def modifier_chapitre_complet(
             if not files or len(files) == 0:
                 return None, None
             
-            upload_dir = Path("uploads") / type_folder
+            upload_dir = UPLOADS_DIR / type_folder
             upload_dir.mkdir(parents=True, exist_ok=True)
             
             file_names = []
