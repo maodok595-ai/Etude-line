@@ -963,7 +963,7 @@ async def index(request: Request, db: Session = Depends(get_db)):
 async def register_page(request: Request, db: Session = Depends(get_db)):
     """Registration page for students"""
     universites = get_universites(db)
-    return templates.TemplateResponse("inscription.html", {
+    return templates.TemplateResponse("index.html", {
         "request": request,
         "universites": universites
     })
