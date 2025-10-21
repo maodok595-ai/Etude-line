@@ -333,9 +333,10 @@
             .chapitre-titre {
                 font-size: 0.85rem !important;
                 flex: 1;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-width: 150px;
             }
             
             .chapitre-content-new {
@@ -575,9 +576,10 @@
             .chapitre-titre {
                 font-size: 0.8rem !important;
                 flex: 1;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-width: 120px;
             }
             
             .stat-value {
@@ -986,9 +988,10 @@
             color: #333;
             font-size: 0.95rem;
             flex: 1;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 200px;
         }
         
         .chapitre-content-new {
