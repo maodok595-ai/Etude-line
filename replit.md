@@ -2,6 +2,34 @@
 
 ## Recent Changes
 
+**28 octobre 2025 - Uniformisation de la couleur des niveaux en violet**
+
+### Amélioration visuelle : Tous les niveaux en violet
+**Demande utilisateur** : Dans les dashboards étudiant et professeur, tous les niveaux doivent être colorés en violet.
+
+**Avant** : Chaque niveau avait une couleur différente :
+- L1 : Vert
+- L2 : Bleu  
+- L3 : Violet
+- M1 : Orange
+- M2 : Rouge
+
+**Après** : Tous les niveaux sont maintenant en violet (#9C27B0 → #7B1FA2)
+- L1 : Violet ✅
+- L2 : Violet ✅
+- L3 : Violet ✅
+- M1 : Violet ✅
+- M2 : Violet ✅
+
+**Impact** :
+- ✅ Interface plus cohérente et harmonieuse
+- ✅ Focus sur la structure hiérarchique plutôt que la couleur
+- ✅ Identité visuelle unifiée dans les dashboards étudiant et professeur
+
+**Fichiers modifiés** : `templates/dashboard_etudiant.html`, `templates/dashboard_prof.html`
+
+---
+
 **28 octobre 2025 - Stockage des logos universitaires dans PostgreSQL**
 
 ### Solution : Logos persistants entre les redéploiements Render
