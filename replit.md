@@ -42,22 +42,29 @@ Quand vous supprimez une université, le système supprime automatiquement et en
 
 ---
 
-**28 octobre 2025 - Clarification des instructions d'installation PWA sur iPhone**
+**28 octobre 2025 - Simplification du guide d'installation PWA sur iPhone**
 
-### Amélioration : Instructions d'installation plus claires pour Safari iOS
-**Problème signalé** : Les utilisateurs ne trouvaient pas le bouton "Ajouter à l'écran d'accueil" même en défilant sur la page web.
+### Amélioration : Guide simplifié avec instructions Safari uniquement
+**Demande utilisateur** : Supprimer les instructions Chrome iPhone car elles sont confuses et inutiles.
 
-**Confusion** : Les utilisateurs cherchaient un bouton sur la **page web**, alors que le bouton se trouve dans le **menu Safari**.
+**Raison** : Chrome sur iPhone ne permet pas l'installation directe de PWA - il faut obligatoirement utiliser Safari. Les boutons de sélection Safari/Chrome créaient de la confusion.
 
-**Solution** : Clarification des instructions étape par étape dans la modale d'installation :
-1. **Étape 1** : Précise que le bouton Partage ⬆️ se trouve "tout en bas de votre navigateur Safari (dans la barre du bas, **pas sur la page web**)"
-2. **Étape 2** : Indique clairement qu'il faut défiler "**DANS CE MENU**" (le menu popup qui s'est ouvert), pas sur la page web
-3. **Étape 3** : Précise qu'il faut appuyer sur "Ajouter" en haut à droite du menu
+**Solution** : Simplification complète du guide d'installation iOS :
+1. **Suppression** : Boutons de sélection Safari/Chrome
+2. **Suppression** : Section complète des instructions Chrome
+3. **Suppression** : Fonction JavaScript `toggleBrowserInstructions()`
+4. **Conservation** : Uniquement les instructions Safari, claires et précises
+
+**Instructions finales (Safari uniquement)** :
+- **Étape 1** : Appuyer sur le bouton Partage ⬆️ en bas de Safari (dans la barre du navigateur)
+- **Étape 2** : Défiler DANS LE MENU popup pour trouver l'option
+- **Étape 3** : Sélectionner "Sur l'écran d'accueil ➕" puis "Ajouter"
 
 **Impact** :
-- ✅ Instructions beaucoup plus explicites pour éviter toute confusion
-- ✅ Les utilisateurs comprennent maintenant qu'il faut défiler dans le menu Safari, pas sur la page
-- ✅ Meilleure expérience d'installation PWA
+- ✅ Guide beaucoup plus simple et direct
+- ✅ Pas de confusion avec Chrome
+- ✅ Instructions focalisées sur la seule méthode qui fonctionne (Safari)
+- ✅ Meilleure expérience utilisateur
 
 **Fichiers modifiés** : `templates/index.html`
 
