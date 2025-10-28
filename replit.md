@@ -42,6 +42,27 @@ Quand vous supprimez une université, le système supprime automatiquement et en
 
 ---
 
+**28 octobre 2025 - Clarification des instructions d'installation PWA sur iPhone**
+
+### Amélioration : Instructions d'installation plus claires pour Safari iOS
+**Problème signalé** : Les utilisateurs ne trouvaient pas le bouton "Ajouter à l'écran d'accueil" même en défilant sur la page web.
+
+**Confusion** : Les utilisateurs cherchaient un bouton sur la **page web**, alors que le bouton se trouve dans le **menu Safari**.
+
+**Solution** : Clarification des instructions étape par étape dans la modale d'installation :
+1. **Étape 1** : Précise que le bouton Partage ⬆️ se trouve "tout en bas de votre navigateur Safari (dans la barre du bas, **pas sur la page web**)"
+2. **Étape 2** : Indique clairement qu'il faut défiler "**DANS CE MENU**" (le menu popup qui s'est ouvert), pas sur la page web
+3. **Étape 3** : Précise qu'il faut appuyer sur "Ajouter" en haut à droite du menu
+
+**Impact** :
+- ✅ Instructions beaucoup plus explicites pour éviter toute confusion
+- ✅ Les utilisateurs comprennent maintenant qu'il faut défiler dans le menu Safari, pas sur la page
+- ✅ Meilleure expérience d'installation PWA
+
+**Fichiers modifiés** : `templates/index.html`
+
+---
+
 **28 octobre 2025 - Correction de l'icône PWA sur iPhone**
 
 ### Correction : Icône incorrecte lors de l'ajout à l'écran d'accueil iPhone
