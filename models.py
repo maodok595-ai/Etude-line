@@ -33,9 +33,9 @@ class Universite(Base):
     
     # Relations
     ufrs = relationship("UFR", back_populates="universite", cascade="all, delete-orphan")
-    etudiants = relationship("Etudiant", back_populates="universite")
-    professeurs = relationship("Professeur", back_populates="universite")
-    administrateurs = relationship("Administrateur", back_populates="universite")
+    etudiants = relationship("Etudiant", back_populates="universite", cascade="all, delete-orphan")
+    professeurs = relationship("Professeur", back_populates="universite")  # CASCADE via FK seulement
+    administrateurs = relationship("Administrateur", back_populates="universite")  # CASCADE via FK seulement
 
 class UFR(Base):
     __tablename__ = "ufrs"
@@ -43,7 +43,7 @@ class UFR(Base):
     id = Column(String, primary_key=True)
     nom = Column(String(255), nullable=False)
     code = Column(String(50), nullable=False)
-    universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete="CASCADE"), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
@@ -95,7 +95,7 @@ class Administrateur(Base):
     prenom = Column(String(100), nullable=False)
     is_main_admin = Column(Boolean, default=False)
     actif = Column(Boolean, default=True)
-    universite_id = Column(String, ForeignKey("universites.id"), nullable=True, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete="CASCADE"), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
@@ -111,7 +111,7 @@ class Professeur(Base):
     prenom = Column(String(100), nullable=False)
     specialite = Column(String(200), nullable=False)
     actif = Column(Boolean, default=True)
-    universite_id = Column(String, ForeignKey("universites.id"), nullable=True, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete="CASCADE"), nullable=True, index=True)
     # ANCIENNES COLONNES - Gardées pour rétrocompatibilité
     ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="SET NULL"), nullable=True, index=True)
     filiere_id = Column(String, ForeignKey("filieres.id", ondelete="SET NULL"), nullable=True, index=True)
@@ -140,7 +140,7 @@ class Etudiant(Base):
     nom = Column(String(100), nullable=False)
     prenom = Column(String(100), nullable=False)
     niveau = Column(String(10), nullable=False)
-    universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete="CASCADE"), nullable=False, index=True)
     ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="CASCADE"), nullable=False, index=True)
     filiere_id = Column(String, ForeignKey("filieres.id", ondelete="CASCADE"), nullable=False, index=True)
     statut_passage = Column(String(20), nullable=True)  # null, 'en_attente', 'validé', 'redoublant'
@@ -175,7 +175,7 @@ class ChapitreComplet(Base):
     __tablename__ = "chapitres_complets"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete="CASCADE"), nullable=False, index=True)
     ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="CASCADE"), nullable=False, index=True)
     filiere_id = Column(String, ForeignKey("filieres.id", ondelete="CASCADE"), nullable=False, index=True)
     matiere_id = Column(String, ForeignKey("matieres.id", ondelete="CASCADE"), nullable=False, index=True)
