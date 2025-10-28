@@ -2,6 +2,32 @@
 
 ## Recent Changes
 
+**28 octobre 2025 - Correction de l'icône PWA sur iPhone**
+
+### Correction : Icône incorrecte lors de l'ajout à l'écran d'accueil iPhone
+**Problème** : Quand les utilisateurs ajoutaient l'application à l'écran d'accueil de leur iPhone via Safari, l'icône affichée était une capture d'écran de la page au lieu du logo de l'application.
+
+**Cause** : iOS/Safari ne lit **pas** le fichier `manifest.json` pour les icônes PWA. Il utilise exclusivement les balises `<link rel="apple-touch-icon">`. L'icône référencée avait également une mauvaise dimension (192x192 px au lieu de 180x180 px requis par iOS).
+
+**Solution** :
+1. Installation de **Pillow** pour la manipulation d'images
+2. Redimensionnement de l'icône source (1024x1024) vers une icône optimisée 180x180 px
+3. Ajout de balises `<link rel="apple-touch-icon" href="/static/icons/icon-180.png">` dans tous les templates HTML
+
+**Changements appliqués** :
+- Nouveau fichier : `static/icons/icon-180.png` (180x180 px, 25 KB)
+- Templates modifiés : `index.html`, `login.html`, `dashboard_admin.html`, `dashboard_prof.html`, `dashboard_etudiant.html`
+- Dépendance ajoutée : `Pillow==12.0.0` dans `requirements.txt`
+
+**Impact** :
+- ✅ L'icône de l'application s'affiche correctement lors de l'installation PWA sur iPhone
+- ✅ Respecte les standards iOS 2025 (180x180 px pour iPhone moderne)
+- ✅ Icône optimisée (25 KB au lieu de 621 KB)
+
+**Fichiers modifiés** : Tous les templates HTML, ajout de `static/icons/icon-180.png`, `requirements.txt`
+
+---
+
 **28 octobre 2025 - Migration des logos universitaires vers stockage persistant**
 
 ### Correction : Logos universitaires perdus lors du redéploiement sur Render
