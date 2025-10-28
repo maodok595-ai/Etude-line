@@ -2,6 +2,46 @@
 
 ## Recent Changes
 
+**28 octobre 2025 - Suppression en cascade complète pour les universités**
+
+### Fonctionnalité : Suppression complète d'une université
+**Demande** : Permettre de supprimer une université avec toutes ses données associées (administrateurs, professeurs, étudiants, UFRs, filières, matières, chapitres, etc.)
+
+**Solution implémentée** :
+1. **Modifications dans `models.py`** :
+   - Ajout de `ondelete="CASCADE"` sur toutes les Foreign Keys pointant vers `universites` :
+     - `UFR.universite_id`
+     - `Administrateur.universite_id`
+     - `Professeur.universite_id`
+     - `Etudiant.universite_id`
+     - `ChapitreComplet.universite_id`
+   - Configuration ORM avec `cascade="all, delete-orphan"` uniquement pour UFR et Etudiant (colonnes NOT NULL)
+
+2. **Script de migration SQL** : `migration_universite_cascade.py`
+   - Modifie les contraintes de clés étrangères dans la base de données PostgreSQL
+   - Exécute séparément chaque commande DROP/ADD pour compatibilité psycopg2
+   - Transaction sécurisée avec rollback automatique en cas d'erreur
+
+**Impact de la suppression d'une université** :
+Quand vous supprimez une université, le système supprime automatiquement et en cascade :
+- ✅ Tous les UFRs de cette université
+- ✅ Toutes les filières (via UFR)
+- ✅ Toutes les matières (via filières)
+- ✅ Tous les chapitres de cette université
+- ✅ Tous les étudiants de cette université
+- ✅ Tous les professeurs de cette université
+- ✅ Tous les administrateurs secondaires de cette université
+- ✅ Tous les paramètres et configurations de cette université
+
+**⚠️ IMPORTANT POUR RENDER** : 
+1. Le script `migration_universite_cascade.py` **DOIT** être exécuté sur la base de données Render avant de pouvoir supprimer des universités
+2. Sauvegardez votre base de données avant d'exécuter la migration
+3. Testez la suppression en environnement de staging/test avant la production
+
+**Fichiers modifiés** : `models.py`, nouveau fichier `migration_universite_cascade.py`
+
+---
+
 **28 octobre 2025 - Correction de l'icône PWA sur iPhone**
 
 ### Correction : Icône incorrecte lors de l'ajout à l'écran d'accueil iPhone
