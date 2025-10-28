@@ -2,7 +2,21 @@
 
 ## Recent Changes
 
-**28 octobre 2025 - Correction des bugs Render**
+**28 octobre 2025 - Correction des bugs Render et améliorations PWA**
+
+### Améliorations de l'interface d'installation PWA sur iOS
+**Amélioration** : Remplacement du guide d'installation affiché directement par un bouton "Installer maintenant" sur iOS.
+
+**Avant** : Les utilisateurs iOS voyaient directement un guide avec les instructions d'installation.
+
+**Après** : Les utilisateurs iOS voient maintenant :
+1. Un bouton élégant **"🚀 Installer maintenant"** (identique à Android)
+2. Quand ils cliquent, une modale moderne s'ouvre avec les instructions détaillées
+3. Design cohérent entre iOS et Android pour une meilleure expérience utilisateur
+
+**Fichiers modifiés** : `templates/index.html` - Ajout de la modale d'instructions iOS avec animations
+
+---
 
 Deux bugs critiques rapportés par l'utilisateur ont été identifiés et corrigés sur l'environnement Replit :
 

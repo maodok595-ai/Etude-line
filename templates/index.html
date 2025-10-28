@@ -850,23 +850,78 @@
         </div>
     </div>
     
-    <!-- Bannière d'installation PWA pour iOS -->
-    <div id="ios-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 25px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10000; max-width: 420px; width: 90%; animation: slideUp 0.5s ease;">
+    <!-- Bannière d'installation PWA pour iOS (Bouton) -->
+    <div id="ios-install-banner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 10000; max-width: 500px; width: 90%; animation: slideUp 0.5s ease;">
         <button onclick="closeIOSBanner()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.3rem; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">✕</button>
         <div style="text-align: center;">
             <div style="font-size: 2.5rem; margin-bottom: 10px;">📱</div>
-            <h3 style="margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 600;">Installer Étude LINE sur iPhone</h3>
-            <p style="margin: 0 0 15px 0; font-size: 0.88rem; opacity: 0.95; line-height: 1.5;">Pour installer cette application :</p>
-            <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 10px; text-align: left; font-size: 0.9rem; line-height: 1.6;">
-                <p style="margin: 0 0 10px 0;">
-                    <strong>1.</strong> Appuyez sur le bouton <strong style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; white-space: nowrap;">Partage <span style="font-size: 1.1rem;">⬆️</span></strong>
-                </p>
-                <p style="margin: 0;">
-                    <strong>2.</strong> Sélectionnez <strong style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; white-space: nowrap;">Sur l'écran d'accueil</strong>
-                </p>
+            <h3 style="margin: 0 0 10px 0; font-size: 1.2rem; font-weight: 600;">Installer Étude LINE</h3>
+            <p style="margin: 0 0 15px 0; font-size: 0.95rem; opacity: 0.95;">Ajoutez l'application à votre écran d'accueil pour un accès rapide !</p>
+            <button onclick="showIOSInstructions()" style="background: white; color: #667eea; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                🚀 Installer maintenant
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modale d'instructions iOS -->
+    <div id="ios-instructions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+        <div style="background: white; border-radius: 20px; max-width: 450px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUpModal 0.3s ease;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 20px 20px 0 0; position: relative;">
+                <button onclick="closeIOSInstructions()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.5rem; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">✕</button>
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📱</div>
+                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 600;">Installation sur iPhone</h3>
+                </div>
+            </div>
+            <div style="padding: 30px; color: #333;">
+                <p style="margin: 0 0 20px 0; font-size: 1rem; color: #666; text-align: center;">Suivez ces étapes pour installer l'application :</p>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: #667eea; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                        <div>
+                            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ouvrir le menu Partage</p>
+                            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Appuyez sur le bouton <strong style="background: #e8eaf6; color: #667eea; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Partage <span style="font-size: 1.2rem;">⬆️</span></strong> en bas de Safari</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #764ba2;">
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="background: #764ba2; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                        <div>
+                            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ajouter à l'écran d'accueil</p>
+                            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Sélectionnez <strong style="background: #e8eaf6; color: #764ba2; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Sur l'écran d'accueil <span style="font-size: 1.2rem;">➕</span></strong> puis confirmez</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px; text-align: center;">
+                    <button onclick="closeIOSInstructions()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 35px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                        J'ai compris
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
     
     <style>
         @keyframes slideUp {
@@ -994,6 +1049,23 @@
         function closeIOSBanner() {
             document.getElementById('ios-install-banner').style.display = 'none';
         }
+        
+        // Fonction pour afficher les instructions iOS dans une modale
+        function showIOSInstructions() {
+            document.getElementById('ios-instructions-modal').style.display = 'flex';
+        }
+        
+        // Fonction pour fermer la modale d'instructions iOS
+        function closeIOSInstructions() {
+            document.getElementById('ios-instructions-modal').style.display = 'none';
+        }
+        
+        // Exposer les fonctions au scope global pour onclick
+        window.showIOSInstructions = showIOSInstructions;
+        window.closeIOSInstructions = closeIOSInstructions;
+        window.closeIOSBanner = closeIOSBanner;
+        window.closePWABanner = closePWABanner;
+        window.installPWA = installPWA;
         
         // Enregistrer le Service Worker
         if ('serviceWorker' in navigator) {
