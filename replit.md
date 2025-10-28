@@ -2,6 +2,55 @@
 
 ## Recent Changes
 
+**28 octobre 2025 - Stockage des logos universitaires dans PostgreSQL**
+
+### Solution : Logos persistants entre les redéploiements Render
+**Problème rapporté** : Les logos des universités sont perdus après chaque redéploiement sur Render car le système de fichiers est éphémère.
+
+**Ancienne approche (ÉCHEC)** : Stockage dans dossier `uploads/` avec Render Disk
+- ❌ Nécessite configuration manuelle Render Disk
+- ❌ Fichiers toujours perdus si Render Disk mal configuré
+- ❌ Complexité de gestion de fichiers
+
+**Nouvelle solution (SUCCÈS)** : Stockage des images directement dans PostgreSQL
+1. **Ajout de colonnes au modèle** `Universite` :
+   - `logo_data` (LargeBinary/BYTEA) : Stocke l'image en binaire
+   - `logo_content_type` (VARCHAR) : Stocke le type MIME (image/jpeg, image/png, etc.)
+
+2. **Script de migration** : `migration_logo_postgresql.py`
+   - Ajoute automatiquement les colonnes à la base Render
+   - Transaction sécurisée avec rollback en cas d'erreur
+
+3. **Route d'upload modifiée** : `/admin/upload-logo`
+   - Lit l'image en mémoire (limite 5 MB)
+   - Stocke directement dans PostgreSQL via `logo_data`
+   - Met à jour `logo_url` vers `/logo/<universite_id>`
+
+4. **Nouvelle route de service** : `/logo/<universite_id>`
+   - Sert les images depuis PostgreSQL
+   - Cache HTTP de 24h pour performance
+   - Retourne 404 si logo absent
+
+**Avantages de cette solution** :
+- ✅ **Persistance garantie** : Les logos survivent à tous les redéploiements Render
+- ✅ **Pas de configuration Render Disk** : Tout est dans PostgreSQL
+- ✅ **Sauvegarde automatique** : Les logos sont sauvegardés avec la base de données
+- ✅ **Rollback possible** : Avec les checkpoints Replit
+- ✅ **Simple** : Pas de gestion de fichiers, tout dans la BD
+
+**Impact** :
+- ✅ Les nouveaux logos uploadés seront stockés en base de données
+- ✅ Plus besoin du dossier `uploads/` pour les logos
+- ✅ Fonctionne immédiatement sur Render sans configuration supplémentaire
+
+**⚠️ IMPORTANT** : 
+- Exécutez `python migration_logo_postgresql.py` sur Render pour activer la fonctionnalité
+- Les anciens logos doivent être re-uploadés via l'interface admin
+
+**Fichiers modifiés** : `models.py`, `main.py`, nouveau fichier `migration_logo_postgresql.py`
+
+---
+
 **28 octobre 2025 - Suppression en cascade complète pour les universités**
 
 ### Fonctionnalité : Suppression complète d'une université
