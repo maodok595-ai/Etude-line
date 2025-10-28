@@ -58,7 +58,7 @@ class Filiere(Base):
     id = Column(String, primary_key=True)
     nom = Column(String(255), nullable=False)
     code = Column(String(50), nullable=False)
-    ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=False, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="CASCADE"), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
@@ -74,7 +74,7 @@ class Matiere(Base):
     id = Column(String, primary_key=True)
     nom = Column(String(255), nullable=False)
     code = Column(String(50), nullable=False)
-    filiere_id = Column(String, ForeignKey("filieres.id"), nullable=False, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete="CASCADE"), nullable=False, index=True)
     niveau = Column(String(10), nullable=False, default="L1", index=True)
     semestre = Column(String(10), nullable=False, default="S1", index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -113,9 +113,9 @@ class Professeur(Base):
     actif = Column(Boolean, default=True)
     universite_id = Column(String, ForeignKey("universites.id"), nullable=True, index=True)
     # ANCIENNES COLONNES - Gardées pour rétrocompatibilité
-    ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=True, index=True)
-    filiere_id = Column(String, ForeignKey("filieres.id"), nullable=True, index=True)
-    matiere_id = Column(String, ForeignKey("matieres.id"), nullable=True, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="SET NULL"), nullable=True, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete="SET NULL"), nullable=True, index=True)
+    matiere_id = Column(String, ForeignKey("matieres.id", ondelete="SET NULL"), nullable=True, index=True)
     matiere = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -141,8 +141,8 @@ class Etudiant(Base):
     prenom = Column(String(100), nullable=False)
     niveau = Column(String(10), nullable=False)
     universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
-    ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=False, index=True)
-    filiere_id = Column(String, ForeignKey("filieres.id"), nullable=False, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="CASCADE"), nullable=False, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete="CASCADE"), nullable=False, index=True)
     statut_passage = Column(String(20), nullable=True)  # null, 'en_attente', 'validé', 'redoublant'
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -176,9 +176,9 @@ class ChapitreComplet(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     universite_id = Column(String, ForeignKey("universites.id"), nullable=False, index=True)
-    ufr_id = Column(String, ForeignKey("ufrs.id"), nullable=False, index=True)
-    filiere_id = Column(String, ForeignKey("filieres.id"), nullable=False, index=True)
-    matiere_id = Column(String, ForeignKey("matieres.id"), nullable=False, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete="CASCADE"), nullable=False, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete="CASCADE"), nullable=False, index=True)
+    matiere_id = Column(String, ForeignKey("matieres.id", ondelete="CASCADE"), nullable=False, index=True)
     niveau = Column(String(10), nullable=False)
     semestre = Column(String(10), nullable=False)
     chapitre = Column(String(200), nullable=False)

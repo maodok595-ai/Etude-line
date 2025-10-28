@@ -1297,6 +1297,15 @@
                     }
                 }
             });
+            
+            // Exposer les fonctions au scope global pour les attributs onclick
+            // Ceci résout le problème où les fonctions ne sont pas accessibles sur Render
+            window.showAlert = showAlert;
+            window.toggleSection = toggleSection;
+            window.toggleUserDetails = toggleUserDetails;
+            window.toggleFiliereEtudiants = toggleFiliereEtudiants;
+            window.toggleNiveauEtudiants = toggleNiveauEtudiants;
+            window.toggleStatCard = toggleStatCard;
         </script>
         
         {% if error %}
@@ -4057,6 +4066,58 @@
                 loadPassageStats();
             });
         });
+        
+        // Exposer toutes les fonctions au scope global pour les attributs onclick
+        // Ceci résout le problème où les fonctions ne sont pas accessibles sur Render
+        window.showTab = showTab;
+        window.loadUniversiteSettings = loadUniversiteSettings;
+        window.toggleTelechargements = toggleTelechargements;
+        window.updateDownloadButtonStatus = updateDownloadButtonStatus;
+        window.loadDownloadStatus = loadDownloadStatus;
+        window.togglePassageClasse = togglePassageClasse;
+        window.updatePassageClasseButtonStatus = updatePassageClasseButtonStatus;
+        window.loadPassageClasseStatus = loadPassageClasseStatus;
+        window.filterCheckboxes = filterCheckboxes;
+        window.updateFiliereCheckboxes = updateFiliereCheckboxes;
+        window.searchUfr = searchUfr;
+        window.searchFiliere = searchFiliere;
+        window.searchMatiere = searchMatiere;
+        window.toggleNiveauMatieres = toggleNiveauMatieres;
+        window.toggleSemestreMatieres = toggleSemestreMatieres;
+        window.searchAdmin = searchAdmin;
+        window.searchProf = searchProf;
+        window.searchEtudiant = searchEtudiant;
+        window.searchUniversite = searchUniversite;
+        window.filterSelectOptions = filterSelectOptions;
+        window.editAdmin = editAdmin;
+        window.toggleAdminStatus = toggleAdminStatus;
+        window.deleteAdmin = deleteAdmin;
+        window.toggleProfStatus = toggleProfStatus;
+        window.editProf = editProf;
+        window.deleteProf = deleteProf;
+        window.deleteEtudiant = deleteEtudiant;
+        window.editUniversite = editUniversite;
+        window.deleteUniversite = deleteUniversite;
+        window.editUfr = editUfr;
+        window.deleteUfr = deleteUfr;
+        window.editFiliere = editFiliere;
+        window.deleteFiliere = deleteFiliere;
+        window.editMatiere = editMatiere;
+        window.deleteMatiere = deleteMatiere;
+        window.uploadLogo = uploadLogo;
+        window.cancelLogoUpload = cancelLogoUpload;
+        window.togglePassword = togglePassword;
+        window.toggleForm = toggleForm;
+        window.submitFormWithReload = submitFormWithReload;
+        window.saveActiveTabBeforeSubmit = saveActiveTabBeforeSubmit;
+        window.loadFilieresForPassage = loadFilieresForPassage;
+        window.compareNiveaux = compareNiveaux;
+        window.validatePassageForm = validatePassageForm;
+        window.initPassageMemeFiliere = initPassageMemeFiliere;
+        window.loadPassageRules = loadPassageRules;
+        window.loadPassageStats = loadPassageStats;
+        window.deletePassageRule = deletePassageRule;
+        window.setupAdminFormAjax = setupAdminFormAjax;
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
