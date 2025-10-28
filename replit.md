@@ -1,6 +1,38 @@
 # Étude LINE
 
 ## Recent Changes
+
+**28 octobre 2025 - Correction des bugs Render**
+
+Deux bugs critiques rapportés par l'utilisateur ont été identifiés et corrigés sur l'environnement Replit :
+
+### Bug 1 : Liste des matières ne s'ouvre pas sur Render
+**Cause** : Les fonctions JavaScript dans `dashboard_admin.html` n'étaient pas accessibles depuis les attributs `onclick` en raison d'un problème de scope sur Render.
+
+**Solution** : Exposition de ~45 fonctions JavaScript au scope global via `window.nomFonction = nomFonction` dans `dashboard_admin.html` (après ligne 1302 et avant ligne 4124).
+
+**Impact** : Les boutons interactifs (ouvrir liste matières, modifier chapitre, supprimer, etc.) fonctionnent maintenant correctement.
+
+### Bug 2 : Suppression d'UFR ne supprime pas les matières associées
+**Cause** : Les Foreign Keys n'avaient pas de contraintes `ON DELETE CASCADE` au niveau de la base de données SQL.
+
+**Solution appliquée sur Replit** :
+1. Ajout de `ondelete="CASCADE"` dans `models.py` pour toutes les FK critiques :
+   - `Filiere.ufr_id` → `ufrs` : ON DELETE CASCADE
+   - `Matiere.filiere_id` → `filieres` : ON DELETE CASCADE
+   - `Etudiant.ufr_id` et `filiere_id` : ON DELETE CASCADE
+   - `ChapitreComplet.ufr_id`, `filiere_id`, `matiere_id` : ON DELETE CASCADE
+   - `Professeur.ufr_id`, `filiere_id`, `matiere_id` : ON DELETE SET NULL (nullable)
+
+2. Exécution de migration SQL pour recréer les contraintes avec CASCADE (voir `migration_cascade.py`)
+
+3. Test de suppression en cascade réussi sur Replit :
+   - Créé UFR → Filière → Matière
+   - Supprimé l'UFR
+   - Résultat : La filière ET la matière ont été supprimées automatiquement ✅
+
+**⚠️ IMPORTANT POUR RENDER** : La migration SQL doit être exécutée sur la base de données Render pour que les corrections prennent effet en production. Exécutez le script `migration_cascade.py` sur Render ou via un accès direct à la base de données PostgreSQL de Render.
+
 **28 octobre 2025** - Application importée depuis GitHub (maodok595-ai/Etude-line)
 - Version importée : commit 483b133 (avant l'introduction de la fonctionnalité de création de matières multi-filière)
 - Configuration : Python 3.11, FastAPI, PostgreSQL (Replit)
