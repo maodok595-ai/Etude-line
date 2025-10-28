@@ -7,7 +7,7 @@ import fcntl
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, validator
@@ -3545,42 +3545,62 @@ async def admin_upload_logo(
     logo: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    """Admin uploads logo for university"""
+    """Admin uploads logo for university - stockage dans PostgreSQL"""
     try:
         # Validate file type
         if not logo.content_type.startswith('image/'):
             return RedirectResponse("/dashboard/admin?error=Le fichier doit être une image", status_code=303)
         
-        # Save file with unique name in uploads folder (persistent with Render Disk)
-        file_extension = logo.filename.split('.')[-1]
-        unique_filename = f"logo_universite_{universite_id}_{uuid.uuid4().hex[:8]}.{file_extension}"
-        file_path = f"uploads/{unique_filename}"
+        # Lire le contenu de l'image
+        image_data = await logo.read()
         
-        # Create uploads directory if it doesn't exist
-        os.makedirs("uploads", exist_ok=True)
+        # Limiter la taille à 5 MB
+        if len(image_data) > 5 * 1024 * 1024:
+            return RedirectResponse("/dashboard/admin?error=L'image est trop grande (max 5 MB)", status_code=303)
         
-        # Save file
-        with open(file_path, "wb") as f:
-            content = await logo.read()
-            f.write(content)
-        
-        # Update database (PostgreSQL)
+        # Mettre à jour la base de données PostgreSQL
         universite = db.query(UniversiteDB).filter_by(id=universite_id).first()
-        if universite:
-            # Remove old logo file if exists
-            if universite.logo_url and (universite.logo_url.startswith("/static/") or universite.logo_url.startswith("/uploads/")):
-                old_file_path = universite.logo_url[1:]  # Remove leading slash
-                if os.path.exists(old_file_path):
-                    os.remove(old_file_path)
-            
-            universite.logo_url = f"/files/{unique_filename}"
-            db.commit()
+        if not universite:
+            return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
+        
+        # Stocker l'image directement dans PostgreSQL
+        universite.logo_data = image_data
+        universite.logo_content_type = logo.content_type
+        universite.logo_url = f"/logo/{universite_id}"  # Nouvelle URL pour servir depuis la BD
+        db.commit()
         
         return RedirectResponse("/dashboard/admin?success=Logo téléchargé avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
         return RedirectResponse(f"/dashboard/admin?error=Erreur lors du téléchargement: {str(e)}", status_code=303)
+
+
+# Route pour servir les logos depuis PostgreSQL
+@app.get("/logo/{universite_id}")
+async def get_logo(universite_id: str, db: Session = Depends(get_db)):
+    """Servir le logo d'une université depuis PostgreSQL"""
+    try:
+        universite = db.query(UniversiteDB).filter_by(id=universite_id).first()
+        
+        if not universite or not universite.logo_data:
+            # Retourner une image par défaut ou une erreur 404
+            raise HTTPException(status_code=404, detail="Logo non trouvé")
+        
+        # Retourner l'image avec le bon Content-Type
+        return Response(
+            content=universite.logo_data,
+            media_type=universite.logo_content_type or "image/jpeg",
+            headers={
+                "Cache-Control": "public, max-age=86400"  # Cache 24h
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur lors de la récupération du logo {universite_id}: {e}")
+        raise HTTPException(status_code=500, detail="Erreur serveur")
+
 
 # Routes pour les professeurs - modification et suppression de chapitres
 @app.post("/prof/edit-chapitre")
