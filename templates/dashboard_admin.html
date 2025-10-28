@@ -1884,18 +1884,18 @@
                                                             {% for etudiant in etudiants_niveau %}
                                                                 <div class="prof-item academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
                                                                     <div style="flex: 1;">
-                                                                        <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ loop.index }}')">
-                                                                            <span id="arrow-etudiant-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
+                                                                        <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ etudiant.username }}')">
+                                                                            <span id="arrow-etudiant-{{ etudiant.username }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
                                                                             <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
                                                                         </div>
-                                                                        <div id="details-etudiant-{{ loop.index }}" style="display: none;">
+                                                                        <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
                                                                             <div class="prof-details">@{{ etudiant.username }}</div>
                                                                             <div class="prof-meta" style="margin-top: 0.5rem;">
                                                                                 <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="action-buttons" id="actions-etudiant-{{ loop.index }}" style="display: none;">
+                                                                    <div class="action-buttons" id="actions-etudiant-{{ etudiant.username }}" style="display: none;">
                                                                         <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
                                                                             🗑️
                                                                         </button>
