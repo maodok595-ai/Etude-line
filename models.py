@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index, Table
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index, Table, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -28,7 +28,9 @@ class Universite(Base):
     id = Column(String, primary_key=True)
     nom = Column(String(255), nullable=False)
     code = Column(String(50), nullable=False)
-    logo_url = Column(String(500), nullable=True)
+    logo_url = Column(String(500), nullable=True)  # Deprecated - use logo_data instead
+    logo_data = Column(LargeBinary, nullable=True)  # Image stockée en base de données
+    logo_content_type = Column(String(50), nullable=True)  # e.g., 'image/jpeg', 'image/png'
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relations
