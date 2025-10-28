@@ -874,34 +874,86 @@
                 </div>
             </div>
             <div style="padding: 30px; color: #333;">
-                <p style="margin: 0 0 20px 0; font-size: 1rem; color: #666; text-align: center;">Suivez ces étapes pour installer l'application :</p>
+                <p style="margin: 0 0 20px 0; font-size: 1rem; color: #666; text-align: center;">Choisissez votre navigateur :</p>
                 
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #667eea;">
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <div style="background: #667eea; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
-                        <div>
-                            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ouvrir le menu Partage</p>
-                            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Appuyez sur le bouton <strong style="background: #e8eaf6; color: #667eea; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Partage <span style="font-size: 1.2rem;">⬆️</span></strong> en bas de votre navigateur Safari</p>
+                <!-- Sélection du navigateur -->
+                <div style="display: flex; gap: 10px; margin-bottom: 25px; justify-content: center;">
+                    <button onclick="toggleBrowserInstructions('safari')" id="btn-safari" style="flex: 1; background: #667eea; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        🧭 Safari
+                    </button>
+                    <button onclick="toggleBrowserInstructions('chrome')" id="btn-chrome" style="flex: 1; background: #e0e0e0; color: #666; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        🌐 Chrome
+                    </button>
+                </div>
+                
+                <!-- Instructions Safari -->
+                <div id="safari-instructions">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #667eea; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ouvrir le menu Partage</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Appuyez sur le bouton <strong style="background: #e8eaf6; color: #667eea; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Partage <span style="font-size: 1.2rem;">⬆️</span></strong> en bas de Safari</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff9e6; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #ff9800;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #ff9800; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Défiler vers le bas</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;"><strong style="background: #ffe0b2; color: #e65100; padding: 3px 10px; border-radius: 6px;">⚠️ Important :</strong> Faites défiler le menu <strong>vers le bas</strong> pour trouver l'option</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #764ba2;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #764ba2; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ajouter à l'écran d'accueil</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Sélectionnez <strong style="background: #e8eaf6; color: #764ba2; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Sur l'écran d'accueil <span style="font-size: 1.2rem;">➕</span></strong> puis <strong>"Ajouter"</strong></p>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div style="background: #fff9e6; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #ff9800;">
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <div style="background: #ff9800; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
-                        <div>
-                            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Défiler vers le bas</p>
-                            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;"><strong style="background: #ffe0b2; color: #e65100; padding: 3px 10px; border-radius: 6px;">⚠️ Important :</strong> Faites défiler le menu <strong>vers le bas</strong> pour trouver l'option "Sur l'écran d'accueil"</p>
+                <!-- Instructions Chrome -->
+                <div id="chrome-instructions" style="display: none;">
+                    <div style="background: #e8f5e9; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #2e7d32; line-height: 1.5;">
+                            <strong>ℹ️ Note :</strong> Chrome sur iPhone ne permet pas l'installation directe. Vous devez ouvrir le site dans Safari.
+                        </p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #667eea; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">1</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Copier l'URL</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Appuyez longuement sur la barre d'adresse et sélectionnez <strong>"Copier"</strong></p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #764ba2;">
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <div style="background: #764ba2; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
-                        <div>
-                            <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ajouter à l'écran d'accueil</p>
-                            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Sélectionnez <strong style="background: #e8eaf6; color: #764ba2; padding: 3px 10px; border-radius: 6px; white-space: nowrap;">Sur l'écran d'accueil <span style="font-size: 1.2rem;">➕</span></strong> puis appuyez sur <strong>"Ajouter"</strong></p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #ff9800;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #ff9800; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">2</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Ouvrir dans Safari</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Ouvrez Safari et collez l'URL dans la barre d'adresse</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #764ba2;">
+                        <div style="display: flex; align-items: start; gap: 15px;">
+                            <div style="background: #764ba2; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">3</div>
+                            <div>
+                                <p style="margin: 0 0 8px 0; font-weight: 600; color: #333;">Suivre les instructions Safari</p>
+                                <p style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #666;">Cliquez sur le bouton <strong>🧭 Safari</strong> ci-dessus pour voir les étapes</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1070,12 +1122,37 @@
             document.getElementById('ios-instructions-modal').style.display = 'none';
         }
         
+        // Fonction pour basculer entre les instructions Safari et Chrome
+        function toggleBrowserInstructions(browser) {
+            const safariInstructions = document.getElementById('safari-instructions');
+            const chromeInstructions = document.getElementById('chrome-instructions');
+            const btnSafari = document.getElementById('btn-safari');
+            const btnChrome = document.getElementById('btn-chrome');
+            
+            if (browser === 'safari') {
+                safariInstructions.style.display = 'block';
+                chromeInstructions.style.display = 'none';
+                btnSafari.style.background = '#667eea';
+                btnSafari.style.color = 'white';
+                btnChrome.style.background = '#e0e0e0';
+                btnChrome.style.color = '#666';
+            } else {
+                safariInstructions.style.display = 'none';
+                chromeInstructions.style.display = 'block';
+                btnChrome.style.background = '#667eea';
+                btnChrome.style.color = 'white';
+                btnSafari.style.background = '#e0e0e0';
+                btnSafari.style.color = '#666';
+            }
+        }
+        
         // Exposer les fonctions au scope global pour onclick
         window.showIOSInstructions = showIOSInstructions;
         window.closeIOSInstructions = closeIOSInstructions;
         window.closeIOSBanner = closeIOSBanner;
         window.closePWABanner = closePWABanner;
         window.installPWA = installPWA;
+        window.toggleBrowserInstructions = toggleBrowserInstructions;
         
         // Enregistrer le Service Worker
         if ('serviceWorker' in navigator) {
