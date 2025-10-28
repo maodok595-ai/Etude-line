@@ -3551,13 +3551,13 @@ async def admin_upload_logo(
         if not logo.content_type.startswith('image/'):
             return RedirectResponse("/dashboard/admin?error=Le fichier doit être une image", status_code=303)
         
-        # Save file with unique name
+        # Save file with unique name in uploads folder (persistent with Render Disk)
         file_extension = logo.filename.split('.')[-1]
         unique_filename = f"logo_universite_{universite_id}_{uuid.uuid4().hex[:8]}.{file_extension}"
-        file_path = f"static/{unique_filename}"
+        file_path = f"uploads/{unique_filename}"
         
-        # Create static directory if it doesn't exist
-        os.makedirs("static", exist_ok=True)
+        # Create uploads directory if it doesn't exist
+        os.makedirs("uploads", exist_ok=True)
         
         # Save file
         with open(file_path, "wb") as f:
@@ -3568,12 +3568,12 @@ async def admin_upload_logo(
         universite = db.query(UniversiteDB).filter_by(id=universite_id).first()
         if universite:
             # Remove old logo file if exists
-            if universite.logo_url and universite.logo_url.startswith("/static/"):
+            if universite.logo_url and (universite.logo_url.startswith("/static/") or universite.logo_url.startswith("/uploads/")):
                 old_file_path = universite.logo_url[1:]  # Remove leading slash
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
             
-            universite.logo_url = f"/{file_path}"
+            universite.logo_url = f"/files/{unique_filename}"
             db.commit()
         
         return RedirectResponse("/dashboard/admin?success=Logo téléchargé avec succès", status_code=303)

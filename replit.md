@@ -2,6 +2,33 @@
 
 ## Recent Changes
 
+**28 octobre 2025 - Migration des logos universitaires vers stockage persistant**
+
+### Correction : Logos universitaires perdus lors du redéploiement sur Render
+**Problème** : Les logos des universités uploadés via l'interface admin étaient stockés dans le dossier `static/`. Sur Render, ce dossier est **éphémère** et recréé à chaque redéploiement, causant la perte de tous les logos.
+
+**Solution** : Migration du stockage des logos du dossier `static/` vers le dossier `uploads/`.
+
+**Changements appliqués** :
+1. Modification de la route `/admin/upload-logo` dans `main.py` :
+   - Ancien chemin : `static/logo_universite_{id}_{hash}.{ext}`
+   - Nouveau chemin : `uploads/logo_universite_{id}_{hash}.{ext}`
+   - URL servie : `/files/{filename}` (au lieu de `/static/{filename}`)
+
+2. **Configuration requise sur Render** :
+   - Le dossier `uploads/` DOIT être monté sur un **Render Disk** pour garantir la persistance
+   - Sans Render Disk, les logos seront toujours perdus au redéploiement
+   - Voir `GUIDE_DEPLOIEMENT_RENDER.md` pour les instructions de configuration du Render Disk
+
+**Impact** :
+- ✅ Les logos uploadés après cette modification persisteront entre les redéploiements (avec Render Disk configuré)
+- ⚠️ Les anciens logos dans `static/` doivent être re-uploadés via l'interface admin
+- ⚠️ Configuration Render Disk obligatoire pour la persistance complète
+
+**Fichiers modifiés** : `main.py` (route `/admin/upload-logo`)
+
+---
+
 **28 octobre 2025 - Correction des bugs Render et améliorations PWA**
 
 ### Améliorations de l'interface d'installation PWA sur iOS
