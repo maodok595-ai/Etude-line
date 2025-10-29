@@ -280,38 +280,44 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Correction de l'affichage des chapitres dans le dashboard professeur**
+**29 octobre 2025 - Correction débordement mobile des chapitres (dashboard professeur)**
 
-### Correction bug : Les chapitres ne s'affichent pas
-**Problème rapporté** : L'utilisateur indiquait que "l'application ne s'affiche pas dans preview" en parlant de l'affichage des chapitres.
+### Correction bug : Débordement horizontal des chapitres sur mobile
+**Problème rapporté** : Les chapitres débordent horizontalement sur mobile, créant un scroll horizontal non désiré.
 
-**Diagnostic** :
-Le template dashboard_prof.html utilise `{% if hierarchie %}` pour afficher les chapitres, où `hierarchie` est un dictionnaire construit avec des clés canoniques :
-- Niveaux : "L1", "L2", "L3", "M1", "M2"
-- Semestres : "S1", "S2"
-
-**Problème identifié** :
-Si des chapitres dans la base de données ont des valeurs non-canoniques (comme "Licence 1" au lieu de "L1", ou "Semestre 1" au lieu de "S1"), ils ne sont pas ajoutés à `hierarchie` et donc n'apparaissent jamais dans l'affichage.
+**Cause identifiée** :
+- Le `.chapitre-header-new` utilise `display: flex` avec un titre et des boutons d'action
+- Sur mobile, les titres longs ne se coupent pas correctement
+- Le problème : manque de `min-width: 0` sur les éléments flex, empêchant le text wrapping
+- Les conteneurs parents n'ont pas de gestion d'overflow strict
 
 **Solution implémentée** :
-✅ **Normalisation automatique** des valeurs avant construction de la hiérarchie :
-- "Licence 1", "licence 1", "L 1" → "L1"
-- "Licence 2", "licence 2", "L 2" → "L2"
-- (etc. pour tous les niveaux)
-- "Semestre 1", "semestre 1", "1" → "S1"
-- "Semestre 2", "semestre 2", "2" → "S2"
+✅ **Gestion stricte de la largeur** :
+- `width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;` sur `.chapitre-item`
+- Même traitement pour `.chapitre-header-new` et `.chapitre-content-new`
 
-✅ **Filtrage strict** : Les chapitres sans niveau/semestre ou avec des valeurs invalides sont ignorés proprement (pas d'erreur)
+✅ **Correction flexbox** :
+- Ajout de `min-width: 0;` sur le conteneur du titre pour permettre le wrapping
+- Limitation de largeur max avec `calc(100% - 80px)` pour laisser place aux boutons
+- `max-width: calc(100% - 100px)` sur desktop
 
-✅ **Message d'aide existant** : Le template affiche déjà "📝 Aucun chapitre complet publié" quand `hierarchie` est vide
+✅ **Retour à la ligne forcé** :
+- `word-break: break-word;` pour couper les mots longs si nécessaire
+- `white-space: normal;` pour permettre les retours à la ligne
+- `overflow-wrap: break-word;` pour la compatibilité
+
+**Styles appliqués** :
+- Mobile (@media max-width: 600px) : Conteneur titre limité à `calc(100% - 80px)`
+- Desktop : Conteneur titre limité à `calc(100% - 100px)`
+- Tous les niveaux : `overflow: hidden` pour empêcher tout débordement
 
 **Impact** :
-- 📚 Les chapitres s'affichent maintenant même avec des valeurs non-canoniques
-- 🔄 Rétrocompatibilité totale avec les anciennes données
-- ⚠️ Chapitres avec des valeurs invalides sont ignorés silencieusement
-- 💡 Message d'aide clair pour guider les professeurs
+- 📱 Plus de débordement horizontal sur mobile
+- ✂️ Les titres longs se coupent proprement sur plusieurs lignes
+- 🎯 Les boutons d'action restent toujours visibles
+- 💯 Responsive parfait sur tous les écrans
 
-**Fichier modifié** : `main.py` (fonction `dashboard_prof`)
+**Fichier modifié** : `templates/dashboard_prof.html`
 
 ---
 
