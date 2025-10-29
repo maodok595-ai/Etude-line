@@ -73,6 +73,9 @@ async def add_security_headers(request: Request, call_next):
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Mount uploads files (pour servir les logos et autres fichiers uploadés)
+app.mount("/files", StaticFiles(directory="uploads"), name="files")
+
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
