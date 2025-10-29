@@ -3,12 +3,12 @@ services:
     name: etude-line
     env: python
     region: oregon
-    plan: pro  # REQUIS pour 100k users (8GB RAM, 4 vCPU, 100+ connections)
+    plan: free  # Démarrage gratuit (upgrader vers 'starter' à 500+ users, 'pro' à 5000+ users)
     buildCommand: pip install -r requirements.txt
-    # ⚡ OPTIMISATION: Gunicorn avec 8 workers pour gérer 200+ utilisateurs simultanés
-    # Chaque worker = 25-30 utilisateurs → 8 workers = 200-240 utilisateurs simultanés
-    # CRITIQUE pour 100k utilisateurs (1% en ligne = 1000 utilisateurs simultanés)
-    startCommand: gunicorn main:app --workers 8 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120 --max-requests 1000 --max-requests-jitter 50
+    # Uvicorn simple pour plan FREE (upgrader vers Gunicorn multi-workers avec plan Starter/Pro)
+    # Pour 500+ users: plan starter + workers 2
+    # Pour 5000+ users: plan pro + workers 8 (voir OPTIMISATIONS_100K_UTILISATEURS.md)
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.2
@@ -30,4 +30,4 @@ databases:
     databaseName: etude_line
     user: etude_line_admin
     region: oregon
-    plan: pro  # REQUIS pour 100k users (256GB storage, 120 connections, backups)
+    plan: free  # Démarrage gratuit (upgrader vers 'starter' à 500+ users, 'pro' à 5000+ users)

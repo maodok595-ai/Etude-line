@@ -297,9 +297,11 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 - Sans Redis : Fonctionnel mais performances moyennes
 - Avec Redis (+$7/mois) : **Performance optimale recommandée**
 
-**Coût** :
-- Configuration actuelle : **$50/mois** (Plan Pro)
-- Avec Redis optimal : **$57/mois**
+**Coût progressif** :
+- 0-500 utilisateurs : **0€/mois** (Plan FREE) ✅
+- 500-5,000 utilisateurs : **14€/mois** (Plan Starter)
+- 5,000-100,000 utilisateurs : **50€/mois** (Plan Pro)
+- Avec Redis optimal : **57€/mois**
 
 **Fichiers créés** :
 - `migration_index_scalabilite.py` - Script migration 16 index SQL
