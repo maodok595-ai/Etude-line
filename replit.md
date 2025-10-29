@@ -2,43 +2,49 @@
 
 ## Recent Changes
 
-**29 octobre 2025 - Encadré violet autour du logo universitaire + Réduction hauteur (Admin secondaire)**
+**29 octobre 2025 - Encadré violet limité au logo universitaire (Admin secondaire)**
 
-### Amélioration visuelle : Logo avec effet violet et section compacte
-**Demande utilisateur** : 
-1. Ajouter un encadré violet visible autour du logo de l'université
-2. Réduire la hauteur de la section violette du haut en bas
+### Amélioration visuelle : Encadré violet uniquement autour du logo
+**Demande utilisateur** : La couleur violet doit se limiter aux écritures/encadré qui entoure le logo, pas toute la section.
 
 **Avant** : 
-- Logo blanc simple sans effet
-- Section violette très haute avec beaucoup d'espace
+- Toute la section en haut avait un grand fond violet dégradé
+- Titre blanc sur fond violet
+- Box d'informations sur fond violet transparent
 
 **Après** : 
-- Logo entouré d'un wrapper violet avec effet lumineux
-- Section violette plus compacte et optimisée
+- **Seulement le logo** a un encadré violet avec effet lumineux
+- Section sur fond blanc propre
+- Titre en couleur foncée (#333)
+- Box d'informations sur fond gris clair
 
 **Modifications appliquées** :
-1. **Wrapper violet autour du logo** :
+1. **Encadré violet limité au logo** :
+   - Wrapper violet autour du logo uniquement
    - Fond dégradé violet semi-transparent
    - Ombre lumineuse violette (halo)
-   - Padding de 10px pour créer l'effet d'encadrement
+   - Padding de 10px pour l'effet d'encadrement
    
-2. **Réduction de la hauteur** :
-   - Padding section : 2rem → 1rem (haut/bas réduit de 50%)
-   - Marge titre : 1.5rem → 0.75rem (réduite de 50%)
-   - Taille logo : 110px → 90px (réduite de 18%)
-   - Espace logo-informations : 0.75rem → 0 (supprimé complètement)
-   - Espacement général optimisé pour une section plus compacte
+2. **Section sur fond blanc** :
+   - Fond de section : violet → blanc
+   - Couleur titre : blanc → #333 (gris foncé)
+   - Ombre de texte supprimée
+   - Box d'informations : fond violet → gris clair (#f8f9fa)
+
+3. **Optimisations d'espace** :
+   - Taille logo : 90px (compact)
+   - Espace logo-informations : 0 (collés)
+   - Section générale compacte
 
 **Fichiers modifiés** :
-- `templates/dashboard_admin.html` (lignes 585, 601-609, 619, 1339)
+- `templates/dashboard_admin.html` (lignes 582-599, 612-622, 624-626, 1339)
 
 **Impact** :
-- ✅ Logo mieux mis en valeur avec effet violet
-- ✅ Section violette 40-50% plus compacte
-- ✅ Interface plus moderne et épurée
-- ✅ Meilleure utilisation de l'espace écran
-- ✅ Cohérence visuelle avec le thème violet
+- ✅ Design épuré avec fond blanc
+- ✅ Focus visuel uniquement sur le logo avec son encadré violet
+- ✅ Interface propre et professionnelle
+- ✅ Meilleure lisibilité du texte
+- ✅ Le violet met en valeur le logo sans surcharger
 
 ---
 
