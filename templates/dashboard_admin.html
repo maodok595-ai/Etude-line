@@ -579,7 +579,7 @@
         .university-welcome {
             text-align: center;
             background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
-            padding: 1.5rem 1rem 1rem;
+            padding: 1rem 1rem 0.8rem;
             margin: 0;
             border-radius: 0;
             position: relative;
@@ -614,16 +614,16 @@
             color: white;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0 0 0.75rem 0;
+            margin: 0 0 0.3rem 0;
             line-height: 1.4;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .user-info-box {
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
             background: rgba(255, 255, 255, 0.3);
             border-radius: 8px;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             border-left: 3px solid white;
         }
 
@@ -1347,7 +1347,7 @@
                         BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                     </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0;">
+                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.2rem auto 0;">
                             <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
                         </div>
                     {% endif %}
