@@ -4,19 +4,37 @@
 
 **29 octobre 2025 - Correction du bug de suppression avec caractères spéciaux**
 
-### Bug Fix : Impossible de supprimer des utilisateurs avec apostrophes, guillemets ou astérisques dans le nom
+### Bug Fix : Impossible de supprimer/modifier des utilisateurs avec apostrophes, guillemets ou astérisques
 **Problème rapporté** : Les étudiants, professeurs, administrateurs, universités, UFRs, filières et matières dont les noms contiennent des caractères spéciaux comme **'** (apostrophe), **"** (guillemets) ou ***** (astérisque) ne pouvaient pas être supprimés ou modifiés via l'interface admin.
 
-**Cause identifiée** : 
-- Les attributs `onclick` des boutons passaient les noms directement dans du JavaScript
-- Exemple : `onclick="deleteEtudiant('username', 'John O'Brien')"` → L'apostrophe dans "O'Brien" cassait le code JavaScript
-- Risque de sécurité : Injection JavaScript possible avec des noms malveillants
+**Cause initiale** : 
+- Les attributs `onclick` passaient les noms directement dans du JavaScript
+- Exemple : `onclick="deleteEtudiant('username', 'John O'Brien')"` → L'apostrophe dans "O'Brien" cassait le code
+- Risque de sécurité : Injection JavaScript possible
 
-**Solution appliquée** :
-- Remplacement de tous les guillemets simples par le filtre Jinja2 `|tojson`
-- Avant : `onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')"` ❌
-- Après : `onclick="deleteProf({{ prof.username|tojson }}, {{ (prof.prenom ~ ' ' ~ prof.nom)|tojson }})"` ✅
-- Le filtre `|tojson` échappe automatiquement tous les caractères dangereux
+**Première correction (CASSÉE)** :
+- Ajout du filtre `|tojson` : `onclick="deleteProf({{ prof.username|tojson }}, ...)"`
+- **Problème** : Conflit de guillemets doubles → `onclick="func("param")"` ❌
+- Résultat : TOUS les boutons de suppression ont arrêté de fonctionner
+
+**Solution finale (FONCTIONNE)** :
+1. **Changement des guillemets onclick** : `onclick="..."` → `onclick='...'`
+2. **Utilisation de |tojson** pour échapper les paramètres
+3. **Correction des booléens** : `{{ "true" }}` → `{{ value|tojson|lower }}`
+
+**Exemple de code corrigé** :
+```html
+<!-- Avant (cassé avec apostrophe) -->
+<button onclick="deleteProf('{{ username }}', 'John O'Brien')">
+
+<!-- Première tentative (conflit guillemets) -->
+<button onclick="deleteProf({{ username|tojson }}, {{ name|tojson }})">
+Génère : onclick="deleteProf("user1", "John O'Brien")" ❌
+
+<!-- Solution finale (fonctionne) -->
+<button onclick='deleteProf({{ username|tojson }}, {{ name|tojson }})'>
+Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
+```
 
 **Fonctions corrigées** (13 au total) :
 1. `deleteEtudiant` - Suppression d'étudiant
@@ -28,13 +46,13 @@
 7. `editMatiere`, `deleteMatiere` - Gestion des matières
 
 **Fichiers modifiés** :
-- `templates/dashboard_admin.html` (13 corrections d'échappement)
+- `templates/dashboard_admin.html` (13 corrections onclick avec apostrophes simples + |tojson)
 
 **Impact** :
-- ✅ Tous les noms avec caractères spéciaux (O'Brien, D'Angelo, L'Hôpital, etc.) peuvent être supprimés/modifiés
+- ✅ Tous les boutons de suppression/modification fonctionnent à nouveau
+- ✅ Noms avec caractères spéciaux supportés (O'Brien, D'Angelo, L'Hôpital, etc.)
 - ✅ Protection contre l'injection JavaScript
-- ✅ Code plus sécurisé et conforme aux bonnes pratiques Jinja2
-- ✅ Pas de régression fonctionnelle
+- ✅ Code sécurisé et conforme aux bonnes pratiques Jinja2
 
 ---
 
