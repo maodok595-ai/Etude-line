@@ -27,6 +27,7 @@
    - Padding section : 2rem → 1rem (haut/bas réduit de 50%)
    - Marge titre : 1.5rem → 0.75rem (réduite de 50%)
    - Taille logo : 110px → 90px (réduite de 18%)
+   - Espace logo-informations : 0.75rem → 0.25rem (réduit de 67%)
    - Espacement général optimisé pour une section plus compacte
 
 **Fichiers modifiés** :
