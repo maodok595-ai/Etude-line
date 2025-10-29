@@ -1434,15 +1434,6 @@ async def create_chapitre_complet(
     # Récupérer tous les fichiers uploadés via le formulaire
     form_data = await request.form()
     
-    # Vérifier s'il y a des filières multiples sélectionnées
-    filiere_ids_multi = form_data.getlist("filiere_ids_multi")
-    
-    # Si création multi-filières, utiliser ces IDs plutôt que le filiere_id unique
-    if filiere_ids_multi and len(filiere_ids_multi) > 0:
-        target_filieres = filiere_ids_multi
-    else:
-        target_filieres = [filiere_id]
-    
     # Collecter les fichiers pour chaque section
     cours_files = []
     exercice_files = []
@@ -1469,6 +1460,21 @@ async def create_chapitre_complet(
     
     if errors:
         error_msg = " | ".join(errors)
+        if is_ajax:
+            return {"success": False, "message": error_msg}
+        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
+    
+    # Check if chapter already exists for this context in PostgreSQL
+    existing = db.query(ChapitreCompletDB).filter_by(
+        filiere_id=filiere_id,
+        matiere_id=matiere_id,
+        niveau=niveau,
+        semestre=semestre,
+        chapitre=chapitre
+    ).first()
+    
+    if existing:
+        error_msg = "Ce chapitre existe déjà pour ce niveau/semestre/matière"
         if is_ajax:
             return {"success": False, "message": error_msg}
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
@@ -1509,140 +1515,89 @@ async def create_chapitre_complet(
         return "|||".join(file_names), "|||".join(file_paths)
     
     try:
-        # Save files once for all filières
+        # Save files
         cours_nom, cours_path = await save_files(cours_files, "cours")
         exercice_nom, exercice_path = await save_files(exercice_files, "exercices")
         solution_nom, solution_path = await save_files(solution_files, "solutions")
         
-        # Compteurs pour le message de résultat
-        created_count = 0
-        skipped_count = 0
-        total_notifications = 0
+        # Create complete chapter in PostgreSQL
+        nouveau_chapitre = ChapitreCompletDB(
+            universite_id=universite_id,
+            ufr_id=ufr_id,
+            filiere_id=filiere_id,
+            matiere_id=matiere_id,
+            niveau=niveau,
+            semestre=semestre,
+            chapitre=chapitre,
+            titre=titre,
+            # Cours
+            cours_texte=cours_texte,
+            cours_fichier_nom=cours_nom,
+            cours_fichier_path=cours_path,
+            # Exercices
+            exercice_texte=exercice_texte,
+            exercice_fichier_nom=exercice_nom,
+            exercice_fichier_path=exercice_path,
+            # Solutions
+            solution_texte=solution_texte,
+            solution_fichier_nom=solution_nom,
+            solution_fichier_path=solution_path,
+            created_by=prof_username
+        )
         
-        # Créer le chapitre pour chaque filière cible
-        for target_filiere_id in target_filieres:
-            # Récupérer la matière_id pour cette filière
-            # Si mode multi-filières, on doit trouver la matière correspondante dans cette filière
-            target_matiere_id = matiere_id
+        db.add(nouveau_chapitre)
+        db.commit()
+        db.refresh(nouveau_chapitre)
+        
+        # Créer des notifications pour tous les étudiants de la filière
+        try:
+            # Récupérer les informations nécessaires
+            matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
+            filiere = db.query(FiliereDB).filter_by(id=filiere_id).first()
             
-            if len(target_filieres) > 1:
-                # Mode multi-filières : trouver la matière avec le même nom dans cette filière
-                matiere_reference = db.query(MatiereDB).filter_by(id=matiere_id).first()
-                if matiere_reference:
-                    matiere_dans_filiere = db.query(MatiereDB).filter(
-                        MatiereDB.filiere_id == target_filiere_id,
-                        MatiereDB.nom == matiere_reference.nom,
-                        MatiereDB.niveau == niveau,
-                        MatiereDB.semestre == semestre
-                    ).first()
-                    if matiere_dans_filiere:
-                        target_matiere_id = matiere_dans_filiere.id
-                    else:
-                        # Cette filière n'a pas cette matière, skip
-                        skipped_count += 1
-                        continue
+            matiere_nom = matiere.nom if matiere else "Matière"
+            filiere_nom = filiere.nom if filiere else "Filière"
             
-            # Vérifier si le chapitre existe déjà pour cette filière
-            existing = db.query(ChapitreCompletDB).filter_by(
-                filiere_id=target_filiere_id,
-                matiere_id=target_matiere_id,
-                niveau=niveau,
-                semestre=semestre,
-                chapitre=chapitre
-            ).first()
+            # Récupérer tous les étudiants de cette filière qui peuvent voir ce chapitre
+            # Selon le système hiérarchique : les étudiants d'un niveau peuvent voir les chapitres de leur niveau et inférieurs
+            # Donc si on crée un chapitre L1, tous les étudiants (L1, L2, L3, M1, M2) doivent recevoir une notification
+            level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+            chapter_level_value = level_hierarchy.get(niveau, 0)
             
-            if existing:
-                skipped_count += 1
-                continue
+            # Récupérer tous les étudiants de la filière dont le niveau >= niveau du chapitre
+            eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
             
-            # Create complete chapter in PostgreSQL
-            nouveau_chapitre = ChapitreCompletDB(
-                universite_id=universite_id,
-                ufr_id=ufr_id,
-                filiere_id=target_filiere_id,
-                matiere_id=target_matiere_id,
-                niveau=niveau,
-                semestre=semestre,
-                chapitre=chapitre,
-                titre=titre,
-                # Cours
-                cours_texte=cours_texte,
-                cours_fichier_nom=cours_nom,
-                cours_fichier_path=cours_path,
-                # Exercices
-                exercice_texte=exercice_texte,
-                exercice_fichier_nom=exercice_nom,
-                exercice_fichier_path=exercice_path,
-                # Solutions
-                solution_texte=solution_texte,
-                solution_fichier_nom=solution_nom,
-                solution_fichier_path=solution_path,
-                created_by=prof_username
-            )
+            etudiants = db.query(EtudiantDB).filter(
+                EtudiantDB.filiere_id == filiere_id,
+                EtudiantDB.niveau.in_(eligible_levels)
+            ).all()
             
-            db.add(nouveau_chapitre)
+            # Créer une notification pour chaque étudiant
+            for etudiant in etudiants:
+                notification = NotificationDB(
+                    type='nouveau_chapitre',
+                    message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre})",
+                    destinataire_type='etudiant',
+                    destinataire_id=etudiant.id,
+                    lien=f"/dashboard/etudiant",
+                    chapitre_id=nouveau_chapitre.id,
+                    universite_id=universite_id
+                )
+                db.add(notification)
+            
             db.commit()
-            db.refresh(nouveau_chapitre)
-            created_count += 1
-            
-            # Créer des notifications pour tous les étudiants de cette filière
-            try:
-                # Récupérer les informations nécessaires
-                matiere = db.query(MatiereDB).filter_by(id=target_matiere_id).first()
-                filiere = db.query(FiliereDB).filter_by(id=target_filiere_id).first()
-                
-                matiere_nom = matiere.nom if matiere else "Matière"
-                filiere_nom = filiere.nom if filiere else "Filière"
-                
-                # Récupérer tous les étudiants de cette filière qui peuvent voir ce chapitre
-                level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
-                chapter_level_value = level_hierarchy.get(niveau, 0)
-                
-                # Récupérer tous les étudiants de la filière dont le niveau >= niveau du chapitre
-                eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
-                
-                etudiants = db.query(EtudiantDB).filter(
-                    EtudiantDB.filiere_id == target_filiere_id,
-                    EtudiantDB.niveau.in_(eligible_levels)
-                ).all()
-                
-                # Créer une notification pour chaque étudiant
-                for etudiant in etudiants:
-                    notification = NotificationDB(
-                        type='nouveau_chapitre',
-                        message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre})",
-                        destinataire_type='etudiant',
-                        destinataire_id=etudiant.id,
-                        lien=f"/dashboard/etudiant",
-                        chapitre_id=nouveau_chapitre.id,
-                        universite_id=universite_id
-                    )
-                    db.add(notification)
-                
-                db.commit()
-                total_notifications += len(etudiants)
-            except Exception as e:
-                # Ne pas bloquer la création du chapitre si les notifications échouent
-                print(f"⚠️ Erreur lors de la création des notifications: {e}")
-        
-        # Préparer le message de résultat
-        message_parts = []
-        if created_count > 0:
-            message_parts.append(f"✅ {created_count} chapitre(s) créé(s)")
-        if skipped_count > 0:
-            message_parts.append(f"⚠️ {skipped_count} déjà existant(s)")
-        if total_notifications > 0:
-            message_parts.append(f"📬 {total_notifications} notification(s) envoyée(s)")
-        
-        result_message = " | ".join(message_parts) if message_parts else "Chapitre complet créé avec succès"
+            print(f"✅ {len(etudiants)} notifications créées pour le nouveau chapitre {chapitre}")
+        except Exception as e:
+            # Ne pas bloquer la création du chapitre si les notifications échouent
+            print(f"⚠️ Erreur lors de la création des notifications: {e}")
         
         # Vérifier si c'est une requête AJAX
         is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
         
         if is_ajax:
-            return {"success": True if created_count > 0 else False, "message": result_message}
+            return {"success": True, "message": "Chapitre complet créé avec succès"}
         else:
-            return RedirectResponse(url=f"/dashboard/prof?success={result_message}", status_code=303)
+            return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=303)
         
     except Exception as e:
         db.rollback()
@@ -4060,47 +4015,6 @@ async def get_prof_filieres_api(ufr_id: str, request: Request, db: Session = Dep
             } for filiere in filieres_assigned
         ]
     }
-
-
-@app.get("/api/filieres-by-matiere")
-async def get_filieres_by_matiere(
-    matiere_nom: str,
-    niveau: str,
-    semestre: str,
-    db: Session = Depends(get_db)
-):
-    """Get all filières that have a matière with the same name, niveau, and semestre"""
-    try:
-        # Récupérer toutes les matières avec le même nom, niveau et semestre
-        matieres = db.query(MatiereDB).filter(
-            MatiereDB.nom == matiere_nom,
-            MatiereDB.niveau == niveau,
-            MatiereDB.semestre == semestre
-        ).all()
-        
-        # Récupérer les filières et UFR correspondantes
-        filieres_data = []
-        seen_filiere_ids = set()
-        
-        for matiere in matieres:
-            if matiere.filiere_id not in seen_filiere_ids:
-                filiere = db.query(FiliereDB).filter(FiliereDB.id == matiere.filiere_id).first()
-                if filiere:
-                    ufr = db.query(UFRDB).filter(UFRDB.id == filiere.ufr_id).first()
-                    filieres_data.append({
-                        "id": filiere.id,
-                        "nom": filiere.nom,
-                        "code": filiere.code,
-                        "ufr_nom": ufr.nom if ufr else "",
-                        "matiere_id": matiere.id
-                    })
-                    seen_filiere_ids.add(matiere.filiere_id)
-        
-        return {"filieres": filieres_data}
-        
-    except Exception as e:
-        return {"filieres": [], "error": str(e)}
-
 
 # APIs pour l'administration - récupérer toutes les données
 @app.get("/api/universites")
