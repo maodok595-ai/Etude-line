@@ -599,23 +599,11 @@
             width: 110px;
             height: 110px;
             object-fit: contain;
-            margin: 0.75rem auto 1rem;
             display: block;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
             background: white;
             padding: 0.8rem;
-            border: 4px solid rgba(139, 92, 246, 0.3);
-            position: relative;
-        }
-        
-        .university-logo::before {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
-            border-radius: 16px;
-            z-index: -1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .university-name {
@@ -1345,7 +1333,9 @@
                         BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                     </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
+                        <div style="display: inline-block; padding: 12px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2)); border-radius: 20px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.75rem auto 1rem;">
+                            <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
+                        </div>
                     {% endif %}
                     <div class="user-info-box">
                         <p><strong>Prénom et nom :</strong> {{ admin.prenom|upper }} {{ admin.nom|upper }}</p>
