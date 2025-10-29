@@ -56,7 +56,7 @@
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 3px solid #7C3AED;
+            border-bottom: 1px solid var(--border);
             color: var(--text-primary);
             padding: 1.5rem 2rem;
             display: flex;
@@ -72,8 +72,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #7C3AED, transparent);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
         }
         
         .navbar h1 {
@@ -1181,7 +1181,7 @@
 </head>
 <body{% if not admin.get('is_main_admin') %} class="admin-secondaire"{% endif %}>
     <nav class="navbar">
-        <h1>🎓 Étude LINE - <span style="color: #7C3AED;">Administration</span></h1>
+        <h1>🎓 Étude LINE - Administration</h1>
         <div class="user-info">
             <a href="/logout" style="color: #8b5cf6; font-weight: 600;">Déconnexion</a>
         </div>
