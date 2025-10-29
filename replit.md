@@ -280,37 +280,47 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Correction débordement du niveau lors de l'ouverture d'un chapitre (mobile)**
+**29 octobre 2025 - Correction débordement des sections Cours/Exercices/Solutions (mobile)**
 
-### Correction bug critique : Le bloc niveau déborde quand on ouvre un chapitre
-**Problème rapporté** : Lorsqu'on ouvre un chapitre sur mobile, le bloc niveau (L1, L2, L3, M1, M2) s'élargit et crée un débordement horizontal.
+### Correction bug critique : Débordement quand on ouvre Cours, Exercices ou Solutions
+**Problème rapporté** : Lorsqu'on ouvre les sections **Cours**, **Exercices** ou **Solutions** sur mobile, le bloc niveau/semestre/chapitre s'élargit et crée un débordement horizontal.
 
 **Cause identifiée** :
-- Quand on clique sur un chapitre, son contenu (cours, exercices, solutions) s'affiche
-- Le contenu du chapitre contient des éléments qui ne respectaient pas la largeur maximale
-- Sans contraintes strictes, ces éléments forcent le conteneur parent (`.niveau-card`) à s'élargir
-- Effet cascade : niveau → matière → semestre → chapitre → contenu déborde
+- Quand on clique sur "📚 Cours", "✏️ Exercices" ou "✅ Solutions", le contenu s'affiche
+- Les divs de ces sections avaient des styles inline incomplets : `min-width: 0` et `overflow-wrap: break-word` mais **manquaient** `width: 100%; max-width: 100%; overflow: hidden;`
+- Les noms de fichiers longs (dans `.file-info`) ne se coupaient pas correctement
+- Sans ces contraintes, le contenu force les parents (niveau → matière → semestre → chapitre) à s'élargir
+- Effet cascade créant un débordement horizontal
 
 **Solution implémentée** :
-✅ **Contrainte stricte sur `.niveau-card`** (desktop + mobile) :
+✅ **Contraintes strictes sur le conteneur principal** :
 - `width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;`
-- Empêche la carte niveau de dépasser la largeur de l'écran
+- Appliqué au div flex qui contient Cours + Exercices + Solutions
 
-✅ **Règle universelle sur TOUS les enfants** :
-- `.niveau-card * { max-width: 100%; box-sizing: border-box; }`
-- Force TOUS les éléments à l'intérieur à respecter la largeur max
+✅ **Contraintes sur chaque section** (Cours, Exercices, Solutions) :
+- `width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;`
+- Empêche chaque bloc coloré de déborder
 
-✅ **Contraintes spécifiques mobile** (@media max-width: 600px) :
-- `.matiere-section` : `width: 100%; max-width: 100%; overflow: hidden;`
-- `.semestre-section` : `width: 100%; max-width: 100%; overflow: hidden;`
-- Triple protection : niveau → matière → semestre
+✅ **Contraintes sur le contenu de chaque section** :
+- `width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto;`
+- Appliqué aux divs `#content-cours-*`, `#content-exercices-*`, `#content-solutions-*`
+- Scroll horizontal si contenu vraiment trop large (au lieu de débordement)
+
+✅ **Protection des noms de fichiers** :
+- `.file-info` : `width: 100%; max-width: 100%; overflow: hidden;`
+- Noms de fichiers : `word-wrap: break-word; overflow-wrap: break-word;`
+- Coupe les noms longs proprement sur plusieurs lignes
+
+✅ **Contraintes hiérarchiques** (déjà en place) :
+- `.niveau-card` : Contraintes strictes
+- `.matiere-section`, `.semestre-section` : Contraintes strictes sur mobile
 
 **Impact** :
-- 📱 **Plus de débordement** quand on ouvre un chapitre sur mobile
-- 🔒 **Contraintes strictes** sur toute la hiérarchie (niveau → matière → semestre → chapitre)
-- 📦 **Contenu confiné** : cours, exercices, solutions restent dans les limites
-- 🎯 **Cascade bloquée** : aucun élément enfant ne peut forcer le parent à déborder
-- 💯 **Affichage mobile parfait** en toutes circonstances
+- 📱 **Plus aucun débordement** quand on ouvre Cours, Exercices ou Solutions
+- 📝 **Noms de fichiers longs** se coupent sur plusieurs lignes
+- 🔒 **Cascade bloquée** : chaque niveau de la hiérarchie est contraint
+- 📦 **Contenu confiné** : si vraiment trop large, scroll horizontal interne (pas global)
+- 💯 **Affichage mobile parfait** pour toutes les sections
 
 **Fichier modifié** : `templates/dashboard_prof.html`
 

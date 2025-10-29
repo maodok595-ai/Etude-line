@@ -1903,22 +1903,22 @@
                                                     <!-- Contenu du chapitre (masqué par défaut) -->
                                                     <div class="chapitre-content-new" id="chapitre-{{ chapitre.id }}" style="display: none;">
                                                         <!-- Affichage des 3 sections -->
-                            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; width: 100%; box-sizing: border-box;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;">
                                 <!-- Cours -->
-                                <div style="background: #f1f8e9; padding: 1rem; border-radius: 8px; border: 1px solid #c8e6c9; min-width: 0; overflow-wrap: break-word;">
+                                <div style="background: #f1f8e9; padding: 1rem; border-radius: 8px; border: 1px solid #c8e6c9; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word; overflow: hidden;">
                                     <h5 onclick="toggleSection('cours-{{ chapitre.id }}')" style="color: #2e7d32; margin-bottom: 0.5rem; cursor: pointer;">
                                         <span id="arrow-cours-{{ chapitre.id }}" style="color: #666;">▸</span> 📚 Cours
                                     </h5>
-                                    <div id="content-cours-{{ chapitre.id }}" style="display: none;">
+                                    <div id="content-cours-{{ chapitre.id }}" style="display: none; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto;">
                                     {% if chapitre.cours_fichier_nom %}
                                         {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
                                         {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
-                                        <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem;">
+                                        <div class="file-info" style="margin-bottom: 0.5rem; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
-                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
                                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
                                                    style="background: #4caf50; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     👁️ Lire
@@ -1939,20 +1939,20 @@
                                 </div>
                                 
                                 <!-- Exercices -->
-                                <div style="background: #fffde7; padding: 1rem; border-radius: 8px; border: 1px solid #fff176; min-width: 0; overflow-wrap: break-word;">
+                                <div style="background: #fffde7; padding: 1rem; border-radius: 8px; border: 1px solid #fff176; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word; overflow: hidden;">
                                     <h5 onclick="toggleSection('exercices-{{ chapitre.id }}')" style="color: #f57c00; margin-bottom: 0.5rem; cursor: pointer;">
                                         <span id="arrow-exercices-{{ chapitre.id }}" style="color: #666;">▸</span> ✏️ Exercices
                                     </h5>
-                                    <div id="content-exercices-{{ chapitre.id }}" style="display: none;">
+                                    <div id="content-exercices-{{ chapitre.id }}" style="display: none; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto;">
                                     {% if chapitre.exercice_fichier_nom %}
                                         {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
                                         {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
-                                        <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem;">
+                                        <div class="file-info" style="margin-bottom: 0.5rem; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
-                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
                                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
                                                    style="background: #ff9800; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     👁️ Lire
@@ -1973,20 +1973,20 @@
                                 </div>
                                 
                                 <!-- Solutions -->
-                                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; border: 1px solid #90caf9; min-width: 0; overflow-wrap: break-word;">
+                                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; border: 1px solid #90caf9; min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box; overflow-wrap: break-word; overflow: hidden;">
                                     <h5 onclick="toggleSection('solutions-{{ chapitre.id }}')" style="color: #1976d2; margin-bottom: 0.5rem; cursor: pointer;">
                                         <span id="arrow-solutions-{{ chapitre.id }}" style="color: #666;">▸</span> ✅ Solutions
                                     </h5>
-                                    <div id="content-solutions-{{ chapitre.id }}" style="display: none;">
+                                    <div id="content-solutions-{{ chapitre.id }}" style="display: none; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto;">
                                     {% if chapitre.solution_fichier_nom %}
                                         {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
                                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                                         {% for i in range(fichier_noms|length) %}
-                                        <div class="file-info" style="margin-bottom: 0.5rem;">
-                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem;">
+                                        <div class="file-info" style="margin-bottom: 0.5rem; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;">
+                                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 0.5rem; word-wrap: break-word; overflow-wrap: break-word;">
                                                 📎 {{ fichier_noms[i] }}
                                             </div>
-                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; width: 100%; max-width: 100%;">
                                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
                                                    style="background: #2196f3; color: white; padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.3rem;">
                                                     👁️ Lire
