@@ -575,71 +575,68 @@
             margin: 0.3rem 0;
         }
         
-        /* Styles pour le logo et nom de l'université (admin secondaire) - Style comme image */
+        /* Styles pour le logo et nom de l'université (admin secondaire) - Coloration violette */
         .university-welcome {
             text-align: center;
-            background: white;
-            padding: 0;
+            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+            padding: 1.5rem 1rem 1rem;
             margin: 0;
-            border-radius: 12px;
+            border-radius: 0;
             position: relative;
-            overflow: hidden;
+            border-bottom: 3px solid #9C27B0;
         }
         
         .university-welcome::after {
-            display: none;
-        }
-
-        .university-name-header {
-            background: transparent;
-            padding: 1.5rem 1.5rem 0.5rem;
-            margin: 0;
-            border-radius: 0;
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #9C27B0, #7B1FA2, #9C27B0);
         }
 
         .university-logo {
-            width: 120px;
-            height: 120px;
+            width: 90px;
+            height: 90px;
             object-fit: contain;
             display: block;
             border-radius: 12px;
             background: white;
-            padding: 0.8rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            margin: 1rem auto;
+            padding: 0.6rem;
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
         }
 
         .university-name {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1a1a1a;
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0;
+            margin: 0 0 0.75rem 0;
             line-height: 1.4;
         }
 
         .user-info-box {
-            padding: 2rem 1.5rem;
-            background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
-            border-radius: 12px;
-            margin: 1rem 0 0 0;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 3px solid #9C27B0;
         }
 
         .user-info-box p {
-            margin-bottom: 0.8rem;
-            color: #1a1a1a;
-            font-size: 1rem;
-            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-size: 0.9rem;
         }
 
         .user-info-box p:last-child {
             margin-bottom: 0;
-        }
-        
-        .user-info-box strong {
-            font-weight: 600;
         }
         
         /* Statistiques - Affichage Desktop Full Width */
@@ -1168,9 +1165,21 @@
                 height: 90px;
             }
         }
+        
+        /* Style pour la page complète de l'administrateur secondaire */
+        body.admin-secondaire {
+            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 50%, #f3e8ff 100%) !important;
+        }
+        
+        body.admin-secondaire .container {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body>
+<body{% if not admin.get('is_main_admin') %} class="admin-secondaire"{% endif %}>
     <nav class="navbar">
         <h1>🎓 Étude LINE - Administration</h1>
         <div class="user-info">
@@ -1333,21 +1342,16 @@
                 <h2>Bienvenue, {{ admin.prenom|upper }} {{ admin.nom|upper }}</h2>
                 <p><strong>Rôle:</strong> Administrateur Principal</p>
             {% else %}
-                <!-- Admin Secondaire : Style comme image -->
+                <!-- Admin Secondaire : Logo + Nom université -->
                 <div class="university-welcome">
-                    <!-- Bannière violette du haut -->
-                    <div class="university-name-header">
-                        <h2 class="university-name">
-                            BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
-                        </h2>
-                    </div>
-                    
-                    <!-- Logo au centre -->
+                    <h2 class="university-name">
+                        BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
+                    </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
+                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0;">
+                            <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
+                        </div>
                     {% endif %}
-                    
-                    <!-- Bannière violette du bas avec infos -->
                     <div class="user-info-box">
                         <p><strong>Prénom et nom :</strong> {{ admin.prenom|upper }} {{ admin.nom|upper }}</p>
                         <p><strong>Rôle :</strong> Administrateur de l'{{ admin_universite.nom if admin_universite else "Université inconnue" }}</p>

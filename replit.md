@@ -280,50 +280,45 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Section d'accueil avec blocs violets pleins (style bannière)**
+**29 octobre 2025 - Thème violet intégral pour toute la page administrateur secondaire**
 
-### Amélioration visuelle : Section d'information avec bannières violettes pour admin secondaire
-**Demande utilisateur** : La page d'information de l'administrateur secondaire doit ressembler à une capture d'écran fournie avec des blocs violets pleins.
+### Amélioration visuelle majeure : Page complète en violet pour l'administrateur secondaire
+**Demande utilisateur** : Toute la page (fond + conteneur + éléments) de l'administrateur secondaire doit être en violet.
 
-**Design final implémenté** (selon maquette) :
+**Solution implémentée** :
+- 🟣 **Fond de page complet** : Dégradé violet (#f3e8ff → #ede9fe → #f3e8ff) appliqué à tout le body
+- 🟣 **Conteneur semi-transparent** : Effet glassmorphism avec fond blanc translucide et flou
+- 🟣 **Classe dynamique** : `body.admin-secondaire` appliquée automatiquement pour les admin secondaires
 
-**Structure en 3 blocs** :
-1. 🟣 **Bannière violette supérieure** :
-   - Fond : Dégradé violet plein (#7C3AED → #6366F1)
-   - Texte : "BIENVENUE A L'UNIVERSITÉ..." en **noir**, gras, majuscules
-   - Padding généreux pour un effet de bannière
+**Tous les éléments dans la page** :
 
-2. 🏛️ **Logo universitaire au centre** :
-   - Fond blanc avec ombre portée
-   - Taille : 120x120px
-   - Marges : **1rem** en haut et en bas (réduit pour compacité)
-   - Centre parfait sur fond blanc
+**Section d'accueil** :
+- ✅ Fond d'accueil : Dégradé violet clair
+- ✅ Bordure de section : Violet (#9C27B0) avec dégradé
+- ✅ Nom de l'université : Dégradé de texte violet
+- ✅ Cadre du logo : Ombre violette et fond violet translucide
+- ✅ Boîte d'informations utilisateur : Fond violet léger avec bordure gauche violette
 
-3. 🟣 **Bannière violette inférieure** :
-   - Fond : Dégradé violet plein (même que bannière supérieure)
-   - Texte **noir** : Prénom/nom et rôle de l'administrateur
-   - Padding généreux
-   - Marge : **1rem** en haut (réduit)
-   - Border-radius pour coins arrondis
-
-**Autres éléments violets** :
-- ✅ Bouton "Téléchargements" : Violet #9C27B0
-- ✅ Bouton "Passage classe sup." : Violet #9C27B0
+**Contrôles et fonctionnalités** :
+- ✅ Nom de l'université : Texte violet
+- ✅ Bouton "Téléchargements" : Dégradé violet
+- ✅ Bouton "Passage classe sup." : Dégradé violet
 - ✅ Titre "Statistiques universitaires" : Violet #9C27B0
-- ✅ Message d'information admin secondaire : Fond violet clair
-- ✅ Bouton "Ajouter un logo" : Violet #9C27B0
 
-**Ajustements finaux** :
-- ✅ Distance entre blocs et logo réduite (2rem → 1rem)
-- ✅ Texte en noir (#1a1a1a) sur fond violet pour correspondre exactement à la maquette
-- ✅ Design compact et professionnel
+**Onglet Universités** :
+- ✅ Message d'information : Fond violet clair avec bordure violette
+- ✅ Bouton "Ajouter un logo" (📸) : Violet #9C27B0
 
 **Impact visuel** :
-- 🎨 **Design moderne et professionnel** : Blocs violets pleins avec texte noir
-- 🏛️ **Mise en valeur du logo** : Logo universitaire bien centré avec espacement optimisé
-- 📱 **Lisibilité optimale** : Texte noir sur fond violet pour un excellent contraste
-- 🎯 **Identité universitaire forte** : Chaque admin secondaire voit le nom et logo de son université
-- ✨ **Disposition compacte** : Espacement réduit pour une meilleure utilisation de l'espace
+- 🎨 **Immersion totale** : Toute la page baigne dans une atmosphère violette
+- 🏛️ **Distinction forte** : Admin principal (gris) vs Admin secondaire (violet)
+- ✨ **Effet glassmorphism** : Design moderne avec transparence et flou
+- 🎯 **Cohérence parfaite** : Identité visuelle 100% unifiée
+
+**Technique** :
+- Classe conditionnelle `admin-secondaire` ajoutée au `<body>` selon le type d'administrateur
+- Fond de page en dégradé violet avec !important pour override
+- Conteneur avec `backdrop-filter: blur(10px)` pour effet de profondeur
 
 **Fichier modifié** : `templates/dashboard_admin.html`
 
