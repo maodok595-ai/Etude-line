@@ -583,7 +583,7 @@
             margin: 0;
             border-radius: 0;
             position: relative;
-            border-bottom: 3px solid #9C27B0;
+            border-bottom: 3px solid #8b5cf6;
         }
         
         .university-welcome::after {
@@ -593,7 +593,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #9C27B0, #7B1FA2, #9C27B0);
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed, #8b5cf6);
         }
 
         .university-logo {
@@ -604,14 +604,14 @@
             border-radius: 12px;
             background: white;
             padding: 0.6rem;
-            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
 
         .university-name {
             font-family: 'Poppins', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -1386,7 +1386,7 @@
             <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
                 ⚙️ Contrôles des fonctionnalités
                 {% if not admin.get('is_main_admin') and admin_universite %}
-                    <span style="color: #9C27B0; font-weight: 500;">({{ admin_universite.nom }})</span>
+                    <span style="color: #8b5cf6; font-weight: 500;">({{ admin_universite.nom }})</span>
                 {% endif %}
             </h3>
             
@@ -1408,13 +1408,13 @@
             
             <div id="controls-container" style="display: {% if admin.get('is_main_admin') %}none{% else %}flex{% endif %}; gap: 1rem; flex-wrap: wrap;">
                 <!-- Bouton contrôle téléchargements -->
-                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
+                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
                     <span id="download-icon">📥</span> Téléchargements
                     <span id="download-status">: Chargement...</span>
                 </button>
                 
                 <!-- Bouton contrôle passage en classe supérieure -->
-                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
+                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
                     <span id="passage-icon">🎓</span> Passage classe sup.
                     <span id="passage-status">: Chargement...</span>
                 </button>
@@ -1422,7 +1422,7 @@
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
-        <h3 style="margin: 1.5rem 0 1rem 0; color: #9C27B0; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
+        <h3 style="margin: 1.5rem 0 1rem 0; color: #8b5cf6; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
         <div class="stats-horizontal-container" id="stats-container">
             <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
@@ -1908,11 +1908,11 @@
                                                                 {% elif niveau == 'M2' %}#4a148c
                                                                 {% endif %}; 
                                                                 font-size: 0.85rem; border-left: 4px solid 
-                                                                {% if niveau == 'L1' %}#9C27B0
-                                                                {% elif niveau == 'L2' %}#8e24aa
-                                                                {% elif niveau == 'L3' %}#7b1fa2
-                                                                {% elif niveau == 'M1' %}#ab47bc
-                                                                {% elif niveau == 'M2' %}#9c27b0
+                                                                {% if niveau == 'L1' %}#8b5cf6
+                                                                {% elif niveau == 'L2' %}#8b5cf6
+                                                                {% elif niveau == 'L3' %}#8b5cf6
+                                                                {% elif niveau == 'M1' %}#8b5cf6
+                                                                {% elif niveau == 'M2' %}#8b5cf6
                                                                 {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                                 onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
                                                                 <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
@@ -1935,7 +1935,7 @@
                                                                         <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
                                                                             <div class="prof-details">@{{ etudiant.username }}</div>
                                                                             <div class="prof-meta" style="margin-top: 0.5rem;">
-                                                                                <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                                                                <span class="meta-tag" style="background: #f3e5f5; color: #7c3aed;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1975,8 +1975,8 @@
                     ➕ Créer une université
                 </button>
                 {% else %}
-                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #9C27B0; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                    <p style="margin: 0; color: #7B1FA2; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #8b5cf6; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; color: #7c3aed; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 1.2rem;">ℹ️</span>
                         <span>En tant qu'administrateur secondaire, vous ne pouvez pas créer de nouvelles universités. Cette action est réservée à l'administrateur principal.</span>
                     </p>
@@ -2014,7 +2014,7 @@
                                     <button class="btn-edit btn-small" onclick='editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})' title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #9C27B0; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #8b5cf6; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
                                         📸
                                     </button>
                                     <button class="btn-delete btn-small" onclick='deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})' title="Supprimer">
@@ -2315,11 +2315,11 @@
                                             {% if matieres_niveau|length > 0 %}
                                                 <div style="border-bottom: 1px solid #e0e0e0;">
                                                     <div style="background: linear-gradient(135deg, 
-                                                        {% if niveau == 'L1' %}#9C27B0, #BA68C8
-                                                        {% elif niveau == 'L2' %}#8e24aa, #ab47bc
-                                                        {% elif niveau == 'L3' %}#7b1fa2, #9c27b0
-                                                        {% elif niveau == 'M1' %}#ab47bc, #ba68c8
-                                                        {% elif niveau == 'M2' %}#9c27b0, #ab47bc
+                                                        {% if niveau == 'L1' %}#8b5cf6, #7c3aed
+                                                        {% elif niveau == 'L2' %}#8b5cf6, #7c3aed
+                                                        {% elif niveau == 'L3' %}#8b5cf6, #7c3aed
+                                                        {% elif niveau == 'M1' %}#8b5cf6, #7c3aed
+                                                        {% elif niveau == 'M2' %}#8b5cf6, #7c3aed
                                                         {% endif %}); 
                                                         padding: 0.5rem 1rem; font-weight: 600; color: white; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;"
                                                         onclick="toggleNiveauMatieres('{{ filiere.id }}_{{ niveau }}')">
