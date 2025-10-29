@@ -22,6 +22,14 @@ professeur_filieres = Table(
     Column('created_at', DateTime, default=datetime.utcnow)
 )
 
+chapitre_filieres = Table(
+    'chapitre_filieres',
+    Base.metadata,
+    Column('chapitre_id', Integer, ForeignKey('chapitres_complets.id', ondelete='CASCADE'), primary_key=True),
+    Column('filiere_id', String, ForeignKey('filieres.id', ondelete='CASCADE'), primary_key=True),
+    Column('created_at', DateTime, default=datetime.utcnow)
+)
+
 class Universite(Base):
     __tablename__ = "universites"
     
@@ -211,6 +219,9 @@ class ChapitreComplet(Base):
     matiere = relationship("Matiere", back_populates="chapitres")
     professeur = relationship("Professeur", back_populates="chapitres")
     commentaires = relationship("Commentaire", back_populates="chapitre", cascade="all, delete-orphan")
+    
+    # Relation many-to-many pour multi-filière
+    filieres_multiples = relationship("Filiere", secondary="chapitre_filieres", backref="chapitres_multiples")
 
 class Commentaire(Base):
     __tablename__ = "commentaires"

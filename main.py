@@ -1390,7 +1390,6 @@ async def create_chapitre_complet(
     prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
     universite_id: str = Form(...),
     ufr_id: str = Form(...),
-    filiere_id: str = Form(...),
     matiere_id: str = Form(...),
     niveau: str = Form(...),
     semestre: str = Form(...),
@@ -1404,7 +1403,7 @@ async def create_chapitre_complet(
     solution_texte: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    """Create a complete chapter with cours, exercice and solution"""
+    """Create a complete chapter with cours, exercice and solution - MULTI-FILIÈRE support"""
     prof_username, prof_user_data = prof_data
     
     # SECURITY: Verify professor can only create chapters in their assigned university
@@ -1413,6 +1412,29 @@ async def create_chapitre_complet(
     
     if prof_universite_id and universite_id != prof_universite_id:
         error_msg = "Vous ne pouvez créer des chapitres que dans votre université"
+        if is_ajax:
+            return {"success": False, "message": error_msg}
+        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
+    
+    # Récupérer les filières sélectionnées (multi-select)
+    form_data = await request.form()
+    filiere_ids = form_data.getlist('filiere_id')
+    
+    # Validation: au moins une filière doit être sélectionnée
+    if not filiere_ids or len(filiere_ids) == 0:
+        error_msg = "Veuillez sélectionner au moins une filière"
+        if is_ajax:
+            return {"success": False, "message": error_msg}
+        return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
+    
+    # Valider que toutes les filières appartiennent à l'UFR sélectionnée
+    valid_filieres = db.query(FiliereDB).filter(
+        FiliereDB.id.in_(filiere_ids),
+        FiliereDB.ufr_id == ufr_id
+    ).all()
+    
+    if len(valid_filieres) != len(filiere_ids):
+        error_msg = "Une ou plusieurs filières ne sont pas valides pour cette UFR"
         if is_ajax:
             return {"success": False, "message": error_msg}
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
@@ -1431,10 +1453,7 @@ async def create_chapitre_complet(
             return {"success": False, "message": error_msg}
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
-    # Récupérer tous les fichiers uploadés via le formulaire
-    form_data = await request.form()
-    
-    # Collecter les fichiers pour chaque section
+    # Collecter les fichiers pour chaque section (form_data déjà récupéré plus haut)
     cours_files = []
     exercice_files = []
     solution_files = []
@@ -1464,17 +1483,37 @@ async def create_chapitre_complet(
             return {"success": False, "message": error_msg}
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
-    # Check if chapter already exists for this context in PostgreSQL
-    existing = db.query(ChapitreCompletDB).filter_by(
-        filiere_id=filiere_id,
-        matiere_id=matiere_id,
-        niveau=niveau,
-        semestre=semestre,
-        chapitre=chapitre
-    ).first()
+    # Check if chapter already exists for ANY of the selected filières (optimisé avec une seule requête)
+    # Vérifier dans la table de liaison chapitre_filieres ET la colonne legacy filiere_id
+    # IMPORTANT : Filtrer par professeur pour permettre à plusieurs profs de créer le même chapitre
+    from sqlalchemy import text
+    existing_check = db.execute(text(
+        """
+        SELECT DISTINCT cf.filiere_id, cc.id
+        FROM chapitres_complets cc
+        LEFT JOIN chapitre_filieres cf ON cc.id = cf.chapitre_id
+        WHERE cc.created_by = :created_by
+          AND cc.matiere_id = :matiere_id
+          AND cc.niveau = :niveau
+          AND cc.semestre = :semestre
+          AND cc.chapitre = :chapitre
+          AND (cf.filiere_id IN :filiere_ids OR cc.filiere_id IN :filiere_ids_tuple)
+        """
+    ), {
+        "created_by": prof_username,
+        "matiere_id": matiere_id,
+        "niveau": niveau,
+        "semestre": semestre,
+        "chapitre": chapitre,
+        "filiere_ids": tuple(filiere_ids),
+        "filiere_ids_tuple": tuple(filiere_ids)
+    }).fetchall()
     
-    if existing:
-        error_msg = "Ce chapitre existe déjà pour ce niveau/semestre/matière"
+    if existing_check:
+        # Identifier les filières en conflit
+        conflicting_filieres = [row[0] for row in existing_check if row[0]]
+        filiere_noms = [f.nom for f in valid_filieres if f.id in conflicting_filieres]
+        error_msg = f"Vous avez déjà créé ce chapitre pour : {', '.join(filiere_noms)} (niveau {niveau}, {semestre})"
         if is_ajax:
             return {"success": False, "message": error_msg}
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
@@ -1521,10 +1560,11 @@ async def create_chapitre_complet(
         solution_nom, solution_path = await save_files(solution_files, "solutions")
         
         # Create complete chapter in PostgreSQL
+        # Utiliser la première filière comme filiere_id principal pour compatibilité
         nouveau_chapitre = ChapitreCompletDB(
             universite_id=universite_id,
             ufr_id=ufr_id,
-            filiere_id=filiere_id,
+            filiere_id=filiere_ids[0],  # Première filière sélectionnée
             matiere_id=matiere_id,
             niveau=niveau,
             semestre=semestre,
@@ -1546,29 +1586,37 @@ async def create_chapitre_complet(
         )
         
         db.add(nouveau_chapitre)
+        db.flush()  # Flush pour obtenir l'ID sans commit complet
+        
+        # Ajouter toutes les filières sélectionnées dans la table de liaison chapitre_filieres
+        from sqlalchemy import text
+        for filiere_id in filiere_ids:
+            db.execute(text(
+                "INSERT INTO chapitre_filieres (chapitre_id, filiere_id) VALUES (:chapitre_id, :filiere_id)"
+            ), {"chapitre_id": nouveau_chapitre.id, "filiere_id": filiere_id})
+        
         db.commit()
         db.refresh(nouveau_chapitre)
         
-        # Créer des notifications pour tous les étudiants de la filière
+        # Créer des notifications pour tous les étudiants de TOUTES les filières sélectionnées
         try:
             # Récupérer les informations nécessaires
             matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
-            filiere = db.query(FiliereDB).filter_by(id=filiere_id).first()
-            
             matiere_nom = matiere.nom if matiere else "Matière"
-            filiere_nom = filiere.nom if filiere else "Filière"
             
-            # Récupérer tous les étudiants de cette filière qui peuvent voir ce chapitre
-            # Selon le système hiérarchique : les étudiants d'un niveau peuvent voir les chapitres de leur niveau et inférieurs
-            # Donc si on crée un chapitre L1, tous les étudiants (L1, L2, L3, M1, M2) doivent recevoir une notification
+            # Récupérer les noms des filières pour le message
+            filieres_noms = [f.nom for f in valid_filieres]
+            filieres_text = ", ".join(filieres_noms) if len(filieres_noms) <= 3 else f"{len(filieres_noms)} filières"
+            
+            # Système hiérarchique : les étudiants d'un niveau peuvent voir les chapitres de leur niveau et inférieurs
             level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
             chapter_level_value = level_hierarchy.get(niveau, 0)
             
-            # Récupérer tous les étudiants de la filière dont le niveau >= niveau du chapitre
+            # Récupérer tous les étudiants de TOUTES les filières sélectionnées dont le niveau >= niveau du chapitre
             eligible_levels = [level for level, value in level_hierarchy.items() if value >= chapter_level_value]
             
             etudiants = db.query(EtudiantDB).filter(
-                EtudiantDB.filiere_id == filiere_id,
+                EtudiantDB.filiere_id.in_(filiere_ids),
                 EtudiantDB.niveau.in_(eligible_levels)
             ).all()
             
@@ -1576,7 +1624,7 @@ async def create_chapitre_complet(
             for etudiant in etudiants:
                 notification = NotificationDB(
                     type='nouveau_chapitre',
-                    message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre})",
+                    message=f"📚 Nouveau chapitre ajouté : {chapitre} - {titre} ({matiere_nom}, {niveau} {semestre}) - {filieres_text}",
                     destinataire_type='etudiant',
                     destinataire_id=etudiant.id,
                     lien=f"/dashboard/etudiant",
@@ -1586,7 +1634,7 @@ async def create_chapitre_complet(
                 db.add(notification)
             
             db.commit()
-            print(f"✅ {len(etudiants)} notifications créées pour le nouveau chapitre {chapitre}")
+            print(f"✅ {len(etudiants)} notifications créées pour le nouveau chapitre {chapitre} ({len(filiere_ids)} filières)")
         except Exception as e:
             # Ne pas bloquer la création du chapitre si les notifications échouent
             print(f"⚠️ Erreur lors de la création des notifications: {e}")
@@ -3824,6 +3872,7 @@ async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db
     # Filter chapters based on role
     if role == "etudiant":
         # Student: get chapters from their filière (only current level and below)
+        # Utilise la table de liaison chapitre_filieres pour le système multi-filière
         etudiant = db.query(EtudiantDB).filter_by(username=username).first()
         if not etudiant:
             return {"hierarchy": []}
@@ -3831,8 +3880,19 @@ async def get_chapitres_hierarchy(request: Request, db: Session = Depends(get_db
         # Get allowed levels (current level + all levels below)
         allowed_levels = get_allowed_levels(etudiant.niveau)
         
+        # Récupérer tous les chapitres associés à la filière de l'étudiant via la table de liaison
+        from sqlalchemy import text
+        chapitre_ids_result = db.execute(text(
+            "SELECT chapitre_id FROM chapitre_filieres WHERE filiere_id = :filiere_id"
+        ), {"filiere_id": etudiant.filiere_id}).fetchall()
+        
+        chapitre_ids = [row[0] for row in chapitre_ids_result]
+        
+        if not chapitre_ids:
+            return {"hierarchy": []}
+        
         chapitres = db.query(ChapitreCompletDB).filter(
-            ChapitreCompletDB.filiere_id == etudiant.filiere_id,
+            ChapitreCompletDB.id.in_(chapitre_ids),
             ChapitreCompletDB.niveau.in_(allowed_levels)
         ).all()
     elif role == "prof":

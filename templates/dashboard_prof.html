@@ -1722,14 +1722,17 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="filiere">Filière affectée</label>
+                            <label for="filiere">Filière(s) affectée(s) <span style="color: #888; font-size: 0.85em;">(sélection multiple possible)</span></label>
                             <input type="search" id="search-filiere-dropdown" 
                                    placeholder="🔍 Rechercher..." 
                                    oninput="filterDropdown('filiere', 'search-filiere-dropdown')"
                                    style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                            <select id="filiere" name="filiere_id" required disabled>
+                            <select id="filiere" name="filiere_id" multiple required disabled style="min-height: 120px; padding: 0.5rem;">
                                 <option value="">Sélectionner d'abord une UFR</option>
                             </select>
+                            <small style="color: #666; font-size: 0.8em; margin-top: 0.3rem; display: block;">
+                                💡 Maintenez Ctrl (Windows/Linux) ou Cmd (Mac) pour sélectionner plusieurs filières
+                            </small>
                         </div>
                     </div>
                     
