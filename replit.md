@@ -308,8 +308,9 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ✅ **Protection des noms de fichiers** :
 - `.file-info` : `width: 100%; max-width: 100%; overflow: hidden;`
-- Noms de fichiers : `word-wrap: break-word; overflow-wrap: break-word;`
-- Coupe les noms longs proprement sur plusieurs lignes
+- Noms de fichiers : `word-wrap: break-word; overflow-wrap: break-word; word-break: break-all;`
+- **`word-break: break-all;`** force la coupure même au milieu des caractères pour les noms très longs sans espaces
+- Coupe les noms longs proprement sur plusieurs lignes, même les chaînes sans espaces
 
 ✅ **Contraintes hiérarchiques** (déjà en place) :
 - `.niveau-card` : Contraintes strictes
