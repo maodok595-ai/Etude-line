@@ -27,6 +27,7 @@ from models import (
     PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
 )
 from migration import migrate_data
+from cache_simple import app_cache, CACHE_KEYS
 
 # === CONFIGURATION STOCKAGE FICHIERS ===
 # Détection automatique de l'environnement pour utiliser le bon chemin de stockage
@@ -665,7 +666,12 @@ def get_accessible_content(db: Session, username: str) -> List[Dict[str, Any]]:
 
 # Helper functions for academic structure (PostgreSQL)
 def get_universites(db: Session) -> List[Dict[str, Any]]:
-    """Get all universities from PostgreSQL"""
+    """Get all universities from PostgreSQL
+    
+    NOTE: Cache désactivé car incompatible avec Gunicorn multi-workers (8 workers).
+    Chaque worker a son propre cache en mémoire, l'invalidation ne fonctionne pas.
+    Pour activer le cache : utiliser Redis (cache distribué partagé entre workers).
+    """
     universites = db.query(UniversiteDB).all()
     return [{"id": u.id, "nom": u.nom, "code": u.code, "logo_url": u.logo_url} for u in universites]
 
@@ -2041,11 +2047,14 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
         "universite_id": admin.universite_id
     } for admin in admins]
     
-    # Get professors (filtered by university for secondary admins)
+    # ⚡ OPTIMISATION: Limite à 1000 professeurs pour éviter timeout
+    # CRITIQUE pour 100k utilisateurs
     if is_main_admin:
-        profs = db.query(ProfesseurDB).all()
+        profs = db.query(ProfesseurDB).order_by(ProfesseurDB.id.desc()).limit(1000).all()
     else:
-        profs = db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == admin_universite_id).all()
+        profs = db.query(ProfesseurDB).filter(
+            ProfesseurDB.universite_id == admin_universite_id
+        ).order_by(ProfesseurDB.id.desc()).limit(1000).all()
     
     # ⚡ OPTIMISATION: Charger toutes les relations UFRs/filières en 2 requêtes au lieu de 2×N requêtes
     from sqlalchemy import text
@@ -2105,11 +2114,15 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
             "matiere": prof.matiere
         })
     
-    # Get students (filtered by university for secondary admins)
+    # ⚡ OPTIMISATION: Limite à 1000 étudiants + tri pour éviter timeout
+    # CRITIQUE pour 100k utilisateurs : limite la charge mémoire
+    # TODO: Implémenter pagination complète avec UI (boutons page 1, 2, 3...)
     if is_main_admin:
-        etudiants = db.query(EtudiantDB).all()
+        etudiants = db.query(EtudiantDB).order_by(EtudiantDB.created_at.desc()).limit(1000).all()
     else:
-        etudiants = db.query(EtudiantDB).filter(EtudiantDB.universite_id == admin_universite_id).all()
+        etudiants = db.query(EtudiantDB).filter(
+            EtudiantDB.universite_id == admin_universite_id
+        ).order_by(EtudiantDB.created_at.desc()).limit(1000).all()
     
     # ⚡ OPTIMISATION: Charger toutes les universités, UFRs et filières en une seule fois
     # au lieu de faire 3 requêtes par étudiant (3 × 18 = 54 requêtes → 3 requêtes !)
