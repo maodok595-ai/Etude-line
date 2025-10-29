@@ -2,6 +2,32 @@
 
 ## Recent Changes
 
+**29 octobre 2025 - Optimisation de l'affichage sur ordinateur (suppression du scroll horizontal)**
+
+### Amélioration : Élimination des mouvements de va-et-viens sur ordinateur
+**Problème rapporté** : Sur ordinateur, les pages défilaient horizontalement et créaient des mouvements de va-et-viens indésirables.
+
+**Cause** : Certains éléments de l'interface débordaient de la largeur de la fenêtre, causant un scroll horizontal non souhaité et des comportements visuels gênants.
+
+**Solution appliquée** :
+1. **Ajout de `overflow-x: hidden`** sur `html` et `body` dans tous les dashboards
+2. **Restriction de largeur** : `max-width: 100vw` sur body pour empêcher tout débordement
+3. **Containers optimisés** : Utilisation de `max-width: min(XXXpx, 100%)` pour garantir que les conteneurs ne dépassent jamais l'écran
+4. **Sécurité supplémentaire** : `overflow-x: hidden` également sur les containers principaux
+
+**Fichiers modifiés** :
+- `templates/dashboard_admin.html`
+- `templates/dashboard_prof.html`
+- `templates/dashboard_etudiant.html`
+
+**Impact** :
+- ✅ Plus aucun mouvement de va-et-vient horizontal sur ordinateur
+- ✅ Affichage stable et professionnel sur tous les écrans
+- ✅ Meilleure expérience utilisateur sur grand écran
+- ✅ Pas d'impact sur la version mobile (déjà optimisée)
+
+---
+
 **28 octobre 2025 - Uniformisation de la couleur des niveaux en violet**
 
 ### Amélioration visuelle : Tous les niveaux en violet
