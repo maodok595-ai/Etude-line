@@ -1165,9 +1165,21 @@
                 height: 90px;
             }
         }
+        
+        /* Style pour la page complète de l'administrateur secondaire */
+        body.admin-secondaire {
+            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 50%, #f3e8ff 100%) !important;
+        }
+        
+        body.admin-secondaire .container {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body>
+<body{% if not admin.get('is_main_admin') %} class="admin-secondaire"{% endif %}>
     <nav class="navbar">
         <h1>🎓 Étude LINE - Administration</h1>
         <div class="user-info">

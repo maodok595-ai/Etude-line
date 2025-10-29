@@ -280,35 +280,45 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Coloration violette complète de la page administrateur secondaire**
+**29 octobre 2025 - Thème violet intégral pour toute la page administrateur secondaire**
 
-### Amélioration visuelle : Thème violet intégral pour l'administrateur secondaire
-**Demande utilisateur** : Toute la page d'information de l'administrateur secondaire doit être en violet.
+### Amélioration visuelle majeure : Page complète en violet pour l'administrateur secondaire
+**Demande utilisateur** : Toute la page (fond + conteneur + éléments) de l'administrateur secondaire doit être en violet.
 
-**Tous les éléments colorés en violet (#9C27B0 → #7B1FA2)** :
+**Solution implémentée** :
+- 🟣 **Fond de page complet** : Dégradé violet (#f3e8ff → #ede9fe → #f3e8ff) appliqué à tout le body
+- 🟣 **Conteneur semi-transparent** : Effet glassmorphism avec fond blanc translucide et flou
+- 🟣 **Classe dynamique** : `body.admin-secondaire` appliquée automatiquement pour les admin secondaires
+
+**Tous les éléments dans la page** :
 
 **Section d'accueil** :
-- ✅ Fond d'accueil : Dégradé violet clair (#f3e8ff → #ede9fe)
+- ✅ Fond d'accueil : Dégradé violet clair
 - ✅ Bordure de section : Violet (#9C27B0) avec dégradé
 - ✅ Nom de l'université : Dégradé de texte violet
 - ✅ Cadre du logo : Ombre violette et fond violet translucide
 - ✅ Boîte d'informations utilisateur : Fond violet léger avec bordure gauche violette
 
 **Contrôles et fonctionnalités** :
-- ✅ Nom de l'université dans les contrôles : Texte violet
-- ✅ Bouton "Téléchargements" : Dégradé violet (était vert)
-- ✅ Bouton "Passage classe sup." : Dégradé violet (déjà violet)
+- ✅ Nom de l'université : Texte violet
+- ✅ Bouton "Téléchargements" : Dégradé violet
+- ✅ Bouton "Passage classe sup." : Dégradé violet
 - ✅ Titre "Statistiques universitaires" : Violet #9C27B0
 
 **Onglet Universités** :
-- ✅ Message d'information administrateur secondaire : Fond violet clair avec bordure violette (était bleu)
-- ✅ Bouton "Ajouter un logo" (📸) : Violet #9C27B0 (était bleu)
+- ✅ Message d'information : Fond violet clair avec bordure violette
+- ✅ Bouton "Ajouter un logo" (📸) : Violet #9C27B0
 
-**Impact** :
-- ✅ Identité visuelle 100% cohérente en violet dans toute la page
-- ✅ Distinction claire entre administrateur principal et secondaire
-- ✅ Interface professionnelle, harmonieuse et moderne
-- ✅ Tous les éléments interactifs utilisent maintenant le violet uniforme
+**Impact visuel** :
+- 🎨 **Immersion totale** : Toute la page baigne dans une atmosphère violette
+- 🏛️ **Distinction forte** : Admin principal (gris) vs Admin secondaire (violet)
+- ✨ **Effet glassmorphism** : Design moderne avec transparence et flou
+- 🎯 **Cohérence parfaite** : Identité visuelle 100% unifiée
+
+**Technique** :
+- Classe conditionnelle `admin-secondaire` ajoutée au `<body>` selon le type d'administrateur
+- Fond de page en dégradé violet avec !important pour override
+- Conteneur avec `backdrop-filter: blur(10px)` pour effet de profondeur
 
 **Fichier modifié** : `templates/dashboard_admin.html`
 
