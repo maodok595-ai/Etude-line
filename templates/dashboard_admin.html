@@ -1841,11 +1841,11 @@
                                                         {% else %}#e91e63
                                                         {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                         onclick="toggleFiliereEtudiants('filiere-{{ ufr.id }}-{{ filiere.id }}')">
-                                                        <span id="arrow-filiere-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">▼</span>
+                                                        <span id="arrow-filiere-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                                                         <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
                                                     </div>
                                                     
-                                                    <div id="content-filiere-{{ ufr.id }}-{{ filiere.id }}">
+                                                    <div id="content-filiere-{{ ufr.id }}-{{ filiere.id }}" style="display: none;">
                                                     
                                                     {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
                                                         {% set etudiants_niveau = [] %}
@@ -1878,7 +1878,7 @@
                                                                 {% elif niveau == 'M2' %}#9c27b0
                                                                 {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                                 onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
-                                                                <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">▼</span>
+                                                                <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
                                                                 <span>{% if niveau == "L1" %}📘
                                                                 {% elif niveau == "L2" %}📗
                                                                 {% elif niveau == "L3" %}📙
@@ -1887,7 +1887,7 @@
                                                                 {% endif %} {{ niveau }} - {{ etudiants_niveau|length }} étudiant{{ 's' if etudiants_niveau|length > 1 else '' }}</span>
                                                             </div>
                                                             
-                                                            <div id="content-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}">
+                                                            <div id="content-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="display: none;">
                                                             {% for etudiant in etudiants_niveau %}
                                                                 <div class="prof-item academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
                                                                     <div style="flex: 1;">
