@@ -2,6 +2,31 @@
 
 ## Recent Changes
 
+**29 octobre 2025 - Sections pliables fermées par défaut**
+
+### Amélioration UX : Interface propre au chargement
+**Demande utilisateur** : Toutes les sections pliables (flèches ►) doivent être fermées par défaut à chaque ouverture de l'application pour une meilleure organisation.
+
+**Avant** : Les cartes statistiques (Professeurs, Étudiants, Universités, etc.) mémorisaient leur état (ouvert/fermé) via `localStorage`, ce qui créait une interface encombrée au rechargement.
+
+**Après** : Toutes les sections pliables sont maintenant fermées par défaut (flèche ►) à chaque ouverture, offrant une interface propre et organisée.
+
+**Modifications appliquées** :
+1. **Suppression du localStorage** : Retrait de `localStorage.setItem()` dans la fonction `toggleStatCard`
+2. **Suppression de la restauration d'état** : Retrait du code `DOMContentLoaded` qui rouvrait automatiquement les sections précédemment ouvertes
+3. **État par défaut** : Toutes les sections restent fermées (`display: none`) jusqu'à ce que l'utilisateur clique dessus
+
+**Fichiers modifiés** :
+- `templates/dashboard_admin.html` (lignes 1278-1294)
+
+**Impact** :
+- ✅ Interface plus propre et organisée au chargement
+- ✅ L'utilisateur peut ouvrir uniquement les sections qui l'intéressent
+- ✅ Cohérence de l'expérience utilisateur à chaque visite
+- ✅ Meilleure navigation et moins de surcharge visuelle
+
+---
+
 **29 octobre 2025 - Correction de l'erreur "showTab is not defined"**
 
 ### Bug Fix : Onglets ne fonctionnent pas (erreur JavaScript)
