@@ -1626,9 +1626,37 @@ async def create_chapitre_complet(
             return RedirectResponse(url=f"/dashboard/prof?error={error_message}", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
-async def serve_uploaded_file(file_path: str, request: Request):
+async def serve_uploaded_file(file_path: str, request: Request, db: Session = Depends(get_db)):
     """Serve uploaded files with proper content type for browser viewing"""
     import mimetypes
+    
+    # Détecter si c'est un appareil mobile
+    user_agent = request.headers.get("user-agent", "").lower()
+    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
+    
+    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
+    if not is_mobile:
+        try:
+            role, username, user_data = require_auth(request, db)
+            
+            # Si c'est un étudiant sur desktop, vérifier les permissions
+            if role == "etudiant":
+                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+                
+                if universite_id:
+                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
+                    
+                    # Si les téléchargements sont désactivés, bloquer l'accès
+                    if parametre and not parametre.telechargements_actifs:
+                        raise HTTPException(
+                            status_code=403, 
+                            detail="Les téléchargements sont actuellement désactivés par votre université"
+                        )
+        except HTTPException:
+            raise
+        except Exception:
+            # En cas d'erreur d'authentification, continuer (fichiers publics)
+            pass
     
     # Remove uploads/ prefix if it exists to avoid double prefix
     if file_path.startswith("uploads/"):
@@ -1643,10 +1671,6 @@ async def serve_uploaded_file(file_path: str, request: Request):
     mime_type, _ = mimetypes.guess_type(str(file_location))
     if mime_type is None:
         mime_type = 'application/octet-stream'
-    
-    # Détecter si c'est un appareil mobile
-    user_agent = request.headers.get("user-agent", "").lower()
-    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
     
     # Pour les PDF, optimiser selon le type d'appareil
     if mime_type == 'application/pdf':
@@ -1680,9 +1704,37 @@ async def serve_uploaded_file(file_path: str, request: Request):
         )
 
 @app.get("/files/view/{file_path:path}")
-async def view_file(file_path: str):
+async def view_file(file_path: str, request: Request, db: Session = Depends(get_db)):
     """Afficher le fichier dans le navigateur (inline)"""
     import mimetypes
+    
+    # Détecter si c'est un appareil mobile
+    user_agent = request.headers.get("user-agent", "").lower()
+    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
+    
+    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
+    if not is_mobile:
+        try:
+            role, username, user_data = require_auth(request, db)
+            
+            # Si c'est un étudiant sur desktop, vérifier les permissions
+            if role == "etudiant":
+                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+                
+                if universite_id:
+                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
+                    
+                    # Si les téléchargements sont désactivés, bloquer l'accès
+                    if parametre and not parametre.telechargements_actifs:
+                        raise HTTPException(
+                            status_code=403, 
+                            detail="Les téléchargements sont actuellement désactivés par votre université"
+                        )
+        except HTTPException:
+            raise
+        except Exception:
+            # En cas d'erreur d'authentification, continuer (fichiers publics)
+            pass
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1708,10 +1760,38 @@ async def view_file(file_path: str):
     )
 
 @app.get("/files/download/{file_path:path}")
-async def download_file(file_path: str, db: Session = Depends(get_db)):
+async def download_file(file_path: str, request: Request, db: Session = Depends(get_db)):
     """Forcer le téléchargement du fichier avec le titre du chapitre dans le nom"""
     import mimetypes
     import urllib.parse
+    
+    # Détecter si c'est un appareil mobile
+    user_agent = request.headers.get("user-agent", "").lower()
+    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
+    
+    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
+    if not is_mobile:
+        try:
+            role, username, user_data = require_auth(request, db)
+            
+            # Si c'est un étudiant sur desktop, vérifier les permissions
+            if role == "etudiant":
+                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
+                
+                if universite_id:
+                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
+                    
+                    # Si les téléchargements sont désactivés, bloquer l'accès
+                    if parametre and not parametre.telechargements_actifs:
+                        raise HTTPException(
+                            status_code=403, 
+                            detail="Les téléchargements sont actuellement désactivés par votre université"
+                        )
+        except HTTPException:
+            raise
+        except Exception:
+            # En cas d'erreur d'authentification, continuer (fichiers publics)
+            pass
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
