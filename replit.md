@@ -7,22 +7,34 @@
 ### Amélioration UX : Interface propre au chargement
 **Demande utilisateur** : Toutes les sections pliables (flèches ►) doivent être fermées par défaut à chaque ouverture de l'application pour une meilleure organisation.
 
-**Avant** : Les cartes statistiques (Professeurs, Étudiants, Universités, etc.) mémorisaient leur état (ouvert/fermé) via `localStorage`, ce qui créait une interface encombrée au rechargement.
+**Avant** : 
+- Les cartes statistiques (Professeurs, Étudiants, Universités, etc.) mémorisaient leur état (ouvert/fermé) via `localStorage`
+- Les filières et niveaux dans la liste des étudiants s'affichaient ouverts (▼) par défaut
+- Interface encombrée au rechargement
 
 **Après** : Toutes les sections pliables sont maintenant fermées par défaut (flèche ►) à chaque ouverture, offrant une interface propre et organisée.
 
 **Modifications appliquées** :
-1. **Suppression du localStorage** : Retrait de `localStorage.setItem()` dans la fonction `toggleStatCard`
-2. **Suppression de la restauration d'état** : Retrait du code `DOMContentLoaded` qui rouvrait automatiquement les sections précédemment ouvertes
-3. **État par défaut** : Toutes les sections restent fermées (`display: none`) jusqu'à ce que l'utilisateur clique dessus
+1. **Cartes statistiques** :
+   - Suppression de `localStorage.setItem()` dans la fonction `toggleStatCard`
+   - Suppression du code `DOMContentLoaded` qui rouvrait automatiquement les sections
+   
+2. **Liste des étudiants - Filières** :
+   - Flèche changée de ▼ à ► (ligne 1847)
+   - Ajout de `display: none` au contenu des filières (ligne 1851)
+   
+3. **Liste des étudiants - Niveaux** :
+   - Flèche changée de ▼ à ► (ligne 1884)
+   - Ajout de `display: none` au contenu des niveaux (ligne 1893)
 
 **Fichiers modifiés** :
-- `templates/dashboard_admin.html` (lignes 1278-1294)
+- `templates/dashboard_admin.html` (lignes 1278-1294, 1847, 1851, 1884, 1893)
 
 **Impact** :
 - ✅ Interface plus propre et organisée au chargement
 - ✅ L'utilisateur peut ouvrir uniquement les sections qui l'intéressent
 - ✅ Cohérence de l'expérience utilisateur à chaque visite
+- ✅ Liste des étudiants organisée par filières et niveaux, tous fermés par défaut
 - ✅ Meilleure navigation et moins de surcharge visuelle
 
 ---
