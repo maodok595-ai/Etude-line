@@ -12,8 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Étude LINE">
     <link rel="manifest" href="/static/manifest.json">
-    <!-- Apple Touch Icon for iOS (180x180 is the standard for modern iPhones) -->
-    <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,11 +35,6 @@
             box-sizing: border-box;
         }
         
-        html {
-            overflow-x: hidden;
-            width: 100%;
-        }
-        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -48,9 +42,6 @@
             font-weight: 400;
             line-height: 1.6;
             color: var(--text-primary);
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
         }
         
         .navbar {
@@ -111,11 +102,9 @@
         }
         
         .container {
-            max-width: min(1200px, 100%);
-            margin: 0.5rem auto 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
             padding: 0 2rem;
-            width: 100%;
-            overflow-x: hidden;
         }
         
         /* Desktop Pro Optimizations - Full Width Experience */
@@ -575,58 +564,41 @@
             margin: 0.3rem 0;
         }
         
-        /* Styles pour le logo et nom de l'université (admin secondaire) - Coloration violette */
+        /* Styles pour le logo et nom de l'université (admin secondaire) */
         .university-welcome {
             text-align: center;
-            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
-            padding: 1.5rem 1rem 1rem;
-            margin: 0;
-            border-radius: 0;
-            position: relative;
-            border-bottom: 3px solid #9C27B0;
-        }
-        
-        .university-welcome::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #9C27B0, #7B1FA2, #9C27B0);
+            padding: 0.5rem 0;
         }
 
         .university-logo {
-            width: 90px;
-            height: 90px;
+            width: 110px;
+            height: 110px;
             object-fit: contain;
+            margin: 0.75rem auto 1rem;
             display: block;
-            border-radius: 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background: white;
-            padding: 0.6rem;
-            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+            padding: 0.4rem;
         }
 
         .university-name {
             font-family: 'Poppins', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0 0 0.75rem 0;
+            margin: 0 0 1.5rem 0;
             line-height: 1.4;
         }
 
         .user-info-box {
             padding: 0.75rem 1rem;
-            background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
+            background: rgba(102, 126, 234, 0.08);
             border-radius: 8px;
             margin-top: 1rem;
-            border-left: 3px solid #9C27B0;
+            border-left: 3px solid var(--accent);
         }
 
         .user-info-box p {
@@ -1118,72 +1090,14 @@
             padding: 0.3rem 0.8rem;
             font-size: 0.75rem;
         }
-        
-        /* Logo Étude LINE pour admin principal */
-        .main-admin-logo {
-            text-align: center;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-            padding: 1rem 1rem 0.75rem;
-            margin: -1.5rem -1.5rem 1rem -1.5rem;
-            border-radius: var(--radius) var(--radius) 0 0;
-            position: relative;
-        }
-        
-        .main-admin-logo::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        }
-        
-        .main-admin-logo img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
-            animation: fadeInScale 0.6s ease-out;
-        }
-        
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        @media screen and (max-width: 768px) {
-            .main-admin-logo img {
-                width: 90px;
-                height: 90px;
-            }
-        }
-        
-        /* Style pour la page complète de l'administrateur secondaire */
-        body.admin-secondaire {
-            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 50%, #f3e8ff 100%) !important;
-        }
-        
-        body.admin-secondaire .container {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 2rem;
-            backdrop-filter: blur(10px);
-        }
     </style>
 </head>
-<body{% if not admin.get('is_main_admin') %} class="admin-secondaire"{% endif %}>
+<body>
     <nav class="navbar">
         <h1>🎓 Étude LINE - Administration</h1>
         <div class="user-info">
-            <a href="/logout" style="color: #8b5cf6; font-weight: 600;">Déconnexion</a>
+            <span>👨‍💼 {{ admin.prenom }} {{ admin.nom }}</span>
+            <a href="/logout">Déconnexion</a>
         </div>
     </nav>
     
@@ -1257,37 +1171,6 @@
                 }
             }
             
-            // Fonction pour afficher/masquer le contenu d'une filière dans la liste des étudiants
-            function toggleFiliereEtudiants(filiereId) {
-                const content = document.getElementById('content-' + filiereId);
-                const arrow = document.getElementById('arrow-' + filiereId);
-                
-                if (content && arrow) {
-                    if (content.style.display === 'none') {
-                        content.style.display = 'block';
-                        arrow.textContent = '▼';
-                    } else {
-                        content.style.display = 'none';
-                        arrow.textContent = '►';
-                    }
-                }
-            }
-            
-            // Fonction pour afficher/masquer le contenu d'un niveau dans la liste des étudiants
-            function toggleNiveauEtudiants(niveauId) {
-                const content = document.getElementById('content-' + niveauId);
-                const arrow = document.getElementById('arrow-' + niveauId);
-                
-                if (content && arrow) {
-                    if (content.style.display === 'none') {
-                        content.style.display = 'block';
-                        arrow.textContent = '▼';
-                    } else {
-                        content.style.display = 'none';
-                        arrow.textContent = '►';
-                    }
-                }
-            }
             
             function toggleStatCard(statId) {
                 const content = document.getElementById('content-' + statId);
@@ -1297,36 +1180,31 @@
                     content.style.display = 'block';
                     arrow.textContent = '▼';
                     arrow.style.transform = 'rotate(90deg)';
+                    localStorage.setItem('stat-' + statId, 'open');
                 } else {
                     content.style.display = 'none';
                     arrow.textContent = '►';
                     arrow.style.transform = 'rotate(0deg)';
+                    localStorage.setItem('stat-' + statId, 'closed');
                 }
             }
             
-            // Exposer les fonctions au scope global pour les attributs onclick
-            // Ceci résout le problème où les fonctions ne sont pas accessibles sur Render
-            window.showAlert = showAlert;
-            window.toggleSection = toggleSection;
-            window.toggleUserDetails = toggleUserDetails;
-            window.toggleFiliereEtudiants = toggleFiliereEtudiants;
-            window.toggleNiveauEtudiants = toggleNiveauEtudiants;
-            window.toggleStatCard = toggleStatCard;
-        </script>
-        
-        <!-- Pré-déclaration des fonctions définies plus bas pour les onglets -->
-        <script>
-            // Fonction temporaire pour éviter les erreurs avant le chargement complet
-            function showTab(tabName) {
-                // Cette fonction sera remplacée par la vraie version plus bas
-                const contents = document.querySelectorAll('.tab-content');
-                contents.forEach(content => content.classList.remove('active'));
-                const tabs = document.querySelectorAll('.tab-btn');
-                tabs.forEach(tab => tab.classList.remove('active'));
-                document.getElementById('content-' + tabName).classList.add('active');
-                document.getElementById('tab-' + tabName).classList.add('active');
-            }
-            window.showTab = showTab;
+            // Restaurer l'état des cartes statistiques au chargement
+            window.addEventListener('DOMContentLoaded', function() {
+                for (let i = 1; i <= 6; i++) {
+                    const statId = 'stat-' + i;
+                    const savedState = localStorage.getItem('stat-' + statId);
+                    if (savedState === 'open') {
+                        const content = document.getElementById('content-' + statId);
+                        const arrow = document.getElementById('arrow-' + statId);
+                        if (content && arrow) {
+                            content.style.display = 'block';
+                            arrow.textContent = '▼';
+                            arrow.style.transform = 'rotate(90deg)';
+                        }
+                    }
+                }
+            });
         </script>
         
         {% if error %}
@@ -1335,11 +1213,8 @@
         
         <div class="welcome-card">
             {% if admin.get('is_main_admin') %}
-                <!-- Admin Principal : Logo + Affichage standard -->
-                <div class="main-admin-logo">
-                    <img src="/static/logo-etude-line.png" alt="Logo Étude LINE">
-                </div>
-                <h2>Bienvenue, {{ admin.prenom|upper }} {{ admin.nom|upper }}</h2>
+                <!-- Admin Principal : Affichage standard -->
+                <h2>Bienvenue, {{ admin.prenom }} {{ admin.nom }}</h2>
                 <p><strong>Rôle:</strong> Administrateur Principal</p>
             {% else %}
                 <!-- Admin Secondaire : Logo + Nom université -->
@@ -1348,60 +1223,27 @@
                         BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                     </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0;">
-                            <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
-                        </div>
+                        <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
                     {% endif %}
                     <div class="user-info-box">
-                        <p><strong>Prénom et nom :</strong> {{ admin.prenom|upper }} {{ admin.nom|upper }}</p>
+                        <p><strong>Prénom et nom :</strong> {{ admin.nom }} {{ admin.prenom }}</p>
                         <p><strong>Rôle :</strong> Administrateur de l'{{ admin_universite.nom if admin_universite else "Université inconnue" }}</p>
                     </div>
                 </div>
             {% endif %}
         </div>
         
-        <!-- Contrôles des fonctionnalités -->
-        <div style="margin: 1.5rem 0;">
-            <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
-                ⚙️ Contrôles des fonctionnalités
-                {% if not admin.get('is_main_admin') and admin_universite %}
-                    <span style="color: #9C27B0; font-weight: 500;">({{ admin_universite.nom }})</span>
-                {% endif %}
-            </h3>
-            
-            {% if admin.get('is_main_admin') %}
-            <!-- Sélecteur d'université pour l'admin principal -->
-            <div style="margin-bottom: 1rem;">
-                <label for="universite-selector" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
-                    🏛️ Sélectionnez une université à gérer:
-                </label>
-                <select id="universite-selector" onchange="loadUniversiteSettings()" 
-                        style="width: 100%; max-width: 400px; padding: 0.75rem; border: 2px solid #8b5cf6; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
-                    <option value="">-- Choisir une université --</option>
-                    {% for univ in universites %}
-                    <option value="{{ univ.id }}">{{ univ.nom }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-            
-            <div id="controls-container" style="display: {% if admin.get('is_main_admin') %}none{% else %}flex{% endif %}; gap: 1rem; flex-wrap: wrap;">
-                <!-- Bouton contrôle téléchargements -->
-                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
-                    <span id="download-icon">📥</span> Téléchargements
-                    <span id="download-status">: Chargement...</span>
-                </button>
-                
-                <!-- Bouton contrôle passage en classe supérieure -->
-                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
-                    <span id="passage-icon">🎓</span> Passage classe sup.
-                    <span id="passage-status">: Chargement...</span>
-                </button>
-            </div>
+        <!-- Boutons de contrôle -->
+        <div style="margin: 1.5rem 0; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <!-- Bouton contrôle téléchargements -->
+            <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                <span id="download-icon">📥</span> Téléchargements
+                <span id="download-status">: Chargement...</span>
+            </button>
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
-        <h3 style="margin: 1.5rem 0 1rem 0; color: #9C27B0; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
+        <h3 style="margin: 1.5rem 0 1rem 0; color: #7c3aed; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
         <div class="stats-horizontal-container" id="stats-container">
             <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
@@ -1477,7 +1319,6 @@
                 <button onclick="showTab('ufr')" id="tab-ufr" class="tab-btn">🏢 UFR</button>
                 <button onclick="showTab('filiere')" id="tab-filiere" class="tab-btn">📚 Filières</button>
                 <button onclick="showTab('matiere')" id="tab-matiere" class="tab-btn">📖 Matières</button>
-                <button onclick="showTab('passage')" id="tab-passage" class="tab-btn">🎓 Hiérarchie de passage</button>
             </div>
         </div>
 
@@ -1485,72 +1326,13 @@
         
         <!-- Onglet Administrateurs -->
         <div id="content-admin" class="tab-content active">
-            <!-- Formulaire de création -->
-            {% if admin.is_main_admin %}
-            <div id="admin-form-view">
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0 0 1rem;" onclick="toggleSection('admin-creation')">
-                    <span>👑 Créer un administrateur</span>
-                    <span id="arrow-admin-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="admin-creation" style="display: none;">
-                    <div class="card" style="position: relative;">
-                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
-                            <strong>⚠️ Privilège d'administrateur principal</strong><br>
-                            Vous seul pouvez ajouter de nouveaux administrateurs.
-                        </div>
-                        <form action="/admin/create-admin" method="post">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="admin-nom">Nom</label>
-                                <input type="text" id="admin-nom" name="nom" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="admin-prenom">Prénom</label>
-                                <input type="text" id="admin-prenom" name="prenom" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-username">Nom d'utilisateur</label>
-                            <input type="text" id="admin-username" name="username" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-universite">Université gérée</label>
-                            <input type="search" id="search-admin-universite" 
-                                   placeholder="🔍 Rechercher une université..." 
-                                   oninput="filterSelectOptions('search-admin-universite', 'admin-universite')"
-                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="admin-universite" name="universite_id" required>
-                                <option value="">Sélectionner une université</option>
-                                {% for uni in universites %}
-                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
-                                {% endfor %}
-                            </select>
-                            <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
-                                Cet administrateur pourra uniquement gérer les entités de cette université.
-                            </small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="admin-password">Mot de passe</label>
-                            <div class="password-field">
-                                <input type="password" id="admin-password" name="password" autocomplete="new-password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('admin-password')">
-                                    👁️
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn">Créer l'administrateur</button>
-                    </form>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
             <!-- Vue liste -->
             <div id="admin-list-view">
+                {% if admin.is_main_admin %}
+                <button onclick="toggleForm('admin')" class="create-btn">
+                    ➕ Créer un administrateur
+                </button>
+                {% endif %}
                 
                 <!-- Liste des administrateurs -->
                 <div class="card">
@@ -1596,16 +1378,16 @@
                                 </div>
                                 {% if not administrator.get('is_main_admin') and admin.get('is_main_admin') %}
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick='editAdmin({{ administrator.username|tojson }}, {{ administrator.prenom|tojson }}, {{ administrator.nom|tojson }})' title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editAdmin('{{ administrator.username }}', '{{ administrator.nom }}', '{{ administrator.prenom }}')" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick='deleteAdmin({{ administrator.username|tojson }}, {{ (administrator.prenom ~ " " ~ administrator.nom)|tojson }})' title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteAdmin('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
                                     <button class="btn-small" 
                                             data-username="{{ administrator.username }}"
                                             data-fullname="{{ administrator.prenom }} {{ administrator.nom }}"
-                                            onclick='toggleAdminStatus({{ administrator.username|tojson }}, {{ (administrator.prenom ~ " " ~ administrator.nom)|tojson }}, {{ administrator.get("actif")|tojson|lower }})' 
+                                            onclick="toggleAdminStatus('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}', {{ 'true' if administrator.get('actif') else 'false' }})" 
                                             style="background: {{ '#28a745' if administrator.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
                                             title="{{ 'Désactiver' if administrator.get('actif') else 'Activer' }}">
                                         {{ 'ON' if administrator.get('actif') else 'OFF' }}
@@ -1624,6 +1406,68 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Formulaire de création (caché par défaut) -->
+            {% if admin.is_main_admin %}
+            <div id="admin-form-view" class="hidden">
+                <div class="card">
+                    <button onclick="toggleForm('admin')" class="cancel-btn" title="Annuler">✕</button>
+                    <div class="form-header">
+                        <h3>👑 Créer un administrateur</h3>
+                    </div>
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #856404;">
+                        <strong>⚠️ Privilège d'administrateur principal</strong><br>
+                        Vous seul pouvez ajouter de nouveaux administrateurs.
+                    </div>
+                    <form action="/admin/create-admin" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="admin-nom">Nom</label>
+                                <input type="text" id="admin-nom" name="nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-prenom">Prénom</label>
+                                <input type="text" id="admin-prenom" name="prenom" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-username">Nom d'utilisateur</label>
+                            <input type="text" id="admin-username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-universite">Université gérée</label>
+                            <input type="search" id="search-admin-universite" 
+                                   placeholder="🔍 Rechercher une université..." 
+                                   oninput="filterSelectOptions('search-admin-universite', 'admin-universite')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
+                            <select id="admin-universite" name="universite_id" required>
+                                <option value="">Sélectionner une université</option>
+                                {% for uni in universites %}
+                                <option value="{{ uni.id }}">{{ uni.nom }}</option>
+                                {% endfor %}
+                            </select>
+                            <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                                Cet administrateur pourra uniquement gérer les entités de cette université.
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin-password">Mot de passe</label>
+                            <div class="password-field">
+                                <input type="password" id="admin-password" name="password" autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('admin-password')">
+                                    👁️
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn">Créer l'administrateur</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <div id="content-prof" class="tab-content">
@@ -1655,38 +1499,39 @@
                                 <div id="details-prof-{{ loop.index }}" style="display: none;">
                                 <div class="prof-details">@{{ prof.username }}</div>
                                 <div class="prof-meta">
-                                    <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ prof.specialite }}</span>
-                                    
-                                    {% if prof.ufrs %}
-                                        {% for ufr in prof.ufrs %}
-                                            <span class="meta-tag" style="background: #fff3e0; color: #f57c00;">📚 {{ ufr.nom }}</span>
+                                    <span class="meta-tag">{{ prof.specialite }}</span>
+                                    {% if prof.matiere_id %}
+                                        {% for matiere in matieres %}
+                                            {% if matiere.id == prof.matiere_id %}
+                                                <span class="meta-tag">📖 {{ matiere.nom }}</span>
+                                            {% endif %}
                                         {% endfor %}
-                                    {% endif %}
-                                    
-                                    {% if prof.filieres %}
-                                        {% for filiere in prof.filieres %}
-                                            <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📖 {{ filiere.nom }}</span>
+                                        {% for filiere in filieres %}
+                                            {% if filiere.id == prof.filiere_id %}
+                                                <span class="meta-tag">📚 {{ filiere.nom }}</span>
+                                            {% endif %}
                                         {% endfor %}
+                                        {% for uni in universites %}
+                                            {% if uni.id == prof.universite_id %}
+                                                <span class="meta-tag">🏛️ {{ uni.nom }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="meta-tag">{{ prof.matiere }}</span>
                                     {% endif %}
-                                    
-                                    {% for uni in universites %}
-                                        {% if uni.id == prof.universite_id %}
-                                            <span class="meta-tag" style="background: #e8f5e9; color: #388e3c;">🏛️ {{ uni.nom }}</span>
-                                        {% endif %}
-                                    {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick='editProf({{ prof.username|tojson }}, {{ prof.nom|tojson }}, {{ prof.prenom|tojson }}, {{ prof.specialite|tojson }})' title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editProf('{{ prof.username }}', '{{ prof.nom }}', '{{ prof.prenom }}', '{{ prof.specialite }}')" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick='deleteProf({{ prof.username|tojson }}, {{ (prof.prenom ~ " " ~ prof.nom)|tojson }})' title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
                                     {% if admin.is_main_admin %}
                                     <button class="btn-small" 
                                             data-username="{{ prof.username }}"
                                             data-fullname="{{ prof.prenom }} {{ prof.nom }}"
-                                            onclick='toggleProfStatus({{ prof.username|tojson }}, {{ (prof.prenom ~ " " ~ prof.nom)|tojson }}, {{ prof.get("actif")|tojson|lower }})' 
+                                            onclick="toggleProfStatus('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}', {{ 'true' if prof.get('actif') else 'false' }})" 
                                             style="background: {{ '#28a745' if prof.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
                                             title="{{ 'Désactiver' if prof.get('actif') else 'Activer' }}">
                                         {{ 'ON' if prof.get('actif') else 'OFF' }}
@@ -1709,8 +1554,8 @@
             
             <!-- Formulaire de création (caché par défaut) -->
             <div id="prof-form-view" class="hidden">
-                <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('prof')" class="cancel-btn" title="Annuler">✕</button>
+                <div class="card">
+                    <button onclick="toggleForm('prof')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>👨‍🏫 Créer un professeur</h3>
                     </div>
@@ -1756,27 +1601,37 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>UFR (au moins une requise) <span style="color: #e74c3c;">*</span></label>
-                            <p style="color: #666; font-size: 0.85rem; margin: 0.5rem 0;">Sélectionnez une ou plusieurs UFR où ce professeur enseigne</p>
+                            <label for="prof-ufr">UFR</label>
                             <input type="search" id="search-prof-ufr" 
                                    placeholder="🔍 Rechercher une UFR..." 
-                                   oninput="filterCheckboxes('search-prof-ufr', 'prof-ufr-checkboxes')"
+                                   oninput="filterSelectOptions('search-prof-ufr', 'prof-ufr')"
                                    style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <div id="prof-ufr-checkboxes" class="checkbox-group" style="max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.5rem; background: #fafafa;">
-                                <p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d'abord une université</p>
-                            </div>
+                            <select id="prof-ufr" name="ufr_id" required disabled>
+                                <option value="">Sélectionner d'abord une université</option>
+                            </select>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Filières (au moins une requise) <span style="color: #e74c3c;">*</span></label>
-                        <p style="color: #666; font-size: 0.85rem; margin: 0.5rem 0;">Sélectionnez une ou plusieurs filières où ce professeur enseigne</p>
-                        <input type="search" id="search-prof-filiere" 
-                               placeholder="🔍 Rechercher une filière..." 
-                               oninput="filterCheckboxes('search-prof-filiere', 'prof-filiere-checkboxes')"
-                               style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                        <div id="prof-filiere-checkboxes" class="checkbox-group" style="max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.5rem; background: #fafafa;">
-                            <p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d'abord au moins une UFR</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prof-filiere">Filière</label>
+                            <input type="search" id="search-prof-filiere" 
+                                   placeholder="🔍 Rechercher une filière..." 
+                                   oninput="filterSelectOptions('search-prof-filiere', 'prof-filiere')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
+                            <select id="prof-filiere" name="filiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une UFR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-matiere">Matière</label>
+                            <input type="search" id="search-prof-matiere" 
+                                   placeholder="🔍 Rechercher une matière..." 
+                                   oninput="filterSelectOptions('search-prof-matiere', 'prof-matiere')"
+                                   style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
+                            <select id="prof-matiere" name="matiere_id" required disabled>
+                                <option value="">Sélectionner d'abord une filière</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -1805,135 +1660,32 @@
                     <div id="etudiant-count" class="search-result-count"></div>
                     <div class="prof-list" id="etudiant-items">
                         {% if etudiants %}
-                            {% set ns = namespace(ufrs_traitees=[]) %}
-                            {% for ufr in ufrs %}
-                                {% set etudiants_ufr = [] %}
-                                {% for etudiant in etudiants %}
-                                    {% if etudiant.ufr_id == ufr.id %}
-                                        {% set _ = etudiants_ufr.append(etudiant) %}
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {% if etudiants_ufr|length > 0 %}
-                                    <div style="margin-bottom: 2rem; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.6rem 1rem; font-weight: 600; font-size: 0.95rem;">
-                                            🏢 {{ ufr.nom }}
-                                            {% for uni in universites %}
-                                                {% if uni.id == ufr.universite_id %}
-                                                    <span style="opacity: 0.9; font-size: 0.9rem; font-weight: 400;"> - {{ uni.nom }}</span>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                        
-                                        {% for filiere in filieres %}
-                                            {% set etudiants_filiere = [] %}
-                                            {% for etudiant in etudiants_ufr %}
-                                                {% if etudiant.filiere_id == filiere.id %}
-                                                    {% set _ = etudiants_filiere.append(etudiant) %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            
-                                            {% if etudiants_filiere|length > 0 %}
-                                                {% set filiere_index = loop.index %}
-                                                <div style="border-bottom: 1px solid #e0e0e0;">
-                                                    <div style="background: linear-gradient(135deg, 
-                                                        {% if filiere_index % 5 == 1 %}#e3f2fd, #bbdefb
-                                                        {% elif filiere_index % 5 == 2 %}#f3e5f5, #e1bee7
-                                                        {% elif filiere_index % 5 == 3 %}#fff3e0, #ffe0b2
-                                                        {% elif filiere_index % 5 == 4 %}#e8f5e9, #c8e6c9
-                                                        {% else %}#fce4ec, #f8bbd0
-                                                        {% endif %}); 
-                                                        padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
-                                                        color: {% if filiere_index % 5 == 1 %}#1565c0
-                                                        {% elif filiere_index % 5 == 2 %}#6a1b9a
-                                                        {% elif filiere_index % 5 == 3 %}#e65100
-                                                        {% elif filiere_index % 5 == 4 %}#2e7d32
-                                                        {% else %}#c2185b
-                                                        {% endif %}; 
-                                                        border-left: 4px solid {% if filiere_index % 5 == 1 %}#2196f3
-                                                        {% elif filiere_index % 5 == 2 %}#9c27b0
-                                                        {% elif filiere_index % 5 == 3 %}#ff9800
-                                                        {% elif filiere_index % 5 == 4 %}#4caf50
-                                                        {% else %}#e91e63
-                                                        {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
-                                                        onclick="toggleFiliereEtudiants('filiere-{{ ufr.id }}-{{ filiere.id }}')">
-                                                        <span id="arrow-filiere-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
-                                                        <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
-                                                    </div>
-                                                    
-                                                    <div id="content-filiere-{{ ufr.id }}-{{ filiere.id }}" style="display: none;">
-                                                    
-                                                    {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
-                                                        {% set etudiants_niveau = [] %}
-                                                        {% for etudiant in etudiants_filiere %}
-                                                            {% if etudiant.niveau == niveau %}
-                                                                {% set _ = etudiants_niveau.append(etudiant) %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        
-                                                        {% if etudiants_niveau|length > 0 %}
-                                                            <div style="background: linear-gradient(135deg,
-                                                                {% if niveau == 'L1' %}#f3e5f5, #e1bee7
-                                                                {% elif niveau == 'L2' %}#e8d5f1, #d1b3e3
-                                                                {% elif niveau == 'L3' %}#ddc5e8, #ce93d8
-                                                                {% elif niveau == 'M1' %}#d1b3e3, #ba68c8
-                                                                {% elif niveau == 'M2' %}#ce93d8, #ab47bc
-                                                                {% endif %}); 
-                                                                padding: 0.4rem 1rem 0.4rem 2rem; font-weight: 600; 
-                                                                color: {% if niveau == 'L1' %}#6a1b9a
-                                                                {% elif niveau == 'L2' %}#6a1b9a
-                                                                {% elif niveau == 'L3' %}#6a1b9a
-                                                                {% elif niveau == 'M1' %}#6a1b9a
-                                                                {% elif niveau == 'M2' %}#4a148c
-                                                                {% endif %}; 
-                                                                font-size: 0.85rem; border-left: 4px solid 
-                                                                {% if niveau == 'L1' %}#9C27B0
-                                                                {% elif niveau == 'L2' %}#8e24aa
-                                                                {% elif niveau == 'L3' %}#7b1fa2
-                                                                {% elif niveau == 'M1' %}#ab47bc
-                                                                {% elif niveau == 'M2' %}#9c27b0
-                                                                {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
-                                                                onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
-                                                                <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
-                                                                <span>{% if niveau == "L1" %}📘
-                                                                {% elif niveau == "L2" %}📗
-                                                                {% elif niveau == "L3" %}📙
-                                                                {% elif niveau == "M1" %}📕
-                                                                {% elif niveau == "M2" %}📔
-                                                                {% endif %} {{ niveau }} - {{ etudiants_niveau|length }} étudiant{{ 's' if etudiants_niveau|length > 1 else '' }}</span>
-                                                            </div>
-                                                            
-                                                            <div id="content-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="display: none;">
-                                                            {% for etudiant in etudiants_niveau %}
-                                                                <div class="prof-item academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
-                                                                    <div style="flex: 1;">
-                                                                        <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ etudiant.username }}')">
-                                                                            <span id="arrow-etudiant-{{ etudiant.username }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
-                                                                            <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
-                                                                        </div>
-                                                                        <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
-                                                                            <div class="prof-details">@{{ etudiant.username }}</div>
-                                                                            <div class="prof-meta" style="margin-top: 0.5rem;">
-                                                                                <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="action-buttons" id="actions-etudiant-{{ etudiant.username }}" style="display: none;">
-                                                                        <button class="btn-delete btn-small" onclick='deleteEtudiant({{ etudiant.username|tojson }}, {{ (etudiant.prenom ~ " " ~ etudiant.nom)|tojson }})' title="Supprimer">
-                                                                            🗑️
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            {% endfor %}
-                                                            </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        {% endfor %}
+                            {% for etudiant in etudiants %}
+                            <div class="prof-item academic-item">
+                                <div style="flex: 1;">
+                                    <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ loop.index }}')">
+                                        <span id="arrow-etudiant-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
+                                        <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
                                     </div>
-                                {% endif %}
+                                    <div id="details-etudiant-{{ loop.index }}" style="display: none;">
+                                        <div class="prof-details">@{{ etudiant.username }}</div>
+                                        <div class="prof-meta" style="margin-top: 0.5rem;">
+                                            <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ etudiant.niveau }}</span>
+                                            <span class="meta-tag" style="background: #f3e5f5; color: #7b1fa2;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        </div>
+                                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #555; line-height: 1.6;">
+                                            <div style="margin-bottom: 0.2rem;"><strong>🏛️ Université:</strong> {{ etudiant.universite_nom }}</div>
+                                            <div style="margin-bottom: 0.2rem;"><strong>📚 UFR:</strong> {{ etudiant.ufr_nom }}</div>
+                                            <div><strong>📖 Filière:</strong> {{ etudiant.filiere_nom }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons" id="actions-etudiant-{{ loop.index }}" style="display: none;">
+                                    <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
                             {% endfor %}
                         {% else %}
                             <div style="text-align: center; color: #666; padding: 2rem;">
@@ -1954,8 +1706,8 @@
                     ➕ Créer une université
                 </button>
                 {% else %}
-                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #9C27B0; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                    <p style="margin: 0; color: #7B1FA2; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; color: #1565c0; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 1.2rem;">ℹ️</span>
                         <span>En tant qu'administrateur secondaire, vous ne pouvez pas créer de nouvelles universités. Cette action est réservée à l'administrateur principal.</span>
                     </p>
@@ -1990,13 +1742,13 @@
                                     </div>
                                 </div>
                                 <div class="action-buttons" style="margin-top: 0.5rem;">
-                                    <button class="btn-edit btn-small" onclick='editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})' title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editUniversite('{{ uni.id }}', '{{ uni.nom }}', '{{ uni.code }}')" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #9C27B0; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                    <button class="btn-small" onclick="uploadLogo('{{ uni.id }}', '{{ uni.nom }}')" style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
                                         📸
                                     </button>
-                                    <button class="btn-delete btn-small" onclick='deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})' title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteUniversite('{{ uni.id }}', '{{ uni.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
@@ -2031,8 +1783,8 @@
             
             <!-- Formulaire de création (caché par défaut) -->
             <div id="universite-form-view" class="hidden">
-                <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('universite')" class="cancel-btn" title="Annuler">✕</button>
+                <div class="card">
+                    <button onclick="toggleForm('universite')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>🏛️ Créer une université</h3>
                     </div>
@@ -2086,10 +1838,10 @@
                                     {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick='editUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }}, {{ ufr.code|tojson }})' title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editUfr('{{ ufr.id }}', '{{ ufr.nom }}', '{{ ufr.code }}')" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick='deleteUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }})' title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteUfr('{{ ufr.id }}', '{{ ufr.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
@@ -2107,8 +1859,8 @@
             
             <!-- Formulaire de création (caché par défaut) -->
             <div id="ufr-form-view" class="hidden">
-                <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('ufr')" class="cancel-btn" title="Annuler">✕</button>
+                <div class="card">
+                    <button onclick="toggleForm('ufr')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>🏢 Créer une UFR</h3>
                     </div>
@@ -2180,10 +1932,10 @@
                                     {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick='editFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }}, {{ filiere.code|tojson }})' title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editFiliere('{{ filiere.id }}', '{{ filiere.nom }}', '{{ filiere.code }}')" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick='deleteFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }})' title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteFiliere('{{ filiere.id }}', '{{ filiere.nom }}')" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
@@ -2201,8 +1953,8 @@
             
             <!-- Formulaire de création (caché par défaut) -->
             <div id="filiere-form-view" class="hidden">
-                <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('filiere')" class="cancel-btn" title="Annuler">✕</button>
+                <div class="card">
+                    <button onclick="toggleForm('filiere')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>📚 Créer une filière</h3>
                     </div>
@@ -2263,99 +2015,31 @@
                     <div id="matiere-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
                     <div class="prof-list" id="matiere-items">
                         {% if matieres %}
-                            {% set ns = namespace(filieres_traitees=[]) %}
-                            {% for filiere in filieres %}
-                                {% set matieres_filiere = [] %}
-                                {% for matiere in matieres %}
-                                    {% if matiere.filiere_id == filiere.id %}
-                                        {% set _ = matieres_filiere.append(matiere) %}
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {% if matieres_filiere|length > 0 %}
-                                    <div style="margin-bottom: 2rem; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.6rem 1rem; font-weight: 600; font-size: 0.95rem;">
-                                            {{ filiere.nom }}
+                            {% for matiere in matieres %}
+                            <div class="academic-item">
+                                <h4>{{ matiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ matiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for filiere in filieres %}
+                                        {% if filiere.id == matiere.filiere_id %}
+                                            Filière: {{ filiere.nom }}
                                             {% for ufr in ufrs %}
                                                 {% if ufr.id == filiere.ufr_id %}
-                                                    <span style="opacity: 0.9; font-size: 0.9rem; font-weight: 400;"> - {{ ufr.nom }}</span>
+                                                    ({{ ufr.nom }})
                                                 {% endif %}
                                             {% endfor %}
-                                        </div>
-                                        
-                                        {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
-                                            {% set matieres_niveau = [] %}
-                                            {% for matiere in matieres_filiere %}
-                                                {% if matiere.niveau == niveau %}
-                                                    {% set _ = matieres_niveau.append(matiere) %}
-                                                {% endif %}
-                                            {% endfor %}
-                                            
-                                            {% if matieres_niveau|length > 0 %}
-                                                <div style="border-bottom: 1px solid #e0e0e0;">
-                                                    <div style="background: linear-gradient(135deg, 
-                                                        {% if niveau == 'L1' %}#9C27B0, #BA68C8
-                                                        {% elif niveau == 'L2' %}#8e24aa, #ab47bc
-                                                        {% elif niveau == 'L3' %}#7b1fa2, #9c27b0
-                                                        {% elif niveau == 'M1' %}#ab47bc, #ba68c8
-                                                        {% elif niveau == 'M2' %}#9c27b0, #ab47bc
-                                                        {% endif %}); 
-                                                        padding: 0.5rem 1rem; font-weight: 600; color: white; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;"
-                                                        onclick="toggleNiveauMatieres('{{ filiere.id }}_{{ niveau }}')">
-                                                        <span>
-                                                            {% if niveau == "L1" %}📘 Licence 1 (L1)
-                                                            {% elif niveau == "L2" %}📗 Licence 2 (L2)
-                                                            {% elif niveau == "L3" %}📙 Licence 3 (L3)
-                                                            {% elif niveau == "M1" %}📕 Master 1 (M1)
-                                                            {% elif niveau == "M2" %}📔 Master 2 (M2)
-                                                            {% endif %}
-                                                        </span>
-                                                        <span id="arrow-niveau-{{ filiere.id }}_{{ niveau }}" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                                                    </div>
-                                                    <div id="content-niveau-{{ filiere.id }}_{{ niveau }}" style="display: none;">
-                                                    
-                                                    {% for semestre in ["S1", "S2"] %}
-                                                        {% set matieres_semestre = [] %}
-                                                        {% for matiere in matieres_niveau %}
-                                                            {% if matiere.semestre == semestre %}
-                                                                {% set _ = matieres_semestre.append(matiere) %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        
-                                                        {% if matieres_semestre|length > 0 %}
-                                                            <div style="background: linear-gradient(135deg, 
-                                                                {% if semestre == 'S1' %}#667eea, #764ba2
-                                                                {% else %}#f093fb, #f5576c
-                                                                {% endif %}); 
-                                                                padding: 0.4rem 1rem 0.4rem 1.5rem; font-weight: 600; color: white; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;"
-                                                                onclick="toggleSemestreMatieres('{{ filiere.id }}_{{ niveau }}_{{ semestre }}')">
-                                                                <span>📅 {{ semestre }} - Semestre {{ semestre[1] }}</span>
-                                                                <span id="arrow-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
-                                                            </div>
-                                                            <div id="content-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="display: none;">
-                                                            {% for matiere in matieres_semestre %}
-                                                                <div class="academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
-                                                                    <h4 style="margin: 0;">{{ matiere.nom }}</h4>
-                                                                    <div class="academic-code">Code: {{ matiere.code }}</div>
-                                                                    <div class="action-buttons">
-                                                                        <button class="btn-edit btn-small" onclick='editMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }}, {{ matiere.code|tojson }})' title="Modifier">
-                                                                            ✏️
-                                                                        </button>
-                                                                        <button class="btn-delete btn-small" onclick='deleteMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }})' title="Supprimer">
-                                                                            🗑️
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            {% endfor %}
-                                                            </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick="editMatiere('{{ matiere.id }}', '{{ matiere.nom }}', '{{ matiere.code }}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick="deleteMatiere('{{ matiere.id }}', '{{ matiere.nom }}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
                             {% endfor %}
                         {% else %}
                             <div style="text-align: center; color: #666; padding: 2rem;">
@@ -2369,8 +2053,8 @@
             
             <!-- Formulaire de création (caché par défaut) -->
             <div id="matiere-form-view" class="hidden">
-                <div class="card" style="position: relative;">
-                    <button type="button" onclick="toggleForm('matiere')" class="cancel-btn" title="Annuler">✕</button>
+                <div class="card">
+                    <button onclick="toggleForm('matiere')" class="cancel-btn" title="Annuler">✕</button>
                     <div class="form-header">
                         <h3>📖 Créer une matière</h3>
                     </div>
@@ -2394,28 +2078,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="mat-niveau">Niveau</label>
-                            <select id="mat-niveau" name="niveau" required>
-                                <option value="">Sélectionner un niveau</option>
-                                <option value="L1">📘 Licence 1 (L1)</option>
-                                <option value="L2">📗 Licence 2 (L2)</option>
-                                <option value="L3">📙 Licence 3 (L3)</option>
-                                <option value="M1">📕 Master 1 (M1)</option>
-                                <option value="M2">📔 Master 2 (M2)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="mat-semestre">Semestre</label>
-                            <select id="mat-semestre" name="semestre" required>
-                                <option value="">Sélectionner un semestre</option>
-                                <option value="S1">📅 Semestre 1 (S1)</option>
-                                <option value="S2">📅 Semestre 2 (S2)</option>
-                            </select>
-                        </div>
-                        
                         <div class="form-group">
                             <label for="mat-nom">Nom de la matière</label>
                             <input type="text" id="mat-nom" name="nom" required>
@@ -2426,100 +2088,6 @@
                         </div>
                         <button type="submit" class="btn">Créer la matière</button>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Onglet Hiérarchie de passage -->
-    <div id="content-passage" class="tab-content">
-        <div class="card">
-            <!-- Formulaire de création -->
-            <div id="passage-form-view">
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 0 0 1rem;" onclick="toggleSection('passage-creation')">
-                    <span>🎓 Créer une règle de passage</span>
-                    <span id="arrow-passage-creation" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="passage-creation" style="display: none;">
-                    <div class="card" style="position: relative;">
-                        <form action="/admin/create-passage" method="post">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="passage-filiere-depart">Filière de départ</label>
-                                <select id="passage-filiere-depart" name="filiere_depart_id" required>
-                                    <option value="">Sélectionner une filière</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="passage-niveau-depart">Niveau de départ</label>
-                                <select id="passage-niveau-depart" name="niveau_depart" required>
-                                    <option value="">Sélectionner un niveau</option>
-                                    <option value="L1">L1</option>
-                                    <option value="L2">L2</option>
-                                    <option value="L3">L3</option>
-                                    <option value="M1">M1</option>
-                                    <option value="M2">M2</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Checkbox pour passage dans la même filière -->
-                        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #3b82f6;">
-                            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 500; color: #1e40af;">
-                                <input type="checkbox" id="passage-meme-filiere" style="width: 20px; height: 20px; cursor: pointer;">
-                                <span>☑️ Passage dans la même filière (ex: L1 MPCI → L2 MPCI)</span>
-                            </label>
-                            <p style="margin: 0.5rem 0 0 2rem; font-size: 0.85rem; color: #475569;">
-                                Cochez cette option si l'étudiant reste dans sa filière actuelle mais passe au niveau supérieur.
-                            </p>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="passage-filiere-arrivee">Filière d'arrivée</label>
-                                <select id="passage-filiere-arrivee" name="filiere_arrivee_id" required>
-                                    <option value="">Sélectionner une filière</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="passage-niveau-arrivee">Niveau d'arrivée</label>
-                                <select id="passage-niveau-arrivee" name="niveau_arrivee" required>
-                                    <option value="">Sélectionner un niveau</option>
-                                    <option value="L1">L1</option>
-                                    <option value="L2">L2</option>
-                                    <option value="L3">L3</option>
-                                    <option value="M1">M1</option>
-                                    <option value="M2">M2</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn">Créer la règle de passage</button>
-                    </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Vue liste -->
-            <div id="passage-list-view">
-                
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-regles')">
-                    <span>📘 Règles de passage existantes</span>
-                    <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="passage-regles" style="display: none;">
-                    <div id="passage-list-container">
-                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
-                    </div>
-                </div>
-                
-                <h3 style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin: 2rem 0 1rem;" onclick="toggleSection('passage-stats')">
-                    <span>📊 Statistiques des passages</span>
-                    <span id="arrow-passage-stats" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                </h3>
-                <div id="passage-stats" style="display: none;">
-                    <div id="passage-stats-container">
-                        <p style="text-align: center; color: #666; padding: 1rem;">Chargement des statistiques...</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -2540,29 +2108,6 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
         
-        // Variable globale pour stocker l'université sélectionnée (admin principal uniquement)
-        let selectedUniversiteId = null;
-        
-        // Charger les paramètres d'une université sélectionnée (admin principal)
-        async function loadUniversiteSettings() {
-            const selector = document.getElementById('universite-selector');
-            const controlsContainer = document.getElementById('controls-container');
-            
-            selectedUniversiteId = selector.value;
-            
-            if (!selectedUniversiteId) {
-                // Masquer les contrôles si aucune université n'est sélectionnée
-                controlsContainer.style.display = 'none';
-                return;
-            }
-            
-            // Afficher les contrôles
-            controlsContainer.style.display = 'flex';
-            
-            // Charger les statuts pour l'université sélectionnée
-            await loadDownloadStatus();
-            await loadPassageClasseStatus();
-        }
         
         // Toggle des téléchargements (admin uniquement)
         async function toggleTelechargements() {
@@ -2575,15 +2120,11 @@
                 btn.disabled = true;
                 statusSpan.textContent = ': Traitement...';
                 
-                // Préparer le body avec universite_id si admin principal
-                const body = selectedUniversiteId ? JSON.stringify({ universite_id: selectedUniversiteId }) : null;
-                
                 const response = await fetch('/api/parametres/telechargements/toggle', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: body
+                    }
                 });
                 
                 const data = await response.json();
@@ -2622,12 +2163,7 @@
         // Charger l'état des téléchargements au démarrage
         async function loadDownloadStatus() {
             try {
-                // Ajouter universite_id en query param si admin principal
-                const url = selectedUniversiteId 
-                    ? `/api/parametres/telechargements?universite_id=${selectedUniversiteId}`
-                    : '/api/parametres/telechargements';
-                    
-                const response = await fetch(url);
+                const response = await fetch('/api/parametres/telechargements');
                 const data = await response.json();
                 updateDownloadButtonStatus(data.actif);
             } catch (error) {
@@ -2639,231 +2175,104 @@
         // Charger l'état des téléchargements au démarrage
         window.addEventListener('DOMContentLoaded', function() {
             loadDownloadStatus();
-            loadPassageClasseStatus();
         });
         
-        // === CONTRÔLE DU PASSAGE EN CLASSE SUPÉRIEURE ===
-        
-        // Basculer l'état du passage en classe supérieure
-        async function togglePassageClasse() {
-            const statusSpan = document.getElementById('passage-status');
-            const iconSpan = document.getElementById('passage-icon');
-            const btn = document.getElementById('passage-toggle-btn');
-            
-            try {
-                // Désactiver le bouton pendant l'action
-                btn.disabled = true;
-                statusSpan.textContent = ': Traitement...';
-                
-                // Préparer le body avec universite_id si admin principal
-                const body = selectedUniversiteId ? JSON.stringify({ universite_id: selectedUniversiteId }) : null;
-                
-                const response = await fetch('/api/parametres/passage-classe/toggle', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: body
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    updatePassageClasseButtonStatus(data.actif);
-                    showAlert(data.message, 'success');
-                } else {
-                    showAlert('Erreur lors du changement d\'état', 'error');
-                    await loadPassageClasseStatus(); // Recharger l'état réel
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showAlert('Erreur de communication avec le serveur', 'error');
-                await loadPassageClasseStatus(); // Recharger l'état réel
-            } finally {
-                btn.disabled = false;
-            }
-        }
-        
-        // Mettre à jour l'affichage du bouton passage
-        function updatePassageClasseButtonStatus(actif) {
-            const statusSpan = document.getElementById('passage-status');
-            const iconSpan = document.getElementById('passage-icon');
-            const btn = document.getElementById('passage-toggle-btn');
-            
-            if (actif) {
-                statusSpan.textContent = ': Activé ✓';
-                btn.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
-            } else {
-                statusSpan.textContent = ': Désactivé ✗';
-                btn.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
-            }
-        }
-        
-        // Charger l'état du passage en classe supérieure au démarrage
-        async function loadPassageClasseStatus() {
-            try {
-                // Ajouter universite_id en query param si admin principal
-                const url = selectedUniversiteId 
-                    ? `/api/parametres/passage-classe?universite_id=${selectedUniversiteId}`
-                    : '/api/parametres/passage-classe';
-                    
-                const response = await fetch(url);
-                const data = await response.json();
-                updatePassageClasseButtonStatus(data.actif);
-            } catch (error) {
-                console.error('Erreur lors du chargement de l\'état:', error);
-                document.getElementById('passage-status').textContent = ': Erreur';
-            }
-        }
-        
-        // === FIN CONTRÔLE DU PASSAGE EN CLASSE SUPÉRIEURE ===
-        
-        // Gestion des checkboxes multiples pour le formulaire professeur
+        // Gestion des sélecteurs hiérarchiques pour le formulaire professeur
         const profUniversiteSelect = document.getElementById('prof-universite');
-        const profUfrCheckboxes = document.getElementById('prof-ufr-checkboxes');
-        const profFiliereCheckboxes = document.getElementById('prof-filiere-checkboxes');
+        const profUfrSelect = document.getElementById('prof-ufr');
+        const profFiliereSelect = document.getElementById('prof-filiere');
+        const profMatiereSelect = document.getElementById('prof-matiere');
         
-        // Fonction pour filtrer les checkboxes
-        function filterCheckboxes(searchInputId, checkboxContainerId) {
-            const searchTerm = document.getElementById(searchInputId).value.toLowerCase();
-            const container = document.getElementById(checkboxContainerId);
-            const labels = container.querySelectorAll('label');
-            
-            labels.forEach(label => {
-                const text = label.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    label.style.display = 'flex';
-                } else {
-                    label.style.display = 'none';
-                }
-            });
+        // Réinitialise et désactive un sélecteur
+        function resetProfSelect(select, message) {
+            select.innerHTML = `<option value="">${message}</option>`;
+            select.disabled = true;
+            select.value = '';
         }
         
         // Charge les UFR quand une université est sélectionnée
         profUniversiteSelect.addEventListener('change', async function() {
             const universiteId = this.value;
             
-            // Réinitialise les checkboxes
-            profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Chargement...</p>';
-            profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord au moins une UFR</p>';
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profUfrSelect, 'Chargement des UFR...');
+            resetProfSelect(profFiliereSelect, 'Sélectionner d\'abord une UFR');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
             
             if (universiteId) {
                 try {
                     const response = await fetch(`/api/ufrs/${universiteId}`);
                     const data = await response.json();
                     
-                    if (data.ufrs.length === 0) {
-                        profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Aucune UFR disponible</p>';
-                        return;
-                    }
-                    
-                    profUfrCheckboxes.innerHTML = '';
+                    profUfrSelect.innerHTML = '<option value="">Sélectionner une UFR</option>';
                     data.ufrs.forEach(ufr => {
-                        const label = document.createElement('label');
-                        label.style.cssText = 'display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
-                        label.onmouseover = () => label.style.background = '#e3f2fd';
-                        label.onmouseout = () => label.style.background = 'transparent';
-                        
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.name = 'ufr_ids';
-                        checkbox.value = ufr.id;
-                        checkbox.style.cssText = 'margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer;';
-                        checkbox.addEventListener('change', updateFiliereCheckboxes);
-                        
-                        const span = document.createElement('span');
-                        span.textContent = ufr.nom;
-                        span.style.cssText = 'flex: 1; font-size: 0.95rem;';
-                        
-                        label.appendChild(checkbox);
-                        label.appendChild(span);
-                        profUfrCheckboxes.appendChild(label);
+                        const option = document.createElement('option');
+                        option.value = ufr.id;
+                        option.textContent = ufr.nom;
+                        profUfrSelect.appendChild(option);
                     });
+                    profUfrSelect.disabled = false;
                 } catch (error) {
                     console.error('Erreur lors du chargement des UFR:', error);
-                    profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 1rem;">Erreur lors du chargement</p>';
+                    resetProfSelect(profUfrSelect, 'Erreur lors du chargement');
                 }
-            } else {
-                profUfrCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord une université</p>';
             }
         });
         
-        // Met à jour les filières en fonction des UFR sélectionnées
-        async function updateFiliereCheckboxes() {
-            const selectedUfrIds = Array.from(document.querySelectorAll('input[name="ufr_ids"]:checked')).map(cb => cb.value);
+        // Charge les filières quand une UFR est sélectionnée
+        profUfrSelect.addEventListener('change', async function() {
+            const ufrId = this.value;
             
-            if (selectedUfrIds.length === 0) {
-                profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Sélectionnez d\'abord au moins une UFR</p>';
-                return;
-            }
+            // Réinitialise les sélecteurs suivants
+            resetProfSelect(profFiliereSelect, 'Chargement des filières...');
+            resetProfSelect(profMatiereSelect, 'Sélectionner d\'abord une filière');
             
-            profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Chargement...</p>';
-            
-            try {
-                // Charger les filières pour toutes les UFR sélectionnées
-                const allFilieres = new Map(); // Utilise Map pour éviter les doublons
-                
-                for (const ufrId of selectedUfrIds) {
+            if (ufrId) {
+                try {
                     const response = await fetch(`/api/filieres/${ufrId}`);
                     const data = await response.json();
+                    
+                    profFiliereSelect.innerHTML = '<option value="">Sélectionner une filière</option>';
                     data.filieres.forEach(filiere => {
-                        allFilieres.set(filiere.id, filiere);
+                        const option = document.createElement('option');
+                        option.value = filiere.id;
+                        option.textContent = filiere.nom;
+                        profFiliereSelect.appendChild(option);
                     });
+                    profFiliereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des filières:', error);
+                    resetProfSelect(profFiliereSelect, 'Erreur lors du chargement');
                 }
-                
-                if (allFilieres.size === 0) {
-                    profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #999; padding: 1rem;">Aucune filière disponible</p>';
-                    return;
-                }
-                
-                profFiliereCheckboxes.innerHTML = '';
-                allFilieres.forEach(filiere => {
-                    const label = document.createElement('label');
-                    label.style.cssText = 'display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
-                    label.onmouseover = () => label.style.background = '#f3e5f5';
-                    label.onmouseout = () => label.style.background = 'transparent';
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'filiere_ids';
-                    checkbox.value = filiere.id;
-                    checkbox.style.cssText = 'margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer;';
-                    
-                    const span = document.createElement('span');
-                    span.textContent = filiere.nom;
-                    span.style.cssText = 'flex: 1; font-size: 0.95rem;';
-                    
-                    label.appendChild(checkbox);
-                    label.appendChild(span);
-                    profFiliereCheckboxes.appendChild(label);
-                });
-            } catch (error) {
-                console.error('Erreur lors du chargement des filières:', error);
-                profFiliereCheckboxes.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 1rem;">Erreur lors du chargement</p>';
             }
-        }
+        });
         
-        // Validation du formulaire professeur (sans soumettre)
-        document.querySelector('form[action="/admin/create-prof"]').addEventListener('submit', function(e) {
-            const selectedUfrs = document.querySelectorAll('input[name="ufr_ids"]:checked');
-            const selectedFilieres = document.querySelectorAll('input[name="filiere_ids"]:checked');
+        // Charge les matières quand une filière est sélectionnée
+        profFiliereSelect.addEventListener('change', async function() {
+            const filiereId = this.value;
             
-            if (selectedUfrs.length === 0) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                alert('⚠️ Veuillez sélectionner au moins une UFR');
-                return false;
+            // Réinitialise le sélecteur suivant
+            resetProfSelect(profMatiereSelect, 'Chargement des matières...');
+            
+            if (filiereId) {
+                try {
+                    const response = await fetch(`/api/matieres/${filiereId}`);
+                    const data = await response.json();
+                    
+                    profMatiereSelect.innerHTML = '<option value="">Sélectionner une matière</option>';
+                    data.matieres.forEach(matiere => {
+                        const option = document.createElement('option');
+                        option.value = matiere.id;
+                        option.textContent = matiere.nom;
+                        profMatiereSelect.appendChild(option);
+                    });
+                    profMatiereSelect.disabled = false;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des matières:', error);
+                    resetProfSelect(profMatiereSelect, 'Erreur lors du chargement');
+                }
             }
-            
-            if (selectedFilieres.length === 0) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                alert('⚠️ Veuillez sélectionner au moins une filière');
-                return false;
-            }
-            
-            // Ne pas retourner true - laisser l'AJAX gérer la soumission
-        }, true); // Capturer en phase de capture pour s'exécuter avant l'AJAX
+        });
         
         // Fonctions de recherche pour les listes
         function searchUfr() {
@@ -2921,38 +2330,6 @@
             
             document.getElementById('matiere-count').textContent = 
                 searchTerm ? `Affichage ${visibleCount} sur ${items.length} matières` : '';
-        }
-        
-        // Toggle niveau des matières
-        function toggleNiveauMatieres(niveauId) {
-            const content = document.getElementById('content-niveau-' + niveauId);
-            const arrow = document.getElementById('arrow-niveau-' + niveauId);
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(0deg)';
-                arrow.textContent = '▼';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(-90deg)';
-                arrow.textContent = '►';
-            }
-        }
-        
-        // Toggle semestre des matières
-        function toggleSemestreMatieres(semestreId) {
-            const content = document.getElementById('content-semestre-' + semestreId);
-            const arrow = document.getElementById('arrow-semestre-' + semestreId);
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(0deg)';
-                arrow.textContent = '▼';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(-90deg)';
-                arrow.textContent = '►';
-            }
         }
         
         function searchAdmin() {
@@ -3588,7 +2965,6 @@
         function toggleForm(formType) {
             const listView = document.getElementById(`${formType}-list-view`);
             const formView = document.getElementById(`${formType}-form-view`);
-            const arrow = document.getElementById(`arrow-form-${formType}`);
             
             if (!listView || !formView) return;
             
@@ -3599,9 +2975,6 @@
             
             if (isFormHidden) {
                 // Le formulaire est caché, donc on affiche le formulaire et cache la liste
-                // Mettre à jour la flèche si elle existe
-                if (arrow) arrow.textContent = '▲';
-                
                 listView.classList.add('fade-out');
                 setTimeout(() => {
                     listView.style.display = 'none';
@@ -3617,9 +2990,6 @@
                 }, 300);
             } else {
                 // Le formulaire est visible, donc on cache le formulaire et affiche la liste
-                // Mettre à jour la flèche si elle existe
-                if (arrow) arrow.textContent = '▼';
-                
                 formView.classList.remove('fade-in');
                 formView.classList.add('fade-out');
                 setTimeout(() => {
@@ -3636,7 +3006,6 @@
                 }, 300);
             }
         }
-
         
         // Fonction pour soumettre un formulaire en AJAX et recharger la page
         async function submitFormWithReload(event, formElement) {
@@ -3761,386 +3130,6 @@
                 });
             });
         });
-        
-        // ========== HIÉRARCHIE DE PASSAGE ==========
-        
-        // Charger les filières pour les selects
-        async function loadFilieresForPassage() {
-            try {
-                const response = await fetch('/api/admin/filieres');
-                const data = await response.json();
-                
-                const selectDepart = document.getElementById('passage-filiere-depart');
-                const selectArrivee = document.getElementById('passage-filiere-arrivee');
-                
-                if (selectDepart && selectArrivee) {
-                    selectDepart.innerHTML = '<option value="">Sélectionner une filière</option>';
-                    selectArrivee.innerHTML = '<option value="">Sélectionner une filière</option>';
-                    
-                    data.forEach(filiere => {
-                        const optionDepart = new Option(filiere.nom, filiere.id);
-                        const optionArrivee = new Option(filiere.nom, filiere.id);
-                        selectDepart.add(optionDepart);
-                        selectArrivee.add(optionArrivee);
-                    });
-                }
-                
-                // Initialiser la gestion de la checkbox "même filière"
-                initPassageMemeFiliere();
-            } catch (error) {
-                console.error('Erreur lors du chargement des filières:', error);
-            }
-        }
-        
-        // Helper: Comparaison des niveaux académiques
-        function compareNiveaux(niveau1, niveau2) {
-            const ordre = {'L1': 1, 'L2': 2, 'L3': 3, 'M1': 4, 'M2': 5};
-            return ordre[niveau1] - ordre[niveau2];
-        }
-        
-        // Validation du formulaire de passage (sans soumettre)
-        function validatePassageForm(event) {
-            const checkbox = document.getElementById('passage-meme-filiere');
-            const niveauDepart = document.getElementById('passage-niveau-depart').value;
-            const niveauArrivee = document.getElementById('passage-niveau-arrivee').value;
-            
-            if (checkbox && checkbox.checked) {
-                // Validation pour passage dans la même filière
-                if (compareNiveaux(niveauArrivee, niveauDepart) <= 0) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    alert('⚠️ Pour un passage dans la même filière, le niveau d\'arrivée doit être supérieur au niveau de départ.\n\nExemple correct: L1 → L2, L2 → L3, L3 → M1\nExemple incorrect: L2 → L1, L3 → L3');
-                    return false;
-                }
-            }
-            // Ne pas retourner true - laisser l'AJAX gérer la soumission
-        }
-        
-        // Gestion de la checkbox "Passage dans la même filière"
-        function initPassageMemeFiliere() {
-            const checkbox = document.getElementById('passage-meme-filiere');
-            const selectDepart = document.getElementById('passage-filiere-depart');
-            const selectArrivee = document.getElementById('passage-filiere-arrivee');
-            const labelArrivee = document.querySelector('label[for="passage-filiere-arrivee"]');
-            const form = document.querySelector('form[action="/admin/create-passage"]');
-            
-            if (!checkbox || !selectDepart || !selectArrivee) return;
-            
-            // Ajouter validation au formulaire (en phase de capture)
-            if (form) {
-                form.addEventListener('submit', validatePassageForm, true);
-            }
-            
-            // Event listener sur la checkbox
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    // Copier la filière de départ vers la filière d'arrivée
-                    selectArrivee.value = selectDepart.value;
-                    // NE PAS utiliser disabled (empêche l'envoi du formulaire)
-                    // Utiliser pointer-events et style pour simuler un champ désactivé
-                    selectArrivee.style.opacity = '0.6';
-                    selectArrivee.style.pointerEvents = 'none';
-                    selectArrivee.style.cursor = 'not-allowed';
-                    selectArrivee.setAttribute('data-locked', 'true');
-                    if (labelArrivee) labelArrivee.style.opacity = '0.6';
-                } else {
-                    // Réactiver la sélection manuelle
-                    selectArrivee.style.opacity = '1';
-                    selectArrivee.style.pointerEvents = 'auto';
-                    selectArrivee.style.cursor = 'pointer';
-                    selectArrivee.removeAttribute('data-locked');
-                    if (labelArrivee) labelArrivee.style.opacity = '1';
-                }
-            });
-            
-            // Event listener sur la filière de départ
-            selectDepart.addEventListener('change', function() {
-                if (checkbox.checked) {
-                    // Si "même filière" est coché, synchroniser automatiquement
-                    selectArrivee.value = this.value;
-                }
-            });
-        }
-        
-        // Charger les règles de passage
-        async function loadPassageRules() {
-            try {
-                const response = await fetch('/api/admin/passage-hierarchy');
-                const data = await response.json();
-                
-                const container = document.getElementById('passage-list-container');
-                if (!container) return;
-                
-                if (data.passages.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucune règle de passage définie</p>';
-                    return;
-                }
-                
-                let html = '<div style="display: grid; gap: 1rem;">';
-                data.passages.forEach(passage => {
-                    // Détection du passage dans la même filière
-                    const memeFiliere = passage.filiere_depart === passage.filiere_arrivee;
-                    const badgeMemeFiliere = memeFiliere 
-                        ? `<span style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 1rem; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);">☑️ MÊME FILIÈRE</span>`
-                        : '';
-                    
-                    html += `
-                        <div class="user-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-left: 4px solid ${memeFiliere ? '#3b82f6' : '#8b5cf6'};">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                    ${memeFiliere 
-                                        ? `<strong style="color: #3b82f6;">📚 ${passage.filiere_depart}</strong>
-                                           <span style="color: #666;">:</span>
-                                           <span style="color: #8b5cf6; font-weight: 600;">${passage.niveau_depart}</span>
-                                           <span style="margin: 0 0.5rem; color: #3b82f6; font-weight: bold;">→</span>
-                                           <span style="color: #16a34a; font-weight: 600;">${passage.niveau_arrivee}</span>
-                                           ${badgeMemeFiliere}`
-                                        : `<strong style="color: #8b5cf6;">📚 ${passage.filiere_depart} (${passage.niveau_depart})</strong>
-                                           <span style="margin: 0 1rem; color: #666;">→</span>
-                                           <strong style="color: #16a34a;">📚 ${passage.filiere_arrivee} (${passage.niveau_arrivee})</strong>`
-                                    }
-                                </div>
-                                ${passage.universite_nom ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">🏛️ ${passage.universite_nom}</div>` : ''}
-                            </div>
-                            <button onclick="deletePassageRule(${passage.id})" class="btn-small" style="background: #dc2626; color: white;" title="Supprimer">
-                                🗑️
-                            </button>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Erreur lors du chargement des règles:', error);
-                document.getElementById('passage-list-container').innerHTML = '<p style="text-align: center; color: #dc2626; padding: 1rem;">Erreur de chargement</p>';
-            }
-        }
-        
-        // Charger les statistiques
-        async function loadPassageStats() {
-            try {
-                const response = await fetch('/api/admin/passage/statistiques');
-                const data = await response.json();
-                
-                const container = document.getElementById('passage-stats-container');
-                if (!container) return;
-                
-                let html = `
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 0.75rem 1rem;">
-                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Total passages</h3>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.total}</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 0.75rem 1rem;">
-                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Passés</h3>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.passes}</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); padding: 0.75rem 1rem;">
-                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Redoublants</h3>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.redoublants}</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); padding: 0.75rem 1rem;">
-                            <h3 style="color: white; font-size: 0.9rem; margin-bottom: 0.25rem;">Changements filière</h3>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.changements_filiere}</div>
-                        </div>
-                    </div>
-                `;
-                
-                if (data.recent_passages && data.recent_passages.length > 0) {
-                    html += '<h4 style="margin-bottom: 1rem;">Passages récents</h4>';
-                    html += '<div style="display: grid; gap: 0.5rem;">';
-                    data.recent_passages.forEach(p => {
-                        const badgeColor = p.statut === 'passé' ? '#16a34a' : '#ea580c';
-                        html += `
-                            <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                <span><strong>${p.nom}</strong>: ${p.ancien_niveau} → ${p.nouveau_niveau}</span>
-                                <span style="background: ${badgeColor}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">
-                                    ${p.statut}
-                                </span>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                }
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Erreur lors du chargement des statistiques:', error);
-                document.getElementById('passage-stats-container').innerHTML = '<p style="text-align: center; color: #dc2626; padding: 1rem;">Erreur de chargement</p>';
-            }
-        }
-        
-        // Supprimer une règle de passage
-        async function deletePassageRule(passageId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cette règle de passage ?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/admin/passage/${passageId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showAlert('Règle supprimée avec succès', 'success');
-                    loadPassageRules();
-                } else {
-                    showAlert('Erreur lors de la suppression', 'error');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showAlert('Erreur de communication avec le serveur', 'error');
-            }
-        }
-        
-        // Initialiser l'onglet passage quand il est ouvert
-        const originalShowTab = showTab;
-        showTab = function(tabName) {
-            originalShowTab(tabName);
-            
-            if (tabName === 'passage') {
-                loadFilieresForPassage();
-                loadPassageRules();
-                loadPassageStats();
-            }
-        };
-        
-        // Fonction réutilisable pour gérer les soumissions AJAX des formulaires admin
-        function setupAdminFormAjax(formSelector, onSuccess) {
-            const form = document.querySelector(formSelector);
-            if (!form) return;
-            
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(form);
-                const submitBtn = form.querySelector('button[type="submit"]');
-                
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = '⏳ En cours...';
-                    
-                    try {
-                        const response = await fetch(form.action, {
-                            method: 'POST',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: formData
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            showAlert(data.message, 'success');
-                            
-                            // Sauvegarder l'onglet actif avant de recharger
-                            const activeTab = document.querySelector('.tab-btn.active');
-                            if (activeTab) {
-                                const tabName = activeTab.id.replace('tab-', '');
-                                sessionStorage.setItem('activeAdminTab', tabName);
-                            }
-                            
-                            // Recharger immédiatement pour afficher la nouvelle entité
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 500);
-                            
-                            if (onSuccess && typeof onSuccess === 'function') {
-                                onSuccess(data);
-                            }
-                        } else {
-                            showAlert(data.message, 'error');
-                        }
-                    } catch (error) {
-                        console.error('Erreur AJAX:', error);
-                        showAlert('Erreur de communication avec le serveur', 'error');
-                    } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalText;
-                    }
-                }
-            });
-        }
-        
-        // Appliquer AJAX aux formulaires admin
-        document.addEventListener('DOMContentLoaded', function() {
-            // Restaurer l'onglet actif après rechargement
-            const savedTab = sessionStorage.getItem('activeAdminTab');
-            if (savedTab) {
-                showTab(savedTab);
-                sessionStorage.removeItem('activeAdminTab');
-            }
-            
-            setupAdminFormAjax('form[action="/admin/create-admin"]');
-            setupAdminFormAjax('form[action="/admin/create-prof"]');
-            setupAdminFormAjax('form[action="/admin/create-universite"]');
-            setupAdminFormAjax('form[action="/admin/create-ufr"]');
-            setupAdminFormAjax('form[action="/admin/create-filiere"]');
-            setupAdminFormAjax('form[action="/admin/create-matiere"]');
-            setupAdminFormAjax('form[action="/admin/create-passage"]', function() {
-                loadPassageRules();
-                loadPassageStats();
-            });
-        });
-        
-        // Exposer toutes les fonctions au scope global pour les attributs onclick
-        // Ceci résout le problème où les fonctions ne sont pas accessibles sur Render
-        window.showTab = showTab;
-        window.loadUniversiteSettings = loadUniversiteSettings;
-        window.toggleTelechargements = toggleTelechargements;
-        window.updateDownloadButtonStatus = updateDownloadButtonStatus;
-        window.loadDownloadStatus = loadDownloadStatus;
-        window.togglePassageClasse = togglePassageClasse;
-        window.updatePassageClasseButtonStatus = updatePassageClasseButtonStatus;
-        window.loadPassageClasseStatus = loadPassageClasseStatus;
-        window.filterCheckboxes = filterCheckboxes;
-        window.updateFiliereCheckboxes = updateFiliereCheckboxes;
-        window.searchUfr = searchUfr;
-        window.searchFiliere = searchFiliere;
-        window.searchMatiere = searchMatiere;
-        window.toggleNiveauMatieres = toggleNiveauMatieres;
-        window.toggleSemestreMatieres = toggleSemestreMatieres;
-        window.searchAdmin = searchAdmin;
-        window.searchProf = searchProf;
-        window.searchEtudiant = searchEtudiant;
-        window.searchUniversite = searchUniversite;
-        window.filterSelectOptions = filterSelectOptions;
-        window.editAdmin = editAdmin;
-        window.toggleAdminStatus = toggleAdminStatus;
-        window.deleteAdmin = deleteAdmin;
-        window.toggleProfStatus = toggleProfStatus;
-        window.editProf = editProf;
-        window.deleteProf = deleteProf;
-        window.deleteEtudiant = deleteEtudiant;
-        window.editUniversite = editUniversite;
-        window.deleteUniversite = deleteUniversite;
-        window.editUfr = editUfr;
-        window.deleteUfr = deleteUfr;
-        window.editFiliere = editFiliere;
-        window.deleteFiliere = deleteFiliere;
-        window.editMatiere = editMatiere;
-        window.deleteMatiere = deleteMatiere;
-        window.uploadLogo = uploadLogo;
-        window.cancelLogoUpload = cancelLogoUpload;
-        window.togglePassword = togglePassword;
-        window.toggleForm = toggleForm;
-        window.submitFormWithReload = submitFormWithReload;
-        window.saveActiveTabBeforeSubmit = saveActiveTabBeforeSubmit;
-        window.loadFilieresForPassage = loadFilieresForPassage;
-        window.compareNiveaux = compareNiveaux;
-        window.validatePassageForm = validatePassageForm;
-        window.initPassageMemeFiliere = initPassageMemeFiliere;
-        window.loadPassageRules = loadPassageRules;
-        window.loadPassageStats = loadPassageStats;
-        window.deletePassageRule = deletePassageRule;
-        window.setupAdminFormAjax = setupAdminFormAjax;
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
@@ -4154,17 +3143,6 @@
                 navigator.serviceWorker.register('/static/sw.js')
                     .then(registration => {
                         console.log('✅ Service Worker enregistré avec succès:', registration.scope);
-                        
-                        // Forcer mise à jour lors de la détection d'un nouveau SW
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'activated') {
-                                    console.log('🔄 Nouveau Service Worker activé, rechargement...');
-                                    window.location.reload();
-                                }
-                            });
-                        });
                     })
                     .catch(error => {
                         console.log('❌ Échec de l\'enregistrement du Service Worker:', error);
@@ -4173,3 +3151,4 @@
         }
     </script>
 </body>
+</html>

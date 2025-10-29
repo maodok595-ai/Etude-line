@@ -27,7 +27,6 @@ from models import (
     PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
 )
 from migration import migrate_data
-from cache_simple import app_cache, CACHE_KEYS
 
 # === CONFIGURATION STOCKAGE FICHIERS ===
 # Détection automatique de l'environnement pour utiliser le bon chemin de stockage
@@ -72,9 +71,6 @@ async def add_security_headers(request: Request, call_next):
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Mount uploads files (pour servir les logos et autres fichiers uploadés)
-app.mount("/files", StaticFiles(directory="uploads"), name="files")
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -669,12 +665,7 @@ def get_accessible_content(db: Session, username: str) -> List[Dict[str, Any]]:
 
 # Helper functions for academic structure (PostgreSQL)
 def get_universites(db: Session) -> List[Dict[str, Any]]:
-    """Get all universities from PostgreSQL
-    
-    NOTE: Cache désactivé car incompatible avec Gunicorn multi-workers (8 workers).
-    Chaque worker a son propre cache en mémoire, l'invalidation ne fonctionne pas.
-    Pour activer le cache : utiliser Redis (cache distribué partagé entre workers).
-    """
+    """Get all universities from PostgreSQL"""
     universites = db.query(UniversiteDB).all()
     return [{"id": u.id, "nom": u.nom, "code": u.code, "logo_url": u.logo_url} for u in universites]
 
@@ -821,20 +812,15 @@ def delete_all_professor_content(db: Session, professor_username: str) -> Dict[s
     - Tous ses chapitres (avec fichiers, commentaires, notifications)
     - Toutes ses notifications
     Retourne un dict avec les compteurs de suppressions
-    
-    ⚡ OPTIMISATION SCALABILITÉ: Suppression en batch pour éviter crash mémoire
     """
     stats = {"chapitres": 0, "fichiers": 0, "commentaires": 0, "notifications": 0}
     
-    # ⚡ OPTIMISÉ: Récupérer les IDs uniquement (pas les objets complets)
-    chapitre_ids = db.query(ChapitreCompletDB.id)\
-        .filter_by(created_by=professor_username)\
-        .all()
-    chapitre_ids = [ch_id[0] for ch_id in chapitre_ids]
+    # Récupérer tous les chapitres du professeur
+    chapitres = db.query(ChapitreCompletDB).filter_by(created_by=professor_username).all()
     
-    # Supprimer chaque chapitre via la fonction existante
-    for chapitre_id in chapitre_ids:
-        chapitre_stats = delete_chapitre_complete(db, chapitre_id)
+    for chapitre in chapitres:
+        # Supprimer chaque chapitre complètement
+        chapitre_stats = delete_chapitre_complete(db, chapitre.id)
         stats["fichiers"] += chapitre_stats["fichiers"]
         stats["commentaires"] += chapitre_stats["commentaires"]
         stats["notifications"] += chapitre_stats["notifications"]
@@ -1626,37 +1612,9 @@ async def create_chapitre_complet(
             return RedirectResponse(url=f"/dashboard/prof?error={error_message}", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
-async def serve_uploaded_file(file_path: str, request: Request, db: Session = Depends(get_db)):
+async def serve_uploaded_file(file_path: str, request: Request):
     """Serve uploaded files with proper content type for browser viewing"""
     import mimetypes
-    
-    # Détecter si c'est un appareil mobile
-    user_agent = request.headers.get("user-agent", "").lower()
-    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
-    
-    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
-    if not is_mobile:
-        try:
-            role, username, user_data = require_auth(request, db)
-            
-            # Si c'est un étudiant sur desktop, vérifier les permissions
-            if role == "etudiant":
-                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
-                
-                if universite_id:
-                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
-                    
-                    # Si les téléchargements sont désactivés, bloquer l'accès
-                    if parametre and not parametre.telechargements_actifs:
-                        raise HTTPException(
-                            status_code=403, 
-                            detail="Les téléchargements sont actuellement désactivés par votre université"
-                        )
-        except HTTPException:
-            raise
-        except Exception:
-            # En cas d'erreur d'authentification, continuer (fichiers publics)
-            pass
     
     # Remove uploads/ prefix if it exists to avoid double prefix
     if file_path.startswith("uploads/"):
@@ -1671,6 +1629,10 @@ async def serve_uploaded_file(file_path: str, request: Request, db: Session = De
     mime_type, _ = mimetypes.guess_type(str(file_location))
     if mime_type is None:
         mime_type = 'application/octet-stream'
+    
+    # Détecter si c'est un appareil mobile
+    user_agent = request.headers.get("user-agent", "").lower()
+    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
     
     # Pour les PDF, optimiser selon le type d'appareil
     if mime_type == 'application/pdf':
@@ -1704,37 +1666,9 @@ async def serve_uploaded_file(file_path: str, request: Request, db: Session = De
         )
 
 @app.get("/files/view/{file_path:path}")
-async def view_file(file_path: str, request: Request, db: Session = Depends(get_db)):
+async def view_file(file_path: str):
     """Afficher le fichier dans le navigateur (inline)"""
     import mimetypes
-    
-    # Détecter si c'est un appareil mobile
-    user_agent = request.headers.get("user-agent", "").lower()
-    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
-    
-    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
-    if not is_mobile:
-        try:
-            role, username, user_data = require_auth(request, db)
-            
-            # Si c'est un étudiant sur desktop, vérifier les permissions
-            if role == "etudiant":
-                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
-                
-                if universite_id:
-                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
-                    
-                    # Si les téléchargements sont désactivés, bloquer l'accès
-                    if parametre and not parametre.telechargements_actifs:
-                        raise HTTPException(
-                            status_code=403, 
-                            detail="Les téléchargements sont actuellement désactivés par votre université"
-                        )
-        except HTTPException:
-            raise
-        except Exception:
-            # En cas d'erreur d'authentification, continuer (fichiers publics)
-            pass
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1760,38 +1694,10 @@ async def view_file(file_path: str, request: Request, db: Session = Depends(get_
     )
 
 @app.get("/files/download/{file_path:path}")
-async def download_file(file_path: str, request: Request, db: Session = Depends(get_db)):
+async def download_file(file_path: str, db: Session = Depends(get_db)):
     """Forcer le téléchargement du fichier avec le titre du chapitre dans le nom"""
     import mimetypes
     import urllib.parse
-    
-    # Détecter si c'est un appareil mobile
-    user_agent = request.headers.get("user-agent", "").lower()
-    is_mobile = any(mobile in user_agent for mobile in ["mobile", "android", "iphone", "ipad"])
-    
-    # Vérification de sécurité : bloquer l'accès si téléchargements désactivés (desktop uniquement)
-    if not is_mobile:
-        try:
-            role, username, user_data = require_auth(request, db)
-            
-            # Si c'est un étudiant sur desktop, vérifier les permissions
-            if role == "etudiant":
-                universite_id = user_data.get('universite_id') if isinstance(user_data, dict) else getattr(user_data, 'universite_id', None)
-                
-                if universite_id:
-                    parametre = db.query(ParametreUniversiteDB).filter_by(universite_id=universite_id).first()
-                    
-                    # Si les téléchargements sont désactivés, bloquer l'accès
-                    if parametre and not parametre.telechargements_actifs:
-                        raise HTTPException(
-                            status_code=403, 
-                            detail="Les téléchargements sont actuellement désactivés par votre université"
-                        )
-        except HTTPException:
-            raise
-        except Exception:
-            # En cas d'erreur d'authentification, continuer (fichiers publics)
-            pass
     
     if file_path.startswith("uploads/"):
         file_path = file_path[8:]
@@ -1901,15 +1807,10 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
         }
     
     # Get ALL complete chapters from student's filiere (all levels: L1, L2, L3, M1, M2)
-    # ⚡ OPTIMISATION SCALABILITÉ: Limite à 100 chapitres les plus récents pour éviter surcharge mémoire
     chapitres_filiere = []
     if student and student.get("filiere_id"):
         # Get chapters from PostgreSQL using the ChapitreComplet model
-        chapitres_complets = db.query(ChapitreCompletDB)\
-            .filter_by(filiere_id=student["filiere_id"])\
-            .order_by(ChapitreCompletDB.created_at.desc())\
-            .limit(100)\
-            .all()
+        chapitres_complets = db.query(ChapitreCompletDB).filter_by(filiere_id=student["filiere_id"]).all()
         
         # Convert to dict format for template
         chapitres_filiere = []
@@ -2140,14 +2041,11 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
         "universite_id": admin.universite_id
     } for admin in admins]
     
-    # ⚡ OPTIMISATION: Limite à 1000 professeurs pour éviter timeout
-    # CRITIQUE pour 100k utilisateurs
+    # Get professors (filtered by university for secondary admins)
     if is_main_admin:
-        profs = db.query(ProfesseurDB).order_by(ProfesseurDB.id.desc()).limit(1000).all()
+        profs = db.query(ProfesseurDB).all()
     else:
-        profs = db.query(ProfesseurDB).filter(
-            ProfesseurDB.universite_id == admin_universite_id
-        ).order_by(ProfesseurDB.id.desc()).limit(1000).all()
+        profs = db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == admin_universite_id).all()
     
     # ⚡ OPTIMISATION: Charger toutes les relations UFRs/filières en 2 requêtes au lieu de 2×N requêtes
     from sqlalchemy import text
@@ -2207,38 +2105,17 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
             "matiere": prof.matiere
         })
     
-    # ⚡ OPTIMISATION: Limite à 1000 étudiants + tri pour éviter timeout
-    # CRITIQUE pour 100k utilisateurs : limite la charge mémoire
-    # TODO: Implémenter pagination complète avec UI (boutons page 1, 2, 3...)
+    # Get students (filtered by university for secondary admins)
     if is_main_admin:
-        etudiants = db.query(EtudiantDB).order_by(EtudiantDB.created_at.desc()).limit(1000).all()
+        etudiants = db.query(EtudiantDB).all()
     else:
-        etudiants = db.query(EtudiantDB).filter(
-            EtudiantDB.universite_id == admin_universite_id
-        ).order_by(EtudiantDB.created_at.desc()).limit(1000).all()
+        etudiants = db.query(EtudiantDB).filter(EtudiantDB.universite_id == admin_universite_id).all()
     
-    # ⚡ OPTIMISATION SCALABILITÉ: Cache lookups pour réduire requêtes DB répétitives
-    # Charge une seule fois et met en cache pendant 10 minutes
-    cache_key = f"lookups_admin_{admin_universite_id if not is_main_admin else 'main'}"
-    cached_lookups = app_cache.get(cache_key)
-    
-    if cached_lookups is None:
-        # Charger toutes les universités, UFRs et filières en une seule fois
-        # au lieu de faire 3 requêtes par étudiant (3 × 18 = 54 requêtes → 3 requêtes !)
-        all_universites = {u.id: u for u in db.query(UniversiteDB).all()}
-        all_ufrs = {u.id: u for u in db.query(UFRDB).all()}
-        all_filieres = {f.id: f for f in db.query(FiliereDB).all()}
-        
-        cached_lookups = {
-            'universites': all_universites,
-            'ufrs': all_ufrs,
-            'filieres': all_filieres
-        }
-        app_cache.set(cache_key, cached_lookups, ttl=600)  # Cache 10 minutes
-    else:
-        all_universites = cached_lookups['universites']
-        all_ufrs = cached_lookups['ufrs']
-        all_filieres = cached_lookups['filieres']
+    # ⚡ OPTIMISATION: Charger toutes les universités, UFRs et filières en une seule fois
+    # au lieu de faire 3 requêtes par étudiant (3 × 18 = 54 requêtes → 3 requêtes !)
+    all_universites = {u.id: u for u in db.query(UniversiteDB).all()}
+    all_ufrs = {u.id: u for u in db.query(UFRDB).all()}
+    all_filieres = {f.id: f for f in db.query(FiliereDB).all()}
     
     etudiants_data = []
     for etud in etudiants:
