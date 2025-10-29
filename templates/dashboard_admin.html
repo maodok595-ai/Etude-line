@@ -1319,6 +1319,21 @@
             window.toggleStatCard = toggleStatCard;
         </script>
         
+        <!-- Pré-déclaration des fonctions définies plus bas pour les onglets -->
+        <script>
+            // Fonction temporaire pour éviter les erreurs avant le chargement complet
+            function showTab(tabName) {
+                // Cette fonction sera remplacée par la vraie version plus bas
+                const contents = document.querySelectorAll('.tab-content');
+                contents.forEach(content => content.classList.remove('active'));
+                const tabs = document.querySelectorAll('.tab-btn');
+                tabs.forEach(tab => tab.classList.remove('active'));
+                document.getElementById('content-' + tabName).classList.add('active');
+                document.getElementById('tab-' + tabName).classList.add('active');
+            }
+            window.showTab = showTab;
+        </script>
+        
         {% if error %}
         <script>showAlert('{{ error }}', 'error');</script>
         {% endif %}
