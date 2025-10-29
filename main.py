@@ -1228,8 +1228,36 @@ async def dashboard_prof(request: Request, db: Session = Depends(get_db)):
     # Create hierarchical structure: Niveau → Matière → Semestre → Chapitres
     hierarchie = {}
     for chapitre in prof_chapitres:
+        # Normalize niveau to canonical format (L1, L2, L3, M1, M2)
         niveau = chapitre.niveau
+        if niveau:
+            niveau_map = {
+                "Licence 1": "L1", "licence 1": "L1", "L 1": "L1",
+                "Licence 2": "L2", "licence 2": "L2", "L 2": "L2",
+                "Licence 3": "L3", "licence 3": "L3", "L 3": "L3",
+                "Master 1": "M1", "master 1": "M1", "M 1": "M1",
+                "Master 2": "M2", "master 2": "M2", "M 2": "M2",
+            }
+            niveau = niveau_map.get(niveau, niveau)
+            # Skip if niveau is not in the canonical list
+            if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
+                continue
+        else:
+            continue  # Skip chapitres without niveau
+        
+        # Normalize semestre to canonical format (S1, S2)
         semestre = chapitre.semestre
+        if semestre:
+            semestre_map = {
+                "Semestre 1": "S1", "semestre 1": "S1", "1": "S1",
+                "Semestre 2": "S2", "semestre 2": "S2", "2": "S2",
+            }
+            semestre = semestre_map.get(semestre, semestre)
+            # Skip if semestre is not in the canonical list
+            if semestre not in ["S1", "S2"]:
+                continue
+        else:
+            continue  # Skip chapitres without semestre
         
         # Use eager loaded relationship instead of loop
         matiere_nom = chapitre.matiere.nom if chapitre.matiere else "Matière inconnue"

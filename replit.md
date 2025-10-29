@@ -280,6 +280,41 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
+**29 octobre 2025 - Correction de l'affichage des chapitres dans le dashboard professeur**
+
+### Correction bug : Les chapitres ne s'affichent pas
+**Problème rapporté** : L'utilisateur indiquait que "l'application ne s'affiche pas dans preview" en parlant de l'affichage des chapitres.
+
+**Diagnostic** :
+Le template dashboard_prof.html utilise `{% if hierarchie %}` pour afficher les chapitres, où `hierarchie` est un dictionnaire construit avec des clés canoniques :
+- Niveaux : "L1", "L2", "L3", "M1", "M2"
+- Semestres : "S1", "S2"
+
+**Problème identifié** :
+Si des chapitres dans la base de données ont des valeurs non-canoniques (comme "Licence 1" au lieu de "L1", ou "Semestre 1" au lieu de "S1"), ils ne sont pas ajoutés à `hierarchie` et donc n'apparaissent jamais dans l'affichage.
+
+**Solution implémentée** :
+✅ **Normalisation automatique** des valeurs avant construction de la hiérarchie :
+- "Licence 1", "licence 1", "L 1" → "L1"
+- "Licence 2", "licence 2", "L 2" → "L2"
+- (etc. pour tous les niveaux)
+- "Semestre 1", "semestre 1", "1" → "S1"
+- "Semestre 2", "semestre 2", "2" → "S2"
+
+✅ **Filtrage strict** : Les chapitres sans niveau/semestre ou avec des valeurs invalides sont ignorés proprement (pas d'erreur)
+
+✅ **Message d'aide existant** : Le template affiche déjà "📝 Aucun chapitre complet publié" quand `hierarchie` est vide
+
+**Impact** :
+- 📚 Les chapitres s'affichent maintenant même avec des valeurs non-canoniques
+- 🔄 Rétrocompatibilité totale avec les anciennes données
+- ⚠️ Chapitres avec des valeurs invalides sont ignorés silencieusement
+- 💡 Message d'aide clair pour guider les professeurs
+
+**Fichier modifié** : `main.py` (fonction `dashboard_prof`)
+
+---
+
 **29 octobre 2025 - Correction affichage mobile du dashboard professeur**
 
 ### Correction bug : Affichage mobile perturbé par les optimisations desktop
