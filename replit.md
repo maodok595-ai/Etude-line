@@ -280,6 +280,46 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
+**29 octobre 2025 - Analyse de scalabilité : 50,000 étudiants**
+
+### Rapport critique sur la capacité du système
+**Question utilisateur** : Le système peut-il gérer 50,000 étudiants ?
+
+**Réponse** : ❌ **NON, pas dans l'état actuel**
+
+**Capacité actuelle estimée** : 500-1,000 étudiants maximum
+
+**Problèmes critiques identifiés** :
+1. 🔴 **Pagination absente** : 46 requêtes `.all()` chargent TOUS les étudiants en RAM
+2. 🔴 **Plan Render Free insuffisant** : 512 MB RAM vs 2-4 GB requis
+3. 🔴 **1 seul worker Uvicorn** : Gère ~20 utilisateurs vs 500+ requis
+4. 🔴 **Pas de cache** : 2,500-5,000 requêtes SQL/seconde
+5. 🔴 **Index SQL manquants** : 8 index critiques absents
+6. 🔴 **Stockage non optimisé** : 1.5 million de fichiers potentiels
+
+**Modifications OBLIGATOIRES pour 50k étudiants** :
+- ✅ Ajouter pagination (toutes les listes)
+- ✅ Créer 10 index SQL manquants
+- ✅ Upgrade Render Starter Plan minimum ($16/mois)
+- ✅ Passer à Gunicorn multi-workers (4-8 workers)
+- ✅ Ajouter Redis cache ($7/mois)
+
+**Capacité par configuration** :
+- Free actuel : 500-1,000 étudiants max
+- Starter + optimisations : 5,000-10,000 étudiants
+- Pro + cache + index : 20,000-50,000 étudiants ✅
+- Enterprise : 100,000+ étudiants
+
+**Coût pour 50k étudiants** :
+- Minimum : $16/mois (Starter)
+- Recommandé : $79/mois (Pro + Redis + S3)
+
+**Temps de mise en œuvre** : 4-6 heures de développement
+
+**Fichier créé** : `SCALABILITE_50K_ETUDIANTS.md` (rapport détaillé avec solutions complètes)
+
+---
+
 **29 octobre 2025 - Nettoyage complet du projet**
 
 ### Grand nettoyage et optimisation du projet
