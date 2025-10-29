@@ -601,10 +601,21 @@
             object-fit: contain;
             margin: 0.75rem auto 1rem;
             display: block;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
             background: white;
-            padding: 0.4rem;
+            padding: 0.8rem;
+            border: 4px solid rgba(139, 92, 246, 0.3);
+            position: relative;
+        }
+        
+        .university-logo::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+            border-radius: 16px;
+            z-index: -1;
         }
 
         .university-name {
