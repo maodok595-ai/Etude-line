@@ -2,27 +2,42 @@
 
 ## Recent Changes
 
-**29 octobre 2025 - Encadré violet autour du logo universitaire (Admin secondaire)**
+**29 octobre 2025 - Encadré violet autour du logo universitaire + Réduction hauteur (Admin secondaire)**
 
-### Amélioration visuelle : Logo avec effet violet
-**Demande utilisateur** : Ajouter un encadré violet visible autour du logo de l'université pour les administrateurs secondaires.
+### Amélioration visuelle : Logo avec effet violet et section compacte
+**Demande utilisateur** : 
+1. Ajouter un encadré violet visible autour du logo de l'université
+2. Réduire la hauteur de la section violette du haut en bas
 
-**Avant** : Le logo s'affichait avec un fond blanc et une ombre simple.
+**Avant** : 
+- Logo blanc simple sans effet
+- Section violette très haute avec beaucoup d'espace
 
-**Après** : Le logo universitaire est maintenant entouré d'un effet violet élégant avec :
-- Bordure violette semi-transparente (4px)
-- Ombre portée violette pour effet lumineux
-- Fond dégradé violet subtil autour du logo
-- Meilleure mise en valeur du logo
+**Après** : 
+- Logo entouré d'un wrapper violet avec effet lumineux
+- Section violette plus compacte et optimisée
+
+**Modifications appliquées** :
+1. **Wrapper violet autour du logo** :
+   - Fond dégradé violet semi-transparent
+   - Ombre lumineuse violette (halo)
+   - Padding de 10px pour créer l'effet d'encadrement
+   
+2. **Réduction de la hauteur** :
+   - Padding section : 2rem → 1rem (haut/bas réduit de 50%)
+   - Marge titre : 1.5rem → 0.75rem (réduite de 50%)
+   - Taille logo : 110px → 90px (réduite de 18%)
+   - Espacement général optimisé pour une section plus compacte
 
 **Fichiers modifiés** :
-- `templates/dashboard_admin.html` (lignes 601-622)
+- `templates/dashboard_admin.html` (lignes 585, 601-609, 619, 1339)
 
 **Impact** :
-- ✅ Logo mieux mis en valeur visuellement
-- ✅ Cohérence avec le thème violet de l'université
-- ✅ Effet élégant et professionnel
-- ✅ Meilleure identité visuelle
+- ✅ Logo mieux mis en valeur avec effet violet
+- ✅ Section violette 40-50% plus compacte
+- ✅ Interface plus moderne et épurée
+- ✅ Meilleure utilisation de l'espace écran
+- ✅ Cohérence visuelle avec le thème violet
 
 ---
 

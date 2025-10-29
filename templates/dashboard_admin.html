@@ -579,7 +579,7 @@
         .university-welcome {
             text-align: center;
             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-            padding: 2rem 1rem 1.5rem;
+            padding: 1rem 1rem 0.75rem;
             margin: -1.5rem -1.5rem 1rem -1.5rem;
             border-radius: var(--radius) var(--radius) 0 0;
             position: relative;
@@ -596,13 +596,13 @@
         }
 
         .university-logo {
-            width: 110px;
-            height: 110px;
+            width: 90px;
+            height: 90px;
             object-fit: contain;
             display: block;
             border-radius: 12px;
             background: white;
-            padding: 0.8rem;
+            padding: 0.6rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
@@ -613,7 +613,7 @@
             color: white;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0 0 1.5rem 0;
+            margin: 0 0 0.75rem 0;
             line-height: 1.4;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
@@ -1333,7 +1333,7 @@
                         BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                     </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <div style="display: inline-block; padding: 12px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2)); border-radius: 20px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.75rem auto 1rem;">
+                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0.75rem;">
                             <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
                         </div>
                     {% endif %}
