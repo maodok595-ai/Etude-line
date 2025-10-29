@@ -280,6 +280,36 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
+**29 octobre 2025 - Correction affichage mobile du dashboard professeur**
+
+### Correction bug : Affichage mobile perturbé par les optimisations desktop
+**Problème rapporté** : Le nouvel affichage ordinateur de la section professeur a perturbé l'affichage mobile.
+
+**Cause identifiée** :
+- Des media queries desktop (1400px, 1600px, 1920px, 2560px) ont été ajoutées précédemment
+- Ces optimisations desktop créaient des conflits avec les styles mobiles existants
+- Certains styles (padding, taille logo, font-size) étaient appliqués incorrectement sur mobile
+
+**Solution appliquée** :
+- ✅ Suppression de toutes les media queries desktop problématiques
+- ✅ Conservation des media queries mobiles et tablettes qui fonctionnaient bien
+- ✅ Retour à un affichage mobile stable et optimisé
+
+**Styles mobiles préservés** :
+- ✅ @media (max-width: 768px) : Tablettes
+- ✅ @media (max-width: 600px) : Mobiles
+- ✅ @media (max-width: 480px) : Petits mobiles
+
+**Impact** :
+- 📱 Affichage mobile restauré et fonctionnel
+- 💻 Desktop conserve un affichage correct avec les styles de base
+- ⚖️ Meilleur équilibre entre desktop et mobile
+- 🔧 Plus de conflits CSS entre les media queries
+
+**Fichier modifié** : `templates/dashboard_prof.html`
+
+---
+
 **29 octobre 2025 - Thème violet intégral pour toute la page administrateur secondaire**
 
 ### Amélioration visuelle majeure : Page complète en violet pour l'administrateur secondaire
