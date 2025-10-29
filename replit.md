@@ -2,10 +2,12 @@
 
 ## Recent Changes
 
-**29 octobre 2025 - Encadré violet limité au logo universitaire (Admin secondaire)**
+**29 octobre 2025 - Design violet pour administrateur secondaire**
 
-### Amélioration visuelle : Encadré violet uniquement autour du logo
-**Demande utilisateur** : La couleur violet doit se limiter aux écritures/encadré qui entoure le logo, pas toute la section.
+### Amélioration visuelle : Textes en violet + Encadré violet autour du logo
+**Demande utilisateur** : 
+1. La couleur violet doit se limiter aux écritures/encadré qui entoure le logo, pas toute la section
+2. Colorer en violet le titre "BIENVENUE" et les informations de l'administrateur
 
 **Avant** : 
 - Toute la section en haut avait un grand fond violet dégradé
@@ -13,23 +15,26 @@
 - Box d'informations sur fond violet transparent
 
 **Après** : 
-- **Seulement le logo** a un encadré violet avec effet lumineux
-- Section sur fond blanc propre
-- Titre en couleur foncée (#333)
+- **Fond blanc propre** pour toute la section
+- **Titre "BIENVENUE" en violet** (#8b5cf6)
+- **Logo avec encadré violet** et effet lumineux
+- **Informations administrateur en violet** (#8b5cf6)
 - Box d'informations sur fond gris clair
 
 **Modifications appliquées** :
-1. **Encadré violet limité au logo** :
+1. **Textes en violet** :
+   - Titre "BIENVENUE A L'UNIVERSITÉ..." : couleur #8b5cf6
+   - Informations administrateur (prénom, nom, rôle) : couleur #8b5cf6
+   
+2. **Encadré violet limité au logo** :
    - Wrapper violet autour du logo uniquement
    - Fond dégradé violet semi-transparent
    - Ombre lumineuse violette (halo)
    - Padding de 10px pour l'effet d'encadrement
    
-2. **Section sur fond blanc** :
+3. **Section sur fond blanc** :
    - Fond de section : violet → blanc
-   - Couleur titre : blanc → #333 (gris foncé)
-   - Ombre de texte supprimée
-   - Box d'informations : fond violet → gris clair (#f8f9fa)
+   - Box d'informations : fond gris clair (#f8f9fa) avec bordure bleue
 
 3. **Optimisations d'espace** :
    - Taille logo : 90px (compact)
