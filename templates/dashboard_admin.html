@@ -575,14 +575,15 @@
             margin: 0.3rem 0;
         }
         
-        /* Styles pour le logo et nom de l'université (admin secondaire) */
+        /* Styles pour le logo et nom de l'université (admin secondaire) - Coloration violette */
         .university-welcome {
             text-align: center;
-            background: white;
-            padding: 1rem 1rem 0.75rem;
+            background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+            padding: 1.5rem 1rem 1rem;
             margin: 0;
             border-radius: 0;
             position: relative;
+            border-bottom: 3px solid #9C27B0;
         }
         
         .university-welcome::after {
@@ -591,8 +592,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 0;
-            background: transparent;
+            height: 3px;
+            background: linear-gradient(90deg, #9C27B0, #7B1FA2, #9C27B0);
         }
 
         .university-logo {
@@ -603,27 +604,29 @@
             border-radius: 12px;
             background: white;
             padding: 0.6rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
         }
 
         .university-name {
             font-family: 'Poppins', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            color: #333;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin: 0 0 0.75rem 0;
             line-height: 1.4;
-            text-shadow: none;
         }
 
         .user-info-box {
             padding: 0.75rem 1rem;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
             border-radius: 8px;
             margin-top: 1rem;
-            border-left: 3px solid var(--accent);
+            border-left: 3px solid #9C27B0;
         }
 
         .user-info-box p {
@@ -1333,7 +1336,7 @@
                         BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                     </h2>
                     {% if admin_universite and admin_universite.logo_url %}
-                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0;">
+                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.5rem auto 0;">
                             <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
                         </div>
                     {% endif %}
@@ -1350,7 +1353,7 @@
             <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
                 ⚙️ Contrôles des fonctionnalités
                 {% if not admin.get('is_main_admin') and admin_universite %}
-                    <span style="color: #8b5cf6; font-weight: 500;">({{ admin_universite.nom }})</span>
+                    <span style="color: #9C27B0; font-weight: 500;">({{ admin_universite.nom }})</span>
                 {% endif %}
             </h3>
             

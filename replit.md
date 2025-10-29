@@ -280,6 +280,28 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
+**29 octobre 2025 - Coloration violette de la page administrateur secondaire**
+
+### Amélioration visuelle : Thème violet pour l'administrateur secondaire
+**Demande utilisateur** : Appliquer une coloration violette à la page d'information de l'administrateur secondaire.
+
+**Éléments colorés en violet** :
+- ✅ Fond d'accueil : Dégradé violet clair (#f3e8ff → #ede9fe)
+- ✅ Bordure de section : Violet (#9C27B0)
+- ✅ Nom de l'université : Dégradé de texte violet (#9C27B0 → #7B1FA2)
+- ✅ Cadre du logo : Ombre violette et fond violet translucide
+- ✅ Boîte d'informations utilisateur : Fond violet léger avec bordure gauche violette
+- ✅ Nom de l'université dans les contrôles : Texte violet (#9C27B0)
+
+**Impact** :
+- ✅ Identité visuelle cohérente avec le reste de l'application
+- ✅ Distinction claire entre administrateur principal (logo Étude LINE) et secondaire (logo université)
+- ✅ Interface professionnelle et harmonieuse
+
+**Fichier modifié** : `templates/dashboard_admin.html`
+
+---
+
 **28 octobre 2025 - Uniformisation de la couleur des niveaux en violet**
 
 ### Amélioration visuelle : Tous les niveaux en violet
