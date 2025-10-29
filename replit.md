@@ -280,23 +280,35 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Coloration violette de la page administrateur secondaire**
+**29 octobre 2025 - Coloration violette complète de la page administrateur secondaire**
 
-### Amélioration visuelle : Thème violet pour l'administrateur secondaire
-**Demande utilisateur** : Appliquer une coloration violette à la page d'information de l'administrateur secondaire.
+### Amélioration visuelle : Thème violet intégral pour l'administrateur secondaire
+**Demande utilisateur** : Toute la page d'information de l'administrateur secondaire doit être en violet.
 
-**Éléments colorés en violet** :
+**Tous les éléments colorés en violet (#9C27B0 → #7B1FA2)** :
+
+**Section d'accueil** :
 - ✅ Fond d'accueil : Dégradé violet clair (#f3e8ff → #ede9fe)
-- ✅ Bordure de section : Violet (#9C27B0)
-- ✅ Nom de l'université : Dégradé de texte violet (#9C27B0 → #7B1FA2)
+- ✅ Bordure de section : Violet (#9C27B0) avec dégradé
+- ✅ Nom de l'université : Dégradé de texte violet
 - ✅ Cadre du logo : Ombre violette et fond violet translucide
 - ✅ Boîte d'informations utilisateur : Fond violet léger avec bordure gauche violette
-- ✅ Nom de l'université dans les contrôles : Texte violet (#9C27B0)
+
+**Contrôles et fonctionnalités** :
+- ✅ Nom de l'université dans les contrôles : Texte violet
+- ✅ Bouton "Téléchargements" : Dégradé violet (était vert)
+- ✅ Bouton "Passage classe sup." : Dégradé violet (déjà violet)
+- ✅ Titre "Statistiques universitaires" : Violet #9C27B0
+
+**Onglet Universités** :
+- ✅ Message d'information administrateur secondaire : Fond violet clair avec bordure violette (était bleu)
+- ✅ Bouton "Ajouter un logo" (📸) : Violet #9C27B0 (était bleu)
 
 **Impact** :
-- ✅ Identité visuelle cohérente avec le reste de l'application
-- ✅ Distinction claire entre administrateur principal (logo Étude LINE) et secondaire (logo université)
-- ✅ Interface professionnelle et harmonieuse
+- ✅ Identité visuelle 100% cohérente en violet dans toute la page
+- ✅ Distinction claire entre administrateur principal et secondaire
+- ✅ Interface professionnelle, harmonieuse et moderne
+- ✅ Tous les éléments interactifs utilisent maintenant le violet uniforme
 
 **Fichier modifié** : `templates/dashboard_admin.html`
 

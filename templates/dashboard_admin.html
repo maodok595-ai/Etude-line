@@ -1375,13 +1375,13 @@
             
             <div id="controls-container" style="display: {% if admin.get('is_main_admin') %}none{% else %}flex{% endif %}; gap: 1rem; flex-wrap: wrap;">
                 <!-- Bouton contrôle téléchargements -->
-                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);">
+                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
                     <span id="download-icon">📥</span> Téléchargements
                     <span id="download-status">: Chargement...</span>
                 </button>
                 
                 <!-- Bouton contrôle passage en classe supérieure -->
-                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">
                     <span id="passage-icon">🎓</span> Passage classe sup.
                     <span id="passage-status">: Chargement...</span>
                 </button>
@@ -1389,7 +1389,7 @@
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
-        <h3 style="margin: 1.5rem 0 1rem 0; color: #7c3aed; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
+        <h3 style="margin: 1.5rem 0 1rem 0; color: #9C27B0; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
         <div class="stats-horizontal-container" id="stats-container">
             <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
@@ -1942,8 +1942,8 @@
                     ➕ Créer une université
                 </button>
                 {% else %}
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                    <p style="margin: 0; color: #1565c0; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #9C27B0; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; color: #7B1FA2; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 1.2rem;">ℹ️</span>
                         <span>En tant qu'administrateur secondaire, vous ne pouvez pas créer de nouvelles universités. Cette action est réservée à l'administrateur principal.</span>
                     </p>
@@ -1981,7 +1981,7 @@
                                     <button class="btn-edit btn-small" onclick='editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})' title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #9C27B0; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
                                         📸
                                     </button>
                                     <button class="btn-delete btn-small" onclick='deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})' title="Supprimer">
