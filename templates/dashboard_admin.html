@@ -1664,17 +1664,17 @@
                                     {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick="editProf('{{ prof.username }}', '{{ prof.nom }}', '{{ prof.prenom }}', '{{ prof.specialite }}')" title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editProf({{ prof.username|tojson }}, {{ prof.nom|tojson }}, {{ prof.prenom|tojson }}, {{ prof.specialite|tojson }})" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')" title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteProf({{ prof.username|tojson }}, {{ (prof.prenom ~ ' ' ~ prof.nom)|tojson }})" title="Supprimer">
                                         🗑️
                                     </button>
                                     {% if admin.is_main_admin %}
                                     <button class="btn-small" 
                                             data-username="{{ prof.username }}"
                                             data-fullname="{{ prof.prenom }} {{ prof.nom }}"
-                                            onclick="toggleProfStatus('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}', {{ 'true' if prof.get('actif') else 'false' }})" 
+                                            onclick="toggleProfStatus({{ prof.username|tojson }}, {{ (prof.prenom ~ ' ' ~ prof.nom)|tojson }}, {{ 'true' if prof.get('actif') else 'false' }})" 
                                             style="background: {{ '#28a745' if prof.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
                                             title="{{ 'Désactiver' if prof.get('actif') else 'Activer' }}">
                                         {{ 'ON' if prof.get('actif') else 'OFF' }}
@@ -1907,7 +1907,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="action-buttons" id="actions-etudiant-{{ etudiant.username }}" style="display: none;">
-                                                                        <button class="btn-delete btn-small" onclick="deleteEtudiant('{{ etudiant.username }}', '{{ etudiant.prenom }} {{ etudiant.nom }}')" title="Supprimer">
+                                                                        <button class="btn-delete btn-small" onclick="deleteEtudiant({{ etudiant.username|tojson }}, {{ (etudiant.prenom ~ ' ' ~ etudiant.nom)|tojson }})" title="Supprimer">
                                                                             🗑️
                                                                         </button>
                                                                     </div>
