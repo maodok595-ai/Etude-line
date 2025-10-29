@@ -818,15 +818,20 @@ def delete_all_professor_content(db: Session, professor_username: str) -> Dict[s
     - Tous ses chapitres (avec fichiers, commentaires, notifications)
     - Toutes ses notifications
     Retourne un dict avec les compteurs de suppressions
+    
+    ⚡ OPTIMISATION SCALABILITÉ: Suppression en batch pour éviter crash mémoire
     """
     stats = {"chapitres": 0, "fichiers": 0, "commentaires": 0, "notifications": 0}
     
-    # Récupérer tous les chapitres du professeur
-    chapitres = db.query(ChapitreCompletDB).filter_by(created_by=professor_username).all()
+    # ⚡ OPTIMISÉ: Récupérer les IDs uniquement (pas les objets complets)
+    chapitre_ids = db.query(ChapitreCompletDB.id)\
+        .filter_by(created_by=professor_username)\
+        .all()
+    chapitre_ids = [ch_id[0] for ch_id in chapitre_ids]
     
-    for chapitre in chapitres:
-        # Supprimer chaque chapitre complètement
-        chapitre_stats = delete_chapitre_complete(db, chapitre.id)
+    # Supprimer chaque chapitre via la fonction existante
+    for chapitre_id in chapitre_ids:
+        chapitre_stats = delete_chapitre_complete(db, chapitre_id)
         stats["fichiers"] += chapitre_stats["fichiers"]
         stats["commentaires"] += chapitre_stats["commentaires"]
         stats["notifications"] += chapitre_stats["notifications"]
@@ -1813,10 +1818,15 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
         }
     
     # Get ALL complete chapters from student's filiere (all levels: L1, L2, L3, M1, M2)
+    # ⚡ OPTIMISATION SCALABILITÉ: Limite à 100 chapitres les plus récents pour éviter surcharge mémoire
     chapitres_filiere = []
     if student and student.get("filiere_id"):
         # Get chapters from PostgreSQL using the ChapitreComplet model
-        chapitres_complets = db.query(ChapitreCompletDB).filter_by(filiere_id=student["filiere_id"]).all()
+        chapitres_complets = db.query(ChapitreCompletDB)\
+            .filter_by(filiere_id=student["filiere_id"])\
+            .order_by(ChapitreCompletDB.created_at.desc())\
+            .limit(100)\
+            .all()
         
         # Convert to dict format for template
         chapitres_filiere = []
@@ -2124,11 +2134,28 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
             EtudiantDB.universite_id == admin_universite_id
         ).order_by(EtudiantDB.created_at.desc()).limit(1000).all()
     
-    # ⚡ OPTIMISATION: Charger toutes les universités, UFRs et filières en une seule fois
-    # au lieu de faire 3 requêtes par étudiant (3 × 18 = 54 requêtes → 3 requêtes !)
-    all_universites = {u.id: u for u in db.query(UniversiteDB).all()}
-    all_ufrs = {u.id: u for u in db.query(UFRDB).all()}
-    all_filieres = {f.id: f for f in db.query(FiliereDB).all()}
+    # ⚡ OPTIMISATION SCALABILITÉ: Cache lookups pour réduire requêtes DB répétitives
+    # Charge une seule fois et met en cache pendant 10 minutes
+    cache_key = f"lookups_admin_{admin_universite_id if not is_main_admin else 'main'}"
+    cached_lookups = app_cache.get(cache_key)
+    
+    if cached_lookups is None:
+        # Charger toutes les universités, UFRs et filières en une seule fois
+        # au lieu de faire 3 requêtes par étudiant (3 × 18 = 54 requêtes → 3 requêtes !)
+        all_universites = {u.id: u for u in db.query(UniversiteDB).all()}
+        all_ufrs = {u.id: u for u in db.query(UFRDB).all()}
+        all_filieres = {f.id: f for f in db.query(FiliereDB).all()}
+        
+        cached_lookups = {
+            'universites': all_universites,
+            'ufrs': all_ufrs,
+            'filieres': all_filieres
+        }
+        app_cache.set(cache_key, cached_lookups, ttl=600)  # Cache 10 minutes
+    else:
+        all_universites = cached_lookups['universites']
+        all_ufrs = cached_lookups['ufrs']
+        all_filieres = cached_lookups['filieres']
     
     etudiants_data = []
     for etud in etudiants:
