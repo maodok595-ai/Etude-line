@@ -2,6 +2,26 @@
 
 ## Recent Changes
 
+**29 octobre 2025 - Affichage vertical des fichiers dans le dashboard professeur**
+
+### Amélioration : Cours, exercices, solutions et commentaires en colonne
+**Demande utilisateur** : Dans le dashboard professeur sur ordinateur, les fichiers (cours, exercices, solutions) et commentaires s'affichaient horizontalement côte à côte, ce qui n'était pas optimal.
+
+**Avant** : Sur grand écran, les sections s'affichaient en grille horizontale avec plusieurs colonnes (layout grid avec `repeat(auto-fit, minmax(200px, 1fr))`).
+
+**Après** : Toutes les sections s'affichent maintenant verticalement les unes en dessous des autres, comme dans le dashboard étudiant (layout flexbox avec `flex-direction: column`).
+
+**Fichiers modifiés** :
+- `templates/dashboard_prof.html` (ligne 1966)
+
+**Impact** :
+- ✅ Affichage vertical uniforme sur toutes les tailles d'écran
+- ✅ Cohérence visuelle avec le dashboard étudiant
+- ✅ Meilleure lisibilité des contenus sur ordinateur
+- ✅ Pas d'effet secondaire sur les fonctionnalités existantes
+
+---
+
 **29 octobre 2025 - Optimisation de l'affichage sur ordinateur (suppression du scroll horizontal)**
 
 ### Amélioration : Élimination des mouvements de va-et-viens sur ordinateur
