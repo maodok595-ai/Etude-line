@@ -2,6 +2,55 @@
 
 ## Recent Changes
 
+**29 octobre 2025 - Correction de l'erreur "showTab is not defined"**
+
+### Bug Fix : Onglets ne fonctionnent pas (erreur JavaScript)
+**Problème rapporté** : Les boutons d'onglets (Administrateurs, Professeurs, Étudiants, etc.) dans le dashboard admin affichaient l'erreur JavaScript : `ReferenceError: showTab is not defined`.
+
+**Cause** : 
+- La fonction `showTab` était définie dans un bloc `<script>` situé **après** les boutons d'onglets dans le HTML
+- Les boutons avec `onclick="showTab(...)"` étaient rendus avant que la fonction ne soit exposée au scope global
+- Bien que `window.showTab = showTab` existait, il était exécuté trop tard dans le parsing du HTML
+
+**Solution** :
+1. **Pré-déclaration de la fonction** : Ajout d'un nouveau bloc `<script>` immédiatement après le premier bloc de fonctions
+2. **Exposition anticipée** : `window.showTab = showTab` avant le rendu des boutons d'onglets
+3. **Fonction temporaire** : Version simplifiée de `showTab` qui sera remplacée par la version complète plus tard
+
+**Exemple de structure** :
+```html
+<!-- Bloc 1 : Fonctions principales -->
+<script>
+    // toggleSection, toggleStatCard, etc.
+    window.toggleSection = toggleSection;
+</script>
+
+<!-- Bloc 2 : Pré-déclaration showTab -->
+<script>
+    function showTab(tabName) { /* version simplifiée */ }
+    window.showTab = showTab;
+</script>
+
+<!-- Maintenant les boutons peuvent utiliser showTab -->
+<button onclick="showTab('admin')">Administrateurs</button>
+
+<!-- Bloc 3 : Version complète de showTab -->
+<script>
+    function showTab(tabName) { /* version complète avec toutes les fonctionnalités */ }
+    window.showTab = showTab; // remplace la version simplifiée
+</script>
+```
+
+**Fichiers modifiés** :
+- `templates/dashboard_admin.html` (lignes 1325-1338)
+
+**Impact** :
+- ✅ Tous les onglets fonctionnent correctement sans erreur JavaScript
+- ✅ Navigation fluide entre les différentes sections du dashboard admin
+- ✅ Compatibilité maintenue avec tous les navigateurs
+
+---
+
 **29 octobre 2025 - Correction du bug de suppression avec caractères spéciaux**
 
 ### Bug Fix : Impossible de supprimer/modifier des utilisateurs avec apostrophes, guillemets ou astérisques
