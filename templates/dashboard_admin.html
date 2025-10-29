@@ -583,7 +583,7 @@
             margin: 0;
             border-radius: 0;
             position: relative;
-            border-bottom: 3px solid #8B5CF6;
+            border-bottom: 3px solid #7C3AED;
         }
         
         .university-welcome::after {
@@ -593,7 +593,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6);
+            background: linear-gradient(90deg, #7C3AED, #7C3AED, #7C3AED);
         }
 
         .university-logo {
@@ -611,7 +611,7 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            background: linear-gradient(135deg, #7C3AED, #7C3AED);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -626,7 +626,7 @@
             background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
             border-radius: 8px;
             margin-top: 1rem;
-            border-left: 3px solid #8B5CF6;
+            border-left: 3px solid #7C3AED;
         }
 
         .user-info-box p {
@@ -1365,7 +1365,7 @@
             <h3 style="margin-bottom: 0.75rem; color: #333; font-size: 1.1rem; font-weight: 600;">
                 ⚙️ Contrôles des fonctionnalités
                 {% if not admin.get('is_main_admin') and admin_universite %}
-                    <span style="color: #8B5CF6; font-weight: 500;">({{ admin_universite.nom }})</span>
+                    <span style="color: #7C3AED; font-weight: 500;">({{ admin_universite.nom }})</span>
                 {% endif %}
             </h3>
             
@@ -1387,13 +1387,13 @@
             
             <div id="controls-container" style="display: {% if admin.get('is_main_admin') %}none{% else %}flex{% endif %}; gap: 1rem; flex-wrap: wrap;">
                 <!-- Bouton contrôle téléchargements -->
-                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);">
+                <button onclick="toggleTelechargements()" id="download-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%);">
                     <span id="download-icon">📥</span> Téléchargements
                     <span id="download-status">: Chargement...</span>
                 </button>
                 
                 <!-- Bouton contrôle passage en classe supérieure -->
-                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);">
+                <button onclick="togglePassageClasse()" id="passage-toggle-btn" class="stats-toggle-btn" style="background: linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%);">
                     <span id="passage-icon">🎓</span> Passage classe sup.
                     <span id="passage-status">: Chargement...</span>
                 </button>
@@ -1401,7 +1401,7 @@
         </div>
         
         <!-- Statistiques du système (toujours visibles) -->
-        <h3 style="margin: 1.5rem 0 1rem 0; color: #8B5CF6; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
+        <h3 style="margin: 1.5rem 0 1rem 0; color: #7C3AED; font-size: 1.2rem;">📊 Statistiques universitaires</h3>
         <div class="stats-horizontal-container" id="stats-container">
             <!-- Ligne 1 : Professeurs | Étudiants -->
             <div class="card stat-vertical-card">
@@ -1665,7 +1665,7 @@
                                     
                                     {% if prof.filieres %}
                                         {% for filiere in prof.filieres %}
-                                            <span class="meta-tag" style="background: #f3e5f5; color: #7C3AED;">📖 {{ filiere.nom }}</span>
+                                            <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📖 {{ filiere.nom }}</span>
                                         {% endfor %}
                                     {% endif %}
                                     
@@ -1838,7 +1838,7 @@
                                                 <div style="border-bottom: 1px solid #e0e0e0;">
                                                     <div style="background: linear-gradient(135deg, 
                                                         {% if filiere_index % 5 == 1 %}#e3f2fd, #bbdefb
-                                                        {% elif filiere_index % 5 == 2 %}#f3e5f5, #e1bee7
+                                                        {% elif filiere_index % 5 == 2 %}#F3E8FF, #E9D5FF
                                                         {% elif filiere_index % 5 == 3 %}#fff3e0, #ffe0b2
                                                         {% elif filiere_index % 5 == 4 %}#e8f5e9, #c8e6c9
                                                         {% else %}#fce4ec, #f8bbd0
@@ -1851,7 +1851,7 @@
                                                         {% else %}#c2185b
                                                         {% endif %}; 
                                                         border-left: 4px solid {% if filiere_index % 5 == 1 %}#2196f3
-                                                        {% elif filiere_index % 5 == 2 %}#8B5CF6
+                                                        {% elif filiere_index % 5 == 2 %}#7C3AED
                                                         {% elif filiere_index % 5 == 3 %}#ff9800
                                                         {% elif filiere_index % 5 == 4 %}#4caf50
                                                         {% else %}#e91e63
@@ -1873,25 +1873,25 @@
                                                         
                                                         {% if etudiants_niveau|length > 0 %}
                                                             <div style="background: linear-gradient(135deg,
-                                                                {% if niveau == 'L1' %}#f3e5f5, #e1bee7
-                                                                {% elif niveau == 'L2' %}#e8d5f1, #DDD6FE
-                                                                {% elif niveau == 'L3' %}#ddc5e8, #C4B5FD
-                                                                {% elif niveau == 'M1' %}#DDD6FE, #A78BFA
-                                                                {% elif niveau == 'M2' %}#C4B5FD, #8B5CF6
+                                                                {% if niveau == 'L1' %}#F3E8FF, #E9D5FF
+                                                                {% elif niveau == 'L2' %}#E9D5FF, #7C3AED
+                                                                {% elif niveau == 'L3' %}#E9D5FF, #7C3AED
+                                                                {% elif niveau == 'M1' %}#7C3AED, #7C3AED
+                                                                {% elif niveau == 'M2' %}#7C3AED, #7C3AED
                                                                 {% endif %}); 
                                                                 padding: 0.4rem 1rem 0.4rem 2rem; font-weight: 600; 
                                                                 color: {% if niveau == 'L1' %}#7C3AED
                                                                 {% elif niveau == 'L2' %}#7C3AED
                                                                 {% elif niveau == 'L3' %}#7C3AED
                                                                 {% elif niveau == 'M1' %}#7C3AED
-                                                                {% elif niveau == 'M2' %}#6D28D9
+                                                                {% elif niveau == 'M2' %}#7C3AED
                                                                 {% endif %}; 
                                                                 font-size: 0.85rem; border-left: 4px solid 
-                                                                {% if niveau == 'L1' %}#8B5CF6
-                                                                {% elif niveau == 'L2' %}#8B5CF6
+                                                                {% if niveau == 'L1' %}#7C3AED
+                                                                {% elif niveau == 'L2' %}#7C3AED
                                                                 {% elif niveau == 'L3' %}#7C3AED
-                                                                {% elif niveau == 'M1' %}#8B5CF6
-                                                                {% elif niveau == 'M2' %}#8B5CF6
+                                                                {% elif niveau == 'M1' %}#7C3AED
+                                                                {% elif niveau == 'M2' %}#7C3AED
                                                                 {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                                 onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
                                                                 <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
@@ -1914,7 +1914,7 @@
                                                                         <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
                                                                             <div class="prof-details">@{{ etudiant.username }}</div>
                                                                             <div class="prof-meta" style="margin-top: 0.5rem;">
-                                                                                <span class="meta-tag" style="background: #f3e5f5; color: #7C3AED;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                                                                <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1954,7 +1954,7 @@
                     ➕ Créer une université
                 </button>
                 {% else %}
-                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #8B5CF6; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%); border-left: 4px solid #7C3AED; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
                     <p style="margin: 0; color: #7C3AED; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 1.2rem;">ℹ️</span>
                         <span>En tant qu'administrateur secondaire, vous ne pouvez pas créer de nouvelles universités. Cette action est réservée à l'administrateur principal.</span>
@@ -1993,7 +1993,7 @@
                                     <button class="btn-edit btn-small" onclick='editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})' title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #8B5CF6; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #7C3AED; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
                                         📸
                                     </button>
                                     <button class="btn-delete btn-small" onclick='deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})' title="Supprimer">
@@ -2294,11 +2294,11 @@
                                             {% if matieres_niveau|length > 0 %}
                                                 <div style="border-bottom: 1px solid #e0e0e0;">
                                                     <div style="background: linear-gradient(135deg, 
-                                                        {% if niveau == 'L1' %}#8B5CF6, #A78BFA
-                                                        {% elif niveau == 'L2' %}#8B5CF6, #8B5CF6
-                                                        {% elif niveau == 'L3' %}#7C3AED, #8B5CF6
-                                                        {% elif niveau == 'M1' %}#8B5CF6, #A78BFA
-                                                        {% elif niveau == 'M2' %}#8B5CF6, #8B5CF6
+                                                        {% if niveau == 'L1' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'L2' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'L3' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'M1' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'M2' %}#7C3AED, #7C3AED
                                                         {% endif %}); 
                                                         padding: 0.5rem 1rem; font-weight: 600; color: white; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;"
                                                         onclick="toggleNiveauMatieres('{{ filiere.id }}_{{ niveau }}')">
@@ -2820,7 +2820,7 @@
                 allFilieres.forEach(filiere => {
                     const label = document.createElement('label');
                     label.style.cssText = 'display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 4px; transition: background 0.2s;';
-                    label.onmouseover = () => label.style.background = '#f3e5f5';
+                    label.onmouseover = () => label.style.background = '#F3E8FF';
                     label.onmouseout = () => label.style.background = 'transparent';
                     
                     const checkbox = document.createElement('input');
