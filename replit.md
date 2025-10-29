@@ -2,6 +2,42 @@
 
 ## Recent Changes
 
+**29 octobre 2025 - Correction du bug de suppression avec caractères spéciaux**
+
+### Bug Fix : Impossible de supprimer des utilisateurs avec apostrophes, guillemets ou astérisques dans le nom
+**Problème rapporté** : Les étudiants, professeurs, administrateurs, universités, UFRs, filières et matières dont les noms contiennent des caractères spéciaux comme **'** (apostrophe), **"** (guillemets) ou ***** (astérisque) ne pouvaient pas être supprimés ou modifiés via l'interface admin.
+
+**Cause identifiée** : 
+- Les attributs `onclick` des boutons passaient les noms directement dans du JavaScript
+- Exemple : `onclick="deleteEtudiant('username', 'John O'Brien')"` → L'apostrophe dans "O'Brien" cassait le code JavaScript
+- Risque de sécurité : Injection JavaScript possible avec des noms malveillants
+
+**Solution appliquée** :
+- Remplacement de tous les guillemets simples par le filtre Jinja2 `|tojson`
+- Avant : `onclick="deleteProf('{{ prof.username }}', '{{ prof.prenom }} {{ prof.nom }}')"` ❌
+- Après : `onclick="deleteProf({{ prof.username|tojson }}, {{ (prof.prenom ~ ' ' ~ prof.nom)|tojson }})"` ✅
+- Le filtre `|tojson` échappe automatiquement tous les caractères dangereux
+
+**Fonctions corrigées** (13 au total) :
+1. `deleteEtudiant` - Suppression d'étudiant
+2. `editProf`, `deleteProf`, `toggleProfStatus` - Gestion des professeurs
+3. `editAdmin`, `deleteAdmin`, `toggleAdminStatus` - Gestion des administrateurs
+4. `editUniversite`, `deleteUniversite`, `uploadLogo` - Gestion des universités
+5. `editUfr`, `deleteUfr` - Gestion des UFR
+6. `editFiliere`, `deleteFiliere` - Gestion des filières
+7. `editMatiere`, `deleteMatiere` - Gestion des matières
+
+**Fichiers modifiés** :
+- `templates/dashboard_admin.html` (13 corrections d'échappement)
+
+**Impact** :
+- ✅ Tous les noms avec caractères spéciaux (O'Brien, D'Angelo, L'Hôpital, etc.) peuvent être supprimés/modifiés
+- ✅ Protection contre l'injection JavaScript
+- ✅ Code plus sécurisé et conforme aux bonnes pratiques Jinja2
+- ✅ Pas de régression fonctionnelle
+
+---
+
 **29 octobre 2025 - Optimisation de la performance des boutons de création**
 
 ### Amélioration : Réduction du temps de réponse des formulaires de création

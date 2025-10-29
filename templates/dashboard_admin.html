@@ -2074,10 +2074,10 @@
                                     {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick="editUfr('{{ ufr.id }}', '{{ ufr.nom }}', '{{ ufr.code }}')" title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }}, {{ ufr.code|tojson }})" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick="deleteUfr('{{ ufr.id }}', '{{ ufr.nom }}')" title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }})" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
@@ -2168,10 +2168,10 @@
                                     {% endfor %}
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick="editFiliere('{{ filiere.id }}', '{{ filiere.nom }}', '{{ filiere.code }}')" title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }}, {{ filiere.code|tojson }})" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick="deleteFiliere('{{ filiere.id }}', '{{ filiere.nom }}')" title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }})" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
@@ -2326,10 +2326,10 @@
                                                                     <h4 style="margin: 0;">{{ matiere.nom }}</h4>
                                                                     <div class="academic-code">Code: {{ matiere.code }}</div>
                                                                     <div class="action-buttons">
-                                                                        <button class="btn-edit btn-small" onclick="editMatiere('{{ matiere.id }}', '{{ matiere.nom }}', '{{ matiere.code }}')" title="Modifier">
+                                                                        <button class="btn-edit btn-small" onclick="editMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }}, {{ matiere.code|tojson }})" title="Modifier">
                                                                             ✏️
                                                                         </button>
-                                                                        <button class="btn-delete btn-small" onclick="deleteMatiere('{{ matiere.id }}', '{{ matiere.nom }}')" title="Supprimer">
+                                                                        <button class="btn-delete btn-small" onclick="deleteMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }})" title="Supprimer">
                                                                             🗑️
                                                                         </button>
                                                                     </div>
