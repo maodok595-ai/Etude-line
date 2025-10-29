@@ -185,6 +185,27 @@
             /* Structure hiérarchique optimisée */
             .niveau-card {
                 margin-bottom: 1rem !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            
+            .niveau-card * {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .matiere-section {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            
+            .semestre-section {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
             }
             
             .niveau-header {
@@ -828,6 +849,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .niveau-card * {
+            max-width: 100%;
+            box-sizing: border-box;
         }
         
         .niveau-header {

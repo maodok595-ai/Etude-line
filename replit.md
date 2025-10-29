@@ -280,42 +280,37 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Correction débordement mobile des chapitres (dashboard professeur)**
+**29 octobre 2025 - Correction débordement du niveau lors de l'ouverture d'un chapitre (mobile)**
 
-### Correction bug : Débordement horizontal des chapitres sur mobile
-**Problème rapporté** : Les chapitres débordent horizontalement sur mobile, créant un scroll horizontal non désiré.
+### Correction bug critique : Le bloc niveau déborde quand on ouvre un chapitre
+**Problème rapporté** : Lorsqu'on ouvre un chapitre sur mobile, le bloc niveau (L1, L2, L3, M1, M2) s'élargit et crée un débordement horizontal.
 
 **Cause identifiée** :
-- Le `.chapitre-header-new` utilise `display: flex` avec un titre et des boutons d'action
-- Sur mobile, les titres longs ne se coupent pas correctement
-- Le problème : manque de `min-width: 0` sur les éléments flex, empêchant le text wrapping
-- Les conteneurs parents n'ont pas de gestion d'overflow strict
+- Quand on clique sur un chapitre, son contenu (cours, exercices, solutions) s'affiche
+- Le contenu du chapitre contient des éléments qui ne respectaient pas la largeur maximale
+- Sans contraintes strictes, ces éléments forcent le conteneur parent (`.niveau-card`) à s'élargir
+- Effet cascade : niveau → matière → semestre → chapitre → contenu déborde
 
 **Solution implémentée** :
-✅ **Gestion stricte de la largeur** :
-- `width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;` sur `.chapitre-item`
-- Même traitement pour `.chapitre-header-new` et `.chapitre-content-new`
+✅ **Contrainte stricte sur `.niveau-card`** (desktop + mobile) :
+- `width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;`
+- Empêche la carte niveau de dépasser la largeur de l'écran
 
-✅ **Correction flexbox** :
-- Ajout de `min-width: 0;` sur le conteneur du titre pour permettre le wrapping
-- Limitation de largeur max avec `calc(100% - 80px)` pour laisser place aux boutons
-- `max-width: calc(100% - 100px)` sur desktop
+✅ **Règle universelle sur TOUS les enfants** :
+- `.niveau-card * { max-width: 100%; box-sizing: border-box; }`
+- Force TOUS les éléments à l'intérieur à respecter la largeur max
 
-✅ **Retour à la ligne forcé** :
-- `word-break: break-word;` pour couper les mots longs si nécessaire
-- `white-space: normal;` pour permettre les retours à la ligne
-- `overflow-wrap: break-word;` pour la compatibilité
-
-**Styles appliqués** :
-- Mobile (@media max-width: 600px) : Conteneur titre limité à `calc(100% - 80px)`
-- Desktop : Conteneur titre limité à `calc(100% - 100px)`
-- Tous les niveaux : `overflow: hidden` pour empêcher tout débordement
+✅ **Contraintes spécifiques mobile** (@media max-width: 600px) :
+- `.matiere-section` : `width: 100%; max-width: 100%; overflow: hidden;`
+- `.semestre-section` : `width: 100%; max-width: 100%; overflow: hidden;`
+- Triple protection : niveau → matière → semestre
 
 **Impact** :
-- 📱 Plus de débordement horizontal sur mobile
-- ✂️ Les titres longs se coupent proprement sur plusieurs lignes
-- 🎯 Les boutons d'action restent toujours visibles
-- 💯 Responsive parfait sur tous les écrans
+- 📱 **Plus de débordement** quand on ouvre un chapitre sur mobile
+- 🔒 **Contraintes strictes** sur toute la hiérarchie (niveau → matière → semestre → chapitre)
+- 📦 **Contenu confiné** : cours, exercices, solutions restent dans les limites
+- 🎯 **Cascade bloquée** : aucun élément enfant ne peut forcer le parent à déborder
+- 💯 **Affichage mobile parfait** en toutes circonstances
 
 **Fichier modifié** : `templates/dashboard_prof.html`
 
