@@ -1584,16 +1584,16 @@
                                 </div>
                                 {% if not administrator.get('is_main_admin') and admin.get('is_main_admin') %}
                                 <div class="action-buttons">
-                                    <button class="btn-edit btn-small" onclick="editAdmin('{{ administrator.username }}', '{{ administrator.prenom }}', '{{ administrator.nom }}')" title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editAdmin({{ administrator.username|tojson }}, {{ administrator.prenom|tojson }}, {{ administrator.nom|tojson }})" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-delete btn-small" onclick="deleteAdmin('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}')" title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteAdmin({{ administrator.username|tojson }}, {{ (administrator.prenom ~ ' ' ~ administrator.nom)|tojson }})" title="Supprimer">
                                         🗑️
                                     </button>
                                     <button class="btn-small" 
                                             data-username="{{ administrator.username }}"
                                             data-fullname="{{ administrator.prenom }} {{ administrator.nom }}"
-                                            onclick="toggleAdminStatus('{{ administrator.username }}', '{{ administrator.prenom }} {{ administrator.nom }}', {{ 'true' if administrator.get('actif') else 'false' }})" 
+                                            onclick="toggleAdminStatus({{ administrator.username|tojson }}, {{ (administrator.prenom ~ ' ' ~ administrator.nom)|tojson }}, {{ 'true' if administrator.get('actif') else 'false' }})" 
                                             style="background: {{ '#28a745' if administrator.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
                                             title="{{ 'Désactiver' if administrator.get('actif') else 'Activer' }}">
                                         {{ 'ON' if administrator.get('actif') else 'OFF' }}
@@ -1978,13 +1978,13 @@
                                     </div>
                                 </div>
                                 <div class="action-buttons" style="margin-top: 0.5rem;">
-                                    <button class="btn-edit btn-small" onclick="editUniversite('{{ uni.id }}', '{{ uni.nom }}', '{{ uni.code }}')" title="Modifier">
+                                    <button class="btn-edit btn-small" onclick="editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})" title="Modifier">
                                         ✏️
                                     </button>
-                                    <button class="btn-small" onclick="uploadLogo('{{ uni.id }}', '{{ uni.nom }}')" style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                    <button class="btn-small" onclick="uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})" style="background: #2196f3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
                                         📸
                                     </button>
-                                    <button class="btn-delete btn-small" onclick="deleteUniversite('{{ uni.id }}', '{{ uni.nom }}')" title="Supprimer">
+                                    <button class="btn-delete btn-small" onclick="deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})" title="Supprimer">
                                         🗑️
                                     </button>
                                 </div>
