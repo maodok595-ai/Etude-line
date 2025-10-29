@@ -1283,31 +1283,12 @@
                     content.style.display = 'block';
                     arrow.textContent = '▼';
                     arrow.style.transform = 'rotate(90deg)';
-                    localStorage.setItem('stat-' + statId, 'open');
                 } else {
                     content.style.display = 'none';
                     arrow.textContent = '►';
                     arrow.style.transform = 'rotate(0deg)';
-                    localStorage.setItem('stat-' + statId, 'closed');
                 }
             }
-            
-            // Restaurer l'état des cartes statistiques au chargement
-            window.addEventListener('DOMContentLoaded', function() {
-                for (let i = 1; i <= 6; i++) {
-                    const statId = 'stat-' + i;
-                    const savedState = localStorage.getItem('stat-' + statId);
-                    if (savedState === 'open') {
-                        const content = document.getElementById('content-' + statId);
-                        const arrow = document.getElementById('arrow-' + statId);
-                        if (content && arrow) {
-                            content.style.display = 'block';
-                            arrow.textContent = '▼';
-                            arrow.style.transform = 'rotate(90deg)';
-                        }
-                    }
-                }
-            });
             
             // Exposer les fonctions au scope global pour les attributs onclick
             // Ceci résout le problème où les fonctions ne sont pas accessibles sur Render
