@@ -2370,25 +2370,39 @@
                     <div class="form-header">
                         <h3>📖 Créer une matière</h3>
                     </div>
-                    <form action="/admin/create-matiere" method="post">
+                    <form action="/admin/create-matiere-multi" method="post" id="create-matiere-multi-form">
                         <div class="form-group">
-                            <label for="mat-filiere">Filière</label>
+                            <label style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Filières (plusieurs possibles)</span>
+                                <span style="font-size: 0.85rem; color: #666; font-weight: normal;">
+                                    <span id="selected-filieres-count">0</span> sélectionnée(s)
+                                </span>
+                            </label>
                             <input type="search" id="search-mat-filiere" 
                                    placeholder="🔍 Rechercher une filière..." 
-                                   oninput="filterSelectOptions('search-mat-filiere', 'mat-filiere')"
+                                   oninput="filterFiliereCheckboxes()"
                                    style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 0.5rem; transition: all 0.3s;">
-                            <select id="mat-filiere" name="filiere_id" required>
-                                <option value="">Sélectionner une filière</option>
+                            <div id="filiere-checkboxes-container" style="max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 0.5rem;">
                                 {% for filiere in filieres %}
-                                <option value="{{ filiere.id }}">{{ filiere.nom }}
-                                    {% for ufr in ufrs %}
-                                        {% if ufr.id == filiere.ufr_id %}
-                                            ({{ ufr.nom }})
-                                        {% endif %}
-                                    {% endfor %}
-                                </option>
+                                <label class="filiere-checkbox-item" style="display: flex; align-items: center; padding: 0.5rem; cursor: pointer; border-radius: 6px; transition: background 0.2s;" 
+                                       onmouseover="this.style.background='#f5f5f5'" 
+                                       onmouseout="this.style.background='transparent'">
+                                    <input type="checkbox" name="filiere_ids" value="{{ filiere.id }}" 
+                                           onchange="updateSelectedFilieresCount()" 
+                                           style="margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer;">
+                                    <span class="filiere-name-text">{{ filiere.nom }}
+                                        {% for ufr in ufrs %}
+                                            {% if ufr.id == filiere.ufr_id %}
+                                                <span style="color: #666; font-size: 0.9rem;">({{ ufr.nom }})</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </label>
                                 {% endfor %}
-                            </select>
+                            </div>
+                            <div id="filiere-error" style="color: red; font-size: 0.9rem; margin-top: 0.5rem; display: none;">
+                                ⚠️ Veuillez sélectionner au moins une filière
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -3051,6 +3065,28 @@
                     selectElement.selectedIndex = 0;
                 }
             }
+        }
+        
+        // Fonction pour filtrer les checkboxes de filières (création matière multi-filières)
+        function filterFiliereCheckboxes() {
+            const searchTerm = document.getElementById('search-mat-filiere').value.toLowerCase();
+            const items = document.querySelectorAll('.filiere-checkbox-item');
+            
+            items.forEach(item => {
+                const text = item.querySelector('.filiere-name-text').textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Fonction pour mettre à jour le compteur de filières sélectionnées
+        function updateSelectedFilieresCount() {
+            const checkboxes = document.querySelectorAll('input[name="filiere_ids"]:checked');
+            const count = checkboxes.length;
+            document.getElementById('selected-filieres-count').textContent = count;
         }
         
         // Functions pour les actions CRUD
@@ -4079,11 +4115,28 @@
             setupAdminFormAjax('form[action="/admin/create-universite"]');
             setupAdminFormAjax('form[action="/admin/create-ufr"]');
             setupAdminFormAjax('form[action="/admin/create-filiere"]');
-            setupAdminFormAjax('form[action="/admin/create-matiere"]');
+            setupAdminFormAjax('form[action="/admin/create-matiere-multi"]');
             setupAdminFormAjax('form[action="/admin/create-passage"]', function() {
                 loadPassageRules();
                 loadPassageStats();
             });
+            
+            // Validation personnalisée pour le formulaire multi-filières
+            const matiereMultiForm = document.getElementById('create-matiere-multi-form');
+            if (matiereMultiForm) {
+                matiereMultiForm.addEventListener('submit', function(e) {
+                    const checkedBoxes = document.querySelectorAll('input[name="filiere_ids"]:checked');
+                    const errorDiv = document.getElementById('filiere-error');
+                    
+                    if (checkedBoxes.length === 0) {
+                        e.preventDefault();
+                        errorDiv.style.display = 'block';
+                        return false;
+                    } else {
+                        errorDiv.style.display = 'none';
+                    }
+                });
+            }
         });
         
         // Exposer toutes les fonctions au scope global pour les attributs onclick
@@ -4137,6 +4190,8 @@
         window.loadPassageStats = loadPassageStats;
         window.deletePassageRule = deletePassageRule;
         window.setupAdminFormAjax = setupAdminFormAjax;
+        window.filterFiliereCheckboxes = filterFiliereCheckboxes;
+        window.updateSelectedFilieresCount = updateSelectedFilieresCount;
     </script>
     
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #666; font-size: 0.9rem;">
