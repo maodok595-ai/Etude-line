@@ -285,24 +285,25 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 ### Amélioration visuelle : Section d'information avec bannières violettes pour admin secondaire
 **Demande utilisateur** : La page d'information de l'administrateur secondaire doit ressembler à une capture d'écran fournie avec des blocs violets pleins.
 
-**Design implémenté** (inspiré de la maquette) :
+**Design final implémenté** (selon maquette) :
 
 **Structure en 3 blocs** :
 1. 🟣 **Bannière violette supérieure** :
    - Fond : Dégradé violet plein (#7C3AED → #6366F1)
-   - Texte : "BIENVENUE A L'UNIVERSITÉ..." en blanc, gras, majuscules
+   - Texte : "BIENVENUE A L'UNIVERSITÉ..." en **noir**, gras, majuscules
    - Padding généreux pour un effet de bannière
 
 2. 🏛️ **Logo universitaire au centre** :
    - Fond blanc avec ombre portée
    - Taille : 120x120px
-   - Marges : 2rem en haut et en bas
+   - Marges : **1rem** en haut et en bas (réduit pour compacité)
    - Centre parfait sur fond blanc
 
 3. 🟣 **Bannière violette inférieure** :
    - Fond : Dégradé violet plein (même que bannière supérieure)
-   - Texte blanc : Prénom/nom et rôle de l'administrateur
+   - Texte **noir** : Prénom/nom et rôle de l'administrateur
    - Padding généreux
+   - Marge : **1rem** en haut (réduit)
    - Border-radius pour coins arrondis
 
 **Autres éléments violets** :
@@ -312,11 +313,17 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 - ✅ Message d'information admin secondaire : Fond violet clair
 - ✅ Bouton "Ajouter un logo" : Violet #9C27B0
 
+**Ajustements finaux** :
+- ✅ Distance entre blocs et logo réduite (2rem → 1rem)
+- ✅ Texte en noir (#1a1a1a) sur fond violet pour correspondre exactement à la maquette
+- ✅ Design compact et professionnel
+
 **Impact visuel** :
-- 🎨 **Design moderne et professionnel** : Blocs violets pleins au lieu de dégradés légers
-- 🏛️ **Mise en valeur du logo** : Logo universitaire bien centré sur fond blanc
-- 📱 **Lisibilité optimale** : Texte blanc sur fond violet pour un excellent contraste
+- 🎨 **Design moderne et professionnel** : Blocs violets pleins avec texte noir
+- 🏛️ **Mise en valeur du logo** : Logo universitaire bien centré avec espacement optimisé
+- 📱 **Lisibilité optimale** : Texte noir sur fond violet pour un excellent contraste
 - 🎯 **Identité universitaire forte** : Chaque admin secondaire voit le nom et logo de son université
+- ✨ **Disposition compacte** : Espacement réduit pour une meilleure utilisation de l'espace
 
 **Fichier modifié** : `templates/dashboard_admin.html`
 
