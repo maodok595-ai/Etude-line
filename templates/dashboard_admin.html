@@ -578,10 +578,10 @@
         /* Styles pour le logo et nom de l'université (admin secondaire) */
         .university-welcome {
             text-align: center;
-            background: white;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
             padding: 1rem 1rem 0.75rem;
-            margin: 0;
-            border-radius: 0;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: var(--radius) var(--radius) 0 0;
             position: relative;
         }
         
@@ -591,8 +591,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 0;
-            background: transparent;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
         .university-logo {
@@ -610,26 +610,26 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
-            color: #8b5cf6;
+            color: white;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin: 0 0 0.75rem 0;
             line-height: 1.4;
-            text-shadow: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .user-info-box {
             padding: 0.75rem 1rem;
-            background: #f8f9fa;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 8px;
             margin-top: 1rem;
-            border-left: 3px solid var(--accent);
-            color: #8b5cf6;
+            border-left: 3px solid rgba(255, 255, 255, 0.5);
+            color: white;
         }
 
         .user-info-box p {
             margin-bottom: 0.4rem;
-            color: #8b5cf6;
+            color: white;
             font-size: 0.9rem;
         }
 
