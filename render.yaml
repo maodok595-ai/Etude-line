@@ -4,7 +4,7 @@ services:
     env: python
     region: oregon
     plan: starter  # Votre plan actuel (parfait pour 0-5,000 utilisateurs)
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python migration_index_scalabilite.py
     # ⚡ OPTIMISATION: Gunicorn avec 2 workers pour gérer 50+ utilisateurs simultanés
     # Plan Starter: parfait pour 0-5,000 utilisateurs
     # Upgrader vers 'pro' + 8 workers seulement quand vous aurez 5,000+ utilisateurs
