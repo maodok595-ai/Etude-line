@@ -280,45 +280,43 @@ Génère : onclick='deleteProf("user1", "John O'\''Brien")' ✅
 
 ---
 
-**29 octobre 2025 - Thème violet intégral pour toute la page administrateur secondaire**
+**29 octobre 2025 - Section d'accueil avec blocs violets pleins (style bannière)**
 
-### Amélioration visuelle majeure : Page complète en violet pour l'administrateur secondaire
-**Demande utilisateur** : Toute la page (fond + conteneur + éléments) de l'administrateur secondaire doit être en violet.
+### Amélioration visuelle : Section d'information avec bannières violettes pour admin secondaire
+**Demande utilisateur** : La page d'information de l'administrateur secondaire doit ressembler à une capture d'écran fournie avec des blocs violets pleins.
 
-**Solution implémentée** :
-- 🟣 **Fond de page complet** : Dégradé violet (#f3e8ff → #ede9fe → #f3e8ff) appliqué à tout le body
-- 🟣 **Conteneur semi-transparent** : Effet glassmorphism avec fond blanc translucide et flou
-- 🟣 **Classe dynamique** : `body.admin-secondaire` appliquée automatiquement pour les admin secondaires
+**Design implémenté** (inspiré de la maquette) :
 
-**Tous les éléments dans la page** :
+**Structure en 3 blocs** :
+1. 🟣 **Bannière violette supérieure** :
+   - Fond : Dégradé violet plein (#7C3AED → #6366F1)
+   - Texte : "BIENVENUE A L'UNIVERSITÉ..." en blanc, gras, majuscules
+   - Padding généreux pour un effet de bannière
 
-**Section d'accueil** :
-- ✅ Fond d'accueil : Dégradé violet clair
-- ✅ Bordure de section : Violet (#9C27B0) avec dégradé
-- ✅ Nom de l'université : Dégradé de texte violet
-- ✅ Cadre du logo : Ombre violette et fond violet translucide
-- ✅ Boîte d'informations utilisateur : Fond violet léger avec bordure gauche violette
+2. 🏛️ **Logo universitaire au centre** :
+   - Fond blanc avec ombre portée
+   - Taille : 120x120px
+   - Marges : 2rem en haut et en bas
+   - Centre parfait sur fond blanc
 
-**Contrôles et fonctionnalités** :
-- ✅ Nom de l'université : Texte violet
-- ✅ Bouton "Téléchargements" : Dégradé violet
-- ✅ Bouton "Passage classe sup." : Dégradé violet
+3. 🟣 **Bannière violette inférieure** :
+   - Fond : Dégradé violet plein (même que bannière supérieure)
+   - Texte blanc : Prénom/nom et rôle de l'administrateur
+   - Padding généreux
+   - Border-radius pour coins arrondis
+
+**Autres éléments violets** :
+- ✅ Bouton "Téléchargements" : Violet #9C27B0
+- ✅ Bouton "Passage classe sup." : Violet #9C27B0
 - ✅ Titre "Statistiques universitaires" : Violet #9C27B0
-
-**Onglet Universités** :
-- ✅ Message d'information : Fond violet clair avec bordure violette
-- ✅ Bouton "Ajouter un logo" (📸) : Violet #9C27B0
+- ✅ Message d'information admin secondaire : Fond violet clair
+- ✅ Bouton "Ajouter un logo" : Violet #9C27B0
 
 **Impact visuel** :
-- 🎨 **Immersion totale** : Toute la page baigne dans une atmosphère violette
-- 🏛️ **Distinction forte** : Admin principal (gris) vs Admin secondaire (violet)
-- ✨ **Effet glassmorphism** : Design moderne avec transparence et flou
-- 🎯 **Cohérence parfaite** : Identité visuelle 100% unifiée
-
-**Technique** :
-- Classe conditionnelle `admin-secondaire` ajoutée au `<body>` selon le type d'administrateur
-- Fond de page en dégradé violet avec !important pour override
-- Conteneur avec `backdrop-filter: blur(10px)` pour effet de profondeur
+- 🎨 **Design moderne et professionnel** : Blocs violets pleins au lieu de dégradés légers
+- 🏛️ **Mise en valeur du logo** : Logo universitaire bien centré sur fond blanc
+- 📱 **Lisibilité optimale** : Texte blanc sur fond violet pour un excellent contraste
+- 🎯 **Identité universitaire forte** : Chaque admin secondaire voit le nom et logo de son université
 
 **Fichier modifié** : `templates/dashboard_admin.html`
 
