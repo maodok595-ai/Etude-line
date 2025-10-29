@@ -2283,12 +2283,16 @@ async def admin_create_prof(
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     
     try:
-        # Check if username already exists
-        existing_admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
-        existing_prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
-        existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
+        # Check if username already exists (optimized - single query with UNION)
+        from sqlalchemy import union_all, select
+        username_check = union_all(
+            select(AdministrateurDB.username).where(AdministrateurDB.username == username),
+            select(ProfesseurDB.username).where(ProfesseurDB.username == username),
+            select(EtudiantDB.username).where(EtudiantDB.username == username)
+        )
+        existing_username = db.execute(username_check).first()
         
-        if existing_admin or existing_prof or existing_etudiant:
+        if existing_username:
             error_msg = "Ce nom d'utilisateur existe déjà"
             if is_ajax:
                 return {"success": False, "message": error_msg}
@@ -2309,27 +2313,28 @@ async def admin_create_prof(
                 return {"success": False, "message": error_msg}
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
-        # Validate all UFRs belong to the selected university
-        for ufr_id in ufr_ids:
-            ufr = db.query(UFRDB).filter(UFRDB.id == ufr_id, UFRDB.universite_id == universite_id).first()
-            if not ufr:
-                error_msg = f"UFR {ufr_id} non valide pour cette université"
-                if is_ajax:
-                    return {"success": False, "message": error_msg}
-                return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
+        # Validate all UFRs belong to the selected university (optimized - single query with in_)
+        ufrs = db.query(UFRDB).filter(
+            UFRDB.id.in_(ufr_ids), 
+            UFRDB.universite_id == universite_id
+        ).all()
         
-        # Validate all filières are valid (belong to the selected UFRs)
-        valid_filiere_ids = set()
-        for ufr_id in ufr_ids:
-            filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id == ufr_id).all()
-            valid_filiere_ids.update([f.id for f in filieres])
+        if len(ufrs) != len(ufr_ids):
+            error_msg = "Une ou plusieurs UFR ne sont pas valides pour cette université"
+            if is_ajax:
+                return {"success": False, "message": error_msg}
+            return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
-        for filiere_id in filiere_ids:
-            if filiere_id not in valid_filiere_ids:
-                error_msg = f"Filière {filiere_id} non valide pour les UFR sélectionnées"
-                if is_ajax:
-                    return {"success": False, "message": error_msg}
-                return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
+        # Validate all filières are valid (belong to the selected UFRs) - optimized
+        filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all()
+        valid_filiere_ids = {f.id for f in filieres}
+        
+        invalid_filieres = set(filiere_ids) - valid_filiere_ids
+        if invalid_filieres:
+            error_msg = "Une ou plusieurs filières ne sont pas valides pour les UFR sélectionnées"
+            if is_ajax:
+                return {"success": False, "message": error_msg}
+            return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new professor (without UFR/filière, using many-to-many relations)
         new_prof = ProfesseurDB(
