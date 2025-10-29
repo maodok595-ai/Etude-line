@@ -27,8 +27,16 @@
    - Flèche changée de ▼ à ► (ligne 1884)
    - Ajout de `display: none` au contenu des niveaux (ligne 1893)
 
+4. **Liste des matières - Niveaux** (L1, L2, L3, M1, M2) :
+   - Flèche changée de ▼ à ► (ligne 2300)
+   - Changement de `display: block;` à `display: none;` (ligne 2302)
+
+5. **Liste des matières - Semestres** (S1, S2) :
+   - Flèche changée de ▼ à ► (ligne 2320)
+   - Changement de `display: block;` à `display: none;` (ligne 2322)
+
 **Fichiers modifiés** :
-- `templates/dashboard_admin.html` (lignes 1278-1294, 1847, 1851, 1884, 1893)
+- `templates/dashboard_admin.html` (lignes 1278-1294, 1847, 1851, 1884, 1893, 2300, 2302, 2320, 2322)
 
 **Impact** :
 - ✅ Interface plus propre et organisée au chargement
