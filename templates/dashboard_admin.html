@@ -2294,9 +2294,9 @@
                                                             {% elif niveau == "M2" %}📔 Master 2 (M2)
                                                             {% endif %}
                                                         </span>
-                                                        <span id="arrow-niveau-{{ filiere.id }}_{{ niveau }}" style="font-size: 1.2rem; transition: transform 0.3s;">▼</span>
+                                                        <span id="arrow-niveau-{{ filiere.id }}_{{ niveau }}" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
                                                     </div>
-                                                    <div id="content-niveau-{{ filiere.id }}_{{ niveau }}" style="display: block;">
+                                                    <div id="content-niveau-{{ filiere.id }}_{{ niveau }}" style="display: none;">
                                                     
                                                     {% for semestre in ["S1", "S2"] %}
                                                         {% set matieres_semestre = [] %}
@@ -2314,9 +2314,9 @@
                                                                 padding: 0.4rem 1rem 0.4rem 1.5rem; font-weight: 600; color: white; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;"
                                                                 onclick="toggleSemestreMatieres('{{ filiere.id }}_{{ niveau }}_{{ semestre }}')">
                                                                 <span>📅 {{ semestre }} - Semestre {{ semestre[1] }}</span>
-                                                                <span id="arrow-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="font-size: 1rem; transition: transform 0.3s;">▼</span>
+                                                                <span id="arrow-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                                                             </div>
-                                                            <div id="content-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="display: block;">
+                                                            <div id="content-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="display: none;">
                                                             {% for matiere in matieres_semestre %}
                                                                 <div class="academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
                                                                     <h4 style="margin: 0;">{{ matiere.nom }}</h4>
