@@ -19,7 +19,8 @@ DATABASE_URL = os.getenv("EXTERNAL_DATABASE_URL") or os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     print("❌ ERREUR : Aucune variable DATABASE_URL trouvée")
     print("   Configurez EXTERNAL_DATABASE_URL ou DATABASE_URL")
-    exit(1)
+    print("⚠️  Migration ignorée - Continuez le build")
+    exit(0)  # Exit 0 pour ne pas bloquer le build Render
 
 print("=" * 70)
 print("🔧 MIGRATION : AJOUT D'INDEX SQL POUR SCALABILITÉ")
