@@ -2674,19 +2674,12 @@
         // Écouter les messages du Service Worker pour jouer le son
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', event => {
+                console.log('[PWA] Message reçu du Service Worker:', event.data);
+                
                 if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
+                    console.log('🔊 [PWA] Demande de lecture du son reçue');
                     // Jouer le son personnalisé
-                    try {
-                        if (notificationAudio) {
-                            notificationAudio.currentTime = 0;
-                            notificationAudio.volume = 0.9; // Volume fort pour être bien audible
-                            notificationAudio.play().catch(e => {
-                                console.log('Son non disponible:', e);
-                            });
-                        }
-                    } catch (error) {
-                        console.log('Erreur lecture son:', error);
-                    }
+                    playNotificationSound();
                 }
             });
         }

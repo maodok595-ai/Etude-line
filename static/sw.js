@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'etude-line-v13';
-const STATIC_CACHE = 'etude-line-static-v13';
-const DYNAMIC_CACHE = 'etude-line-dynamic-v13';
+const CACHE_VERSION = 'etude-line-v14';
+const STATIC_CACHE = 'etude-line-static-v14';
+const DYNAMIC_CACHE = 'etude-line-dynamic-v14';
 
 const STATIC_ASSETS = [
   '/',
@@ -207,18 +207,31 @@ self.addEventListener('message', (event) => {
       }
     };
     
-    self.registration.showNotification(title || '📚 Étude LINE', options)
-      .then(() => {
-        // Envoyer message aux clients pour jouer le son
-        return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-      })
-      .then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'PLAY_NOTIFICATION_SOUND'
+    // Afficher la notification ET jouer le son immédiatement
+    event.waitUntil(
+      self.registration.showNotification(title || '📚 Étude LINE', options)
+        .then(() => {
+          // Envoyer message aux clients pour jouer le son
+          return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        })
+        .then(clients => {
+          console.log('[Service Worker] Envoi message son à', clients.length, 'client(s)');
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'PLAY_NOTIFICATION_SOUND'
+            });
           });
-        });
-      });
+          
+          // Si aucun client n'est ouvert, le son ne peut pas être joué
+          // mais la notification système sera quand même affichée
+          if (clients.length === 0) {
+            console.log('[Service Worker] Aucun client actif - son impossible');
+          }
+        })
+        .catch(err => {
+          console.error('[Service Worker] Erreur notification:', err);
+        })
+    );
   }
   
   // Mettre à jour le badge de l'icône PWA
