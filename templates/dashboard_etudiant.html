@@ -1302,6 +1302,9 @@
                 searchEl.style.display = 'block';
                 contentEl.style.display = 'block';
                 contentEl.innerHTML = renderHierarchy(data.hierarchy);
+                
+                // Après le chargement du contenu, vérifier s'il faut scroller vers un chapitre
+                setTimeout(scrollToChapterFromHash, 100);
             } catch (error) {
                 console.error('Error loading content:', error);
                 document.getElementById('loading').innerHTML = '<p style="color: red;">❌ Erreur lors du chargement</p>';
@@ -1403,7 +1406,7 @@
                                     <div class="semestre-section">
                                         <div class="semestre-title">${semestre.semestre}</div>
                                         ${semestre.chapitres.map(chapitre => `
-                                            <div class="chapitre-item">
+                                            <div class="chapitre-item" id="chapitre-${chapitre.id}">
                                                 <a href="/chapitre/${chapitre.id}/etudiant" style="text-decoration: none; color: inherit; display: block;">
                                                     <div class="chapitre-header" style="cursor: pointer;">
                                                         <span class="chapitre-title">📖 Chapitre ${chapitre.numero} : ${chapitre.titre}</span>
@@ -2283,6 +2286,47 @@
                 closePassageModal();
             }
         });
+        
+        // Fonction pour ouvrir automatiquement la matière et scroller vers le chapitre
+        function scrollToChapterFromHash() {
+            // Vérifier si l'URL contient un hash pointant vers un chapitre
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#chapitre-')) {
+                const chapitreElement = document.querySelector(hash);
+                
+                if (chapitreElement) {
+                    // Trouver la matière parente
+                    const matiereContent = chapitreElement.closest('.matiere-content');
+                    
+                    if (matiereContent) {
+                        // Ouvrir la matière (ajouter la classe 'show')
+                        matiereContent.classList.add('show');
+                        
+                        // Trouver et ouvrir la flèche
+                        const matiereHeader = matiereContent.previousElementSibling;
+                        if (matiereHeader) {
+                            const arrow = matiereHeader.querySelector('.toggle-arrow');
+                            if (arrow) {
+                                arrow.classList.add('open');
+                            }
+                        }
+                        
+                        // Attendre que l'ouverture soit terminée, puis scroller
+                        setTimeout(function() {
+                            chapitreElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            
+                            // Ajouter un effet de surbrillance temporaire
+                            chapitreElement.style.transition = 'background-color 0.5s';
+                            chapitreElement.style.backgroundColor = '#fff9c4';
+                            
+                            setTimeout(function() {
+                                chapitreElement.style.backgroundColor = '';
+                            }, 2000);
+                        }, 300);
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
