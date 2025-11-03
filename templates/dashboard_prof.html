@@ -2609,9 +2609,9 @@
         function preloadNotificationSound() {
             try {
                 notificationAudio = new Audio('/static/notification-sound.wav');
-                notificationAudio.volume = 0.7;  // Volume augmenté pour être bien audible
+                notificationAudio.volume = 1.0;  // Volume au maximum
                 notificationAudio.load();
-                console.log('🔊 Son de notification préchargé');
+                console.log('🔊 Son de notification préchargé (volume 100%)');
             } catch (error) {
                 console.log('Erreur préchargement son:', error);
             }
@@ -2622,9 +2622,9 @@
             try {
                 if (notificationAudio) {
                     notificationAudio.currentTime = 0;  // Recommencer depuis le début
-                    notificationAudio.volume = 0.8;      // Volume fort
+                    notificationAudio.volume = 1.0;      // Volume au maximum (100%)
                     notificationAudio.play().then(() => {
-                        console.log('🔊 Son de notification joué !');
+                        console.log('🔊 Son de notification joué à 100% !');
                     }).catch(error => {
                         console.log('⚠️ Impossible de jouer le son:', error);
                     });
