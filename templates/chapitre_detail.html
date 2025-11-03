@@ -71,15 +71,25 @@
             background: #f8f9fa;
             border-bottom: 3px solid #e9ecef;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tabs-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .tabs-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 2px;
         }
 
         .tab-button {
-            flex: 1;
-            min-width: 150px;
-            padding: 20px;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 20px 15px;
             background: transparent;
             border: none;
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: 600;
             color: #6c757d;
             cursor: pointer;
@@ -301,13 +311,31 @@
             }
 
             .tab-button {
-                min-width: 100px;
-                padding: 15px 10px;
-                font-size: 0.95em;
+                padding: 12px 8px;
+                font-size: 0.9em;
             }
 
             .content-container {
                 padding: 20px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tab-button {
+                padding: 10px 6px;
+                font-size: 0.85em;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .chapter-title {
+                font-size: 1.3em;
+            }
+            
+            .content-container {
+                padding: 15px 10px;
             }
         }
     </style>
