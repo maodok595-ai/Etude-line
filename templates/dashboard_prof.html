@@ -3002,6 +3002,9 @@
                             setTimeout(function() {
                                 chapitreElement.style.backgroundColor = '';
                             }, 2000);
+                            
+                            // Supprimer le hash de l'URL pour éviter que la matière reste ouverte au prochain chargement
+                            history.replaceState(null, '', window.location.pathname);
                         }, 300);
                     }
                 }
