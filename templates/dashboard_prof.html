@@ -3133,10 +3133,10 @@
         async function loadMessageUFRsProf() {
             try {
                 const response = await fetch('/api/prof/ufrs');
-                const ufrs = await response.json();
+                const data = await response.json();
                 const select = document.getElementById('msg-ufr');
                 select.innerHTML = '<option value="">-- Toutes les UFR --</option>';
-                ufrs.forEach(ufr => {
+                (data.ufrs || []).forEach(ufr => {
                     const option = document.createElement('option');
                     option.value = ufr.id;
                     option.textContent = ufr.nom;
@@ -3162,8 +3162,8 @@
             
             try {
                 const response = await fetch(`/api/prof/filieres/${ufrId}`);
-                const filieres = await response.json();
-                filieres.forEach(filiere => {
+                const data = await response.json();
+                (data.filieres || []).forEach(filiere => {
                     const option = document.createElement('option');
                     option.value = filiere.id;
                     option.textContent = filiere.nom;
@@ -3187,8 +3187,8 @@
             
             try {
                 const response = await fetch(`/api/filieres/${filiereId}/matieres`);
-                const matieres = await response.json();
-                matieres.forEach(matiere => {
+                const data = await response.json();
+                (data.matieres || []).forEach(matiere => {
                     const option = document.createElement('option');
                     option.value = matiere.id;
                     option.textContent = `${matiere.nom} (${matiere.niveau} - ${matiere.semestre})`;

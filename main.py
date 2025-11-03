@@ -3940,6 +3940,92 @@ async def modifier_chapitre_complet(
         db.rollback()
         return RedirectResponse(f"/dashboard/prof?error=Erreur lors de la modification: {str(e)}", status_code=303)
 
+@app.post("/prof/send-message")
+async def send_message_to_students(
+    request: Request,
+    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
+    contenu: str = Form(...),
+    ufr_id: str = Form(None),
+    filiere_id: str = Form(None),
+    niveau: str = Form(None),
+    semestre: str = Form(None),
+    matiere_id: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Professor sends a message to students based on hierarchical filters"""
+    try:
+        prof_username, prof_user_data = prof_data
+        
+        # Get professor's university and ID
+        prof = db.query(ProfesseurDB).filter_by(username=prof_username).first()
+        if not prof:
+            return RedirectResponse("/dashboard/prof?error=Professeur introuvable", status_code=303)
+        
+        # Build query to find matching students
+        query = db.query(EtudiantDB).filter_by(universite_id=prof.universite_id)
+        
+        # If matiere_id is provided, get the matiere details and filter by its attributes
+        if matiere_id:
+            matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
+            if not matiere:
+                return RedirectResponse("/dashboard/prof?error=Matière introuvable", status_code=303)
+            
+            # Filter students by matiere's filiere and niveau
+            # Note: Students don't have a semestre field - they see all semestres of their niveau
+            query = query.filter_by(
+                filiere_id=matiere.filiere_id,
+                niveau=matiere.niveau
+            )
+        else:
+            # Apply individual filters only if matiere_id is not provided
+            if ufr_id:
+                query = query.filter_by(ufr_id=ufr_id)
+            if filiere_id:
+                query = query.filter_by(filiere_id=filiere_id)
+            if niveau:
+                query = query.filter_by(niveau=niveau)
+            # Note: semestre is not a student field, so we don't filter by it
+        
+        # Get matching students
+        etudiants = query.all()
+        
+        if not etudiants:
+            return RedirectResponse("/dashboard/prof?error=Aucun étudiant trouvé avec ces critères", status_code=303)
+        
+        # Create the message
+        message = MessageProf(
+            contenu=contenu,
+            prof_id=prof.id,
+            universite_id=prof.universite_id,
+            ufr_id=ufr_id if ufr_id else None,
+            filiere_id=filiere_id if filiere_id else None,
+            niveau=niveau if niveau else None,
+            semestre=semestre if semestre else None,
+            matiere_id=matiere_id if matiere_id else None
+        )
+        db.add(message)
+        db.flush()
+        
+        # Create status entries for each student
+        for etudiant in etudiants:
+            statut = MessageEtudiantStatut(
+                message_id=message.id,
+                etudiant_username=etudiant.username,
+                lu=False,
+                supprime=False
+            )
+            db.add(statut)
+        
+        db.commit()
+        
+        success_msg = f"✉️ Message envoyé à {len(etudiants)} étudiant(s)"
+        return RedirectResponse(f"/dashboard/prof?success={success_msg}", status_code=303)
+    
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur envoi message: {str(e)}")
+        return RedirectResponse(f"/dashboard/prof?error=Erreur lors de l'envoi: {str(e)}", status_code=303)
+
 # API endpoints for hierarchical data
 
 def get_allowed_levels(student_level: str) -> list:
@@ -4869,6 +4955,106 @@ async def toggle_passage_classe(
         "actif": parametre.passage_classe_actif,
         "message": f"Passage en classe supérieure {'activé' if parametre.passage_classe_actif else 'désactivé'}"
     }
+
+# === ROUTES API - MESSAGES DES PROFESSEURS AUX ÉTUDIANTS ===
+
+@app.get("/api/etudiant/messages")
+async def get_student_messages(request: Request, db: Session = Depends(get_db)):
+    """Récupérer tous les messages pour un étudiant"""
+    try:
+        etudiant_username, etudiant_data = require_etudiant(request, db)
+        
+        # Récupérer tous les statuts de messages pour cet étudiant (non supprimés)
+        statuts = db.query(MessageEtudiantStatut).filter(
+            MessageEtudiantStatut.etudiant_username == etudiant_username,
+            MessageEtudiantStatut.supprime == False
+        ).all()
+        
+        messages = []
+        for statut in statuts:
+            message = db.query(MessageProf).filter_by(id=statut.message_id).first()
+            if message:
+                # Récupérer le nom du professeur via l'ID
+                prof = db.query(ProfesseurDB).filter_by(id=message.prof_id).first()
+                prof_nom = f"{prof.prenom} {prof.nom}" if prof else "Professeur"
+                
+                messages.append({
+                    "id": str(message.id),
+                    "contenu": message.contenu,
+                    "prof_nom": prof_nom,
+                    "date_envoi": message.date_creation.isoformat(),
+                    "lu": statut.lu
+                })
+        
+        # Trier par date (plus récents en premier)
+        messages.sort(key=lambda x: x['date_envoi'], reverse=True)
+        
+        return {"messages": messages}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur récupération messages: {str(e)}")
+        return {"messages": []}
+
+@app.post("/api/etudiant/messages/mark-read")
+async def mark_messages_as_read(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Marquer des messages comme lus"""
+    try:
+        etudiant_username, etudiant_data = require_etudiant(request, db)
+        
+        body = await request.json()
+        message_ids = body.get('message_ids', [])
+        
+        if not message_ids:
+            return {"success": True}
+        
+        # Mettre à jour les statuts
+        db.query(MessageEtudiantStatut).filter(
+            MessageEtudiantStatut.etudiant_username == etudiant_username,
+            MessageEtudiantStatut.message_id.in_(message_ids)
+        ).update({"lu": True}, synchronize_session=False)
+        
+        db.commit()
+        
+        return {"success": True}
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur marquage messages lus: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/etudiant/messages/{message_id}")
+async def delete_student_message(
+    message_id: str,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Supprimer un message (soft delete - masque uniquement pour cet étudiant)"""
+    try:
+        etudiant_username, etudiant_data = require_etudiant(request, db)
+        
+        # Trouver le statut du message pour cet étudiant
+        statut = db.query(MessageEtudiantStatut).filter(
+            MessageEtudiantStatut.message_id == message_id,
+            MessageEtudiantStatut.etudiant_username == etudiant_username
+        ).first()
+        
+        if not statut:
+            raise HTTPException(status_code=404, detail="Message non trouvé")
+        
+        # Soft delete : marquer comme supprimé
+        statut.supprime = True
+        db.commit()
+        
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur suppression message: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import os
