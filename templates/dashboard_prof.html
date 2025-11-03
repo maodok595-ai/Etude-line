@@ -1899,52 +1899,52 @@
                             
                             <!-- Interface message vocal (caché par défaut) -->
                             <div id="voice-message-interface" style="display: none;">
-                                <div style="text-align: center; padding: 2rem; background: #f9fafb; border-radius: 8px; border: 2px dashed #d1d5db; max-width: 100%; overflow: hidden; box-sizing: border-box;">
+                                <div style="text-align: center; padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 2px dashed #d1d5db; max-width: 100%; overflow: hidden; box-sizing: border-box;">
                                     <!-- État: Prêt à enregistrer -->
                                     <div id="voice-ready" style="display: block;">
-                                        <div style="font-size: 4rem; margin-bottom: 1rem;">🎙️</div>
-                                        <p style="color: #6b7280; margin-bottom: 1rem;">Appuyez sur le bouton pour enregistrer votre message vocal</p>
+                                        <p style="color: #6b7280; margin-bottom: 0.75rem; font-size: 0.9rem;">Appuyez sur le micro pour enregistrer</p>
                                         <button type="button" id="btn-start-recording" onclick="startVoiceRecording()" 
-                                                style="background: #ef4444; color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s;">
-                                            🔴 Commencer l'enregistrement
+                                                style="background: #ef4444; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center;">
+                                            🎙️
                                         </button>
                                     </div>
                                     
                                     <!-- État: Enregistrement en cours -->
                                     <div id="voice-recording" style="display: none;">
-                                        <div style="font-size: 4rem; margin-bottom: 1rem;">🔴</div>
-                                        <p style="color: #ef4444; margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: 600;">Enregistrement en cours...</p>
-                                        <p id="recording-timer" style="color: #6b7280; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 600;">00:00</p>
+                                        <p style="color: #ef4444; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">Enregistrement...</p>
+                                        <p id="recording-timer" style="color: #6b7280; margin-bottom: 0.75rem; font-size: 1.3rem; font-weight: 600;">00:00</p>
                                         <button type="button" onclick="stopVoiceRecording()" 
-                                                style="background: #3b82f6; color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
-                                            ⏹️ Arrêter
+                                                style="background: #3b82f6; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: inline-flex; align-items: center; justify-content: center;">
+                                            ⏹️
                                         </button>
                                     </div>
                                     
                                     <!-- État: Enregistrement terminé -->
                                     <div id="voice-recorded" style="display: none;">
-                                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
-                                        <p style="color: #059669; margin-bottom: 0.5rem; font-weight: 600;">Message vocal enregistré</p>
-                                        <p id="recorded-duration" style="color: #6b7280; margin-bottom: 1rem; font-size: 1.2rem;"></p>
+                                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+                                        <p style="color: #059669; margin-bottom: 0.25rem; font-weight: 600; font-size: 0.9rem;">Enregistré</p>
+                                        <p id="recorded-duration" style="color: #6b7280; margin-bottom: 0.75rem; font-size: 1rem;"></p>
                                         
                                         <!-- Lecteur audio pour prévisualiser -->
-                                        <audio id="voice-preview" controls style="max-width: 100%; width: 100%; margin-bottom: 1rem; border-radius: 8px; box-sizing: border-box;"></audio>
+                                        <audio id="voice-preview" controls style="max-width: 100%; width: 100%; margin-bottom: 0.75rem; border-radius: 8px; box-sizing: border-box; height: 40px;"></audio>
                                         
                                         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
                                             <button type="button" onclick="cancelVoiceRecording()" 
-                                                    style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; flex-shrink: 0;">
-                                                🗑️ Supprimer
+                                                    style="background: #ef4444; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center;" 
+                                                    title="Supprimer">
+                                                🗑️
                                             </button>
                                             <button type="button" onclick="startVoiceRecording()" 
-                                                    style="background: #f59e0b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; flex-shrink: 0;">
-                                                🔄 Réenregistrer
+                                                    style="background: #f59e0b; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center;" 
+                                                    title="Réenregistrer">
+                                                🔄
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <small style="color: #6b7280; display: block; margin-top: 0.5rem; text-align: center;">
-                                    💡 Conseil : Parlez clairement et évitez les bruits de fond
+                                <small style="color: #6b7280; display: block; margin-top: 0.5rem; text-align: center; font-size: 0.85rem;">
+                                    💡 Parlez clairement près du micro
                                 </small>
                             </div>
                         </div>
