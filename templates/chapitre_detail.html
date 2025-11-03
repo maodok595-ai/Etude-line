@@ -251,6 +251,21 @@
             line-height: 1.6;
         }
 
+        .file-name {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .file-container {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -321,8 +336,8 @@
                         {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div style="margin-bottom: 20px; padding: 15px; background: #f1f8e9; border-radius: 10px; border: 2px solid #c8e6c9;">
-                            <div style="color: #2e7d32; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #f1f8e9; border-radius: 10px; border: 2px solid #c8e6c9;">
+                            <div class="file-name" style="color: #2e7d32; font-weight: 600; margin-bottom: 10px;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -357,8 +372,8 @@
                         {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div style="margin-bottom: 20px; padding: 15px; background: #fffde7; border-radius: 10px; border: 2px solid #fff176;">
-                            <div style="color: #f57c00; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #fffde7; border-radius: 10px; border: 2px solid #fff176;">
+                            <div class="file-name" style="color: #f57c00; font-weight: 600; margin-bottom: 10px;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -393,8 +408,8 @@
                         {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 10px; border: 2px solid #90caf9;">
-                            <div style="color: #1976d2; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 10px; border: 2px solid #90caf9;">
+                            <div class="file-name" style="color: #1976d2; font-weight: 600; margin-bottom: 10px;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
