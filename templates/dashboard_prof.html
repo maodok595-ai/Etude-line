@@ -1806,13 +1806,102 @@
             
             <!-- Liste des chapitres complets hiérarchique -->
             <div class="card">
-                <!-- Bouton pour ouvrir le formulaire - Full Width sur Desktop -->
-                <button onclick="toggleFormulaireChapitre()" 
-                        class="btn-create-chapitre"
-                        style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); transition: all 0.3s ease; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                    <span style="font-size: 1.1rem;">➕</span>
-                    <span>Créer un chapitre complet</span>
-                </button>
+                <!-- Boutons d'actions -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <button onclick="toggleFormulaireChapitre()" 
+                            class="btn-create-chapitre"
+                            style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span style="font-size: 1.1rem;">➕</span>
+                        <span>Créer un chapitre</span>
+                    </button>
+                    
+                    <button onclick="toggleFormulaireMessage()" 
+                            class="btn-send-message"
+                            style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span style="font-size: 1.1rem;">✉️</span>
+                        <span>Envoyer une annonce</span>
+                    </button>
+                </div>
+                
+                <!-- Formulaire d'envoi de message (caché par défaut) -->
+                <div class="card" id="formulaire-message" style="display: none; margin-bottom: 1.5rem; background: #f0fdf4; border: 2px solid #10b981;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; color: #059669;">✉️ Envoyer une annonce aux étudiants</h3>
+                        <button onclick="toggleFormulaireMessage()" 
+                                style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            ✕ Fermer
+                        </button>
+                    </div>
+                    
+                    <form action="/prof/send-message" method="post" onsubmit="return validateMessageForm()">
+                        <!-- Ciblage hiérarchique -->
+                        <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #d1d5db;">
+                            <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">🎯 Choisir les destinataires</h4>
+                            
+                            <div class="form-group">
+                                <label for="msg-ufr">UFR (optionnel - vide = toutes les UFR)</label>
+                                <select id="msg-ufr" name="ufr_id" onchange="loadMessageFilieresProf()">
+                                    <option value="">-- Toutes les UFR --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="msg-filiere">Filière (optionnel)</label>
+                                <select id="msg-filiere" name="filiere_id" onchange="loadMessageMatieres()" disabled>
+                                    <option value="">-- Toutes les filières --</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="msg-niveau">Niveau (optionnel)</label>
+                                    <select id="msg-niveau" name="niveau">
+                                        <option value="">-- Tous les niveaux --</option>
+                                        <option value="L1">L1</option>
+                                        <option value="L2">L2</option>
+                                        <option value="L3">L3</option>
+                                        <option value="M1">M1</option>
+                                        <option value="M2">M2</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="msg-semestre">Semestre (optionnel)</label>
+                                    <select id="msg-semestre" name="semestre">
+                                        <option value="">-- Tous les semestres --</option>
+                                        <option value="S1">S1</option>
+                                        <option value="S2">S2</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="msg-matiere">Matière (optionnel)</label>
+                                    <select id="msg-matiere" name="matiere_id" disabled>
+                                        <option value="">-- Toutes les matières --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="message-preview" style="background: #ecfdf5; padding: 0.75rem; border-radius: 6px; margin-top: 1rem; border: 1px solid #10b981; display: none;">
+                                <strong style="color: #059669;">🎯 Destinataires :</strong>
+                                <span id="message-preview-text" style="color: #047857;"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Message -->
+                        <div class="form-group">
+                            <label for="msg-contenu">Message *</label>
+                            <textarea id="msg-contenu" name="contenu" rows="6" required 
+                                      placeholder="Exemple: Cours annulé ce vendredi. Reprise le lundi suivant à 8h."
+                                      style="width: 100%; padding: 1rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+                            <small style="color: #6b7280;">Écrivez votre annonce comme un message normal. Les étudiants concernés la recevront.</small>
+                        </div>
+                        
+                        <button type="submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); width: 100%;">
+                            ✉️ Envoyer l'annonce
+                        </button>
+                    </form>
+                </div>
                 
                 <h3>📚 Mes chapitres complets ({{ chapitres|length }})</h3>
                 
@@ -3025,6 +3114,106 @@
                     });
             });
         }
+    </script>
+    
+    <!-- Gestion du formulaire de message aux étudiants -->
+    <script>
+        function toggleFormulaireMessage() {
+            const form = document.getElementById('formulaire-message');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Charger les UFR si pas déjà fait
+                loadMessageUFRsProf();
+            } else {
+                form.style.display = 'none';
+            }
+        }
+        
+        async function loadMessageUFRsProf() {
+            try {
+                const response = await fetch('/api/prof/ufrs');
+                const ufrs = await response.json();
+                const select = document.getElementById('msg-ufr');
+                select.innerHTML = '<option value="">-- Toutes les UFR --</option>';
+                ufrs.forEach(ufr => {
+                    const option = document.createElement('option');
+                    option.value = ufr.id;
+                    option.textContent = ufr.nom;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erreur chargement UFRs:', error);
+            }
+        }
+        
+        async function loadMessageFilieresProf() {
+            const ufrSelect = document.getElementById('msg-ufr');
+            const filiereSelect = document.getElementById('msg-filiere');
+            const matiereSelect = document.getElementById('msg-matiere');
+            
+            filiereSelect.disabled = true;
+            matiereSelect.disabled = true;
+            filiereSelect.innerHTML = '<option value="">-- Toutes les filières --</option>';
+            matiereSelect.innerHTML = '<option value="">-- Toutes les matières --</option>';
+            
+            const ufrId = ufrSelect.value;
+            if (!ufrId) return;
+            
+            try {
+                const response = await fetch(`/api/prof/filieres/${ufrId}`);
+                const filieres = await response.json();
+                filieres.forEach(filiere => {
+                    const option = document.createElement('option');
+                    option.value = filiere.id;
+                    option.textContent = filiere.nom;
+                    filiereSelect.appendChild(option);
+                });
+                filiereSelect.disabled = false;
+            } catch (error) {
+                console.error('Erreur chargement filières:', error);
+            }
+        }
+        
+        async function loadMessageMatieres() {
+            const filiereSelect = document.getElementById('msg-filiere');
+            const matiereSelect = document.getElementById('msg-matiere');
+            
+            matiereSelect.disabled = true;
+            matiereSelect.innerHTML = '<option value="">-- Toutes les matières --</option>';
+            
+            const filiereId = filiereSelect.value;
+            if (!filiereId) return;
+            
+            try {
+                const response = await fetch(`/api/filieres/${filiereId}/matieres`);
+                const matieres = await response.json();
+                matieres.forEach(matiere => {
+                    const option = document.createElement('option');
+                    option.value = matiere.id;
+                    option.textContent = `${matiere.nom} (${matiere.niveau} - ${matiere.semestre})`;
+                    matiereSelect.appendChild(option);
+                });
+                matiereSelect.disabled = false;
+            } catch (error) {
+                console.error('Erreur chargement matières:', error);
+            }
+        }
+        
+        function validateMessageForm() {
+            const contenu = document.getElementById('msg-contenu').value.trim();
+            if (!contenu) {
+                alert('Veuillez écrire un message');
+                return false;
+            }
+            return true;
+        }
+        
+        window.toggleFormulaireMessage = toggleFormulaireMessage;
+        window.loadMessageUFRsProf = loadMessageUFRsProf;
+        window.loadMessageFilieresProf = loadMessageFilieresProf;
+        window.loadMessageMatieres = loadMessageMatieres;
+        window.validateMessageForm = validateMessageForm;
     </script>
 </body>
 </html>
