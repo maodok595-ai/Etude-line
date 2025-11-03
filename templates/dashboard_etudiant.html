@@ -1775,10 +1775,30 @@
         function preloadNotificationSound() {
             try {
                 notificationAudio = new Audio('/static/notification-sound.wav');
-                notificationAudio.volume = 0.5;
+                notificationAudio.volume = 0.7;  // Volume augmenté pour être bien audible
                 notificationAudio.load();
+                console.log('🔊 Son de notification préchargé');
             } catch (error) {
                 console.log('Erreur préchargement son:', error);
+            }
+        }
+        
+        // Jouer le son de notification
+        function playNotificationSound() {
+            try {
+                if (notificationAudio) {
+                    notificationAudio.currentTime = 0;  // Recommencer depuis le début
+                    notificationAudio.volume = 0.8;      // Volume fort
+                    notificationAudio.play().then(() => {
+                        console.log('🔊 Son de notification joué !');
+                    }).catch(error => {
+                        console.log('⚠️ Impossible de jouer le son:', error);
+                    });
+                } else {
+                    console.log('⚠️ Audio non chargé');
+                }
+            } catch (error) {
+                console.log('Erreur lecture son:', error);
             }
         }
         
@@ -1888,6 +1908,10 @@
                     // Afficher notification native si nouvelle notification
                     if (previousNotificationCount !== null && data.count > previousNotificationCount) {
                         const newCount = data.count - previousNotificationCount;
+                        
+                        // 🔊 JOUER LE SON DE NOTIFICATION
+                        playNotificationSound();
+                        
                         showNativeNotification(
                             '📚 Étude LINE',
                             `Vous avez ${newCount} nouvelle${newCount > 1 ? 's' : ''} notification${newCount > 1 ? 's' : ''} !`,
