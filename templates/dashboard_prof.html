@@ -2360,6 +2360,8 @@
             
             // Restaurer toutes les matières
             let restored = 0;
+            let firstOpenedElement = null;
+            
             document.querySelectorAll('[id^="matiere-"]').forEach(function(element) {
                 const matiereId = element.id.replace('matiere-', '');
                 const state = localStorage.getItem('matiere_' + matiereId);
@@ -2372,10 +2374,23 @@
                     if (arrow) arrow.style.transform = 'rotate(90deg)';
                     restored++;
                     console.log('✅ Section ouverte:', matiereId);
+                    
+                    // Mémoriser le premier élément ouvert pour le scroll
+                    if (!firstOpenedElement) {
+                        firstOpenedElement = element;
+                    }
                 }
             });
             
             console.log(`✨ ${restored} section(s) restaurée(s)`);
+            
+            // Défiler vers la première section ouverte
+            if (firstOpenedElement) {
+                setTimeout(function() {
+                    firstOpenedElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    console.log('📍 Défilement vers la section ouverte');
+                }, 200);
+            }
         }
         
         // Appeler la restauration après le chargement complet de la page

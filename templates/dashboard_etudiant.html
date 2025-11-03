@@ -1564,6 +1564,8 @@
         
         // Restaurer l'état des sections au chargement
         function restoreSectionsStateEtudiant() {
+            let firstOpenedHeader = null;
+            
             document.querySelectorAll('.matiere-header').forEach(function(header) {
                 const matiereName = header.querySelector('h3').textContent;
                 const state = localStorage.getItem('matiere_etudiant_' + matiereName);
@@ -1573,8 +1575,21 @@
                     const arrow = header.querySelector('.toggle-arrow');
                     content.classList.add('show');
                     arrow.classList.add('open');
+                    
+                    // Mémoriser la première section ouverte
+                    if (!firstOpenedHeader) {
+                        firstOpenedHeader = header;
+                    }
                 }
             });
+            
+            // Défiler vers la première section ouverte
+            if (firstOpenedHeader) {
+                setTimeout(function() {
+                    firstOpenedHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    console.log('📍 Défilement vers la section ouverte');
+                }, 200);
+            }
         }
         
         // Appeler la restauration après le chargement complet de la page
