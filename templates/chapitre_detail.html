@@ -77,18 +77,18 @@
 
         .tab-button {
             flex: 1;
-            padding: 15px 10px;
+            padding: 15px 5px;
             background: transparent;
             border: none;
-            font-size: 0.95em;
+            font-size: 0.9em;
             font-weight: 600;
             color: #6c757d;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.3;
+            white-space: normal;
+            word-wrap: break-word;
         }
 
         .tab-button:hover {
@@ -305,8 +305,8 @@
             }
 
             .tab-button {
-                padding: 12px 5px;
-                font-size: 0.85em;
+                padding: 12px 3px;
+                font-size: 0.8em;
             }
 
             .content-container {
@@ -316,7 +316,7 @@
         
         @media (max-width: 480px) {
             .tab-button {
-                padding: 12px 3px;
+                padding: 10px 2px;
                 font-size: 0.75em;
             }
             
@@ -333,10 +333,17 @@
             }
         }
         
-        @media (max-width: 380px) {
+        @media (max-width: 400px) {
             .tab-button {
-                padding: 12px 2px;
+                padding: 10px 1px;
                 font-size: 0.7em;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .tab-button {
+                padding: 8px 1px;
+                font-size: 0.66em;
             }
         }
     </style>
