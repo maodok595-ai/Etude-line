@@ -321,6 +321,7 @@ class MessageProf(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     prof_id = Column(Integer, ForeignKey("professeurs.id", ondelete='CASCADE'), nullable=False, index=True)
     contenu = Column(Text, nullable=False)
+    audio_file = Column(String(500), nullable=True)  # Chemin du fichier audio (optionnel)
     date_creation = Column(DateTime, default=datetime.utcnow, index=True)
     
     # Ciblage hiérarchique (null = tous)

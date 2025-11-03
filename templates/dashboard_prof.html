@@ -1871,13 +1871,82 @@
                             </div>
                         </div>
                         
-                        <!-- Message -->
-                        <div class="form-group">
-                            <label for="msg-contenu">Message *</label>
-                            <textarea id="msg-contenu" name="contenu" rows="6" required 
-                                      placeholder="Exemple: Cours annulé ce vendredi. Reprise le lundi suivant à 8h."
-                                      style="width: 100%; padding: 1rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
-                            <small style="color: #6b7280;">Écrivez votre annonce comme un message normal. Les étudiants concernés la recevront.</small>
+                        <!-- Type de message : Texte ou Vocal -->
+                        <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #d1d5db;">
+                            <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">💬 Type de message</h4>
+                            
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                <button type="button" id="btn-type-text" onclick="switchMessageType('text')" 
+                                        style="flex: 1; padding: 0.75rem; border: 2px solid #10b981; background: #10b981; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                                    💬 Message texte
+                                </button>
+                                <button type="button" id="btn-type-voice" onclick="switchMessageType('voice')" 
+                                        style="flex: 1; padding: 0.75rem; border: 2px solid #d1d5db; background: white; color: #374151; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                                    🎙️ Message vocal
+                                </button>
+                            </div>
+                            
+                            <!-- Interface message texte (par défaut) -->
+                            <div id="text-message-interface">
+                                <div class="form-group">
+                                    <label for="msg-contenu">Message *</label>
+                                    <textarea id="msg-contenu" name="contenu" rows="6" 
+                                              placeholder="Exemple: Cours annulé ce vendredi. Reprise le lundi suivant à 8h."
+                                              style="width: 100%; padding: 1rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+                                    <small style="color: #6b7280;">Écrivez votre annonce comme un message normal. Les étudiants concernés la recevront.</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Interface message vocal (caché par défaut) -->
+                            <div id="voice-message-interface" style="display: none;">
+                                <div style="text-align: center; padding: 2rem; background: #f9fafb; border-radius: 8px; border: 2px dashed #d1d5db;">
+                                    <!-- État: Prêt à enregistrer -->
+                                    <div id="voice-ready" style="display: block;">
+                                        <div style="font-size: 4rem; margin-bottom: 1rem;">🎙️</div>
+                                        <p style="color: #6b7280; margin-bottom: 1rem;">Appuyez sur le bouton pour enregistrer votre message vocal</p>
+                                        <button type="button" id="btn-start-recording" onclick="startVoiceRecording()" 
+                                                style="background: #ef4444; color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s;">
+                                            🔴 Commencer l'enregistrement
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- État: Enregistrement en cours -->
+                                    <div id="voice-recording" style="display: none;">
+                                        <div style="font-size: 4rem; margin-bottom: 1rem;">🔴</div>
+                                        <p style="color: #ef4444; margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: 600;">Enregistrement en cours...</p>
+                                        <p id="recording-timer" style="color: #6b7280; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 600;">00:00</p>
+                                        <button type="button" onclick="stopVoiceRecording()" 
+                                                style="background: #3b82f6; color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                                            ⏹️ Arrêter
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- État: Enregistrement terminé -->
+                                    <div id="voice-recorded" style="display: none;">
+                                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                                        <p style="color: #059669; margin-bottom: 0.5rem; font-weight: 600;">Message vocal enregistré</p>
+                                        <p id="recorded-duration" style="color: #6b7280; margin-bottom: 1rem; font-size: 1.2rem;"></p>
+                                        
+                                        <!-- Lecteur audio pour prévisualiser -->
+                                        <audio id="voice-preview" controls style="width: 100%; margin-bottom: 1rem; border-radius: 8px;"></audio>
+                                        
+                                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                                            <button type="button" onclick="cancelVoiceRecording()" 
+                                                    style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                                🗑️ Supprimer
+                                            </button>
+                                            <button type="button" onclick="startVoiceRecording()" 
+                                                    style="background: #f59e0b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                                🔄 Réenregistrer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <small style="color: #6b7280; display: block; margin-top: 0.5rem; text-align: center;">
+                                    💡 Conseil : Parlez clairement et évitez les bruits de fond
+                                </small>
+                            </div>
                         </div>
                         
                         <button type="submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); width: 100%;">
@@ -3204,6 +3273,35 @@
                     const messageCard = document.createElement('div');
                     messageCard.style.cssText = 'background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #3b82f6;';
                     
+                    // Déterminer si c'est un message vocal
+                    const isVoiceMessage = message.audio_file && message.audio_file.trim() !== '';
+                    
+                    let contentHtml;
+                    if (isVoiceMessage) {
+                        contentHtml = `
+                            <div style="background: #f0fdf4; padding: 0.875rem; border-radius: 6px; border: 2px solid #10b981;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="font-size: 2rem;">🎙️</div>
+                                    <div style="flex: 1;">
+                                        <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">Message vocal</div>
+                                        <audio controls style="width: 100%; max-width: 500px;" preload="metadata">
+                                            <source src="/audio/${message.audio_file}" type="audio/webm">
+                                            <source src="/audio/${message.audio_file}" type="audio/mp4">
+                                            <source src="/audio/${message.audio_file}" type="audio/ogg">
+                                            Votre navigateur ne supporte pas la lecture audio.
+                                        </audio>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contentHtml = `
+                            <div style="background: white; padding: 0.875rem; border-radius: 6px; color: #374151; line-height: 1.5;">
+                                ${message.contenu.replace(/\n/g, '<br>')}
+                            </div>
+                        `;
+                    }
+                    
                     messageCard.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
                             <div style="flex: 1;">
@@ -3223,9 +3321,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div style="background: white; padding: 0.875rem; border-radius: 6px; color: #374151; line-height: 1.5;">
-                            ${message.contenu.replace(/\n/g, '<br>')}
-                        </div>
+                        ${contentHtml}
                         <div style="margin-top: 0.75rem;">
                             <button onclick="supprimerMessageProf('${message.id}')" 
                                     style="background: #dc2626; color: white; border: none; padding: 0.4rem 0.875rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 600;">
@@ -3311,19 +3407,266 @@
             }
         }
         
+        // ===== GESTION DES MESSAGES VOCAUX =====
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let recordedAudioBlob = null;
+        let currentMessageType = 'text'; // 'text' ou 'voice'
+        
+        function switchMessageType(type) {
+            currentMessageType = type;
+            
+            const btnText = document.getElementById('btn-type-text');
+            const btnVoice = document.getElementById('btn-type-voice');
+            const textInterface = document.getElementById('text-message-interface');
+            const voiceInterface = document.getElementById('voice-message-interface');
+            const msgContenu = document.getElementById('msg-contenu');
+            
+            if (type === 'text') {
+                // Activer mode texte
+                btnText.style.background = '#10b981';
+                btnText.style.color = 'white';
+                btnText.style.borderColor = '#10b981';
+                
+                btnVoice.style.background = 'white';
+                btnVoice.style.color = '#374151';
+                btnVoice.style.borderColor = '#d1d5db';
+                
+                textInterface.style.display = 'block';
+                voiceInterface.style.display = 'none';
+                msgContenu.required = true;
+                
+                // Réinitialiser l'enregistrement vocal si existant
+                if (recordedAudioBlob) {
+                    cancelVoiceRecording();
+                }
+            } else {
+                // Activer mode vocal
+                btnVoice.style.background = '#10b981';
+                btnVoice.style.color = 'white';
+                btnVoice.style.borderColor = '#10b981';
+                
+                btnText.style.background = 'white';
+                btnText.style.color = '#374151';
+                btnText.style.borderColor = '#d1d5db';
+                
+                textInterface.style.display = 'none';
+                voiceInterface.style.display = 'block';
+                msgContenu.required = false;
+            }
+        }
+        
+        async function startVoiceRecording() {
+            try {
+                // Vérifier le support du navigateur
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('❌ Votre navigateur ne supporte pas l\'enregistrement audio');
+                    return;
+                }
+                
+                // Demander l'accès au microphone
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                // Déterminer le meilleur format audio supporté
+                let mimeType = 'audio/webm';
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4'; // Safari
+                } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    mimeType = 'audio/webm;codecs=opus'; // Chrome/Firefox
+                }
+                
+                console.log('🎙️ Enregistrement avec format:', mimeType);
+                
+                // Créer le MediaRecorder
+                mediaRecorder = new MediaRecorder(stream, { mimeType });
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = () => {
+                    // Créer le blob audio
+                    recordedAudioBlob = new Blob(audioChunks, { type: mimeType });
+                    const audioUrl = URL.createObjectURL(recordedAudioBlob);
+                    
+                    // Afficher le lecteur audio
+                    const audioPlayer = document.getElementById('voice-preview');
+                    audioPlayer.src = audioUrl;
+                    
+                    // Calculer la durée
+                    const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = Math.floor(duration / 60);
+                    const seconds = duration % 60;
+                    document.getElementById('recorded-duration').textContent = 
+                        `Durée: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    // Arrêter le timer
+                    if (recordingTimer) {
+                        clearInterval(recordingTimer);
+                        recordingTimer = null;
+                    }
+                    
+                    // Libérer le microphone
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Afficher l'état "enregistré"
+                    showVoiceState('recorded');
+                    
+                    console.log('✅ Enregistrement terminé:', recordedAudioBlob.size, 'bytes');
+                };
+                
+                // Démarrer l'enregistrement
+                mediaRecorder.start();
+                recordingStartTime = Date.now();
+                
+                // Démarrer le timer d'affichage
+                recordingTimer = setInterval(updateRecordingTimer, 1000);
+                
+                // Afficher l'état "en cours d'enregistrement"
+                showVoiceState('recording');
+                
+                console.log('🔴 Enregistrement démarré');
+                
+            } catch (error) {
+                console.error('❌ Erreur accès microphone:', error);
+                
+                if (error.name === 'NotAllowedError') {
+                    alert('❌ Accès au microphone refusé.\n\nVeuillez autoriser l\'accès au microphone dans les paramètres de votre navigateur.');
+                } else if (error.name === 'NotFoundError') {
+                    alert('❌ Aucun microphone détecté.\n\nVeuillez connecter un microphone et réessayer.');
+                } else {
+                    alert('❌ Erreur d\'enregistrement: ' + error.message);
+                }
+            }
+        }
+        
+        function stopVoiceRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                console.log('⏹️ Arrêt de l\'enregistrement');
+            }
+        }
+        
+        function cancelVoiceRecording() {
+            // Arrêter l'enregistrement si en cours
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            // Réinitialiser les variables
+            audioChunks = [];
+            recordedAudioBlob = null;
+            recordingStartTime = null;
+            
+            if (recordingTimer) {
+                clearInterval(recordingTimer);
+                recordingTimer = null;
+            }
+            
+            // Revenir à l'état initial
+            showVoiceState('ready');
+            
+            console.log('🗑️ Enregistrement annulé');
+        }
+        
+        function updateRecordingTimer() {
+            if (!recordingStartTime) return;
+            
+            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('recording-timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function showVoiceState(state) {
+            document.getElementById('voice-ready').style.display = state === 'ready' ? 'block' : 'none';
+            document.getElementById('voice-recording').style.display = state === 'recording' ? 'block' : 'none';
+            document.getElementById('voice-recorded').style.display = state === 'recorded' ? 'block' : 'none';
+        }
+        
         function validateMessageForm() {
-            const contenu = document.getElementById('msg-contenu').value.trim();
-            if (!contenu) {
-                alert('Veuillez écrire un message');
+            if (currentMessageType === 'text') {
+                const contenu = document.getElementById('msg-contenu').value.trim();
+                if (!contenu) {
+                    alert('Veuillez écrire un message');
+                    return false;
+                }
+            } else {
+                // Mode vocal
+                if (!recordedAudioBlob) {
+                    alert('Veuillez enregistrer un message vocal avant d\'envoyer');
+                    return false;
+                }
+                // Empêcher l'envoi normal du formulaire pour uploader l'audio
+                sendVoiceMessage();
                 return false;
             }
             return true;
+        }
+        
+        async function sendVoiceMessage() {
+            try {
+                // Récupérer les filtres de ciblage
+                const ufrId = document.getElementById('msg-ufr').value;
+                const filiereId = document.getElementById('msg-filiere').value;
+                const niveau = document.getElementById('msg-niveau').value;
+                
+                // Créer le FormData avec le fichier audio
+                const formData = new FormData();
+                formData.append('audio_file', recordedAudioBlob, 'message_vocal.webm');
+                if (ufrId) formData.append('ufr_id', ufrId);
+                if (filiereId) formData.append('filiere_id', filiereId);
+                if (niveau) formData.append('niveau', niveau);
+                
+                // Afficher un indicateur de chargement
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Envoi en cours...';
+                submitBtn.disabled = true;
+                
+                // Envoyer la requête
+                const response = await fetch('/prof/send-voice-message', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Rediriger vers le dashboard avec message de succès
+                    window.location.href = await response.text();
+                } else {
+                    const errorText = await response.text();
+                    alert('❌ Erreur lors de l\'envoi: ' + errorText);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erreur envoi message vocal:', error);
+                alert('❌ Erreur lors de l\'envoi du message vocal');
+            }
         }
         
         window.toggleFormulaireMessage = toggleFormulaireMessage;
         window.loadMessageUFRsProf = loadMessageUFRsProf;
         window.loadMessageFilieresProf = loadMessageFilieresProf;
         window.validateMessageForm = validateMessageForm;
+        window.switchMessageType = switchMessageType;
+        window.startVoiceRecording = startVoiceRecording;
+        window.stopVoiceRecording = stopVoiceRecording;
+        window.cancelVoiceRecording = cancelVoiceRecording;
     </script>
 </body>
 </html>

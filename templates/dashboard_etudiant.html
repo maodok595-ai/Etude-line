@@ -2414,27 +2414,56 @@
             messagesList.style.display = 'flex';
             messagesEmpty.style.display = 'none';
             
-            messagesList.innerHTML = currentMessages.map(msg => `
-                <div class="message-item" style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid ${msg.lu ? '#10b981' : '#f59e0b'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1; margin-right: 1rem;">
-                            <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
-                                <strong style="color: #059669;">👨‍🏫 ${msg.prof_nom || 'Professeur'}</strong>
-                                <span style="margin-left: 1rem;">📅 ${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
-                                ${!msg.lu ? '<span style="margin-left: 1rem; background: #fbbf24; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">✉️ NOUVEAU</span>' : ''}
+            messagesList.innerHTML = currentMessages.map(msg => {
+                // Déterminer si c'est un message vocal ou texte
+                const isVoiceMessage = msg.audio_file && msg.audio_file.trim() !== '';
+                
+                let contentHtml;
+                if (isVoiceMessage) {
+                    // Message vocal : afficher le lecteur audio
+                    contentHtml = `
+                        <div style="margin: 0.5rem 0 0 0;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 2px solid #10b981;">
+                                <div style="font-size: 2rem;">🎙️</div>
+                                <div style="flex: 1;">
+                                    <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">Message vocal</div>
+                                    <audio controls style="width: 100%; max-width: 500px;" preload="metadata">
+                                        <source src="/audio/${msg.audio_file}" type="audio/webm">
+                                        <source src="/audio/${msg.audio_file}" type="audio/mp4">
+                                        <source src="/audio/${msg.audio_file}" type="audio/ogg">
+                                        Votre navigateur ne supporte pas la lecture audio.
+                                    </audio>
+                                </div>
                             </div>
-                            <p style="margin: 0.5rem 0 0 0; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${msg.contenu}</p>
                         </div>
-                        <button onclick="deleteMessage('${msg.id}')" 
-                                style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; transition: all 0.3s ease;"
-                                onmouseover="this.style.background='#dc2626'"
-                                onmouseout="this.style.background='#ef4444'"
-                                title="Supprimer ce message">
-                            🗑️
-                        </button>
+                    `;
+                } else {
+                    // Message texte normal
+                    contentHtml = `<p style="margin: 0.5rem 0 0 0; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${msg.contenu}</p>`;
+                }
+                
+                return `
+                    <div class="message-item" style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid ${msg.lu ? '#10b981' : '#f59e0b'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1; margin-right: 1rem;">
+                                <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
+                                    <strong style="color: #059669;">👨‍🏫 ${msg.prof_nom || 'Professeur'}</strong>
+                                    <span style="margin-left: 1rem;">📅 ${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
+                                    ${!msg.lu ? '<span style="margin-left: 1rem; background: #fbbf24; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">✉️ NOUVEAU</span>' : ''}
+                                </div>
+                                ${contentHtml}
+                            </div>
+                            <button onclick="deleteMessage('${msg.id}')" 
+                                    style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; transition: all 0.3s ease;"
+                                    onmouseover="this.style.background='#dc2626'"
+                                    onmouseout="this.style.background='#ef4444'"
+                                    title="Supprimer ce message">
+                                🗑️
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             // Marquer tous les messages comme lus automatiquement
             markMessagesAsRead();

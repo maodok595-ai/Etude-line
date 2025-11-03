@@ -290,6 +290,17 @@ async def startup_event():
                 print(f"ℹ️ Table messages_prof déjà existante ou erreur: {e}")
                 conn.rollback()
             
+            # Migration: Ajouter la colonne 'audio_file' aux messages prof
+            try:
+                conn.execute(text("""
+                    ALTER TABLE messages_prof 
+                    ADD COLUMN IF NOT EXISTS audio_file VARCHAR(500)
+                """))
+                conn.commit()
+                print("✅ Colonne 'audio_file' ajoutée aux messages prof")
+            except Exception as e:
+                print(f"ℹ️ Colonne 'audio_file' déjà existante ou erreur: {e}")
+            
             try:
                 conn.execute(text("""
                     CREATE TABLE IF NOT EXISTS messages_etudiant_statut (
@@ -4082,6 +4093,131 @@ async def send_message_to_students(
         print(f"❌ Erreur envoi message: {str(e)}")
         return RedirectResponse(f"/dashboard/prof?error=Erreur lors de l'envoi: {str(e)}", status_code=303)
 
+@app.post("/prof/send-voice-message")
+async def send_voice_message_to_students(
+    request: Request,
+    prof_data: Tuple[str, Dict[str, Any]] = Depends(require_prof),
+    audio_file: UploadFile = File(...),
+    ufr_id: Optional[str] = Form(None),
+    filiere_id: Optional[str] = Form(None),
+    niveau: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Professor sends a voice message to students based on hierarchical filters"""
+    try:
+        prof_username, prof_user_data = prof_data
+        
+        # Get professor's university and ID
+        prof = db.query(ProfesseurDB).filter_by(username=prof_username).first()
+        if not prof:
+            return Response("Professeur introuvable", status_code=400)
+        
+        # Validate audio file
+        if not audio_file.content_type or not audio_file.content_type.startswith('audio/'):
+            return Response("Fichier audio invalide", status_code=400)
+        
+        # Generate unique filename for audio
+        file_extension = '.webm'  # Default extension
+        if 'mp4' in audio_file.content_type:
+            file_extension = '.mp4'
+        elif 'ogg' in audio_file.content_type:
+            file_extension = '.ogg'
+        
+        unique_filename = f"voice_{uuid.uuid4().hex[:12]}{file_extension}"
+        audio_path = UPLOADS_DIR / unique_filename
+        
+        # Save audio file
+        with open(audio_path, 'wb') as f:
+            content = await audio_file.read()
+            f.write(content)
+        
+        print(f"🎙️ Fichier vocal sauvegardé: {audio_path} ({len(content)} bytes)")
+        
+        # Build query to find matching students - simple hierarchy
+        query = db.query(EtudiantDB).filter_by(universite_id=prof.universite_id)
+        
+        # Apply hierarchical filters
+        if ufr_id:
+            query = query.filter_by(ufr_id=ufr_id)
+        if filiere_id:
+            query = query.filter_by(filiere_id=filiere_id)
+        if niveau:
+            query = query.filter_by(niveau=niveau)
+        
+        # Get matching students
+        etudiants = query.all()
+        
+        if not etudiants:
+            # Delete the audio file if no students found
+            audio_path.unlink(missing_ok=True)
+            return Response("Aucun étudiant trouvé avec ces critères", status_code=400)
+        
+        # Create the voice message
+        message = MessageProf(
+            contenu="[Message vocal]",  # Placeholder text for voice messages
+            audio_file=unique_filename,  # Store relative path
+            prof_id=prof.id,
+            universite_id=prof.universite_id,
+            ufr_id=ufr_id if ufr_id else None,
+            filiere_id=filiere_id if filiere_id else None,
+            niveau=niveau if niveau else None,
+            semestre=None,
+            matiere_id=None
+        )
+        db.add(message)
+        db.flush()
+        
+        # Create status entries for each student
+        for etudiant in etudiants:
+            statut = MessageEtudiantStatut(
+                message_id=message.id,
+                etudiant_id=etudiant.id,
+                lu=False,
+                supprime=False
+            )
+            db.add(statut)
+        
+        db.commit()
+        
+        success_msg = f"🎙️ Message vocal envoyé à {len(etudiants)} étudiant(s)"
+        return Response(f"/dashboard/prof?success={success_msg}", status_code=200)
+    
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur envoi message vocal: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Response(f"Erreur lors de l'envoi: {str(e)}", status_code=500)
+
+@app.get("/audio/{filename}")
+async def serve_audio_file(filename: str):
+    """Serve audio files for voice messages"""
+    import mimetypes
+    
+    # Security: prevent directory traversal
+    if '..' in filename or '/' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    file_path = UPLOADS_DIR / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    
+    # Determine MIME type
+    mime_type, _ = mimetypes.guess_type(str(file_path))
+    if mime_type is None or not mime_type.startswith('audio/'):
+        mime_type = 'audio/webm'
+    
+    # Return audio file with appropriate headers
+    return FileResponse(
+        path=file_path,
+        media_type=mime_type,
+        headers={
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=3600"
+        }
+    )
+
 # API endpoints for hierarchical data
 
 def get_allowed_levels(student_level: str) -> list:
@@ -5054,6 +5190,7 @@ async def get_professor_messages(request: Request, db: Session = Depends(get_db)
             result.append({
                 "id": str(message.id),
                 "contenu": message.contenu,
+                "audio_file": message.audio_file,  # Include audio file path if exists
                 "date_envoi": message.date_creation.isoformat(),
                 "ciblage": ciblage_display,
                 "total_destinataires": total_destinataires,
@@ -5134,6 +5271,7 @@ async def get_student_messages(request: Request, db: Session = Depends(get_db)):
                 messages.append({
                     "id": str(message.id),
                     "contenu": message.contenu,
+                    "audio_file": message.audio_file,  # Include audio file path if exists
                     "prof_nom": prof_nom,
                     "date_envoi": message.date_creation.isoformat(),
                     "lu": statut.lu
