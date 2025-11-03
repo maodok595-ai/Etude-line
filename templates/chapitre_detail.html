@@ -492,18 +492,14 @@
             // Show selected tab
             document.getElementById('tab-' + tabName).classList.add('active');
 
-            // Activate selected button
-            if (event && event.target) {
-                event.target.classList.add('active');
-            } else {
-                // Si pas d'événement (appelé programmatiquement), activer le bon bouton
-                const buttons = document.querySelectorAll('.tab-button');
-                buttons.forEach(button => {
-                    if (button.getAttribute('onclick').includes(tabName)) {
-                        button.classList.add('active');
-                    }
-                });
-            }
+            // Activate selected button - trouver le bon bouton basé sur le tabName
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                const onclick = button.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${tabName}'`)) {
+                    button.classList.add('active');
+                }
+            });
         }
 
         // Vérifier le hash dans l'URL au chargement de la page

@@ -1409,9 +1409,15 @@
                 if (content.style.display === 'none' || content.style.display === '') {
                     content.style.display = 'block';
                     arrow.style.transform = 'rotate(90deg)';
+                    // Sauvegarder l'état
+                    localStorage.setItem('matiere_' + matiereId, 'open');
+                    console.log('💾 Sauvegarde: matiere_' + matiereId + ' = open');
                 } else {
                     content.style.display = 'none';
                     arrow.style.transform = 'rotate(0deg)';
+                    // Sauvegarder l'état
+                    localStorage.setItem('matiere_' + matiereId, 'closed');
+                    console.log('💾 Sauvegarde: matiere_' + matiereId + ' = closed');
                 }
             }
             
@@ -2348,26 +2354,6 @@
             container.appendChild(wrapper);
         }
         
-        // Fonction pour toggle l'accordéon d'une matière
-        function toggleMatiere(matiereId) {
-            const content = document.getElementById('matiere-' + matiereId);
-            const arrow = document.getElementById('arrow-' + matiereId);
-            
-            if (content.style.display === 'none' || content.style.display === '') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(90deg)';
-                // Sauvegarder l'état
-                localStorage.setItem('matiere_' + matiereId, 'open');
-                console.log('💾 Sauvegarde: matiere_' + matiereId + ' = open');
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-                // Sauvegarder l'état
-                localStorage.setItem('matiere_' + matiereId, 'closed');
-                console.log('💾 Sauvegarde: matiere_' + matiereId + ' = closed');
-            }
-        }
-        
         // Restaurer l'état des sections au chargement
         function restoreSectionsState() {
             console.log('🔄 Restauration des sections...');
@@ -2394,8 +2380,13 @@
         
         // Appeler la restauration après le chargement complet de la page
         window.addEventListener('load', function() {
-            // Petit délai pour s'assurer que tout est rendu
-            setTimeout(restoreSectionsState, 100);
+            // Délai plus long pour s'assurer que tout est complètement rendu
+            setTimeout(restoreSectionsState, 500);
+        });
+        
+        // Aussi restaurer quand le DOM est prêt (backup)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(restoreSectionsState, 600);
         });
         
         // Fonction pour toggle l'accordéon d'un chapitre
