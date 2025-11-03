@@ -313,3 +313,56 @@ class StudentPassage(Base):
         Index('idx_student_passage_student', 'student_id', 'date_validation'),
         Index('idx_student_passage_statut', 'statut', 'annee_universitaire'),
     )
+
+class MessageProf(Base):
+    """Messages envoyés par les professeurs aux étudiants avec ciblage hiérarchique"""
+    __tablename__ = "messages_prof"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    prof_id = Column(Integer, ForeignKey("professeurs.id", ondelete='CASCADE'), nullable=False, index=True)
+    contenu = Column(Text, nullable=False)
+    date_creation = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    # Ciblage hiérarchique (null = tous)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete='CASCADE'), nullable=False, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete='CASCADE'), nullable=True, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete='CASCADE'), nullable=True, index=True)
+    niveau = Column(String(10), nullable=True, index=True)  # L1, L2, L3, M1, M2
+    semestre = Column(String(10), nullable=True)  # S1, S2
+    matiere_id = Column(String, ForeignKey("matieres.id", ondelete='CASCADE'), nullable=True, index=True)
+    
+    # Relations
+    professeur = relationship("Professeur", foreign_keys=[prof_id])
+    universite = relationship("Universite", foreign_keys=[universite_id])
+    ufr = relationship("UFR", foreign_keys=[ufr_id])
+    filiere = relationship("Filiere", foreign_keys=[filiere_id])
+    matiere = relationship("Matiere", foreign_keys=[matiere_id])
+    statuts = relationship("MessageEtudiantStatut", back_populates="message", cascade="all, delete-orphan")
+    
+    # Index composite pour optimiser les recherches
+    __table_args__ = (
+        Index('idx_message_date', 'date_creation'),
+        Index('idx_message_ciblage', 'universite_id', 'ufr_id', 'filiere_id', 'niveau'),
+    )
+
+class MessageEtudiantStatut(Base):
+    """Statut de lecture/suppression des messages pour chaque étudiant"""
+    __tablename__ = "messages_etudiant_statut"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message_id = Column(Integer, ForeignKey("messages_prof.id", ondelete='CASCADE'), nullable=False, index=True)
+    etudiant_id = Column(Integer, ForeignKey("etudiants.id", ondelete='CASCADE'), nullable=False, index=True)
+    lu = Column(Boolean, default=False, nullable=False)
+    supprime = Column(Boolean, default=False, nullable=False)
+    date_lecture = Column(DateTime, nullable=True)
+    date_suppression = Column(DateTime, nullable=True)
+    
+    # Relations
+    message = relationship("MessageProf", back_populates="statuts")
+    etudiant = relationship("Etudiant", foreign_keys=[etudiant_id])
+    
+    # Index composite pour optimiser les recherches
+    __table_args__ = (
+        Index('idx_statut_etudiant_message', 'etudiant_id', 'message_id'),
+        Index('idx_statut_non_supprime', 'etudiant_id', 'supprime'),
+    )

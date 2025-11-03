@@ -24,7 +24,8 @@ from models import (
     Administrateur as AdministrateurDB, Professeur as ProfesseurDB, Etudiant as EtudiantDB, 
     Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
     ParametreSysteme as ParametreSystemeDB, ParametreUniversite as ParametreUniversiteDB,
-    PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB
+    PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB,
+    MessageProf, MessageEtudiantStatut
 )
 from migration import migrate_data
 
