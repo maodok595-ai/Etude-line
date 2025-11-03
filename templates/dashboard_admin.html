@@ -1338,12 +1338,15 @@
         
         <div class="welcome-card">
             {% if admin.get('is_main_admin') %}
-                <!-- Admin Principal : Image du campus -->
-                <div class="campus-header-image" style="margin: -1.5rem -1.5rem 1rem -1.5rem;">
-                    <img src="/static/campus-background.png" alt="Campus universitaire moderne" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px 12px 0 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <!-- Admin Principal : Section violette en haut -->
+                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); margin: -1.5rem -1.5rem 0 -1.5rem; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center; color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                    <h2 style="margin: 0 0 0.5rem 0; color: white; font-size: 1.5rem; font-weight: 600;">Bienvenue, {{ admin.prenom|upper }} {{ admin.nom|upper }}</h2>
+                    <p style="margin: 0; color: rgba(255, 255, 255, 0.95); font-weight: 500;"><strong>Rôle:</strong> Administrateur Principal</p>
                 </div>
-                <h2>Bienvenue, {{ admin.prenom|upper }} {{ admin.nom|upper }}</h2>
-                <p><strong>Rôle:</strong> Administrateur Principal</p>
+                <!-- Image du campus -->
+                <div class="campus-header-image" style="margin: 0 -1.5rem 0 -1.5rem;">
+                    <img src="/static/campus-background.png" alt="Campus universitaire moderne" style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                </div>
             {% else %}
                 <!-- Admin Secondaire : Logo + Nom université -->
                 <div class="university-welcome">
