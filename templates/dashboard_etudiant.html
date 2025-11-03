@@ -1577,10 +1577,10 @@
             });
         }
         
-        // Appeler la restauration après le chargement du contenu
-        document.addEventListener('DOMContentLoaded', function() {
-            // Attendre que le contenu soit généré
-            setTimeout(restoreSectionsStateEtudiant, 500);
+        // Appeler la restauration après le chargement complet de la page
+        window.addEventListener('load', function() {
+            // Attendre que le contenu soit complètement généré
+            setTimeout(restoreSectionsStateEtudiant, 800);
         });
         
         function toggleChapitre(header) {
