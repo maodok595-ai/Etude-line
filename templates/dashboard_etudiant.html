@@ -1404,13 +1404,11 @@
                                         <div class="semestre-title">${semestre.semestre}</div>
                                         ${semestre.chapitres.map(chapitre => `
                                             <div class="chapitre-item">
-                                                <div class="chapitre-header" onclick="toggleChapitre(this)">
-                                                    <span class="chapitre-title">Chapitre ${chapitre.numero} : ${chapitre.titre}</span>
-                                                    <span class="toggle-arrow">▸</span>
-                                                </div>
-                                                <div class="chapitre-content">
-                                                    ${renderChapitreContent(chapitre)}
-                                                </div>
+                                                <a href="/chapitre/${chapitre.id}/etudiant" style="text-decoration: none; color: inherit; display: block;">
+                                                    <div class="chapitre-header" style="cursor: pointer;">
+                                                        <span class="chapitre-title">📖 Chapitre ${chapitre.numero} : ${chapitre.titre}</span>
+                                                    </div>
+                                                </a>
                                             </div>
                                         `).join('')}
                                     </div>

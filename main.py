@@ -1928,6 +1928,127 @@ async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
     })
 
 
+# === ROUTES POUR AFFICHER LES CHAPITRES EN DÉTAIL ===
+
+@app.get("/chapitre/{chapitre_id}/prof", response_class=HTMLResponse)
+async def chapitre_detail_prof(chapitre_id: int, request: Request, db: Session = Depends(get_db)):
+    """Afficher un chapitre complet - Vue Professeur"""
+    prof_username, user_data = require_prof(request, db)
+    
+    # Récupérer le chapitre avec ses relations
+    from sqlalchemy.orm import joinedload
+    chapitre = db.query(ChapitreCompletDB).options(
+        joinedload(ChapitreCompletDB.matiere),
+        joinedload(ChapitreCompletDB.commentaires)
+    ).filter(ChapitreCompletDB.id == chapitre_id).first()
+    
+    if not chapitre:
+        raise HTTPException(status_code=404, detail="Chapitre non trouvé")
+    
+    # Vérifier que le professeur a accès à ce chapitre (créé par lui)
+    if chapitre.created_by != prof_username:
+        raise HTTPException(status_code=403, detail="Accès non autorisé à ce chapitre")
+    
+    # Récupérer les commentaires avec le nom des auteurs
+    commentaires = db.query(CommentaireDB).filter(
+        CommentaireDB.chapitre_id == chapitre_id
+    ).order_by(CommentaireDB.created_at.desc()).all()
+    
+    return templates.TemplateResponse("chapitre_detail.html", {
+        "request": request,
+        "chapitre": chapitre,
+        "niveau": chapitre.niveau,
+        "semestre": chapitre.semestre,
+        "matiere_nom": chapitre.matiere.nom if chapitre.matiere else "Matière inconnue",
+        "commentaires": commentaires,
+        "dashboard_url": "/dashboard/prof"
+    })
+
+
+@app.get("/chapitre/{chapitre_id}/etudiant", response_class=HTMLResponse)
+async def chapitre_detail_etudiant(chapitre_id: int, request: Request, db: Session = Depends(get_db)):
+    """Afficher un chapitre complet - Vue Étudiant"""
+    etudiant_username, user_data = require_etudiant(request, db)
+    student = get_student_profile(db, etudiant_username)
+    
+    if not student:
+        raise HTTPException(status_code=404, detail="Profil étudiant non trouvé")
+    
+    # Récupérer le chapitre avec ses relations
+    from sqlalchemy.orm import joinedload
+    chapitre = db.query(ChapitreCompletDB).options(
+        joinedload(ChapitreCompletDB.matiere),
+        joinedload(ChapitreCompletDB.commentaires)
+    ).filter(ChapitreCompletDB.id == chapitre_id).first()
+    
+    if not chapitre:
+        raise HTTPException(status_code=404, detail="Chapitre non trouvé")
+    
+    # Vérifier que l'étudiant a accès à ce chapitre (même filière)
+    if chapitre.filiere_id != student.get("filiere_id"):
+        raise HTTPException(status_code=403, detail="Accès non autorisé à ce chapitre")
+    
+    # Récupérer les commentaires avec le nom des auteurs
+    commentaires = db.query(CommentaireDB).filter(
+        CommentaireDB.chapitre_id == chapitre_id
+    ).order_by(CommentaireDB.created_at.desc()).all()
+    
+    return templates.TemplateResponse("chapitre_detail.html", {
+        "request": request,
+        "chapitre": chapitre,
+        "niveau": chapitre.niveau,
+        "semestre": chapitre.semestre,
+        "matiere_nom": chapitre.matiere.nom if chapitre.matiere else "Matière inconnue",
+        "commentaires": commentaires,
+        "dashboard_url": "/dashboard/etudiant"
+    })
+
+
+@app.post("/api/chapitre/{chapitre_id}/commentaire")
+async def poster_commentaire(chapitre_id: int, request: Request, texte: str = Form(...), db: Session = Depends(get_db)):
+    """Poster un commentaire sur un chapitre"""
+    # Authentifier l'utilisateur (prof ou étudiant)
+    role, username, user_data = require_auth(request, db)
+    
+    if role not in ["prof", "etudiant"]:
+        raise HTTPException(status_code=403, detail="Seuls les professeurs et étudiants peuvent commenter")
+    
+    # Vérifier que le chapitre existe
+    chapitre = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.id == chapitre_id).first()
+    if not chapitre:
+        raise HTTPException(status_code=404, detail="Chapitre non trouvé")
+    
+    # Récupérer les informations de l'auteur
+    if role == "prof":
+        auteur = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
+        auteur_type = "professeur"
+        auteur_nom = f"{auteur.prenom} {auteur.nom}" if auteur else username
+        auteur_id = auteur.id if auteur else 0
+    else:  # etudiant
+        auteur = db.query(EtudiantDB).filter(EtudiantDB.username == username).first()
+        auteur_type = "etudiant"
+        auteur_nom = f"{auteur.prenom} {auteur.nom}" if auteur else username
+        auteur_id = auteur.id if auteur else 0
+    
+    # Créer le commentaire
+    nouveau_commentaire = CommentaireDB(
+        texte=texte,
+        chapitre_id=chapitre_id,
+        auteur_type=auteur_type,
+        auteur_id=auteur_id,
+        auteur_nom=auteur_nom
+    )
+    
+    db.add(nouveau_commentaire)
+    db.commit()
+    
+    # Rediriger vers la page du chapitre
+    if role == "prof":
+        return RedirectResponse(url=f"/chapitre/{chapitre_id}/prof", status_code=303)
+    else:
+        return RedirectResponse(url=f"/chapitre/{chapitre_id}/etudiant", status_code=303)
+
+
 # Admin utility endpoints
 @app.get("/admin/stats")
 async def get_admin_stats(request: Request, db: Session = Depends(get_db), is_main_admin: bool = None, admin_universite_id: str = None):
