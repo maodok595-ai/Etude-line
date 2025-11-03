@@ -2482,15 +2482,14 @@
             const badge = document.getElementById('messages-badge');
             const buttonContainer = document.getElementById('messages-button-container');
             
+            // Toujours afficher le bouton, même sans messages
+            buttonContainer.style.display = 'flex';
+            
             if (unreadCount > 0) {
                 badge.textContent = unreadCount;
                 badge.style.display = 'flex';
-                buttonContainer.style.display = 'flex';
             } else {
                 badge.style.display = 'none';
-                if (currentMessages.length === 0) {
-                    buttonContainer.style.display = 'none';
-                }
             }
         }
         
