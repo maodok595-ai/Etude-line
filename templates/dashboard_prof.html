@@ -1409,15 +1409,9 @@
                 if (content.style.display === 'none' || content.style.display === '') {
                     content.style.display = 'block';
                     arrow.style.transform = 'rotate(90deg)';
-                    // Sauvegarder l'état
-                    localStorage.setItem('matiere_' + matiereId, 'open');
-                    console.log('💾 Sauvegarde: matiere_' + matiereId + ' = open');
                 } else {
                     content.style.display = 'none';
                     arrow.style.transform = 'rotate(0deg)';
-                    // Sauvegarder l'état
-                    localStorage.setItem('matiere_' + matiereId, 'closed');
-                    console.log('💾 Sauvegarde: matiere_' + matiereId + ' = closed');
                 }
             }
             
@@ -2353,56 +2347,6 @@
             // Ajouter au conteneur
             container.appendChild(wrapper);
         }
-        
-        // Restaurer l'état des sections au chargement
-        function restoreSectionsState() {
-            console.log('🔄 Restauration des sections...');
-            
-            // Restaurer toutes les matières
-            let restored = 0;
-            let firstOpenedElement = null;
-            
-            document.querySelectorAll('[id^="matiere-"]').forEach(function(element) {
-                const matiereId = element.id.replace('matiere-', '');
-                const state = localStorage.getItem('matiere_' + matiereId);
-                const arrow = document.getElementById('arrow-' + matiereId);
-                
-                console.log('📁 Matière ID:', matiereId, 'État sauvegardé:', state);
-                
-                if (state === 'open') {
-                    element.style.display = 'block';
-                    if (arrow) arrow.style.transform = 'rotate(90deg)';
-                    restored++;
-                    console.log('✅ Section ouverte:', matiereId);
-                    
-                    // Mémoriser le premier élément ouvert pour le scroll
-                    if (!firstOpenedElement) {
-                        firstOpenedElement = element;
-                    }
-                }
-            });
-            
-            console.log(`✨ ${restored} section(s) restaurée(s)`);
-            
-            // Défiler vers la première section ouverte
-            if (firstOpenedElement) {
-                setTimeout(function() {
-                    firstOpenedElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    console.log('📍 Défilement vers la section ouverte');
-                }, 200);
-            }
-        }
-        
-        // Appeler la restauration après le chargement complet de la page
-        window.addEventListener('load', function() {
-            // Délai plus long pour s'assurer que tout est complètement rendu
-            setTimeout(restoreSectionsState, 500);
-        });
-        
-        // Aussi restaurer quand le DOM est prêt (backup)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(restoreSectionsState, 600);
-        });
         
         // Fonction pour toggle l'accordéon d'un chapitre
         function toggleChapitre(chapitreId) {
