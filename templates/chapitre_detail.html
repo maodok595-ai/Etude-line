@@ -66,21 +66,52 @@
             opacity: 0.9;
         }
 
-        .tabs-container {
-            display: flex;
+        .tabs-wrapper {
+            position: relative;
             background: #f8f9fa;
             border-bottom: 3px solid #e9ecef;
+        }
+        
+        .tabs-wrapper.has-overflow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 3px;
+            width: 40px;
+            background: linear-gradient(to left, rgba(248, 249, 250, 1), rgba(248, 249, 250, 0.7), transparent);
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+        
+        .tabs-wrapper.scrolled-to-end::after {
+            opacity: 0;
+        }
+        
+        .tabs-container {
+            display: flex;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f8f9fa;
         }
         
         .tabs-container::-webkit-scrollbar {
-            height: 4px;
+            height: 6px;
+        }
+        
+        .tabs-container::-webkit-scrollbar-track {
+            background: #f8f9fa;
         }
         
         .tabs-container::-webkit-scrollbar-thumb {
             background: #667eea;
-            border-radius: 2px;
+            border-radius: 3px;
+        }
+        
+        .tabs-container::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
         }
 
         .tab-button {
@@ -354,19 +385,21 @@
             </div>
         </div>
 
-        <div class="tabs-container">
-            <button class="tab-button active" onclick="showTab('cours')">
-                📘 Cours
-            </button>
-            <button class="tab-button" onclick="showTab('exercices')">
-                ✏️ Exercices
-            </button>
-            <button class="tab-button" onclick="showTab('solutions')">
-                ✅ Solutions
-            </button>
-            <button class="tab-button" onclick="showTab('commentaires')">
-                💬 Commentaires
-            </button>
+        <div class="tabs-wrapper">
+            <div class="tabs-container">
+                <button class="tab-button active" onclick="showTab('cours')">
+                    📘 Cours
+                </button>
+                <button class="tab-button" onclick="showTab('exercices')">
+                    ✏️ Exercices
+                </button>
+                <button class="tab-button" onclick="showTab('solutions')">
+                    ✅ Solutions
+                </button>
+                <button class="tab-button" onclick="showTab('commentaires')">
+                    💬 Commentaires
+                </button>
+            </div>
         </div>
 
         <div class="content-container">
@@ -552,12 +585,51 @@
             });
         }
 
+        // Gestion de l'indicateur de scroll sur les onglets
+        function updateScrollIndicator() {
+            const wrapper = document.querySelector('.tabs-wrapper');
+            const container = document.querySelector('.tabs-container');
+            
+            if (!wrapper || !container) return;
+            
+            // Vérifier si le contenu déborde
+            const hasOverflow = container.scrollWidth > container.clientWidth;
+            
+            // Vérifier si on est scrollé jusqu'à la fin
+            const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
+            
+            // Mettre à jour les classes
+            if (hasOverflow) {
+                wrapper.classList.add('has-overflow');
+            } else {
+                wrapper.classList.remove('has-overflow');
+            }
+            
+            if (isScrolledToEnd) {
+                wrapper.classList.add('scrolled-to-end');
+            } else {
+                wrapper.classList.remove('scrolled-to-end');
+            }
+        }
+        
         // Vérifier le hash dans l'URL au chargement de la page
         window.addEventListener('DOMContentLoaded', function() {
             const hash = window.location.hash.substring(1); // Enlever le #
             if (hash && ['cours', 'exercices', 'solutions', 'commentaires'].includes(hash)) {
                 showTab(hash);
             }
+            
+            // Initialiser l'indicateur de scroll
+            updateScrollIndicator();
+            
+            // Mettre à jour lors du scroll
+            const container = document.querySelector('.tabs-container');
+            if (container) {
+                container.addEventListener('scroll', updateScrollIndicator);
+            }
+            
+            // Mettre à jour lors du redimensionnement de la fenêtre
+            window.addEventListener('resize', updateScrollIndicator);
         });
         
         // Fonction pour supprimer un commentaire
