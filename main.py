@@ -4942,6 +4942,98 @@ async def toggle_passage_classe(
 
 # === ROUTES API - MESSAGES DES PROFESSEURS AUX ÉTUDIANTS ===
 
+@app.get("/api/prof/messages")
+async def get_professor_messages(request: Request, db: Session = Depends(get_db)):
+    """Récupérer l'historique des messages envoyés par un professeur"""
+    try:
+        prof_username, prof_data = require_prof(request, db)
+        
+        # Get professor ID
+        prof = db.query(ProfesseurDB).filter_by(username=prof_username).first()
+        if not prof:
+            return {"messages": []}
+        
+        # Récupérer tous les messages de ce professeur
+        messages = db.query(MessageProf).filter_by(prof_id=prof.id).order_by(MessageProf.date_creation.desc()).all()
+        
+        result = []
+        for message in messages:
+            # Compter combien d'étudiants ont reçu ce message
+            total_destinataires = db.query(MessageEtudiantStatut).filter_by(message_id=message.id).count()
+            
+            # Compter combien l'ont lu
+            lus = db.query(MessageEtudiantStatut).filter_by(message_id=message.id, lu=True).count()
+            
+            # Construire le ciblage
+            ciblage_parts = []
+            if message.ufr_id:
+                ufr = db.query(UFRDB).filter_by(id=message.ufr_id).first()
+                if ufr:
+                    ciblage_parts.append(f"UFR: {ufr.nom}")
+            if message.filiere_id:
+                filiere = db.query(FiliereDB).filter_by(id=message.filiere_id).first()
+                if filiere:
+                    ciblage_parts.append(f"Filière: {filiere.nom}")
+            if message.niveau:
+                ciblage_parts.append(f"Niveau: {message.niveau}")
+            
+            ciblage_display = " | ".join(ciblage_parts) if ciblage_parts else "Toute l'université"
+            
+            result.append({
+                "id": str(message.id),
+                "contenu": message.contenu,
+                "date_envoi": message.date_creation.isoformat(),
+                "ciblage": ciblage_display,
+                "total_destinataires": total_destinataires,
+                "nb_lus": lus
+            })
+        
+        return {"messages": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur récupération messages professeur: {str(e)}")
+        return {"messages": []}
+
+@app.delete("/api/prof/messages/{message_id}")
+async def delete_professor_message(
+    message_id: str,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Supprimer un message professeur (hard delete - supprimé pour tous)"""
+    try:
+        prof_username, prof_data = require_prof(request, db)
+        
+        # Get professor ID
+        prof = db.query(ProfesseurDB).filter_by(username=prof_username).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        # Vérifier que le message appartient bien à ce professeur
+        message = db.query(MessageProf).filter(
+            MessageProf.id == message_id,
+            MessageProf.prof_id == prof.id
+        ).first()
+        
+        if not message:
+            raise HTTPException(status_code=404, detail="Message non trouvé")
+        
+        # Supprimer tous les statuts étudiants liés à ce message
+        db.query(MessageEtudiantStatut).filter_by(message_id=message_id).delete()
+        
+        # Supprimer le message lui-même
+        db.delete(message)
+        db.commit()
+        
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur suppression message professeur: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/etudiant/messages")
 async def get_student_messages(request: Request, db: Session = Depends(get_db)):
     """Récupérer tous les messages pour un étudiant"""
