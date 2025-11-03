@@ -1598,25 +1598,8 @@
             }
         </script>
         
-        <div class="welcome-card">
-            <div class="university-welcome">
-                <h2 class="university-name">
-                    BIENVENUE A L'{{ prof_universite.nom if prof_universite else "UNIVERSITÉ INCONNUE" }}
-                </h2>
-                <div class="user-info-box">
-                    <p><strong>👨‍🏫 Professeur :</strong> {{ prof.prenom }} {{ prof.nom }}</p>
-                    <p><strong>🎓 Spécialité :</strong> {{ prof.specialite }}</p>
-                    
-                    {% if prof_universite %}
-                        <p><strong>🏛️ Université :</strong> {{ prof_universite.nom }}</p>
-                    {% endif %}
-                    
-                    {% if prof_ufrs_affectees and prof_ufrs_affectees|length > 0 %}
-                        <p><strong>🏢 UFR{{ 's' if prof_ufrs_affectees|length > 1 else '' }} affectée{{ 's' if prof_ufrs_affectees|length > 1 else '' }} :</strong> 
-                        {% for ufr in prof_ufrs_affectees %}{{ ufr.nom }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="campus-header-image">
+            <img src="/static/campus-background.png" alt="Campus universitaire moderne" style="width: 100%; height: 250px; object-fit: cover; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 2rem;">
         </div>
         
         <div class="main-content">
