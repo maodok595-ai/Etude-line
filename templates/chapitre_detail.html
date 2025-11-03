@@ -531,6 +531,29 @@
                 showTab(hash);
             }
         });
+        
+        // Fonction pour supprimer un commentaire
+        async function deleteComment(commentId) {
+            if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/commentaires/${commentId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Recharger la page pour afficher la mise à jour
+                    window.location.reload();
+                } else {
+                    alert('Erreur lors de la suppression du commentaire');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur réseau. Veuillez réessayer.');
+            }
+        }
     </script>
 </body>
 </html>
