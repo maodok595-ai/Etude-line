@@ -628,10 +628,13 @@
 
         .user-info-box {
             padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.75) 0%, rgba(99, 102, 241, 0.65) 100%), url('/static/campus-background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             border-radius: 10px;
             margin-top: 1rem;
-            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
             border: none;
             position: relative;
             overflow: hidden;
@@ -1600,9 +1603,6 @@
                 <h2 class="university-name">
                     BIENVENUE A L'{{ prof_universite.nom if prof_universite else "UNIVERSITÉ INCONNUE" }}
                 </h2>
-                {% if prof_universite and prof_universite.logo_url %}
-                    <img src="{{ prof_universite.logo_url }}" alt="Logo {{ prof_universite.nom }}" class="university-logo">
-                {% endif %}
                 <div class="user-info-box">
                     <p><strong>👨‍🏫 Professeur :</strong> {{ prof.prenom }} {{ prof.nom }}</p>
                     <p><strong>🎓 Spécialité :</strong> {{ prof.specialite }}</p>
