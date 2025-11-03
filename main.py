@@ -3948,11 +3948,9 @@ async def send_message_to_students(
     ufr_id: str = Form(None),
     filiere_id: str = Form(None),
     niveau: str = Form(None),
-    semestre: str = Form(None),
-    matiere_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Professor sends a message to students based on hierarchical filters"""
+    """Professor sends a message to students based on hierarchical filters: Université → UFR → Filière → Niveau"""
     try:
         prof_username, prof_user_data = prof_data
         
@@ -3961,30 +3959,16 @@ async def send_message_to_students(
         if not prof:
             return RedirectResponse("/dashboard/prof?error=Professeur introuvable", status_code=303)
         
-        # Build query to find matching students
+        # Build query to find matching students - simple hierarchy
         query = db.query(EtudiantDB).filter_by(universite_id=prof.universite_id)
         
-        # If matiere_id is provided, get the matiere details and filter by its attributes
-        if matiere_id:
-            matiere = db.query(MatiereDB).filter_by(id=matiere_id).first()
-            if not matiere:
-                return RedirectResponse("/dashboard/prof?error=Matière introuvable", status_code=303)
-            
-            # Filter students by matiere's filiere and niveau
-            # Note: Students don't have a semestre field - they see all semestres of their niveau
-            query = query.filter_by(
-                filiere_id=matiere.filiere_id,
-                niveau=matiere.niveau
-            )
-        else:
-            # Apply individual filters only if matiere_id is not provided
-            if ufr_id:
-                query = query.filter_by(ufr_id=ufr_id)
-            if filiere_id:
-                query = query.filter_by(filiere_id=filiere_id)
-            if niveau:
-                query = query.filter_by(niveau=niveau)
-            # Note: semestre is not a student field, so we don't filter by it
+        # Apply hierarchical filters
+        if ufr_id:
+            query = query.filter_by(ufr_id=ufr_id)
+        if filiere_id:
+            query = query.filter_by(filiere_id=filiere_id)
+        if niveau:
+            query = query.filter_by(niveau=niveau)
         
         # Get matching students
         etudiants = query.all()
@@ -4000,8 +3984,8 @@ async def send_message_to_students(
             ufr_id=ufr_id if ufr_id else None,
             filiere_id=filiere_id if filiere_id else None,
             niveau=niveau if niveau else None,
-            semestre=semestre if semestre else None,
-            matiere_id=matiere_id if matiere_id else None
+            semestre=None,
+            matiere_id=None
         )
         db.add(message)
         db.flush()

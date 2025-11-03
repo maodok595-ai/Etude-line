@@ -1847,44 +1847,27 @@
                             
                             <div class="form-group">
                                 <label for="msg-filiere">Filière (optionnel)</label>
-                                <select id="msg-filiere" name="filiere_id" onchange="loadMessageMatieres()" disabled>
+                                <select id="msg-filiere" name="filiere_id" disabled>
                                     <option value="">-- Toutes les filières --</option>
                                 </select>
                             </div>
                             
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                                <div class="form-group">
-                                    <label for="msg-niveau">Niveau (optionnel)</label>
-                                    <select id="msg-niveau" name="niveau">
-                                        <option value="">-- Tous les niveaux --</option>
-                                        <option value="L1">L1</option>
-                                        <option value="L2">L2</option>
-                                        <option value="L3">L3</option>
-                                        <option value="M1">M1</option>
-                                        <option value="M2">M2</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="msg-semestre">Semestre (optionnel)</label>
-                                    <select id="msg-semestre" name="semestre">
-                                        <option value="">-- Tous les semestres --</option>
-                                        <option value="S1">S1</option>
-                                        <option value="S2">S2</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="msg-matiere">Matière (optionnel)</label>
-                                    <select id="msg-matiere" name="matiere_id" disabled>
-                                        <option value="">-- Toutes les matières --</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label for="msg-niveau">Niveau (optionnel)</label>
+                                <select id="msg-niveau" name="niveau">
+                                    <option value="">-- Tous les niveaux --</option>
+                                    <option value="L1">L1 - Licence 1</option>
+                                    <option value="L2">L2 - Licence 2</option>
+                                    <option value="L3">L3 - Licence 3</option>
+                                    <option value="M1">M1 - Master 1</option>
+                                    <option value="M2">M2 - Master 2</option>
+                                </select>
                             </div>
                             
-                            <div id="message-preview" style="background: #ecfdf5; padding: 0.75rem; border-radius: 6px; margin-top: 1rem; border: 1px solid #10b981; display: none;">
-                                <strong style="color: #059669;">🎯 Destinataires :</strong>
-                                <span id="message-preview-text" style="color: #047857;"></span>
+                            <div style="background: #e0f2fe; padding: 0.875rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid #0284c7;">
+                                <small style="color: #075985; font-weight: 500;">
+                                    ℹ️ <strong>Hiérarchie de ciblage :</strong> Université → UFR → Filière → Niveau
+                                </small>
                             </div>
                         </div>
                         
@@ -3150,15 +3133,14 @@
         async function loadMessageFilieresProf() {
             const ufrSelect = document.getElementById('msg-ufr');
             const filiereSelect = document.getElementById('msg-filiere');
-            const matiereSelect = document.getElementById('msg-matiere');
             
             filiereSelect.disabled = true;
-            matiereSelect.disabled = true;
             filiereSelect.innerHTML = '<option value="">-- Toutes les filières --</option>';
-            matiereSelect.innerHTML = '<option value="">-- Toutes les matières --</option>';
             
             const ufrId = ufrSelect.value;
-            if (!ufrId) return;
+            if (!ufrId) {
+                return;
+            }
             
             try {
                 const response = await fetch(`/api/prof/filieres/${ufrId}`);
@@ -3175,31 +3157,6 @@
             }
         }
         
-        async function loadMessageMatieres() {
-            const filiereSelect = document.getElementById('msg-filiere');
-            const matiereSelect = document.getElementById('msg-matiere');
-            
-            matiereSelect.disabled = true;
-            matiereSelect.innerHTML = '<option value="">-- Toutes les matières --</option>';
-            
-            const filiereId = filiereSelect.value;
-            if (!filiereId) return;
-            
-            try {
-                const response = await fetch(`/api/filieres/${filiereId}/matieres`);
-                const data = await response.json();
-                (data.matieres || []).forEach(matiere => {
-                    const option = document.createElement('option');
-                    option.value = matiere.id;
-                    option.textContent = `${matiere.nom} (${matiere.niveau} - ${matiere.semestre})`;
-                    matiereSelect.appendChild(option);
-                });
-                matiereSelect.disabled = false;
-            } catch (error) {
-                console.error('Erreur chargement matières:', error);
-            }
-        }
-        
         function validateMessageForm() {
             const contenu = document.getElementById('msg-contenu').value.trim();
             if (!contenu) {
@@ -3212,7 +3169,6 @@
         window.toggleFormulaireMessage = toggleFormulaireMessage;
         window.loadMessageUFRsProf = loadMessageUFRsProf;
         window.loadMessageFilieresProf = loadMessageFilieresProf;
-        window.loadMessageMatieres = loadMessageMatieres;
         window.validateMessageForm = validateMessageForm;
     </script>
 </body>
