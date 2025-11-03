@@ -2038,6 +2038,9 @@ async def chapitre_detail_prof(chapitre_id: int, request: Request, db: Session =
         CommentaireDB.chapitre_id == chapitre_id
     ).order_by(CommentaireDB.created_at.desc()).all()
     
+    # Récupérer l'ID du professeur
+    prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == prof_username).first()
+    
     return templates.TemplateResponse("chapitre_detail.html", {
         "request": request,
         "chapitre": chapitre,
@@ -2045,7 +2048,9 @@ async def chapitre_detail_prof(chapitre_id: int, request: Request, db: Session =
         "semestre": chapitre.semestre,
         "matiere_nom": chapitre.matiere.nom if chapitre.matiere else "Matière inconnue",
         "commentaires": commentaires,
-        "dashboard_url": "/dashboard/prof"
+        "dashboard_url": "/dashboard/prof",
+        "user_type": "professeur",
+        "user_id": prof.id if prof else None
     })
 
 
@@ -2084,7 +2089,9 @@ async def chapitre_detail_etudiant(chapitre_id: int, request: Request, db: Sessi
         "semestre": chapitre.semestre,
         "matiere_nom": chapitre.matiere.nom if chapitre.matiere else "Matière inconnue",
         "commentaires": commentaires,
-        "dashboard_url": "/dashboard/etudiant"
+        "dashboard_url": "/dashboard/etudiant",
+        "user_type": "etudiant",
+        "user_id": student.get("id")
     })
 
 

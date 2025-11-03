@@ -250,6 +250,23 @@
             color: #495057;
             line-height: 1.6;
         }
+        
+        .comment-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .comment-delete:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
 
         .file-name {
             word-wrap: break-word;
@@ -463,7 +480,12 @@
                                             👤 {{ comment.auteur_nom }}
                                         {% endif %}
                                     </span>
-                                    <span class="comment-date">{{ comment.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span class="comment-date">{{ comment.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        {% if comment.auteur_type == user_type and comment.auteur_id == user_id %}
+                                            <button class="comment-delete" onclick="deleteComment({{ comment.id }})">🗑️</button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="comment-text">{{ comment.texte }}</div>
                             </div>
