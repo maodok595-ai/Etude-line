@@ -2356,11 +2356,33 @@
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
                 arrow.style.transform = 'rotate(90deg)';
+                // Sauvegarder l'état
+                localStorage.setItem('matiere_' + matiereId, 'open');
             } else {
                 content.style.display = 'none';
                 arrow.style.transform = 'rotate(0deg)';
+                // Sauvegarder l'état
+                localStorage.setItem('matiere_' + matiereId, 'closed');
             }
         }
+        
+        // Restaurer l'état des sections au chargement
+        function restoreSectionsState() {
+            // Restaurer toutes les matières
+            document.querySelectorAll('[id^="matiere-"]').forEach(function(element) {
+                const matiereId = element.id.replace('matiere-', '');
+                const state = localStorage.getItem('matiere_' + matiereId);
+                const arrow = document.getElementById('arrow-' + matiereId);
+                
+                if (state === 'open') {
+                    element.style.display = 'block';
+                    if (arrow) arrow.style.transform = 'rotate(90deg)';
+                }
+            });
+        }
+        
+        // Appeler la restauration au chargement de la page
+        window.addEventListener('DOMContentLoaded', restoreSectionsState);
         
         // Fonction pour toggle l'accordéon d'un chapitre
         function toggleChapitre(chapitreId) {

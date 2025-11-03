@@ -1552,10 +1552,36 @@
         function toggleMatiere(header) {
             const content = header.nextElementSibling;
             const arrow = header.querySelector('.toggle-arrow');
+            const matiereName = header.querySelector('h3').textContent;
             
             content.classList.toggle('show');
             arrow.classList.toggle('open');
+            
+            // Sauvegarder l'état dans localStorage
+            const isOpen = content.classList.contains('show');
+            localStorage.setItem('matiere_etudiant_' + matiereName, isOpen ? 'open' : 'closed');
         }
+        
+        // Restaurer l'état des sections au chargement
+        function restoreSectionsStateEtudiant() {
+            document.querySelectorAll('.matiere-header').forEach(function(header) {
+                const matiereName = header.querySelector('h3').textContent;
+                const state = localStorage.getItem('matiere_etudiant_' + matiereName);
+                
+                if (state === 'open') {
+                    const content = header.nextElementSibling;
+                    const arrow = header.querySelector('.toggle-arrow');
+                    content.classList.add('show');
+                    arrow.classList.add('open');
+                }
+            });
+        }
+        
+        // Appeler la restauration après le chargement du contenu
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attendre que le contenu soit généré
+            setTimeout(restoreSectionsStateEtudiant, 500);
+        });
         
         function toggleChapitre(header) {
             const content = header.nextElementSibling;
