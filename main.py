@@ -246,6 +246,78 @@ async def startup_event():
                     print(f"⚠️ Erreur création index notifications: {e}")
                     conn.rollback()
             
+            # Créer les tables de messages si elles n'existent pas
+            try:
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS messages_prof (
+                        id SERIAL PRIMARY KEY,
+                        prof_id INTEGER NOT NULL REFERENCES professeurs(id) ON DELETE CASCADE,
+                        contenu TEXT NOT NULL,
+                        date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        universite_id VARCHAR NOT NULL REFERENCES universites(id) ON DELETE CASCADE,
+                        ufr_id VARCHAR REFERENCES ufrs(id) ON DELETE CASCADE,
+                        filiere_id VARCHAR REFERENCES filieres(id) ON DELETE CASCADE,
+                        niveau VARCHAR(10),
+                        semestre VARCHAR(10),
+                        matiere_id VARCHAR REFERENCES matieres(id) ON DELETE CASCADE
+                    )
+                """))
+                
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_prof_id ON messages_prof(prof_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_date ON messages_prof(date_creation)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_uni ON messages_prof(universite_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_ufr ON messages_prof(ufr_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_filiere ON messages_prof(filiere_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_niveau ON messages_prof(niveau)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_messages_matiere ON messages_prof(matiere_id)
+                """))
+                
+                print("✅ Table messages_prof créée avec succès")
+            except Exception as e:
+                print(f"ℹ️ Table messages_prof déjà existante ou erreur: {e}")
+                conn.rollback()
+            
+            try:
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS messages_etudiant_statut (
+                        id SERIAL PRIMARY KEY,
+                        message_id INTEGER NOT NULL REFERENCES messages_prof(id) ON DELETE CASCADE,
+                        etudiant_id INTEGER NOT NULL REFERENCES etudiants(id) ON DELETE CASCADE,
+                        lu BOOLEAN DEFAULT FALSE NOT NULL,
+                        supprime BOOLEAN DEFAULT FALSE NOT NULL,
+                        date_lecture TIMESTAMP,
+                        date_suppression TIMESTAMP
+                    )
+                """))
+                
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_statut_message ON messages_etudiant_statut(message_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_statut_etudiant ON messages_etudiant_statut(etudiant_id)
+                """))
+                conn.execute(text("""
+                    CREATE INDEX IF NOT EXISTS idx_statut_lu ON messages_etudiant_statut(etudiant_id, lu)
+                """))
+                
+                print("✅ Table messages_etudiant_statut créée avec succès")
+            except Exception as e:
+                print(f"ℹ️ Table messages_etudiant_statut déjà existante ou erreur: {e}")
+                conn.rollback()
+            
             conn.commit()
         
         # Vérifier si la migration a déjà été effectuée en vérifiant la base de données
