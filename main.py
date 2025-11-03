@@ -3994,7 +3994,7 @@ async def send_message_to_students(
         for etudiant in etudiants:
             statut = MessageEtudiantStatut(
                 message_id=message.id,
-                etudiant_username=etudiant.username,
+                etudiant_id=etudiant.id,
                 lu=False,
                 supprime=False
             )
@@ -4948,9 +4948,14 @@ async def get_student_messages(request: Request, db: Session = Depends(get_db)):
     try:
         etudiant_username, etudiant_data = require_etudiant(request, db)
         
+        # Get student ID from username
+        etudiant = db.query(EtudiantDB).filter_by(username=etudiant_username).first()
+        if not etudiant:
+            return {"messages": []}
+        
         # Récupérer tous les statuts de messages pour cet étudiant (non supprimés)
         statuts = db.query(MessageEtudiantStatut).filter(
-            MessageEtudiantStatut.etudiant_username == etudiant_username,
+            MessageEtudiantStatut.etudiant_id == etudiant.id,
             MessageEtudiantStatut.supprime == False
         ).all()
         
@@ -4989,6 +4994,11 @@ async def mark_messages_as_read(
     try:
         etudiant_username, etudiant_data = require_etudiant(request, db)
         
+        # Get student ID from username
+        etudiant = db.query(EtudiantDB).filter_by(username=etudiant_username).first()
+        if not etudiant:
+            return {"success": False}
+        
         body = await request.json()
         message_ids = body.get('message_ids', [])
         
@@ -4997,7 +5007,7 @@ async def mark_messages_as_read(
         
         # Mettre à jour les statuts
         db.query(MessageEtudiantStatut).filter(
-            MessageEtudiantStatut.etudiant_username == etudiant_username,
+            MessageEtudiantStatut.etudiant_id == etudiant.id,
             MessageEtudiantStatut.message_id.in_(message_ids)
         ).update({"lu": True}, synchronize_session=False)
         
@@ -5019,10 +5029,15 @@ async def delete_student_message(
     try:
         etudiant_username, etudiant_data = require_etudiant(request, db)
         
+        # Get student ID from username
+        etudiant = db.query(EtudiantDB).filter_by(username=etudiant_username).first()
+        if not etudiant:
+            raise HTTPException(status_code=404, detail="Étudiant non trouvé")
+        
         # Trouver le statut du message pour cet étudiant
         statut = db.query(MessageEtudiantStatut).filter(
             MessageEtudiantStatut.message_id == message_id,
-            MessageEtudiantStatut.etudiant_username == etudiant_username
+            MessageEtudiantStatut.etudiant_id == etudiant.id
         ).first()
         
         if not statut:
