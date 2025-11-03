@@ -463,7 +463,7 @@
                                             👤 {{ comment.auteur_nom }}
                                         {% endif %}
                                     </span>
-                                    <span class="comment-date">{{ comment.date_creation.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                    <span class="comment-date">{{ comment.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
                                 </div>
                                 <div class="comment-text">{{ comment.texte }}</div>
                             </div>
