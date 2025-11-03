@@ -336,17 +336,17 @@
                         {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.cours_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #f1f8e9; border-radius: 10px; border: 2px solid #c8e6c9;">
-                            <div class="file-name" style="color: #2e7d32; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 12px; padding: 10px; background: #f1f8e9; border-radius: 8px; border: 2px solid #c8e6c9;">
+                            <div class="file-name" style="color: #2e7d32; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
-                                   style="background: #4caf50; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #4caf50; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
-                                   style="background: #2e7d32; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #2e7d32; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
                             </div>
@@ -372,17 +372,17 @@
                         {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.exercice_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #fffde7; border-radius: 10px; border: 2px solid #fff176;">
-                            <div class="file-name" style="color: #f57c00; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 12px; padding: 10px; background: #fffde7; border-radius: 8px; border: 2px solid #fff176;">
+                            <div class="file-name" style="color: #f57c00; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
-                                   style="background: #ff9800; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #ff9800; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
-                                   style="background: #e65100; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #e65100; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
                             </div>
@@ -408,17 +408,17 @@
                         {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
                         {% set fichier_paths = chapitre.solution_fichier_path.split('|||') %}
                         {% for i in range(fichier_noms|length) %}
-                        <div class="file-container" style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 10px; border: 2px solid #90caf9;">
-                            <div class="file-name" style="color: #1976d2; font-weight: 600; margin-bottom: 10px;">
+                        <div class="file-container" style="margin-bottom: 12px; padding: 10px; background: #e8f4fd; border-radius: 8px; border: 2px solid #90caf9;">
+                            <div class="file-name" style="color: #1976d2; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">
                                 📎 {{ fichier_noms[i] }}
                             </div>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a href="/files/view/{{ fichier_paths[i] }}" target="_blank" 
-                                   style="background: #2196f3; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #2196f3; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
-                                   style="background: #1565c0; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                   style="background: #1565c0; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
                             </div>
