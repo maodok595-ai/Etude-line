@@ -2042,11 +2042,11 @@ async def poster_commentaire(chapitre_id: int, request: Request, texte: str = Fo
     db.add(nouveau_commentaire)
     db.commit()
     
-    # Rediriger vers la page du chapitre
+    # Rediriger vers la page du chapitre avec l'onglet commentaires actif
     if role == "prof":
-        return RedirectResponse(url=f"/chapitre/{chapitre_id}/prof", status_code=303)
+        return RedirectResponse(url=f"/chapitre/{chapitre_id}/prof#commentaires", status_code=303)
     else:
-        return RedirectResponse(url=f"/chapitre/{chapitre_id}/etudiant", status_code=303)
+        return RedirectResponse(url=f"/chapitre/{chapitre_id}/etudiant#commentaires", status_code=303)
 
 
 # Admin utility endpoints

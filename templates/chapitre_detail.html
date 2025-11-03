@@ -493,8 +493,26 @@
             document.getElementById('tab-' + tabName).classList.add('active');
 
             // Activate selected button
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Si pas d'événement (appelé programmatiquement), activer le bon bouton
+                const buttons = document.querySelectorAll('.tab-button');
+                buttons.forEach(button => {
+                    if (button.getAttribute('onclick').includes(tabName)) {
+                        button.classList.add('active');
+                    }
+                });
+            }
         }
+
+        // Vérifier le hash dans l'URL au chargement de la page
+        window.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1); // Enlever le #
+            if (hash && ['cours', 'exercices', 'solutions', 'commentaires'].includes(hash)) {
+                showTab(hash);
+            }
+        });
     </script>
 </body>
 </html>
