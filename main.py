@@ -1611,7 +1611,8 @@ async def create_chapitre_complet(
                 with open(file_path, "wb") as f:
                     f.write(content)
                 file_names.append(file.filename)
-                file_paths.append(str(file_path))
+                relative_path = f"uploads/{type_folder}/{unique_filename}"
+                file_paths.append(relative_path)
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Erreur upload {type_folder}: {str(e)}")
         
