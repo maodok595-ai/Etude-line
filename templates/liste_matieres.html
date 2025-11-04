@@ -245,10 +245,7 @@
                                                                                 {% endfor %}
                                                                                 
                                                                                 {% if matieres_semestre|length > 0 %}
-                                                                                    <div style="background: linear-gradient(135deg, 
-                                                                                        {% if semestre == 'S1' %}#667eea, #764ba2
-                                                                                        {% else %}#f093fb, #f5576c
-                                                                                        {% endif %}); 
+                                                                                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); 
                                                                                         padding: 0.5rem 1.5rem 0.5rem 2rem; font-weight: 600; color: white; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
                                                                                         onclick="toggleSemestreMatieres('{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}_{{ semestre }}')">
                                                                                         <span>📅 {{ semestre }} - Semestre {{ semestre[1] }}</span>
