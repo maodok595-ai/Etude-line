@@ -1731,20 +1731,20 @@ async def messages_page(
     db: Session = Depends(get_db)
 ):
     """Messages page for professors and students"""
-    user = request.session.get('user')
-    if not user:
+    # Déterminer le rôle de l'utilisateur
+    try:
+        role, username, user_data = require_auth(request, db)
+    except HTTPException:
         return RedirectResponse(url="/login", status_code=303)
     
-    if user.get('type') == 'professeur':
-        prof_username, user_data = require_prof(request, db)
+    if role == "prof":
         return templates.TemplateResponse("messages.html", {
             "request": request,
             "user_data": user_data,
             "success": success,
             "error": error
         })
-    elif user.get('type') == 'etudiant':
-        student_username, user_data = require_student(request, db)
+    elif role == "etudiant":
         return templates.TemplateResponse("messages_etudiant.html", {
             "request": request,
             "user_data": user_data,
