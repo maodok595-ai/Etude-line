@@ -50,7 +50,6 @@
             padding: 10px 20px;
             border-radius: 8px;
             cursor: pointer;
-            text-decoration: none;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -254,9 +253,9 @@
     <div class="container">
         <div class="header">
             <h1>📄 Lecteur de Fichiers</h1>
-            <a href="{{ request.url_for('dashboard_etudiant') }}" class="back-button">
+            <button onclick="window.history.back()" class="back-button">
                 ← Retour
-            </a>
+            </button>
         </div>
 
         <div class="file-info">

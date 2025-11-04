@@ -2,6 +2,22 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Correction du bouton retour du lecteur de fichiers**
+
+### Correction : Navigation fluide depuis le lecteur
+**Problème identifié** : Le bouton "← Retour" du lecteur de fichiers redigeait toujours vers le dashboard étudiant, causant une erreur si l'utilisateur était professeur ou venait d'une page de chapitre.
+
+**Solution appliquée** :
+- Remplacement du lien statique par `window.history.back()`
+- Le bouton retour fonctionne maintenant quel que soit la page d'origine :
+  - Dashboard Étudiant → Lecteur → Retour au Dashboard Étudiant ✅
+  - Dashboard Professeur → Lecteur → Retour au Dashboard Professeur ✅
+  - Page Chapitre → Lecteur → Retour à la Page Chapitre ✅
+
+**Fichier modifié** : `templates/lecteur_fichiers.html`
+
+---
+
 **4 novembre 2025 - Ouverture des fichiers dans le lecteur intégré (pas de nouvel onglet)**
 
 ### Amélioration UX : Fichiers ouverts dans l'application
