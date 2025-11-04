@@ -5012,9 +5012,16 @@ async def get_professor_messages(request: Request, db: Session = Depends(get_db)
             
             ciblage_display = " | ".join(ciblage_parts) if ciblage_parts else "Toute l'université"
             
+            # Normaliser le contenu pour les messages vocaux (gérer les anciens messages)
+            contenu_display = message.contenu
+            if message.audio_file and message.audio_file.strip():
+                # Si c'est un message vocal mais le contenu est vide ou ancien format
+                if not contenu_display or contenu_display.strip() == '' or contenu_display == '[Message vocal]':
+                    contenu_display = "🎤 Message vocal envoyé"
+            
             result.append({
                 "id": str(message.id),
-                "contenu": message.contenu,
+                "contenu": contenu_display,
                 "audio_file": message.audio_file,  # Include audio file path if exists
                 "date_envoi": message.date_creation.isoformat(),
                 "ciblage": ciblage_display,
@@ -5093,9 +5100,16 @@ async def get_student_messages(request: Request, db: Session = Depends(get_db)):
                 prof = db.query(ProfesseurDB).filter_by(id=message.prof_id).first()
                 prof_nom = f"{prof.prenom} {prof.nom}" if prof else "Professeur"
                 
+                # Normaliser le contenu pour les messages vocaux (gérer les anciens messages)
+                contenu_display = message.contenu
+                if message.audio_file and message.audio_file.strip():
+                    # Si c'est un message vocal mais le contenu est vide ou ancien format
+                    if not contenu_display or contenu_display.strip() == '' or contenu_display == '[Message vocal]':
+                        contenu_display = "🎤 Message vocal envoyé"
+                
                 messages.append({
                     "id": str(message.id),
-                    "contenu": message.contenu,
+                    "contenu": contenu_display,
                     "audio_file": message.audio_file,  # Include audio file path if exists
                     "prof_nom": prof_nom,
                     "date_envoi": message.date_creation.isoformat(),

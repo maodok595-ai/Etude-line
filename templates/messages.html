@@ -508,7 +508,9 @@
                         } else {
                             // Message texte normal
                             const safeContent = (msg.contenu || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                            contentHtml = `<p style="color: #6b7280; margin: 0.5rem 0 0 0; white-space: pre-wrap;">${safeContent || '<em>Aucun contenu</em>'}</p>`;
+                            // Si le contenu est vide, afficher un message par défaut
+                            const displayContent = safeContent.trim() !== '' ? safeContent : '<em style="color: #9ca3af;">Aucun contenu</em>';
+                            contentHtml = `<p style="color: #6b7280; margin: 0.5rem 0 0 0; white-space: pre-wrap;">${displayContent}</p>`;
                         }
                         
                         return `
