@@ -385,6 +385,7 @@
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                   class="download-button"
                                    style="background: #2e7d32; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
@@ -421,6 +422,7 @@
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                   class="download-button"
                                    style="background: #e65100; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
@@ -457,6 +459,7 @@
                                     👁️ Lire
                                 </a>
                                 <a href="/files/download/{{ fichier_paths[i] }}" 
+                                   class="download-button"
                                    style="background: #1565c0; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                     ⬇️ Télécharger
                                 </a>
@@ -576,6 +579,47 @@
                 alert('Erreur réseau. Veuillez réessayer.');
             }
         }
+        
+        // Charger l'état des téléchargements et afficher/cacher les boutons
+        async function loadDownloadButtonsStatus() {
+            try {
+                const response = await fetch('/api/parametres/telechargements');
+                
+                // Vérifier que la réponse est OK avant de parser
+                if (!response.ok) {
+                    throw new Error('Erreur API: ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // Récupérer tous les boutons de téléchargement
+                const downloadButtons = document.querySelectorAll('.download-button');
+                
+                if (data.actif) {
+                    // Activer tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'inline-flex';
+                    });
+                } else {
+                    // Désactiver tous les boutons de téléchargement
+                    downloadButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'état des téléchargements:', error);
+                // En cas d'erreur, cacher les boutons par défaut pour plus de sécurité
+                const downloadButtons = document.querySelectorAll('.download-button');
+                downloadButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+        
+        // Charger l'état des téléchargements au chargement de la page
+        window.addEventListener('DOMContentLoaded', function() {
+            loadDownloadButtonsStatus();
+        });
     </script>
 </body>
 </html>
