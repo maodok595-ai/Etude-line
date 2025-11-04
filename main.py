@@ -2200,15 +2200,16 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
     if is_main_admin:
         universites = get_universites(db)
         ufrs_data = db.query(UFRDB).all()
-        filieres_data = db.query(FiliereDB).all()
+        # Trier les filières par UFR (nom de l'UFR)
+        filieres_data = db.query(FiliereDB).join(UFRDB).order_by(UFRDB.nom, FiliereDB.nom).all()
         matieres_data = db.query(MatiereDB).all()
     else:
         # Admin secondaire voit seulement son université
         universites = db.query(UniversiteDB).filter(UniversiteDB.id == admin_universite_id).all()
         ufrs_data = db.query(UFRDB).filter(UFRDB.universite_id == admin_universite_id).all()
-        # Filières des UFRs de son université
+        # Filières des UFRs de son université (triées par UFR)
         ufr_ids = [ufr.id for ufr in ufrs_data]
-        filieres_data = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all() if ufr_ids else []
+        filieres_data = db.query(FiliereDB).join(UFRDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).order_by(UFRDB.nom, FiliereDB.nom).all() if ufr_ids else []
         # Matières des filières de son université
         filiere_ids = [fil.id for fil in filieres_data]
         matieres_data = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all() if filiere_ids else []
@@ -4298,8 +4299,8 @@ async def get_all_ufrs_api(db: Session = Depends(get_db)):
 
 @app.get("/api/all-filieres")
 async def get_all_filieres_api(db: Session = Depends(get_db)):
-    """Get all filières with UFR and university info"""
-    filieres = db.query(FiliereDB).join(UFRDB).join(UniversiteDB).all()
+    """Get all filières with UFR and university info, sorted by UFR name"""
+    filieres = db.query(FiliereDB).join(UFRDB).join(UniversiteDB).order_by(UFRDB.nom, FiliereDB.nom).all()
     return [
         {
             "id": filiere.id,
