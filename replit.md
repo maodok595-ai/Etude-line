@@ -10,12 +10,14 @@
 **Solution appliquée** :
 
 **📱 Version Mobile (≤768px)** :
+- ✅ **Interface minimaliste** : Section d'infos cachée (nom, type, statut)
+- ✅ **PDF immédiat** : Commence directement après le header
 - ✅ **Toutes les pages affichées** en continu (scroll vertical)
 - ✅ **Pas de boutons** de navigation (← précédent / suivant →)
 - ✅ **Scroll naturel** : glisser de haut en bas pour naviguer
 - ✅ **Affichage agrandi** : Scale 2.0 (vs 1.5 sur desktop) pour texte plus lisible
-- ✅ **Plein écran** : Canvas width: 100% pour utiliser tout l'espace disponible
-- ✅ **Statut intelligent** : Affiche "✅ X pages chargées" au lieu de page courante
+- ✅ **Plein écran** : Canvas width: 100% + hauteur calc(100vh - 100px)
+- ✅ **Utilise tout l'espace** disponible à l'écran
 
 **💻 Version Desktop (>768px)** :
 - ✅ **Système actuel conservé** : Une page à la fois
