@@ -1638,13 +1638,9 @@
                 <!-- Liste des administrateurs -->
                 <div class="card">
                     <h3 class="list-header">
-                        <div class="list-header-left" onclick="toggleSection('admin-list')">
-                            <span>👑 Administrateurs ({{ admins|length }})</span>
-                            <span id="arrow-admin-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                        </div>
-                        <a href="/admin/liste-administrateurs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        <span>👑 Administrateurs ({{ admins|length }})</span>
+                        <a href="/admin/liste-administrateurs" class="view-all-btn">📋 Voir tout</a>
                     </h3>
-                    <div id="admin-list" style="display: none;">
                     <input type="search" id="search-admin" class="search-input" 
                            placeholder="🔍 Rechercher un administrateur..." 
                            onkeyup="searchAdmin()">
@@ -1707,7 +1703,6 @@
                             </div>
                         {% endif %}
                     </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1722,13 +1717,9 @@
                 <!-- Liste des professeurs -->
                 <div class="card">
                     <h3 class="list-header">
-                        <div class="list-header-left" onclick="toggleSection('prof-list')">
-                            <span>📚 Professeurs ({{ profs|length }})</span>
-                            <span id="arrow-prof-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                        </div>
-                        <a href="/admin/liste-professeurs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        <span>📚 Professeurs ({{ profs|length }})</span>
+                        <a href="/admin/liste-professeurs" class="view-all-btn">📋 Voir tout</a>
                     </h3>
-                    <div id="prof-list" style="display: none;">
                     <input type="search" id="search-prof" class="search-input" 
                            placeholder="🔍 Rechercher un professeur..." 
                            onkeyup="searchProf()">
@@ -1884,13 +1875,9 @@
         <div id="content-etudiant" class="tab-content">
             <div class="card">
                 <h3 class="list-header">
-                    <div class="list-header-left" onclick="toggleSection('etudiant-list')">
-                        <span>👨‍🎓 Étudiants ({{ etudiants|length }})</span>
-                        <span id="arrow-etudiant-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                    </div>
-                    <a href="/admin/liste-etudiants" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                    <span>👨‍🎓 Étudiants ({{ etudiants|length }})</span>
+                    <a href="/admin/liste-etudiants" class="view-all-btn">📋 Voir tout</a>
                 </h3>
-                <div id="etudiant-list" style="display: none;">
                     <input type="search" id="search-etudiant" class="search-input" 
                            placeholder="🔍 Rechercher un étudiant..." 
                            onkeyup="searchEtudiant()">
@@ -2056,13 +2043,9 @@
                 
                 <div class="card">
                     <h3 class="list-header">
-                        <div class="list-header-left" onclick="toggleSection('universite-list')">
-                            <span>📋 Universités ({{ universites|length }})</span>
-                            <span id="arrow-universite-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                        </div>
-                        <a href="/admin/liste-universites" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        <span>📋 Universités ({{ universites|length }})</span>
+                        <a href="/admin/liste-universites" class="view-all-btn">📋 Voir tout</a>
                     </h3>
-                    <div id="universite-list" style="display: none;">
                     <input type="search" id="search-universite" class="search-input" 
                            placeholder="🔍 Rechercher une université..." 
                            onkeyup="searchUniversite()">
@@ -2157,11 +2140,8 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 class="list-header" style="margin: 0; flex: 1;">
-                            <div class="list-header-left" onclick="toggleSection('ufr-list')">
-                                <span>📋 UFR ({{ ufrs|length }})</span>
-                                <span id="arrow-ufr-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                            </div>
-                            <a href="/admin/liste-ufrs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                            <span>📋 UFR ({{ ufrs|length }})</span>
+                            <a href="/admin/liste-ufrs" class="view-all-btn">📋 Voir tout</a>
                         </h3>
                         <input type="search" id="search-ufr" 
                                placeholder="🔍 Rechercher..." 
@@ -2249,11 +2229,8 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 class="list-header" style="margin: 0; flex: 1;">
-                            <div class="list-header-left" onclick="toggleSection('filiere-list')">
-                                <span>📋 Filières ({{ filieres|length }})</span>
-                                <span id="arrow-filiere-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                            </div>
-                            <a href="/admin/liste-filieres" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                            <span>📋 Filières ({{ filieres|length }})</span>
+                            <a href="/admin/liste-filieres" class="view-all-btn">📋 Voir tout</a>
                         </h3>
                         <input type="search" id="search-filiere" 
                                placeholder="🔍 Rechercher..." 
@@ -2352,11 +2329,8 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 class="list-header" style="margin: 0; flex: 1;">
-                            <div class="list-header-left" onclick="toggleSection('matiere-list')">
-                                <span>📋 Matières ({{ matieres|length }})</span>
-                                <span id="arrow-matiere-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                            </div>
-                            <a href="/admin/liste-matieres" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                            <span>📋 Matières ({{ matieres|length }})</span>
+                            <a href="/admin/liste-matieres" class="view-all-btn">📋 Voir tout</a>
                         </h3>
                         <input type="search" id="search-matiere" 
                                placeholder="🔍 Rechercher..." 
@@ -2607,13 +2581,9 @@
             <div id="passage-list-view">
                 
                 <h3 class="list-header" style="margin: 2rem 0 1rem;">
-                    <div class="list-header-left" onclick="toggleSection('passage-regles')">
-                        <span>📘 Règles de passage existantes</span>
-                        <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
-                    </div>
-                    <a href="/admin/liste-hierarchie-passage" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                    <span>📘 Règles de passage existantes</span>
+                    <a href="/admin/liste-hierarchie-passage" class="view-all-btn">📋 Voir tout</a>
                 </h3>
-                <div id="passage-regles" style="display: none;">
                     <div id="passage-list-container">
                         <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
                     </div>
