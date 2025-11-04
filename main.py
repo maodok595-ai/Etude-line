@@ -2387,17 +2387,10 @@ async def liste_etudiants(request: Request, admin_data: tuple = Depends(require_
             "filiere_nom": filiere.nom if filiere else "N/A"
         })
     
-    universites = db.query(UniversiteDB).all()
-    ufrs = db.query(UFRDB).all()
-    filieres = db.query(FiliereDB).all()
-    
     return templates.TemplateResponse("liste_etudiants.html", {
         "request": request,
         "admin": admin_user,
-        "etudiants": etudiants_data,
-        "universites": universites,
-        "ufrs": ufrs,
-        "filieres": filieres
+        "etudiants": etudiants_data
     })
 
 @app.get("/admin/liste-universites", response_class=HTMLResponse)
@@ -2478,16 +2471,11 @@ async def liste_matieres(request: Request, admin_data: tuple = Depends(require_a
         filiere_ids = [fil.id for fil in filieres]
         matieres = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all() if filiere_ids else []
     
-    universites = db.query(UniversiteDB).all()
-    ufrs = db.query(UFRDB).all()
-    
     return templates.TemplateResponse("liste_matieres.html", {
         "request": request,
         "admin": admin_user,
         "matieres": matieres,
-        "filieres": filieres,
-        "universites": universites,
-        "ufrs": ufrs
+        "filieres": filieres
     })
 
 @app.get("/admin/liste-hierarchie-passage", response_class=HTMLResponse)

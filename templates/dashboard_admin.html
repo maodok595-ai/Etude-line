@@ -1638,9 +1638,76 @@
                 <!-- Liste des administrateurs -->
                 <div class="card">
                     <h3 class="list-header">
-                        <span>👑 Administrateurs ({{ admins|length }})</span>
-                        <a href="/admin/liste-administrateurs" class="view-all-btn">📋 Voir tout</a>
+                        <div class="list-header-left" onclick="toggleSection('admin-list')">
+                            <span>👑 Administrateurs ({{ admins|length }})</span>
+                            <span id="arrow-admin-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                        </div>
+                        <a href="/admin/liste-administrateurs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
                     </h3>
+                    <div id="admin-list" style="display: none;">
+                    <input type="search" id="search-admin" class="search-input" 
+                           placeholder="🔍 Rechercher un administrateur..." 
+                           onkeyup="searchAdmin()">
+                    <div id="admin-count" class="search-result-count"></div>
+                    <div class="prof-list" id="admin-items">
+                        {% if admins %}
+                            {% for administrator in admins %}
+                            <div class="prof-item academic-item" style="{% if administrator.get('is_main_admin') %}border-left: 4px solid #f39c12; background: linear-gradient(135deg, #fff7e6, #ffeaa7);{% elif administrator.username == admin.username %}border-left: 4px solid #667eea;{% endif %}">
+                                <div class="prof-name">
+                                    {{ administrator.prenom }} {{ administrator.nom }}
+                                    {% if administrator.get('is_main_admin') %}
+                                        <span style="background: #f39c12; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">PRINCIPAL</span>
+                                    {% elif administrator.username == admin.username %}
+                                        <span style="background: #667eea; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem; margin-left: 0.5rem;">VOUS</span>
+                                    {% endif %}
+                                </div>
+                                <div class="prof-details">
+                                    <strong>Nom d'utilisateur:</strong> {{ administrator.username }}
+                                </div>
+                                {% if not administrator.get('is_main_admin') and administrator.get('universite_id') %}
+                                <div class="prof-details">
+                                    <strong>Université:</strong> 
+                                    {% for univ in universites %}
+                                        {% if univ.id == administrator.universite_id %}
+                                            {{ univ.nom }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="prof-meta">
+                                    <span class="meta-tag">👑 Administrateur</span>
+                                    {% if administrator.get('is_main_admin') %}
+                                        <span class="meta-tag" style="background: #f39c12; color: white;">Administrateur Principal</span>
+                                    {% endif %}
+                                </div>
+                                {% if not administrator.get('is_main_admin') and admin.get('is_main_admin') %}
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick='editAdmin({{ administrator.username|tojson }}, {{ administrator.prenom|tojson }}, {{ administrator.nom|tojson }})' title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick='deleteAdmin({{ administrator.username|tojson }}, {{ (administrator.prenom ~ " " ~ administrator.nom)|tojson }})' title="Supprimer">
+                                        🗑️
+                                    </button>
+                                    <button class="btn-small" 
+                                            data-username="{{ administrator.username }}"
+                                            data-fullname="{{ administrator.prenom }} {{ administrator.nom }}"
+                                            onclick='toggleAdminStatus({{ administrator.username|tojson }}, {{ (administrator.prenom ~ " " ~ administrator.nom)|tojson }}, {{ administrator.get("actif")|tojson|lower }})' 
+                                            style="background: {{ '#28a745' if administrator.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
+                                            title="{{ 'Désactiver' if administrator.get('actif') else 'Activer' }}">
+                                        {{ 'ON' if administrator.get('actif') else 'OFF' }}
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👑 Aucun autre administrateur</p>
+                                <p>Vous êtes actuellement le seul administrateur du système.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1655,9 +1722,77 @@
                 <!-- Liste des professeurs -->
                 <div class="card">
                     <h3 class="list-header">
-                        <span>📚 Professeurs ({{ profs|length }})</span>
-                        <a href="/admin/liste-professeurs" class="view-all-btn">📋 Voir tout</a>
+                        <div class="list-header-left" onclick="toggleSection('prof-list')">
+                            <span>📚 Professeurs ({{ profs|length }})</span>
+                            <span id="arrow-prof-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                        </div>
+                        <a href="/admin/liste-professeurs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
                     </h3>
+                    <div id="prof-list" style="display: none;">
+                    <input type="search" id="search-prof" class="search-input" 
+                           placeholder="🔍 Rechercher un professeur..." 
+                           onkeyup="searchProf()">
+                    <div id="prof-count" class="search-result-count"></div>
+                    <div class="prof-list" id="prof-items">
+                        {% if profs %}
+                            {% for prof in profs %}
+                            <div class="prof-item academic-item">
+                                <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('prof-{{ loop.index }}')">
+                                    <span id="arrow-prof-{{ loop.index }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
+                                    <span>{{ prof.prenom }} {{ prof.nom }}</span>
+                                </div>
+                                <div id="details-prof-{{ loop.index }}" style="display: none;">
+                                <div class="prof-details">@{{ prof.username }}</div>
+                                <div class="prof-meta">
+                                    <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 {{ prof.specialite }}</span>
+                                    
+                                    {% if prof.ufrs %}
+                                        {% for ufr in prof.ufrs %}
+                                            <span class="meta-tag" style="background: #fff3e0; color: #f57c00;">📚 {{ ufr.nom }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    {% if prof.filieres %}
+                                        {% for filiere in prof.filieres %}
+                                            <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📖 {{ filiere.nom }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    {% for uni in universites %}
+                                        {% if uni.id == prof.universite_id %}
+                                            <span class="meta-tag" style="background: #e8f5e9; color: #388e3c;">🏛️ {{ uni.nom }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick='editProf({{ prof.username|tojson }}, {{ prof.nom|tojson }}, {{ prof.prenom|tojson }}, {{ prof.specialite|tojson }})' title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick='deleteProf({{ prof.username|tojson }}, {{ (prof.prenom ~ " " ~ prof.nom)|tojson }})' title="Supprimer">
+                                        🗑️
+                                    </button>
+                                    {% if admin.is_main_admin %}
+                                    <button class="btn-small" 
+                                            data-username="{{ prof.username }}"
+                                            data-fullname="{{ prof.prenom }} {{ prof.nom }}"
+                                            onclick='toggleProfStatus({{ prof.username|tojson }}, {{ (prof.prenom ~ " " ~ prof.nom)|tojson }}, {{ prof.get("actif")|tojson|lower }})' 
+                                            style="background: {{ '#28a745' if prof.get('actif') else '#dc3545' }}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold;"
+                                            title="{{ 'Désactiver' if prof.get('actif') else 'Activer' }}">
+                                        {{ 'ON' if prof.get('actif') else 'OFF' }}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👨‍🏫 Aucun professeur créé</p>
+                                <p>Cliquez sur le bouton ci-dessus pour créer le premier professeur.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
             </div>
             
@@ -1749,9 +1884,156 @@
         <div id="content-etudiant" class="tab-content">
             <div class="card">
                 <h3 class="list-header">
-                    <span>👨‍🎓 Étudiants ({{ etudiants|length }})</span>
-                    <a href="/admin/liste-etudiants" class="view-all-btn">📋 Voir tout</a>
+                    <div class="list-header-left" onclick="toggleSection('etudiant-list')">
+                        <span>👨‍🎓 Étudiants ({{ etudiants|length }})</span>
+                        <span id="arrow-etudiant-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                    </div>
+                    <a href="/admin/liste-etudiants" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
                 </h3>
+                <div id="etudiant-list" style="display: none;">
+                    <input type="search" id="search-etudiant" class="search-input" 
+                           placeholder="🔍 Rechercher un étudiant..." 
+                           onkeyup="searchEtudiant()">
+                    <div id="etudiant-count" class="search-result-count"></div>
+                    <div class="prof-list" id="etudiant-items">
+                        {% if etudiants %}
+                            {% set ns = namespace(ufrs_traitees=[]) %}
+                            {% for ufr in ufrs %}
+                                {% set etudiants_ufr = [] %}
+                                {% for etudiant in etudiants %}
+                                    {% if etudiant.ufr_id == ufr.id %}
+                                        {% set _ = etudiants_ufr.append(etudiant) %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if etudiants_ufr|length > 0 %}
+                                    <div style="margin-bottom: 2rem; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.6rem 1rem; font-weight: 600; font-size: 0.95rem;">
+                                            🏢 {{ ufr.nom }}
+                                            {% for uni in universites %}
+                                                {% if uni.id == ufr.universite_id %}
+                                                    <span style="opacity: 0.9; font-size: 0.9rem; font-weight: 400;"> - {{ uni.nom }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        {% for filiere in filieres %}
+                                            {% set etudiants_filiere = [] %}
+                                            {% for etudiant in etudiants_ufr %}
+                                                {% if etudiant.filiere_id == filiere.id %}
+                                                    {% set _ = etudiants_filiere.append(etudiant) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            
+                                            {% if etudiants_filiere|length > 0 %}
+                                                {% set filiere_index = loop.index %}
+                                                <div style="border-bottom: 1px solid #e0e0e0;">
+                                                    <div style="background: linear-gradient(135deg, 
+                                                        {% if filiere_index % 5 == 1 %}#e3f2fd, #bbdefb
+                                                        {% elif filiere_index % 5 == 2 %}#F3E8FF, #E9D5FF
+                                                        {% elif filiere_index % 5 == 3 %}#fff3e0, #ffe0b2
+                                                        {% elif filiere_index % 5 == 4 %}#e8f5e9, #c8e6c9
+                                                        {% else %}#fce4ec, #f8bbd0
+                                                        {% endif %}); 
+                                                        padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
+                                                        color: {% if filiere_index % 5 == 1 %}#1565c0
+                                                        {% elif filiere_index % 5 == 2 %}#7C3AED
+                                                        {% elif filiere_index % 5 == 3 %}#e65100
+                                                        {% elif filiere_index % 5 == 4 %}#2e7d32
+                                                        {% else %}#c2185b
+                                                        {% endif %}; 
+                                                        border-left: 4px solid {% if filiere_index % 5 == 1 %}#2196f3
+                                                        {% elif filiere_index % 5 == 2 %}#7C3AED
+                                                        {% elif filiere_index % 5 == 3 %}#ff9800
+                                                        {% elif filiere_index % 5 == 4 %}#4caf50
+                                                        {% else %}#e91e63
+                                                        {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
+                                                        onclick="toggleFiliereEtudiants('filiere-{{ ufr.id }}-{{ filiere.id }}')">
+                                                        <span id="arrow-filiere-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                                                        <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
+                                                    </div>
+                                                    
+                                                    <div id="content-filiere-{{ ufr.id }}-{{ filiere.id }}" style="display: none;">
+                                                    
+                                                    {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
+                                                        {% set etudiants_niveau = [] %}
+                                                        {% for etudiant in etudiants_filiere %}
+                                                            {% if etudiant.niveau == niveau %}
+                                                                {% set _ = etudiants_niveau.append(etudiant) %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        
+                                                        {% if etudiants_niveau|length > 0 %}
+                                                            <div style="background: linear-gradient(135deg,
+                                                                {% if niveau == 'L1' %}#F3E8FF, #E9D5FF
+                                                                {% elif niveau == 'L2' %}#E9D5FF, #7C3AED
+                                                                {% elif niveau == 'L3' %}#E9D5FF, #7C3AED
+                                                                {% elif niveau == 'M1' %}#7C3AED, #7C3AED
+                                                                {% elif niveau == 'M2' %}#7C3AED, #7C3AED
+                                                                {% endif %}); 
+                                                                padding: 0.4rem 1rem 0.4rem 2rem; font-weight: 600; 
+                                                                color: {% if niveau == 'L1' %}#7C3AED
+                                                                {% elif niveau == 'L2' %}#7C3AED
+                                                                {% elif niveau == 'L3' %}#7C3AED
+                                                                {% elif niveau == 'M1' %}#7C3AED
+                                                                {% elif niveau == 'M2' %}#7C3AED
+                                                                {% endif %}; 
+                                                                font-size: 0.85rem; border-left: 4px solid 
+                                                                {% if niveau == 'L1' %}#7C3AED
+                                                                {% elif niveau == 'L2' %}#7C3AED
+                                                                {% elif niveau == 'L3' %}#7C3AED
+                                                                {% elif niveau == 'M1' %}#7C3AED
+                                                                {% elif niveau == 'M2' %}#7C3AED
+                                                                {% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
+                                                                onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
+                                                                <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
+                                                                <span>{% if niveau == "L1" %}📘
+                                                                {% elif niveau == "L2" %}📗
+                                                                {% elif niveau == "L3" %}📙
+                                                                {% elif niveau == "M1" %}📕
+                                                                {% elif niveau == "M2" %}📔
+                                                                {% endif %} {{ niveau }} - {{ etudiants_niveau|length }} étudiant{{ 's' if etudiants_niveau|length > 1 else '' }}</span>
+                                                            </div>
+                                                            
+                                                            <div id="content-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="display: none;">
+                                                            {% for etudiant in etudiants_niveau %}
+                                                                <div class="prof-item academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
+                                                                    <div style="flex: 1;">
+                                                                        <div class="prof-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none;" onclick="toggleUserDetails('etudiant-{{ etudiant.username }}')">
+                                                                            <span id="arrow-etudiant-{{ etudiant.username }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
+                                                                            <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
+                                                                        </div>
+                                                                        <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
+                                                                            <div class="prof-details">@{{ etudiant.username }}</div>
+                                                                            <div class="prof-meta" style="margin-top: 0.5rem;">
+                                                                                <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="action-buttons" id="actions-etudiant-{{ etudiant.username }}" style="display: none;">
+                                                                        <button class="btn-delete btn-small" onclick='deleteEtudiant({{ etudiant.username|tojson }}, {{ (etudiant.prenom ~ " " ~ etudiant.nom)|tojson }})' title="Supprimer">
+                                                                            🗑️
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>👨‍🎓 Aucun étudiant inscrit</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1774,9 +2056,54 @@
                 
                 <div class="card">
                     <h3 class="list-header">
-                        <span>📋 Universités ({{ universites|length }})</span>
-                        <a href="/admin/liste-universites" class="view-all-btn">📋 Voir tout</a>
+                        <div class="list-header-left" onclick="toggleSection('universite-list')">
+                            <span>📋 Universités ({{ universites|length }})</span>
+                            <span id="arrow-universite-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                        </div>
+                        <a href="/admin/liste-universites" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
                     </h3>
+                    <div id="universite-list" style="display: none;">
+                    <input type="search" id="search-universite" class="search-input" 
+                           placeholder="🔍 Rechercher une université..." 
+                           onkeyup="searchUniversite()">
+                    <div id="universite-count" class="search-result-count"></div>
+                    <div class="prof-list" id="universite-items">
+                        {% if universites %}
+                            {% for uni in universites %}
+                            <div class="academic-item">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    {% if uni.logo_url %}
+                                        <img src="{{ uni.logo_url }}" alt="Logo {{ uni.nom }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+                                    {% else %}
+                                        <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd;">
+                                            🏛️
+                                        </div>
+                                    {% endif %}
+                                    <div style="flex-grow: 1;">
+                                        <h4>{{ uni.nom }}</h4>
+                                        <div class="academic-code">Code: {{ uni.code }}</div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons" style="margin-top: 0.5rem;">
+                                    <button class="btn-edit btn-small" onclick='editUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }}, {{ uni.code|tojson }})' title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-small" onclick='uploadLogo({{ uni.id|tojson }}, {{ uni.nom|tojson }})' style="background: #7C3AED; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;" title="Ajouter un logo">
+                                        📸
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick='deleteUniversite({{ uni.id|tojson }}, {{ uni.nom|tojson }})' title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏛️ Aucune université créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
                 
                 <!-- Formulaire d'upload de logo (caché par défaut) -->
@@ -1828,10 +2155,51 @@
                 </button>
                 
                 <div class="card">
-                    <h3 class="list-header">
-                        <span>📋 UFR ({{ ufrs|length }})</span>
-                        <a href="/admin/liste-ufrs" class="view-all-btn">📋 Voir tout</a>
-                    </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 class="list-header" style="margin: 0; flex: 1;">
+                            <div class="list-header-left" onclick="toggleSection('ufr-list')">
+                                <span>📋 UFR ({{ ufrs|length }})</span>
+                                <span id="arrow-ufr-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                            </div>
+                            <a href="/admin/liste-ufrs" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        </h3>
+                        <input type="search" id="search-ufr" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchUfr()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="ufr-list" style="display: none;">
+                    <div id="ufr-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="ufr-items">
+                        {% if ufrs %}
+                            {% for ufr in ufrs %}
+                            <div class="academic-item">
+                                <h4>{{ ufr.nom }}</h4>
+                                <div class="academic-code">Code: {{ ufr.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for uni in universites %}
+                                        {% if uni.id == ufr.universite_id %}
+                                            Université: {{ uni.nom }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick='editUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }}, {{ ufr.code|tojson }})' title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick='deleteUfr({{ ufr.id|tojson }}, {{ ufr.nom|tojson }})' title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>🏢 Aucune UFR créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
             </div>
             
@@ -1879,10 +2247,56 @@
                 </button>
                 
                 <div class="card">
-                    <h3 class="list-header">
-                        <span>📋 Filières ({{ filieres|length }})</span>
-                        <a href="/admin/liste-filieres" class="view-all-btn">📋 Voir tout</a>
-                    </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 class="list-header" style="margin: 0; flex: 1;">
+                            <div class="list-header-left" onclick="toggleSection('filiere-list')">
+                                <span>📋 Filières ({{ filieres|length }})</span>
+                                <span id="arrow-filiere-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                            </div>
+                            <a href="/admin/liste-filieres" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        </h3>
+                        <input type="search" id="search-filiere" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchFiliere()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="filiere-list" style="display: none;">
+                    <div id="filiere-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="filiere-items">
+                        {% if filieres %}
+                            {% for filiere in filieres %}
+                            <div class="academic-item">
+                                <h4>{{ filiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ filiere.code }}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    {% for ufr in ufrs %}
+                                        {% if ufr.id == filiere.ufr_id %}
+                                            UFR: {{ ufr.nom }}
+                                            {% for uni in universites %}
+                                                {% if uni.id == ufr.universite_id %}
+                                                    ({{ uni.nom }})
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-edit btn-small" onclick='editFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }}, {{ filiere.code|tojson }})' title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-delete btn-small" onclick='deleteFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }})' title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📚 Aucune filière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
             </div>
             
@@ -1936,10 +2350,124 @@
                 </button>
                 
                 <div class="card">
-                    <h3 class="list-header">
-                        <span>📋 Matières ({{ matieres|length }})</span>
-                        <a href="/admin/liste-matieres" class="view-all-btn">📋 Voir tout</a>
-                    </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 class="list-header" style="margin: 0; flex: 1;">
+                            <div class="list-header-left" onclick="toggleSection('matiere-list')">
+                                <span>📋 Matières ({{ matieres|length }})</span>
+                                <span id="arrow-matiere-list" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                            </div>
+                            <a href="/admin/liste-matieres" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
+                        </h3>
+                        <input type="search" id="search-matiere" 
+                               placeholder="🔍 Rechercher..." 
+                               oninput="searchMatiere()"
+                               style="width: 200px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.3s;">
+                    </div>
+                    <div id="matiere-list" style="display: none;">
+                    <div id="matiere-count" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-style: italic;"></div>
+                    <div class="prof-list" id="matiere-items">
+                        {% if matieres %}
+                            {% set ns = namespace(filieres_traitees=[]) %}
+                            {% for filiere in filieres %}
+                                {% set matieres_filiere = [] %}
+                                {% for matiere in matieres %}
+                                    {% if matiere.filiere_id == filiere.id %}
+                                        {% set _ = matieres_filiere.append(matiere) %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if matieres_filiere|length > 0 %}
+                                    <div style="margin-bottom: 2rem; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.6rem 1rem; font-weight: 600; font-size: 0.95rem;">
+                                            {{ filiere.nom }}
+                                            {% for ufr in ufrs %}
+                                                {% if ufr.id == filiere.ufr_id %}
+                                                    <span style="opacity: 0.9; font-size: 0.9rem; font-weight: 400;"> - {{ ufr.nom }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
+                                            {% set matieres_niveau = [] %}
+                                            {% for matiere in matieres_filiere %}
+                                                {% if matiere.niveau == niveau %}
+                                                    {% set _ = matieres_niveau.append(matiere) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            
+                                            {% if matieres_niveau|length > 0 %}
+                                                <div style="border-bottom: 1px solid #e0e0e0;">
+                                                    <div style="background: linear-gradient(135deg, 
+                                                        {% if niveau == 'L1' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'L2' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'L3' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'M1' %}#7C3AED, #7C3AED
+                                                        {% elif niveau == 'M2' %}#7C3AED, #7C3AED
+                                                        {% endif %}); 
+                                                        padding: 0.5rem 1rem; font-weight: 600; color: white; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;"
+                                                        onclick="toggleNiveauMatieres('{{ filiere.id }}_{{ niveau }}')">
+                                                        <span>
+                                                            {% if niveau == "L1" %}📘 Licence 1 (L1)
+                                                            {% elif niveau == "L2" %}📗 Licence 2 (L2)
+                                                            {% elif niveau == "L3" %}📙 Licence 3 (L3)
+                                                            {% elif niveau == "M1" %}📕 Master 1 (M1)
+                                                            {% elif niveau == "M2" %}📔 Master 2 (M2)
+                                                            {% endif %}
+                                                        </span>
+                                                        <span id="arrow-niveau-{{ filiere.id }}_{{ niveau }}" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                                                    </div>
+                                                    <div id="content-niveau-{{ filiere.id }}_{{ niveau }}" style="display: none;">
+                                                    
+                                                    {% for semestre in ["S1", "S2"] %}
+                                                        {% set matieres_semestre = [] %}
+                                                        {% for matiere in matieres_niveau %}
+                                                            {% if matiere.semestre == semestre %}
+                                                                {% set _ = matieres_semestre.append(matiere) %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        
+                                                        {% if matieres_semestre|length > 0 %}
+                                                            <div style="background: linear-gradient(135deg, 
+                                                                {% if semestre == 'S1' %}#667eea, #764ba2
+                                                                {% else %}#f093fb, #f5576c
+                                                                {% endif %}); 
+                                                                padding: 0.4rem 1rem 0.4rem 1.5rem; font-weight: 600; color: white; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;"
+                                                                onclick="toggleSemestreMatieres('{{ filiere.id }}_{{ niveau }}_{{ semestre }}')">
+                                                                <span>📅 {{ semestre }} - Semestre {{ semestre[1] }}</span>
+                                                                <span id="arrow-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                                                            </div>
+                                                            <div id="content-semestre-{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="display: none;">
+                                                            {% for matiere in matieres_semestre %}
+                                                                <div class="academic-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3rem;">
+                                                                    <h4 style="margin: 0;">{{ matiere.nom }}</h4>
+                                                                    <div class="academic-code">Code: {{ matiere.code }}</div>
+                                                                    <div class="action-buttons">
+                                                                        <button class="btn-edit btn-small" onclick='editMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }}, {{ matiere.code|tojson }})' title="Modifier">
+                                                                            ✏️
+                                                                        </button>
+                                                                        <button class="btn-delete btn-small" onclick='deleteMatiere({{ matiere.id|tojson }}, {{ matiere.nom|tojson }})' title="Supprimer">
+                                                                            🗑️
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                <p>📖 Aucune matière créée</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
             </div>
             
@@ -2079,9 +2607,13 @@
             <div id="passage-list-view">
                 
                 <h3 class="list-header" style="margin: 2rem 0 1rem;">
-                    <span>📘 Règles de passage existantes</span>
-                    <a href="/admin/liste-hierarchie-passage" class="view-all-btn">📋 Voir tout</a>
+                    <div class="list-header-left" onclick="toggleSection('passage-regles')">
+                        <span>📘 Règles de passage existantes</span>
+                        <span id="arrow-passage-regles" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                    </div>
+                    <a href="/admin/liste-hierarchie-passage" class="view-all-btn" onclick="event.stopPropagation();">📋 Voir tout</a>
                 </h3>
+                <div id="passage-regles" style="display: none;">
                     <div id="passage-list-container">
                         <p style="text-align: center; color: #666; padding: 1rem;">Chargement des règles...</p>
                     </div>

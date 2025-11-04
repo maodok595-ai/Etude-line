@@ -23,7 +23,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
         
         body {
@@ -109,32 +108,29 @@
         }
         
         .etudiant-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid #f0f0f0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
         }
         
-        .etudiant-item:last-child {
-            border-bottom: none;
+        .etudiant-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         
         .etudiant-name {
+            font-size: 1.3rem;
             font-weight: 600;
-            color: #1a1a1a;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
         }
         
         .etudiant-details {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
-        }
-        
-        .etudiant-meta {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            margin: 0.3rem 0;
         }
         
         .meta-tag {
@@ -142,6 +138,8 @@
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
         }
         
         .empty-state {
@@ -167,135 +165,20 @@
         
         <div id="etudiant-items">
             {% if etudiants %}
-                {% for universite in universites %}
-                    {% set etudiants_universite = [] %}
-                    {% for ufr in ufrs %}
-                        {% if ufr.universite_id == universite.id %}
-                            {% for etudiant in etudiants %}
-                                {% if etudiant.ufr_id == ufr.id %}
-                                    {% set _ = etudiants_universite.append(etudiant) %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if etudiants_universite|length > 0 %}
-                        <div style="margin-bottom: 2.5rem;">
-                            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1rem 1.5rem; font-weight: 700; font-size: 1.1rem; border-radius: 12px 12px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;" onclick="toggleUniversite('uni-{{ universite.id }}')">
-                                <span id="arrow-uni-{{ universite.id }}" style="font-size: 1.2rem; transition: transform 0.3s; margin-right: 0.5rem;">►</span>
-                                <span>🏛️ {{ universite.nom }} ({{ etudiants_universite|length }} étudiant{{ 's' if etudiants_universite|length > 1 else '' }})</span>
-                            </div>
-                            
-                            <div id="content-uni-{{ universite.id }}" style="display: none;">
-                                {% for ufr in ufrs %}
-                                    {% if ufr.universite_id == universite.id %}
-                                        {% set etudiants_ufr = [] %}
-                                        {% for etudiant in etudiants %}
-                                            {% if etudiant.ufr_id == ufr.id %}
-                                                {% set _ = etudiants_ufr.append(etudiant) %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        
-                                        {% if etudiants_ufr|length > 0 %}
-                                            <div style="background: white; border-radius: 0 0 12px 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.8rem 1.5rem; font-weight: 600; font-size: 1rem;">
-                                                    🏢 {{ ufr.nom }} ({{ etudiants_ufr|length }} étudiant{{ 's' if etudiants_ufr|length > 1 else '' }})
-                                                </div>
-                                                
-                                                {% for filiere in filieres %}
-                                                    {% if filiere.ufr_id == ufr.id %}
-                                                        {% set etudiants_filiere = [] %}
-                                                        {% for etudiant in etudiants_ufr %}
-                                                            {% if etudiant.filiere_id == filiere.id %}
-                                                                {% set _ = etudiants_filiere.append(etudiant) %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        
-                                                        {% if etudiants_filiere|length > 0 %}
-                                                            <div style="border-bottom: 1px solid #e0e0e0;">
-                                                                <div style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF); 
-                                                                    padding: 0.7rem 1.5rem; font-weight: 600; font-size: 0.95rem;
-                                                                    color: #7C3AED; 
-                                                                    border-left: 4px solid #7C3AED; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" 
-                                                                    onclick="toggleFiliereEtudiants('filiere-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}')">
-                                                                    <span id="arrow-filiere-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
-                                                                    <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
-                                                                </div>
-                                                                
-                                                                <div id="content-filiere-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}" style="display: none;">
-                                                                
-                                                                {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
-                                                                    {% set etudiants_niveau = [] %}
-                                                                    {% for etudiant in etudiants_filiere %}
-                                                                        {% if etudiant.niveau == niveau %}
-                                                                            {% set _ = etudiants_niveau.append(etudiant) %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                    
-                                                                    {% if etudiants_niveau|length > 0 %}
-                                                                        <div style="background: linear-gradient(135deg,
-                                                                            {% if niveau == 'L1' %}#F3E8FF, #E9D5FF
-                                                                            {% elif niveau == 'L2' %}#E9D5FF, #7C3AED
-                                                                            {% elif niveau == 'L3' %}#E9D5FF, #7C3AED
-                                                                            {% elif niveau == 'M1' %}#7C3AED, #7C3AED
-                                                                            {% elif niveau == 'M2' %}#7C3AED, #7C3AED
-                                                                            {% endif %}); 
-                                                                            padding: 0.6rem 1.5rem 0.6rem 2.5rem; font-weight: 600; 
-                                                                            color: {% if niveau == 'L1' %}#7C3AED
-                                                                            {% elif niveau == 'L2' %}#7C3AED
-                                                                            {% elif niveau == 'L3' %}#7C3AED
-                                                                            {% elif niveau == 'M1' %}#7C3AED
-                                                                            {% elif niveau == 'M2' %}#7C3AED
-                                                                            {% endif %}; 
-                                                                            font-size: 0.9rem; border-left: 4px solid 
-                                                                            {% if niveau == 'L1' %}#7C3AED
-                                                                            {% elif niveau == 'L2' %}#7C3AED
-                                                                            {% elif niveau == 'L3' %}#7C3AED
-                                                                            {% elif niveau == 'M1' %}#7C3AED
-                                                                            {% elif niveau == 'M2' %}#7C3AED
-                                                                            {% endif %}; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" 
-                                                                            onclick="toggleNiveauEtudiants('niveau-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
-                                                                            <span id="arrow-niveau-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
-                                                                            <span>{% if niveau == "L1" %}📘
-                                                                            {% elif niveau == "L2" %}📗
-                                                                            {% elif niveau == "L3" %}📙
-                                                                            {% elif niveau == "M1" %}📕
-                                                                            {% elif niveau == "M2" %}📔
-                                                                            {% endif %} {{ niveau }} - {{ etudiants_niveau|length }} étudiant{{ 's' if etudiants_niveau|length > 1 else '' }}</span>
-                                                                        </div>
-                                                                        
-                                                                        <div id="content-niveau-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="display: none;">
-                                                                        {% for etudiant in etudiants_niveau %}
-                                                                            <div class="etudiant-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3.5rem;">
-                                                                                <div style="flex: 1;">
-                                                                                    <div class="etudiant-name" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;" onclick="toggleUserDetails('etudiant-{{ etudiant.username }}')">
-                                                                                        <span id="arrow-etudiant-{{ etudiant.username }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
-                                                                                        <span>{{ etudiant.prenom }} {{ etudiant.nom }}</span>
-                                                                                    </div>
-                                                                                    <div id="details-etudiant-{{ etudiant.username }}" style="display: none;">
-                                                                                        <div class="etudiant-details">@{{ etudiant.username }}</div>
-                                                                                        <div class="etudiant-meta" style="margin-top: 0.5rem;">
-                                                                                            <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📅 {{ etudiant.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        {% endfor %}
-                                                                        </div>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                                </div>
-                                                            </div>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
+                {% for etudiant in etudiants %}
+                <div class="etudiant-item">
+                    <div class="etudiant-name">{{ etudiant.prenom }} {{ etudiant.nom }}</div>
+                    <div class="etudiant-details"><strong>Nom d'utilisateur:</strong> @{{ etudiant.username }}</div>
+                    <div class="etudiant-details"><strong>Niveau:</strong> {{ etudiant.niveau }}</div>
+                    <div class="etudiant-details"><strong>Université:</strong> {{ etudiant.universite_nom }}</div>
+                    <div class="etudiant-details"><strong>UFR:</strong> {{ etudiant.ufr_nom }}</div>
+                    <div class="etudiant-details"><strong>Filière:</strong> {{ etudiant.filiere_nom }}</div>
+                    <div>
+                        <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">📚 {{ etudiant.niveau }}</span>
+                        <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">📖 {{ etudiant.filiere_nom }}</span>
+                        <span class="meta-tag" style="background: #e8f5e9; color: #388e3c;">🏛️ {{ etudiant.universite_nom }}</span>
+                    </div>
+                </div>
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
@@ -307,62 +190,10 @@
     </div>
     
     <script>
-        function toggleUniversite(id) {
-            const content = document.getElementById('content-' + id);
-            const arrow = document.getElementById('arrow-' + id);
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(90deg)';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-        
-        function toggleFiliereEtudiants(id) {
-            const content = document.getElementById('content-' + id);
-            const arrow = document.getElementById('arrow-' + id);
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(90deg)';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-        
-        function toggleNiveauEtudiants(id) {
-            const content = document.getElementById('content-' + id);
-            const arrow = document.getElementById('arrow-' + id);
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.style.transform = 'rotate(90deg)';
-            } else {
-                content.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-        
-        function toggleUserDetails(id) {
-            const details = document.getElementById('details-' + id);
-            const arrow = document.getElementById('arrow-' + id);
-            
-            if (details.style.display === 'none') {
-                details.style.display = 'block';
-                arrow.style.transform = 'rotate(90deg)';
-            } else {
-                details.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
-        
         function searchEtudiant() {
             const input = document.getElementById('search-etudiant');
             const filter = input.value.toLowerCase();
-            const items = document.getElementsByClassName('etudiant-item');
+            const items = document.getElementById('etudiant-items').getElementsByClassName('etudiant-item');
             
             for (let item of items) {
                 const text = item.textContent.toLowerCase();
