@@ -3979,7 +3979,7 @@ async def send_voice_message_to_students(
         
         # Create the voice message
         message = MessageProf(
-            contenu="[Message vocal]",  # Placeholder text for voice messages (for other views)
+            contenu="🎤 Message vocal envoyé",  # Texte descriptif pour les messages vocaux
             audio_file=unique_filename,  # Store relative path
             prof_id=prof.id,
             universite_id=prof.universite_id,

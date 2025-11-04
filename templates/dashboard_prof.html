@@ -3290,17 +3290,31 @@
                     
                     let contentHtml;
                     if (isVoiceMessage) {
-                        // Message vocal : afficher SEULEMENT le lecteur audio
+                        // Détecter le type de fichier audio pour optimiser le lecteur
+                        const audioExt = message.audio_file.split('.').pop().toLowerCase();
+                        let audioType = 'audio/webm'; // Par défaut
+                        
+                        if (audioExt === 'mp3') audioType = 'audio/mpeg';
+                        else if (audioExt === 'mp4' || audioExt === 'm4a') audioType = 'audio/mp4';
+                        else if (audioExt === 'ogg') audioType = 'audio/ogg';
+                        else if (audioExt === 'wav') audioType = 'audio/wav';
+                        else if (audioExt === 'webm') audioType = 'audio/webm';
+                        
+                        // Message vocal : afficher le lecteur audio avec le nom du fichier
                         contentHtml = `
                             <div style="background: #f0fdf4; padding: 0.875rem; border-radius: 6px; border: 2px solid #10b981;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                                     <div style="font-size: 2rem;">🎙️</div>
                                     <div style="flex: 1;">
-                                        <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">Message vocal</div>
-                                        <audio controls style="width: 100%; max-width: 500px;" preload="metadata">
+                                        <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;">🎤 Message vocal envoyé</div>
+                                        <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">📁 ${message.audio_file}</div>
+                                        <audio controls style="width: 100%; max-width: 500px; height: 40px;" preload="metadata">
+                                            <source src="/audio/${message.audio_file}" type="${audioType}">
                                             <source src="/audio/${message.audio_file}" type="audio/webm">
                                             <source src="/audio/${message.audio_file}" type="audio/mp4">
+                                            <source src="/audio/${message.audio_file}" type="audio/mpeg">
                                             <source src="/audio/${message.audio_file}" type="audio/ogg">
+                                            <source src="/audio/${message.audio_file}" type="audio/wav">
                                             Votre navigateur ne supporte pas la lecture audio.
                                         </audio>
                                     </div>
