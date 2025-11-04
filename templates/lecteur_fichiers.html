@@ -389,7 +389,7 @@
     <div class="container">
         <div class="header">
             <h1>📄 Lecteur de Fichiers</h1>
-            <button onclick="window.history.back()" class="back-button">
+            <button onclick="goBack(event)" class="back-button" id="back-btn">
                 ← Retour
             </button>
         </div>
@@ -424,6 +424,19 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 
     <script>
+        function goBack(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (document.referrer && document.referrer !== window.location.href) {
+                window.location.href = document.referrer;
+            } else if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/dashboard/etudiant';
+            }
+        }
+
         const fileUrl = {{ file_url|tojson }};
         const fileName = {{ file_name|tojson }};
         const viewerContainer = document.getElementById('viewer');
