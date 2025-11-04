@@ -811,7 +811,7 @@ async def register_prof(
     # Create session and redirect
     session_token = create_session_token(username, "prof")
     response = RedirectResponse(url="/dashboard/prof", status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    response.set_cookie("session", session_token, httponly=True, max_age=86400, samesite="lax")
     
     return response
 
@@ -859,7 +859,7 @@ async def register_etudiant(
     # Create session and redirect to dashboard (automatic login)
     session_token = create_session_token(username, "etudiant")
     response = RedirectResponse(url="/dashboard/etudiant", status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    response.set_cookie("session", session_token, httponly=True, max_age=86400, samesite="lax")
     
     return response
 
@@ -906,7 +906,7 @@ async def login(
         redirect_url = "/dashboard/etudiant"
     
     response = RedirectResponse(url=redirect_url, status_code=303)
-    response.set_cookie("session", session_token, httponly=True)
+    response.set_cookie("session", session_token, httponly=True, max_age=86400, samesite="lax")
     
     return response
 
