@@ -1880,10 +1880,10 @@
                                             
                                             {% if etudiants_filiere|length > 0 %}
                                                 <div style="border-bottom: 1px solid #e0e0e0; margin-bottom: 1rem; padding-bottom: 1rem;">
-                                                    <div style="background: #f5f5f5; 
+                                                    <div style="background: #F3E8FF; 
                                                         padding: 0.5rem 1rem; font-weight: 600; font-size: 0.9rem;
-                                                        color: #555; 
-                                                        border-left: 4px solid #667eea; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
+                                                        color: #7C3AED; 
+                                                        border-left: 4px solid #7C3AED; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                         onclick="toggleFiliereEtudiants('filiere-{{ ufr.id }}-{{ filiere.id }}')">
                                                         <span id="arrow-filiere-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                                                         <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
