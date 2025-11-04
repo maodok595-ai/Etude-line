@@ -17,6 +17,31 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Désactiver sélection accidentelle sur l'interface */
+        button, .navbar, .navbar *, a, .btn, 
+        .menu, .tabs, .tab-button, .card-header,
+        .chapitre-card, .stats-card, .welcome-section,
+        .stats-grid, .stat-card, h1, h2, h3, h4, h5, h6,
+        .user-info, .logout-btn, .form-group label {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* Garder la sélection pour le contenu et formulaires */
+        .content, .chapitre-content, .cours-content,
+        .exercice-content, .solution-content, 
+        textarea, input[type="text"], input[type="email"],
+        input[type="password"], .message-text, p,
+        .form-control, select {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
         * {
             margin: 0;
             padding: 0;
