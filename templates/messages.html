@@ -45,48 +45,82 @@
         .navbar {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 0.5rem 2rem;
+            padding: 0.75rem 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
         }
         
         .navbar h1 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            margin: 0;
         }
         
-        .navbar .user-info {
+        .navbar-right {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
         
-        .navbar a {
+        .btn-logout {
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
             transition: background 0.3s;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.1);
         }
         
-        .navbar a:hover {
+        .btn-logout:hover {
             background: rgba(255,255,255,0.2);
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            display: none;
         }
         
         .container {
             max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+            margin: 1rem auto;
+            padding: 0 1rem;
             width: 100%;
         }
         
         .card {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         
         .form-group {
@@ -118,50 +152,54 @@
             border-color: #10b981;
         }
         
-        @media screen and (max-width: 768px) {
-            .navbar {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 0.75rem;
-                text-align: center;
-            }
-            
+        @media screen and (min-width: 600px) {
             .navbar h1 {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
             }
             
-            .navbar .user-info {
-                flex-direction: column;
-                gap: 0.5rem;
-                font-size: 0.9rem;
+            .user-name {
+                display: inline;
             }
             
             .container {
-                padding: 0 1rem;
+                padding: 0 1.5rem;
             }
             
             .card {
-                padding: 1.5rem;
+                padding: 2rem;
+            }
+        }
+        
+        @media screen and (max-width: 360px) {
+            .navbar h1 {
+                font-size: 1rem;
+            }
+            
+            .btn-logout {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.6rem;
             }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <h1>✉️ Messages</h1>
-        <div class="user-info">
-            <span>👨‍🏫 {{ user_data.nom if user_data.nom else 'Professeur' }}</span>
-            <a href="/dashboard/prof">← Retour au tableau de bord</a>
-            <a href="/logout">Déconnexion</a>
+        <div class="navbar-left">
+            <a href="/dashboard/prof" class="btn-back" title="Retour au tableau de bord">←</a>
+            <h1>✉️ Messages</h1>
+        </div>
+        <div class="navbar-right">
+            <span class="user-name">👨‍🏫 {{ user_data.nom if user_data.nom else 'Prof' }}</span>
+            <a href="/logout" class="btn-logout">Déconnexion</a>
         </div>
     </nav>
     
     <div class="container">
         <!-- Bouton Envoyer une annonce -->
-        <div style="margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.5rem;">
             <button onclick="toggleFormulaireMessage()" 
                     class="btn-send-message"
-                    style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                 <span style="font-size: 1.2rem;">✉️</span>
                 <span>Envoyer une annonce</span>
             </button>
