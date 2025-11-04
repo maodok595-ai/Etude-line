@@ -538,83 +538,32 @@
             const numPages = pdf.numPages;
             const isMobile = window.innerWidth <= 768;
 
-            if (isMobile) {
-                const container = document.createElement('div');
-                container.className = 'pdf-scroll-container';
-                viewerContainer.innerHTML = '';
-                viewerContainer.appendChild(container);
+            const container = document.createElement('div');
+            container.className = 'pdf-scroll-container';
+            viewerContainer.innerHTML = '';
+            viewerContainer.appendChild(container);
 
-                const scale = 3.0;
+            const scale = isMobile ? 3.0 : 2.0;
 
-                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const viewport = page.getViewport({ scale: scale });
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: scale });
 
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-
-                    await page.render({
-                        canvasContext: ctx,
-                        viewport: viewport
-                    }).promise;
-
-                    container.appendChild(canvas);
-                }
-
-                document.getElementById('file-status').textContent = `✅ ${numPages} page${numPages > 1 ? 's' : ''} chargée${numPages > 1 ? 's' : ''}`;
-            } else {
-                viewerContainer.innerHTML = `
-                    <div class="pdf-container">
-                        <div class="pdf-controls">
-                            <button onclick="previousPage()" id="prev-btn">← Page précédente</button>
-                            <span>Page <span id="page-num">1</span> / <span id="page-count">${numPages}</span></span>
-                            <button onclick="nextPage()" id="next-btn">Page suivante →</button>
-                        </div>
-                        <canvas id="pdf-canvas" class="pdf-page"></canvas>
-                    </div>
-                `;
-
-                let currentPage = 1;
-                const canvas = document.getElementById('pdf-canvas');
+                const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
+                
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
 
-                async function renderPage(num) {
-                    const page = await pdf.getPage(num);
-                    const viewport = page.getViewport({ scale: 2.0 });
+                await page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                }).promise;
 
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-
-                    await page.render({
-                        canvasContext: ctx,
-                        viewport: viewport
-                    }).promise;
-
-                    document.getElementById('page-num').textContent = num;
-                    document.getElementById('prev-btn').disabled = num <= 1;
-                    document.getElementById('next-btn').disabled = num >= numPages;
-                }
-
-                window.previousPage = () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderPage(currentPage);
-                    }
-                };
-
-                window.nextPage = () => {
-                    if (currentPage < numPages) {
-                        currentPage++;
-                        renderPage(currentPage);
-                    }
-                };
-
-                await renderPage(1);
-                document.getElementById('file-status').textContent = '✅ Chargé';
+                container.appendChild(canvas);
             }
+
+            document.getElementById('file-status').textContent = `✅ ${numPages} page${numPages > 1 ? 's' : ''} chargée${numPages > 1 ? 's' : ''}`;
         }
 
         async function loadDOCX() {
