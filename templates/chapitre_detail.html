@@ -569,14 +569,40 @@
                     button.classList.add('active');
                 }
             });
+            
+            // Sauvegarder l'onglet actif pour le restaurer après navigation
+            localStorage.setItem('chapitre_active_tab_{{ chapitre.id }}', tabName);
+        }
+
+        // Sauvegarder l'onglet actif avant d'ouvrir un fichier
+        function saveActiveTabBeforeNavigation() {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab) {
+                const tabName = activeTab.id.replace('tab-', '');
+                localStorage.setItem('chapitre_active_tab_{{ chapitre.id }}', tabName);
+            }
         }
 
         // Vérifier le hash dans l'URL au chargement de la page
         window.addEventListener('DOMContentLoaded', function() {
+            // 1. Priorité au hash dans l'URL
             const hash = window.location.hash.substring(1); // Enlever le #
             if (hash && ['cours', 'exercices', 'solutions', 'commentaires'].includes(hash)) {
                 showTab(hash);
+                return;
             }
+            
+            // 2. Sinon, restaurer l'onglet depuis localStorage (retour du lecteur)
+            const savedTab = localStorage.getItem('chapitre_active_tab_{{ chapitre.id }}');
+            if (savedTab && ['cours', 'exercices', 'solutions', 'commentaires'].includes(savedTab)) {
+                showTab(savedTab);
+            }
+            
+            // Ajouter un listener sur tous les liens "Lire" pour sauvegarder l'onglet actif
+            const lecteurLinks = document.querySelectorAll('a[href^="/lecteur/"]');
+            lecteurLinks.forEach(link => {
+                link.addEventListener('click', saveActiveTabBeforeNavigation);
+            });
         });
         
         // Fonction pour supprimer un commentaire
