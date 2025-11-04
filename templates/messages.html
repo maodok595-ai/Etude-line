@@ -197,16 +197,22 @@
     <div class="container">
         <!-- Messages de succès/erreur -->
         {% if success %}
-        <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 1.5rem;">✅</span>
-            <span style="font-weight: 600;">{{ success }}</span>
+        <div id="alert-success" style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; transition: opacity 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">✅</span>
+                <span style="font-weight: 600;">{{ success }}</span>
+            </div>
+            <button onclick="dismissAlert('alert-success')" style="background: none; border: none; color: #065f46; font-size: 1.5rem; cursor: pointer; padding: 0 0.5rem; line-height: 1;">×</button>
         </div>
         {% endif %}
         
         {% if error %}
-        <div style="background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 1.5rem;">❌</span>
-            <span style="font-weight: 600;">{{ error }}</span>
+        <div id="alert-error" style="background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; transition: opacity 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">❌</span>
+                <span style="font-weight: 600;">{{ error }}</span>
+            </div>
+            <button onclick="dismissAlert('alert-error')" style="background: none; border: none; color: #991b1b; font-size: 1.5rem; cursor: pointer; padding: 0 0.5rem; line-height: 1;">×</button>
         </div>
         {% endif %}
         
@@ -373,6 +379,40 @@
     
     <script src="/static/sw-register.js"></script>
     <script>
+        // Fonction pour fermer une alerte
+        function dismissAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    alert.remove();
+                    // Nettoyer l'URL
+                    const url = new URL(window.location);
+                    url.searchParams.delete('success');
+                    url.searchParams.delete('error');
+                    window.history.replaceState({}, '', url);
+                }, 300);
+            }
+        }
+        
+        // Auto-dismiss des alertes après 5 secondes
+        window.addEventListener('DOMContentLoaded', () => {
+            const successAlert = document.getElementById('alert-success');
+            const errorAlert = document.getElementById('alert-error');
+            
+            if (successAlert) {
+                setTimeout(() => {
+                    dismissAlert('alert-success');
+                }, 5000);
+            }
+            
+            if (errorAlert) {
+                setTimeout(() => {
+                    dismissAlert('alert-error');
+                }, 7000); // Les erreurs restent un peu plus longtemps
+            }
+        });
+        
         // Toggle formulaire message
         function toggleFormulaireMessage() {
             const formulaire = document.getElementById('formulaire-message');
