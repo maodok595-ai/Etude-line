@@ -23,6 +23,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
         
         body {
@@ -108,38 +109,19 @@
         }
         
         .matiere-item {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 1rem;
-            transition: all 0.3s;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
         }
         
-        .matiere-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .matiere-name {
-            font-size: 1.3rem;
+        .matiere-item h4 {
             font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+            margin-bottom: 0.3rem;
         }
         
-        .matiere-details {
-            color: var(--text-secondary);
-            margin: 0.3rem 0;
-        }
-        
-        .meta-tag {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin-right: 0.5rem;
-            margin-top: 0.5rem;
+        .matiere-code {
+            color: #666;
+            font-size: 0.9rem;
         }
         
         .empty-state {
@@ -165,29 +147,138 @@
         
         <div id="matiere-items">
             {% if matieres %}
-                {% for matiere in matieres %}
-                <div class="matiere-item">
-                    <div class="matiere-name">{{ matiere.nom }}</div>
-                    <div class="matiere-details"><strong>Code:</strong> {{ matiere.code }}</div>
-                    <div class="matiere-details">
-                        <strong>Filière:</strong> 
-                        {% for filiere in filieres %}
-                            {% if filiere.id == matiere.filiere_id %}
-                                {{ filiere.nom }}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div>
-                        <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">📖 Matière</span>
-                        <span class="meta-tag" style="background: #F3E8FF; color: #7C3AED;">
+                {% for universite in universites %}
+                    {% set matieres_universite = [] %}
+                    {% for ufr in ufrs %}
+                        {% if ufr.universite_id == universite.id %}
                             {% for filiere in filieres %}
-                                {% if filiere.id == matiere.filiere_id %}
-                                    📚 {{ filiere.nom }}
+                                {% if filiere.ufr_id == ufr.id %}
+                                    {% for matiere in matieres %}
+                                        {% if matiere.filiere_id == filiere.id %}
+                                            {% set _ = matieres_universite.append(matiere) %}
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endif %}
                             {% endfor %}
-                        </span>
-                    </div>
-                </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if matieres_universite|length > 0 %}
+                        <div style="margin-bottom: 2.5rem;">
+                            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1rem 1.5rem; font-weight: 700; font-size: 1.1rem; border-radius: 12px 12px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;" onclick="toggleUniversite('uni-{{ universite.id }}')">
+                                <span id="arrow-uni-{{ universite.id }}" style="font-size: 1.2rem; transition: transform 0.3s; margin-right: 0.5rem;">►</span>
+                                <span>🏛️ {{ universite.nom }} ({{ matieres_universite|length }} matière{{ 's' if matieres_universite|length > 1 else '' }})</span>
+                            </div>
+                            
+                            <div id="content-uni-{{ universite.id }}" style="display: none;">
+                                {% for ufr in ufrs %}
+                                    {% if ufr.universite_id == universite.id %}
+                                        {% set matieres_ufr = [] %}
+                                        {% for filiere in filieres %}
+                                            {% if filiere.ufr_id == ufr.id %}
+                                                {% for matiere in matieres %}
+                                                    {% if matiere.filiere_id == filiere.id %}
+                                                        {% set _ = matieres_ufr.append(matiere) %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if matieres_ufr|length > 0 %}
+                                            <div style="background: white; border-radius: 0 0 12px 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem;">
+                                                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.8rem 1.5rem; font-weight: 600; font-size: 1rem;">
+                                                    🏢 {{ ufr.nom }} ({{ matieres_ufr|length }} matière{{ 's' if matieres_ufr|length > 1 else '' }})
+                                                </div>
+                                                
+                                                {% for filiere in filieres %}
+                                                    {% if filiere.ufr_id == ufr.id %}
+                                                        {% set matieres_filiere = [] %}
+                                                        {% for matiere in matieres %}
+                                                            {% if matiere.filiere_id == filiere.id %}
+                                                                {% set _ = matieres_filiere.append(matiere) %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        
+                                                        {% if matieres_filiere|length > 0 %}
+                                                            <div style="margin-bottom: 1rem;">
+                                                                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.7rem 1.5rem; font-weight: 600; font-size: 0.95rem;">
+                                                                    📚 {{ filiere.nom }} ({{ matieres_filiere|length }} matière{{ 's' if matieres_filiere|length > 1 else '' }})
+                                                                </div>
+                                                                
+                                                                {% for niveau in ["L1", "L2", "L3", "M1", "M2"] %}
+                                                                    {% set matieres_niveau = [] %}
+                                                                    {% for matiere in matieres_filiere %}
+                                                                        {% if matiere.niveau == niveau %}
+                                                                            {% set _ = matieres_niveau.append(matiere) %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                    
+                                                                    {% if matieres_niveau|length > 0 %}
+                                                                        <div style="border-bottom: 1px solid #e0e0e0;">
+                                                                            <div style="background: linear-gradient(135deg, 
+                                                                                {% if niveau == 'L1' %}#7C3AED, #7C3AED
+                                                                                {% elif niveau == 'L2' %}#7C3AED, #7C3AED
+                                                                                {% elif niveau == 'L3' %}#7C3AED, #7C3AED
+                                                                                {% elif niveau == 'M1' %}#7C3AED, #7C3AED
+                                                                                {% elif niveau == 'M2' %}#7C3AED, #7C3AED
+                                                                                {% endif %}); 
+                                                                                padding: 0.6rem 1.5rem; font-weight: 600; color: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;"
+                                                                                onclick="toggleNiveauMatieres('{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}')">
+                                                                                <span>
+                                                                                    {% if niveau == "L1" %}📘 Licence 1 (L1)
+                                                                                    {% elif niveau == "L2" %}📗 Licence 2 (L2)
+                                                                                    {% elif niveau == "L3" %}📙 Licence 3 (L3)
+                                                                                    {% elif niveau == "M1" %}📕 Master 1 (M1)
+                                                                                    {% elif niveau == "M2" %}📔 Master 2 (M2)
+                                                                                    {% endif %}
+                                                                                </span>
+                                                                                <span id="arrow-niveau-{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}" style="font-size: 1.2rem; transition: transform 0.3s;">►</span>
+                                                                            </div>
+                                                                            <div id="content-niveau-{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}" style="display: none;">
+                                                                            
+                                                                            {% for semestre in ["S1", "S2"] %}
+                                                                                {% set matieres_semestre = [] %}
+                                                                                {% for matiere in matieres_niveau %}
+                                                                                    {% if matiere.semestre == semestre %}
+                                                                                        {% set _ = matieres_semestre.append(matiere) %}
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                                
+                                                                                {% if matieres_semestre|length > 0 %}
+                                                                                    <div style="background: linear-gradient(135deg, 
+                                                                                        {% if semestre == 'S1' %}#667eea, #764ba2
+                                                                                        {% else %}#f093fb, #f5576c
+                                                                                        {% endif %}); 
+                                                                                        padding: 0.5rem 1.5rem 0.5rem 2rem; font-weight: 600; color: white; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                                                                                        onclick="toggleSemestreMatieres('{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}_{{ semestre }}')">
+                                                                                        <span>📅 {{ semestre }} - Semestre {{ semestre[1] }}</span>
+                                                                                        <span id="arrow-semestre-{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
+                                                                                    </div>
+                                                                                    <div id="content-semestre-{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}_{{ semestre }}" style="display: none;">
+                                                                                    {% for matiere in matieres_semestre %}
+                                                                                        <div class="matiere-item" style="margin: 0; border-radius: 0; border-bottom: 1px solid #f0f0f0; padding-left: 3.5rem;">
+                                                                                            <h4 style="margin: 0;">{{ matiere.nom }}</h4>
+                                                                                            <div class="matiere-code">Code: {{ matiere.code }}</div>
+                                                                                        </div>
+                                                                                    {% endfor %}
+                                                                                    </div>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
@@ -199,10 +290,49 @@
     </div>
     
     <script>
+        function toggleUniversite(id) {
+            const content = document.getElementById('content-' + id);
+            const arrow = document.getElementById('arrow-' + id);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        function toggleNiveauMatieres(id) {
+            const content = document.getElementById('content-niveau-' + id);
+            const arrow = document.getElementById('arrow-niveau-' + id);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        function toggleSemestreMatieres(id) {
+            const content = document.getElementById('content-semestre-' + id);
+            const arrow = document.getElementById('arrow-semestre-' + id);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+        
         function searchMatiere() {
             const input = document.getElementById('search-matiere');
             const filter = input.value.toLowerCase();
-            const items = document.getElementById('matiere-items').getElementsByClassName('matiere-item');
+            const items = document.getElementsByClassName('matiere-item');
             
             for (let item of items) {
                 const text = item.textContent.toLowerCase();
