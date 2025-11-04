@@ -2,6 +2,36 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Correction navigation onglets après retour du lecteur**
+
+### Correction : Mémorisation de l'onglet actif dans les chapitres
+**Problème identifié** : Lorsqu'un utilisateur (professeur ou étudiant) ouvrait un fichier depuis un onglet (Exercices, Solutions ou Commentaires) et cliquait sur "Retour" dans le lecteur, la page revenait toujours à l'onglet "Cours" au lieu de rester sur l'onglet d'origine.
+
+**Solution appliquée** :
+- ✅ **localStorage** : Sauvegarde automatique de l'onglet actif dans le navigateur
+- ✅ **Mémorisation au clic** : L'onglet est sauvegardé avant d'ouvrir un fichier
+- ✅ **Restauration automatique** : Au retour du lecteur, l'onglet correct est restauré
+- ✅ **Clé unique par chapitre** : `chapitre_active_tab_{chapitre_id}` pour éviter les conflits entre chapitres
+
+**Comportement avant** :
+- Exercices → Lire fichier → Retour → ❌ Onglet "Cours"
+- Solutions → Lire fichier → Retour → ❌ Onglet "Cours"
+- Commentaires → Lire fichier → Retour → ❌ Onglet "Cours"
+
+**Comportement après** :
+- Exercices → Lire fichier → Retour → ✅ Onglet "Exercices"
+- Solutions → Lire fichier → Retour → ✅ Onglet "Solutions"
+- Commentaires → Lire fichier → Retour → ✅ Onglet "Commentaires"
+
+**Impact** :
+- ✅ Navigation fluide et intuitive pour professeurs et étudiants
+- ✅ Pas de perte de contexte lors de la consultation de fichiers
+- ✅ Fonctionne sur les deux vues (professeur `/chapitre/{id}/prof` et étudiant `/chapitre/{id}/etudiant`)
+
+**Fichier modifié** : `templates/chapitre_detail.html`
+
+---
+
 **4 novembre 2025 - Correction affichage images et vidéos**
 
 ### Correction : Respect du format des images et vidéos
