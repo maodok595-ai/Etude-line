@@ -2,6 +2,36 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Lecteur PDF mobile : Mode scroll continu**
+
+### Amélioration UX Mobile : Navigation naturelle pour les PDF
+**Demande utilisateur** : Sur mobile, les écritures étaient petites et les boutons de pagination (précédent/suivant) étaient peu pratiques. L'utilisateur voulait scroller naturellement de haut en bas comme un document normal.
+
+**Solution appliquée** :
+
+**📱 Version Mobile (≤768px)** :
+- ✅ **Toutes les pages affichées** en continu (scroll vertical)
+- ✅ **Pas de boutons** de navigation (← précédent / suivant →)
+- ✅ **Scroll naturel** : glisser de haut en bas pour naviguer
+- ✅ **Affichage agrandi** : Scale 2.0 (vs 1.5 sur desktop) pour texte plus lisible
+- ✅ **Plein écran** : Canvas width: 100% pour utiliser tout l'espace disponible
+- ✅ **Statut intelligent** : Affiche "✅ X pages chargées" au lieu de page courante
+
+**💻 Version Desktop (>768px)** :
+- ✅ **Système actuel conservé** : Une page à la fois
+- ✅ **Boutons de navigation** : Précédent / Suivant
+- ✅ **Indicateur de page** : "Page 1 / X"
+
+**Avantages** :
+- 📖 Lecture fluide comme un vrai document sur mobile
+- 👆 Interface tactile intuitive (pas de boutons à cliquer)
+- 🔍 Texte plus grand et lisible sur petit écran
+- 💾 Toutes les pages chargées d'un coup (pas de latence entre pages)
+
+**Fichier modifié** : `templates/lecteur_fichiers.html`
+
+---
+
 **4 novembre 2025 - Optimisation mobile du lecteur de fichiers**
 
 ### Amélioration UX Mobile : Design responsive complet

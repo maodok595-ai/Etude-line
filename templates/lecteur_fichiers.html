@@ -176,6 +176,20 @@
             margin: 16px 0;
         }
 
+        .pdf-scroll-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .pdf-scroll-container canvas {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100% !important;
+            height: auto !important;
+        }
+
         .docx-content {
             background: white;
             padding: 40px;
@@ -303,6 +317,15 @@
                 max-width: 100%;
             }
 
+            .pdf-scroll-container {
+                gap: 16px;
+            }
+
+            .pdf-scroll-container canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+
             .pptx-viewer {
                 padding: 40px 12px !important;
             }
@@ -427,55 +450,85 @@
 
             const pdf = await pdfjsLib.getDocument(fileUrl).promise;
             const numPages = pdf.numPages;
+            const isMobile = window.innerWidth <= 768;
 
-            viewerContainer.innerHTML = `
-                <div class="pdf-container">
-                    <div class="pdf-controls">
-                        <button onclick="previousPage()" id="prev-btn">← Page précédente</button>
-                        <span>Page <span id="page-num">1</span> / <span id="page-count">${numPages}</span></span>
-                        <button onclick="nextPage()" id="next-btn">Page suivante →</button>
+            if (isMobile) {
+                const container = document.createElement('div');
+                container.className = 'pdf-scroll-container';
+                viewerContainer.innerHTML = '';
+                viewerContainer.appendChild(container);
+
+                const scale = 2.0;
+
+                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+
+                    container.appendChild(canvas);
+                }
+
+                document.getElementById('file-status').textContent = `✅ ${numPages} page${numPages > 1 ? 's' : ''} chargée${numPages > 1 ? 's' : ''}`;
+            } else {
+                viewerContainer.innerHTML = `
+                    <div class="pdf-container">
+                        <div class="pdf-controls">
+                            <button onclick="previousPage()" id="prev-btn">← Page précédente</button>
+                            <span>Page <span id="page-num">1</span> / <span id="page-count">${numPages}</span></span>
+                            <button onclick="nextPage()" id="next-btn">Page suivante →</button>
+                        </div>
+                        <canvas id="pdf-canvas" class="pdf-page"></canvas>
                     </div>
-                    <canvas id="pdf-canvas" class="pdf-page"></canvas>
-                </div>
-            `;
+                `;
 
-            let currentPage = 1;
-            const canvas = document.getElementById('pdf-canvas');
-            const ctx = canvas.getContext('2d');
+                let currentPage = 1;
+                const canvas = document.getElementById('pdf-canvas');
+                const ctx = canvas.getContext('2d');
 
-            async function renderPage(num) {
-                const page = await pdf.getPage(num);
-                const viewport = page.getViewport({ scale: 1.5 });
+                async function renderPage(num) {
+                    const page = await pdf.getPage(num);
+                    const viewport = page.getViewport({ scale: 1.5 });
 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-                await page.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                }).promise;
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
 
-                document.getElementById('page-num').textContent = num;
-                document.getElementById('prev-btn').disabled = num <= 1;
-                document.getElementById('next-btn').disabled = num >= numPages;
+                    document.getElementById('page-num').textContent = num;
+                    document.getElementById('prev-btn').disabled = num <= 1;
+                    document.getElementById('next-btn').disabled = num >= numPages;
+                }
+
+                window.previousPage = () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderPage(currentPage);
+                    }
+                };
+
+                window.nextPage = () => {
+                    if (currentPage < numPages) {
+                        currentPage++;
+                        renderPage(currentPage);
+                    }
+                };
+
+                await renderPage(1);
+                document.getElementById('file-status').textContent = '✅ Chargé';
             }
-
-            window.previousPage = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderPage(currentPage);
-                }
-            };
-
-            window.nextPage = () => {
-                if (currentPage < numPages) {
-                    currentPage++;
-                    renderPage(currentPage);
-                }
-            };
-
-            await renderPage(1);
-            document.getElementById('file-status').textContent = '✅ Chargé';
         }
 
         async function loadDOCX() {
