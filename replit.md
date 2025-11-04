@@ -2,6 +2,35 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Correction affichage images et vidéos**
+
+### Correction : Respect du format des images et vidéos
+**Problème identifié** : Les images et vidéos ne respectaient pas leur format/ratio d'aspect original. Affichage déformé sur ordinateur et mobile.
+
+**Corrections appliquées** :
+
+**💻 Ordinateur** :
+- `object-fit: contain` : Préserve le ratio d'aspect original
+- `width: auto` et `height: auto` : Dimensionnement automatique
+- `max-width: 100%` et `max-height: 80vh` : S'adapte à l'écran sans déformation
+- Padding 20px pour centrage élégant
+
+**📱 Mobile** :
+- `max-height: 90vh` : Utilise plus d'espace vertical
+- Padding 0 : Plein écran
+- `border-radius: 0` : Coins carrés pour maximiser l'espace
+- Pas d'ombres : Design épuré
+
+**Résultat** :
+- ✅ Images affichées avec leur ratio d'aspect original (pas d'étirement)
+- ✅ Vidéos centrées et dimensionnées correctement
+- ✅ Aucune déformation sur petits ou grands écrans
+- ✅ Contenu lisible et bien présenté
+
+**Fichier modifié** : `templates/lecteur_fichiers.html`
+
+---
+
 **4 novembre 2025 - Correction bouton retour non fonctionnel**
 
 ### Correction : Bouton retour cliquable sur mobile

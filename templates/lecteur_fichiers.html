@@ -221,11 +221,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
+            padding: 20px;
         }
 
         .image-viewer img {
             max-width: 100%;
+            max-height: 80vh;
+            width: auto;
             height: auto;
+            object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -234,11 +239,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
+            padding: 20px;
         }
 
         .video-viewer video {
             max-width: 100%;
-            width: 100%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -310,6 +320,28 @@
             .docx-content h1 { font-size: 28px; }
             .docx-content h2 { font-size: 24px; }
             .docx-content h3 { font-size: 20px; }
+
+            .image-viewer {
+                padding: 0;
+            }
+
+            .image-viewer img {
+                max-width: 100%;
+                max-height: 90vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .video-viewer {
+                padding: 0;
+            }
+
+            .video-viewer video {
+                max-width: 100%;
+                max-height: 90vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
 
             .pdf-controls {
                 font-size: 13px;
