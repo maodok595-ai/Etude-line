@@ -2,6 +2,37 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Ouverture des fichiers dans le lecteur intégré (pas de nouvel onglet)**
+
+### Amélioration UX : Fichiers ouverts dans l'application
+**Demande utilisateur** : Les fichiers (PDF, Word, images, vidéos) s'ouvraient dans un nouvel onglet en version ordinateur, ce qui cassait l'expérience utilisateur.
+
+**Avant** : 
+- Boutons "👁️ Lire" utilisaient `href="/files/view/..."` avec `target="_blank"`
+- Ouverture dans un nouvel onglet du navigateur
+- Perte du contexte de l'application
+
+**Après** :
+- Tous les liens "👁️ Lire" utilisent maintenant `href="/lecteur/..."`
+- Suppression de `target="_blank"` sur tous les boutons de lecture
+- Fichiers affichés dans le lecteur intégré avec navigation fluide
+- Support multi-formats : PDF, Word, images, vidéos, PowerPoint
+
+**Modifications appliquées** :
+- **Dashboard Étudiant** : 3 sections modifiées (Cours, Exercices, Solutions)
+- **Dashboard Professeur** : Section "Fichiers existants" dans le modal de modification
+- **Page Chapitre** : 3 onglets modifiés (Cours, Exercices, Solutions)
+
+**Impact** :
+- ✅ Expérience utilisateur fluide sans sortir de l'application
+- ✅ Lecteur multi-formats sécurisé avec API DOM
+- ✅ Navigation cohérente sur ordinateur et mobile
+- ✅ Boutons "⬇️ Télécharger" toujours fonctionnels pour sauvegarder les fichiers
+
+**Fichiers modifiés** : `templates/dashboard_etudiant.html`, `templates/dashboard_prof.html`, `templates/chapitre_detail.html`
+
+---
+
 **4 novembre 2025 - Corrections de sécurité critiques du lecteur de fichiers**
 
 ### Renforcement de la sécurité : Protection contre path traversal et XSS

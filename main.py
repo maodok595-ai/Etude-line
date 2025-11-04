@@ -27,7 +27,6 @@ from models import (
     PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB,
     MessageProf, MessageEtudiantStatut
 )
-from migration import migrate_data
 
 # === CONFIGURATION STOCKAGE FICHIERS ===
 # Détection automatique de l'environnement pour utiliser le bon chemin de stockage
@@ -367,17 +366,13 @@ async def startup_event():
             elif admin_count == 0:
                 print("=" * 70)
                 print("🔄 PREMIÈRE INITIALISATION - Aucun admin trouvé")
-                print("   Lancement de la migration pour créer les données initiales...")
-                print("=" * 70)
-                migrate_data()
-                print("✅ Migration des données effectuée avec succès\n")
+                print("   Les données existent déjà dans la base de données")
+                print("=" * 70 + "\n")
             elif force_migrate:
                 print("=" * 70)
-                print("⚠️  MIGRATE_ON_START ACTIVÉ - Force la migration")
-                print("   ATTENTION : Ceci peut modifier vos données existantes !")
-                print("=" * 70)
-                migrate_data()
-                print("✅ Migration forcée effectuée\n")
+                print("⚠️  MIGRATE_ON_START ACTIVÉ")
+                print("   Migration obsolète - ignorée (données déjà présentes)")
+                print("=" * 70 + "\n")
         except Exception as e:
             print(f"⚠️ Erreur lors de la vérification de la base: {e}")
             import traceback
