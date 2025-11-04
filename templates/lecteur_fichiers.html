@@ -13,24 +13,30 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ffffff;
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 24px;
+            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -38,6 +44,7 @@
             gap: 16px;
             position: relative;
             z-index: 100;
+            flex-shrink: 0;
         }
 
         .header h1 {
@@ -73,8 +80,9 @@
 
         .file-info {
             background: #f8f9fa;
-            padding: 20px 24px;
+            padding: 12px 24px;
             border-bottom: 1px solid #e9ecef;
+            flex-shrink: 0;
         }
 
         .file-info-grid {
@@ -104,11 +112,14 @@
         }
 
         .viewer-container {
-            padding: 24px;
-            min-height: 400px;
-            max-height: calc(100vh - 300px);
+            padding: 0;
+            flex: 1;
+            min-height: 0;
+            height: 100%;
             overflow-y: auto;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .loading {
@@ -147,6 +158,10 @@
             flex-direction: column;
             align-items: center;
             gap: 16px;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .pdf-controls {
@@ -192,10 +207,12 @@
             align-items: center;
             gap: 20px;
             width: 100%;
+            padding: 20px;
         }
 
         .pdf-scroll-container canvas {
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 1000px;
             width: 100% !important;
             height: auto !important;
             display: block;
@@ -204,10 +221,12 @@
         .docx-content {
             background: white;
             padding: 40px;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             line-height: 1.6;
             font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .docx-content h1 { font-size: 28px; margin: 24px 0 16px; }
@@ -222,17 +241,19 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            padding: 20px;
+            height: 100%;
+            padding: 0;
+            background: #000;
         }
 
         .image-viewer img {
             max-width: 100%;
-            max-height: 80vh;
+            max-height: 100%;
             width: auto;
             height: auto;
             object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0;
+            box-shadow: none;
         }
 
         .video-viewer {
@@ -240,25 +261,28 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            padding: 20px;
+            height: 100%;
+            padding: 0;
+            background: #000;
         }
 
         .video-viewer video {
             max-width: 100%;
-            max-height: 80vh;
+            max-height: 100%;
             width: auto;
             height: auto;
             object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0;
+            box-shadow: none;
         }
 
         .pptx-viewer iframe {
             width: 100%;
+            height: 100%;
             min-height: 600px;
             border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0;
+            box-shadow: none;
         }
 
         @media (max-width: 768px) {
@@ -559,7 +583,7 @@
 
                 async function renderPage(num) {
                     const page = await pdf.getPage(num);
-                    const viewport = page.getViewport({ scale: 1.5 });
+                    const viewport = page.getViewport({ scale: 2.0 });
 
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
