@@ -3255,11 +3255,12 @@
                     const messageCard = document.createElement('div');
                     messageCard.style.cssText = 'background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #3b82f6;';
                     
-                    // Déterminer si c'est un message vocal
-                    const isVoiceMessage = message.audio_file && message.audio_file.trim() !== '';
+                    // Déterminer si c'est un message vocal (validation robuste)
+                    const isVoiceMessage = message.audio_file && typeof message.audio_file === 'string' && message.audio_file.trim() !== '' && message.audio_file !== 'null';
                     
                     let contentHtml;
                     if (isVoiceMessage) {
+                        // Message vocal : afficher SEULEMENT le lecteur audio
                         contentHtml = `
                             <div style="background: #f0fdf4; padding: 0.875rem; border-radius: 6px; border: 2px solid #10b981;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -3277,9 +3278,11 @@
                             </div>
                         `;
                     } else {
+                        // Message texte normal (avec échappement HTML pour sécurité)
+                        const safeContent = (message.contenu || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
                         contentHtml = `
                             <div style="background: white; padding: 0.875rem; border-radius: 6px; color: #374151; line-height: 1.5;">
-                                ${message.contenu.replace(/\n/g, '<br>')}
+                                ${safeContent || '<em>Aucun contenu</em>'}
                             </div>
                         `;
                     }

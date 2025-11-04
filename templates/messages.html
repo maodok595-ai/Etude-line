@@ -448,6 +448,32 @@
                 
                 if (data.messages && data.messages.length > 0) {
                     container.innerHTML = data.messages.map(msg => {
+                        // Déterminer si c'est un message vocal
+                        const isVoiceMessage = msg.audio_file && typeof msg.audio_file === 'string' && msg.audio_file.trim() !== '' && msg.audio_file !== 'null';
+                        
+                        // Contenu à afficher
+                        let contentHtml;
+                        if (isVoiceMessage) {
+                            // Message vocal : afficher SEULEMENT le lecteur audio
+                            contentHtml = `
+                                <div style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 2px solid #10b981; margin: 0.5rem 0;">
+                                    <div style="font-size: 1.5rem;">🎙️</div>
+                                    <div style="flex: 1;">
+                                        <div style="color: #059669; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">Message vocal</div>
+                                        <audio controls style="width: 100%; max-width: 400px;" preload="metadata">
+                                            <source src="/audio/${msg.audio_file}" type="audio/webm">
+                                            <source src="/audio/${msg.audio_file}" type="audio/mp4">
+                                            <source src="/audio/${msg.audio_file}" type="audio/ogg">
+                                        </audio>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Message texte normal
+                            const safeContent = (msg.contenu || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            contentHtml = `<p style="color: #6b7280; margin: 0.5rem 0 0 0; white-space: pre-wrap;">${safeContent || '<em>Aucun contenu</em>'}</p>`;
+                        }
+                        
                         return `
                             <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid #10b981;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
@@ -457,8 +483,7 @@
                                         <button onclick="supprimerMessage(${msg.id})" style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🗑️</button>
                                     </div>
                                 </div>
-                                <p style="color: #6b7280; margin: 0.5rem 0 0 0;">${msg.contenu || '<em>Message vocal</em>'}</p>
-                                ${msg.audio_file ? `<audio controls style="width: 100%; margin-top: 0.5rem;"><source src="/audio/${msg.audio_file}" type="audio/webm"></audio>` : ''}
+                                ${contentHtml}
                                 <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #6b7280;">
                                     📊 ${msg.nb_lus}/${msg.total_destinataires} lu(s)
                                 </div>

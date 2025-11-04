@@ -242,11 +242,12 @@
             
             messagesList.innerHTML = currentMessages.map(msg => {
                 // Déterminer si c'est un message vocal ou texte
-                const isVoiceMessage = msg.audio_file && msg.audio_file.trim() !== '';
+                // Vérifier si audio_file existe et n'est pas vide/null
+                const isVoiceMessage = msg.audio_file && typeof msg.audio_file === 'string' && msg.audio_file.trim() !== '' && msg.audio_file !== 'null';
                 
                 let contentHtml;
                 if (isVoiceMessage) {
-                    // Message vocal : afficher le lecteur audio
+                    // Message vocal : afficher SEULEMENT le lecteur audio (ignorer le contenu texte)
                     contentHtml = `
                         <div style="margin: 0.5rem 0 0 0;">
                             <div style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 2px solid #10b981;">
@@ -265,7 +266,9 @@
                     `;
                 } else {
                     // Message texte normal
-                    contentHtml = `<p style="margin: 0.5rem 0 0 0; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${msg.contenu}</p>`;
+                    // Échapper le HTML pour éviter les injections
+                    const safeContent = (msg.contenu || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    contentHtml = `<p style="margin: 0.5rem 0 0 0; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${safeContent}</p>`;
                 }
                 
                 return `
