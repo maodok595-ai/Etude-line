@@ -3878,11 +3878,11 @@ async def send_message_to_students(
         if niveau:
             query = query.filter_by(niveau=niveau)
         
-        # Get matching students
-        etudiants = query.all()
+        # Get matching students IDs only (optimisation: ne charge pas tous les attributs)
+        etudiant_ids = [etudiant_id for etudiant_id, in query.with_entities(EtudiantDB.id).all()]
         
-        if not etudiants:
-            return RedirectResponse("/dashboard/prof?error=Aucun étudiant trouvé avec ces critères", status_code=303)
+        if not etudiant_ids:
+            return RedirectResponse("/messages?error=Aucun étudiant trouvé avec ces critères", status_code=303)
         
         # Create the message
         message = MessageProf(
@@ -3898,19 +3898,21 @@ async def send_message_to_students(
         db.add(message)
         db.flush()
         
-        # Create status entries for each student
-        for etudiant in etudiants:
-            statut = MessageEtudiantStatut(
-                message_id=message.id,
-                etudiant_id=etudiant.id,
-                lu=False,
-                supprime=False
-            )
-            db.add(statut)
+        # OPTIMISATION: Bulk insert des statuts (1 seule requête au lieu de 12,000)
+        statuts_data = [
+            {
+                'message_id': message.id,
+                'etudiant_id': etudiant_id,
+                'lu': False,
+                'supprime': False
+            }
+            for etudiant_id in etudiant_ids
+        ]
+        db.bulk_insert_mappings(MessageEtudiantStatut, statuts_data)
         
         db.commit()
         
-        success_msg = f"✉️ Message envoyé à {len(etudiants)} étudiant(s)"
+        success_msg = f"✉️ Message envoyé à {len(etudiant_ids)} étudiant(s)"
         return RedirectResponse(f"/messages?success={success_msg}", status_code=303)
     
     except Exception as e:
@@ -3969,10 +3971,10 @@ async def send_voice_message_to_students(
         if niveau:
             query = query.filter_by(niveau=niveau)
         
-        # Get matching students
-        etudiants = query.all()
+        # Get matching students IDs only (optimisation: ne charge pas tous les attributs)
+        etudiant_ids = [etudiant_id for etudiant_id, in query.with_entities(EtudiantDB.id).all()]
         
-        if not etudiants:
+        if not etudiant_ids:
             # Delete the audio file if no students found
             audio_path.unlink(missing_ok=True)
             return Response("/messages?error=Aucun étudiant trouvé avec ces critères", status_code=200)
@@ -3992,19 +3994,21 @@ async def send_voice_message_to_students(
         db.add(message)
         db.flush()
         
-        # Create status entries for each student
-        for etudiant in etudiants:
-            statut = MessageEtudiantStatut(
-                message_id=message.id,
-                etudiant_id=etudiant.id,
-                lu=False,
-                supprime=False
-            )
-            db.add(statut)
+        # OPTIMISATION: Bulk insert des statuts (1 seule requête au lieu de 12,000)
+        statuts_data = [
+            {
+                'message_id': message.id,
+                'etudiant_id': etudiant_id,
+                'lu': False,
+                'supprime': False
+            }
+            for etudiant_id in etudiant_ids
+        ]
+        db.bulk_insert_mappings(MessageEtudiantStatut, statuts_data)
         
         db.commit()
         
-        success_msg = f"🎙️ Message vocal envoyé à {len(etudiants)} étudiant(s)"
+        success_msg = f"🎙️ Message vocal envoyé à {len(etudiant_ids)} étudiant(s)"
         return Response(f"/messages?success={success_msg}", status_code=200)
     
     except Exception as e:
