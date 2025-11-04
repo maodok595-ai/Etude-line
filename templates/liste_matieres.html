@@ -165,7 +165,7 @@
                     
                     {% if matieres_universite|length > 0 %}
                         <div style="margin-bottom: 2.5rem;">
-                            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1rem 1.5rem; font-weight: 700; font-size: 1.1rem; border-radius: 12px 12px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;" onclick="toggleUniversite('uni-{{ universite.id }}')">
+                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1rem 1.5rem; font-weight: 700; font-size: 1.1rem; border-radius: 12px 12px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;" onclick="toggleUniversite('uni-{{ universite.id }}')">
                                 <span id="arrow-uni-{{ universite.id }}" style="font-size: 1.2rem; transition: transform 0.3s; margin-right: 0.5rem;">►</span>
                                 <span>🏛️ {{ universite.nom }} ({{ matieres_universite|length }} matière{{ 's' if matieres_universite|length > 1 else '' }})</span>
                             </div>
@@ -215,13 +215,7 @@
                                                                     
                                                                     {% if matieres_niveau|length > 0 %}
                                                                         <div style="border-bottom: 1px solid #e0e0e0;">
-                                                                            <div style="background: linear-gradient(135deg, 
-                                                                                {% if niveau == 'L1' %}#7C3AED, #7C3AED
-                                                                                {% elif niveau == 'L2' %}#7C3AED, #7C3AED
-                                                                                {% elif niveau == 'L3' %}#7C3AED, #7C3AED
-                                                                                {% elif niveau == 'M1' %}#7C3AED, #7C3AED
-                                                                                {% elif niveau == 'M2' %}#7C3AED, #7C3AED
-                                                                                {% endif %}); 
+                                                                            <div style="background: linear-gradient(135deg, #7C3AED, #7C3AED); 
                                                                                 padding: 0.6rem 1.5rem; font-weight: 600; color: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;"
                                                                                 onclick="toggleNiveauMatieres('{{ universite.id }}_{{ ufr.id }}_{{ filiere.id }}_{{ niveau }}')">
                                                                                 <span>
