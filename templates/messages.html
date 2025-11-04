@@ -452,7 +452,10 @@
                             <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid #10b981;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
                                     <span style="font-weight: 600; color: #374151;">📬 ${msg.ciblage || 'Tous les étudiants'}</span>
-                                    <span style="font-size: 0.85rem; color: #6b7280;">${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
+                                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                        <span style="font-size: 0.85rem; color: #6b7280;">${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
+                                        <button onclick="supprimerMessage(${msg.id})" style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🗑️</button>
+                                    </div>
                                 </div>
                                 <p style="color: #6b7280; margin: 0.5rem 0 0 0;">${msg.contenu || '<em>Message vocal</em>'}</p>
                                 ${msg.audio_file ? `<audio controls style="width: 100%; margin-top: 0.5rem;"><source src="/audio/${msg.audio_file}" type="audio/webm"></audio>` : ''}
@@ -468,6 +471,30 @@
             } catch (error) {
                 console.error('Erreur:', error);
                 document.getElementById('historique-messages-list').innerHTML = '<p style="text-align: center; color: #ef4444;">Erreur lors du chargement de l\'historique.</p>';
+            }
+        }
+        
+        // Supprimer un message
+        async function supprimerMessage(messageId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible et le message sera supprimé pour tous les étudiants.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/prof/messages/${messageId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Recharger l'historique pour refléter la suppression
+                    chargerHistoriqueMessages();
+                } else {
+                    const error = await response.json();
+                    alert('Erreur lors de la suppression: ' + (error.detail || 'Erreur inconnue'));
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression du message');
             }
         }
         
