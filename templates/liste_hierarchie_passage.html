@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiérarchie de Passage - Étude LINE</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #f8fafc;
+            --accent: #6366f1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .back-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .container {
+            max-width: min(1400px, 95%);
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .passage-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .passage-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .passage-flow {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .passage-from, .passage-to {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .passage-from {
+            background: #fff3e0;
+            border: 2px solid #f57c00;
+        }
+        
+        .passage-to {
+            background: #e8f5e9;
+            border: 2px solid #388e3c;
+        }
+        
+        .passage-arrow {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .passage-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .passage-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .passage-details {
+            color: var(--text-secondary);
+            margin: 0.3rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .meta-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🎓 Hiérarchie de Passage</h1>
+        <a href="/dashboard/admin" class="back-btn">← Retour au Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>🎓 Hiérarchie de Passage</h2>
+            <p>Règles de progression entre les niveaux et filières ({{ passages|length }} règles au total)</p>
+        </div>
+        
+        <input type="search" id="search-passage" class="search-input" placeholder="🔍 Rechercher une règle de passage..." onkeyup="searchPassage()">
+        
+        <div id="passage-items">
+            {% if passages %}
+                {% for passage in passages %}
+                <div class="passage-item">
+                    <div class="passage-flow">
+                        <div class="passage-from">
+                            <div class="passage-label">Départ</div>
+                            <div class="passage-value">
+                                {% for filiere in filieres %}
+                                    {% if filiere.id == passage.filiere_depart_id %}
+                                        {{ filiere.nom }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="passage-details">Niveau: {{ passage.niveau_depart }}</div>
+                        </div>
+                        
+                        <div class="passage-arrow">→</div>
+                        
+                        <div class="passage-to">
+                            <div class="passage-label">Arrivée</div>
+                            <div class="passage-value">
+                                {% for filiere in filieres %}
+                                    {% if filiere.id == passage.filiere_arrivee_id %}
+                                        {{ filiere.nom }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="passage-details">Niveau: {{ passage.niveau_arrivee }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="passage-details">
+                        <strong>Université:</strong> 
+                        {% for uni in universites %}
+                            {% if uni.id == passage.universite_id %}
+                                {{ uni.nom }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    {% if passage.condition_moyenne %}
+                    <div class="passage-details">
+                        <strong>Condition:</strong> Moyenne minimale de {{ passage.condition_moyenne }}
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <span class="meta-tag" style="background: #e3f2fd; color: #1976d2;">🎓 Règle de passage</span>
+                        <span class="meta-tag" style="background: #fff3e0; color: #f57c00;">{{ passage.niveau_depart }} → {{ passage.niveau_arrivee }}</span>
+                        {% if passage.automatique %}
+                        <span class="meta-tag" style="background: #28a745; color: white;">✓ Automatique</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>🎓 Aucune règle de passage</h3>
+                    <p>Aucune règle de passage n'a été créée.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function searchPassage() {
+            const input = document.getElementById('search-passage');
+            const filter = input.value.toLowerCase();
+            const items = document.getElementById('passage-items').getElementsByClassName('passage-item');
+            
+            for (let item of items) {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(filter) ? '' : 'none';
+            }
+        }
+    </script>
+</body>
+</html>

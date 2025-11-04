@@ -2242,6 +2242,272 @@ async def dashboard_admin(request: Request, admin_data: tuple = Depends(require_
         "admin_universite": admin_universite
     })
 
+# Routes pour afficher les listes en pages complètes
+
+@app.get("/admin/liste-administrateurs", response_class=HTMLResponse)
+async def liste_administrateurs(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des administrateurs"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        admins = db.query(AdministrateurDB).all()
+    else:
+        admins = db.query(AdministrateurDB).filter(
+            (AdministrateurDB.universite_id == admin_universite_id) | (AdministrateurDB.is_main_admin == True)
+        ).all()
+    
+    admins_data = [{
+        "id": admin.id,
+        "username": admin.username,
+        "nom": admin.nom,
+        "prenom": admin.prenom,
+        "is_main_admin": admin.is_main_admin,
+        "actif": admin.actif,
+        "universite_id": admin.universite_id
+    } for admin in admins]
+    
+    universites = db.query(UniversiteDB).all()
+    
+    return templates.TemplateResponse("liste_administrateurs.html", {
+        "request": request,
+        "admin": admin_user,
+        "admins": admins_data,
+        "universites": universites
+    })
+
+@app.get("/admin/liste-professeurs", response_class=HTMLResponse)
+async def liste_professeurs(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des professeurs"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        profs = db.query(ProfesseurDB).all()
+    else:
+        profs = db.query(ProfesseurDB).filter(ProfesseurDB.universite_id == admin_universite_id).all()
+    
+    from sqlalchemy import text
+    from collections import defaultdict
+    
+    all_prof_ufrs_results = db.execute(text("""
+        SELECT pu.professeur_id, u.id, u.nom 
+        FROM ufrs u
+        INNER JOIN professeur_ufrs pu ON u.id = pu.ufr_id
+    """)).fetchall()
+    prof_ufrs_map = defaultdict(list)
+    for prof_id, ufr_id, ufr_nom in all_prof_ufrs_results:
+        prof_ufrs_map[prof_id].append({"id": ufr_id, "nom": ufr_nom})
+    
+    all_prof_filieres_results = db.execute(text("""
+        SELECT pf.professeur_id, f.id, f.nom 
+        FROM filieres f
+        INNER JOIN professeur_filieres pf ON f.id = pf.filiere_id
+    """)).fetchall()
+    prof_filieres_map = defaultdict(list)
+    for prof_id, filiere_id, filiere_nom in all_prof_filieres_results:
+        prof_filieres_map[prof_id].append({"id": filiere_id, "nom": filiere_nom})
+    
+    all_ufrs_lookup = {u.id: u for u in db.query(UFRDB).all()}
+    all_filieres_lookup = {f.id: f for f in db.query(FiliereDB).all()}
+    
+    profs_data = []
+    for prof in profs:
+        ufrs = prof_ufrs_map.get(prof.id, [])
+        filieres = prof_filieres_map.get(prof.id, [])
+        
+        if not ufrs and prof.ufr_id and prof.ufr_id in all_ufrs_lookup:
+            ufr = all_ufrs_lookup[prof.ufr_id]
+            ufrs = [{"id": ufr.id, "nom": ufr.nom}]
+        
+        if not filieres and prof.filiere_id and prof.filiere_id in all_filieres_lookup:
+            filiere = all_filieres_lookup[prof.filiere_id]
+            filieres = [{"id": filiere.id, "nom": filiere.nom}]
+        
+        profs_data.append({
+            "id": prof.id,
+            "username": prof.username,
+            "nom": prof.nom,
+            "prenom": prof.prenom,
+            "specialite": prof.specialite,
+            "actif": prof.actif,
+            "universite_id": prof.universite_id,
+            "ufrs": ufrs,
+            "filieres": filieres,
+            "ufr_id": prof.ufr_id,
+            "filiere_id": prof.filiere_id,
+            "matiere": prof.matiere
+        })
+    
+    universites = db.query(UniversiteDB).all()
+    
+    return templates.TemplateResponse("liste_professeurs.html", {
+        "request": request,
+        "admin": admin_user,
+        "profs": profs_data,
+        "universites": universites
+    })
+
+@app.get("/admin/liste-etudiants", response_class=HTMLResponse)
+async def liste_etudiants(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des étudiants"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        etudiants = db.query(EtudiantDB).all()
+    else:
+        etudiants = db.query(EtudiantDB).filter(EtudiantDB.universite_id == admin_universite_id).all()
+    
+    all_universites = {u.id: u for u in db.query(UniversiteDB).all()}
+    all_ufrs = {u.id: u for u in db.query(UFRDB).all()}
+    all_filieres = {f.id: f for f in db.query(FiliereDB).all()}
+    
+    etudiants_data = []
+    for etud in etudiants:
+        universite = all_universites.get(etud.universite_id)
+        ufr = all_ufrs.get(etud.ufr_id)
+        filiere = all_filieres.get(etud.filiere_id)
+        
+        etudiants_data.append({
+            "id": etud.id,
+            "username": etud.username,
+            "nom": etud.nom,
+            "prenom": etud.prenom,
+            "niveau": etud.niveau,
+            "filiere_id": etud.filiere_id,
+            "universite_id": etud.universite_id,
+            "ufr_id": etud.ufr_id,
+            "created_at": etud.created_at,
+            "universite_nom": universite.nom if universite else "N/A",
+            "ufr_nom": ufr.nom if ufr else "N/A",
+            "filiere_nom": filiere.nom if filiere else "N/A"
+        })
+    
+    return templates.TemplateResponse("liste_etudiants.html", {
+        "request": request,
+        "admin": admin_user,
+        "etudiants": etudiants_data
+    })
+
+@app.get("/admin/liste-universites", response_class=HTMLResponse)
+async def liste_universites(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des universités"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        universites = get_universites(db)
+    else:
+        universites = db.query(UniversiteDB).filter(UniversiteDB.id == admin_universite_id).all()
+    
+    return templates.TemplateResponse("liste_universites.html", {
+        "request": request,
+        "admin": admin_user,
+        "universites": universites
+    })
+
+@app.get("/admin/liste-ufrs", response_class=HTMLResponse)
+async def liste_ufrs(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des UFRs"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        ufrs = db.query(UFRDB).all()
+    else:
+        ufrs = db.query(UFRDB).filter(UFRDB.universite_id == admin_universite_id).all()
+    
+    universites = db.query(UniversiteDB).all()
+    
+    return templates.TemplateResponse("liste_ufrs.html", {
+        "request": request,
+        "admin": admin_user,
+        "ufrs": ufrs,
+        "universites": universites
+    })
+
+@app.get("/admin/liste-filieres", response_class=HTMLResponse)
+async def liste_filieres(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des filières"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        filieres = db.query(FiliereDB).all()
+        ufrs = db.query(UFRDB).all()
+    else:
+        ufrs = db.query(UFRDB).filter(UFRDB.universite_id == admin_universite_id).all()
+        ufr_ids = [ufr.id for ufr in ufrs]
+        filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all() if ufr_ids else []
+    
+    return templates.TemplateResponse("liste_filieres.html", {
+        "request": request,
+        "admin": admin_user,
+        "filieres": filieres,
+        "ufrs": ufrs
+    })
+
+@app.get("/admin/liste-matieres", response_class=HTMLResponse)
+async def liste_matieres(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la liste des matières"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    if is_main_admin:
+        matieres = db.query(MatiereDB).all()
+        filieres = db.query(FiliereDB).all()
+    else:
+        ufrs = db.query(UFRDB).filter(UFRDB.universite_id == admin_universite_id).all()
+        ufr_ids = [ufr.id for ufr in ufrs]
+        filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all() if ufr_ids else []
+        filiere_ids = [fil.id for fil in filieres]
+        matieres = db.query(MatiereDB).filter(MatiereDB.filiere_id.in_(filiere_ids)).all() if filiere_ids else []
+    
+    return templates.TemplateResponse("liste_matieres.html", {
+        "request": request,
+        "admin": admin_user,
+        "matieres": matieres,
+        "filieres": filieres
+    })
+
+@app.get("/admin/liste-hierarchie-passage", response_class=HTMLResponse)
+async def liste_hierarchie_passage(request: Request, admin_data: tuple = Depends(require_admin), db: Session = Depends(get_db)):
+    """Page complète de la hiérarchie de passage"""
+    admin_username, admin_user = admin_data
+    is_main_admin = admin_user.get("is_main_admin", False)
+    admin_universite_id = admin_user.get("universite_id")
+    
+    query = db.query(PassageHierarchyDB)
+    
+    if not is_main_admin and admin_universite_id:
+        query = query.filter(PassageHierarchyDB.universite_id == admin_universite_id)
+    
+    passages = query.all()
+    
+    universites = db.query(UniversiteDB).all()
+    if is_main_admin:
+        filieres = db.query(FiliereDB).all()
+    else:
+        ufrs = db.query(UFRDB).filter(UFRDB.universite_id == admin_universite_id).all()
+        ufr_ids = [ufr.id for ufr in ufrs]
+        filieres = db.query(FiliereDB).filter(FiliereDB.ufr_id.in_(ufr_ids)).all() if ufr_ids else []
+    
+    return templates.TemplateResponse("liste_hierarchie_passage.html", {
+        "request": request,
+        "admin": admin_user,
+        "passages": passages,
+        "universites": universites,
+        "filieres": filieres
+    })
+
 @app.post("/admin/create-admin")
 async def admin_create_admin(
     request: Request,
