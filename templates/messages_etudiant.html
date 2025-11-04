@@ -247,14 +247,13 @@
                 
                 let contentHtml;
                 if (isVoiceMessage) {
-                    // Message vocal : afficher SEULEMENT le lecteur audio (ignorer le contenu texte)
+                    // Message vocal : afficher SEULEMENT le lecteur audio compact (ignorer le contenu texte)
                     contentHtml = `
                         <div style="margin: 0.5rem 0 0 0;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 2px solid #10b981;">
-                                <div style="font-size: 2rem;">🎙️</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; background: #f0fdf4; padding: 0.6rem 0.75rem; border-radius: 8px; border: 1.5px solid #10b981;">
+                                <div style="font-size: 1.3rem; line-height: 1;">🎵</div>
                                 <div style="flex: 1;">
-                                    <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">Message vocal</div>
-                                    <audio controls style="width: 100%; max-width: 500px;" preload="metadata">
+                                    <audio controls style="width: 100%; height: 32px;" preload="metadata">
                                         <source src="/audio/${msg.audio_file}" type="audio/webm">
                                         <source src="/audio/${msg.audio_file}" type="audio/mp4">
                                         <source src="/audio/${msg.audio_file}" type="audio/ogg">
