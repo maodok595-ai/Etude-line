@@ -1387,28 +1387,19 @@
                     <img src="/static/campus-background.png" alt="Campus universitaire moderne" class="campus-hero-img" style="width: 100%; height: 250px; object-fit: cover; display: block;">
                 </div>
             {% else %}
-                <!-- Admin Secondaire : Image de campus avec logo -->
-                <div style="margin: -1.5rem -1.5rem 0 -1.5rem; border-radius: 12px 12px 0 0; overflow: hidden; position: relative;">
-                    <!-- Image de campus en arrière-plan -->
-                    <div style="position: relative; background-image: url('/static/campus-background.png'); background-size: cover; background-position: center; height: 400px;">
-                        <!-- Overlay sombre pour meilleure lisibilité -->
-                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);"></div>
-                        
-                        <!-- Contenu par-dessus l'image -->
-                        <div class="university-welcome" style="position: relative; z-index: 2; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                            <h2 class="university-name" style="color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); margin-bottom: 1.5rem; font-size: 1.8rem;">
-                                BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
-                            </h2>
-                            {% if admin_universite and admin_universite.logo_url %}
-                                <div style="display: inline-block; padding: 15px; background: rgba(255, 255, 255, 0.95); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); margin-bottom: 1.5rem;">
-                                    <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo" style="width: 120px; height: 120px;">
-                                </div>
-                            {% endif %}
-                            <div class="user-info-box" style="background: rgba(255, 255, 255, 0.95); padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3); text-align: center; max-width: 500px;">
-                                <p style="color: #333; font-size: 1rem; margin-bottom: 0.5rem;"><strong>Prénom et nom :</strong> {{ admin.prenom|upper }} {{ admin.nom|upper }}</p>
-                                <p style="color: #7C3AED; font-weight: 600; font-size: 1rem; margin: 0;"><strong>Rôle :</strong> Administrateur de l'{{ admin_universite.nom if admin_universite else "Université inconnue" }}</p>
-                            </div>
+                <!-- Admin Secondaire : Logo + Nom université -->
+                <div class="university-welcome">
+                    <h2 class="university-name">
+                        BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
+                    </h2>
+                    {% if admin_universite and admin_universite.logo_url %}
+                        <div style="display: inline-block; padding: 10px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.2)); border-radius: 18px; box-shadow: 0 8px 24px rgba(156, 39, 176, 0.5), 0 0 0 4px rgba(255, 255, 255, 0.1); margin: 0.2rem auto 0;">
+                            <img src="{{ admin_universite.logo_url }}" alt="Logo {{ admin_universite.nom }}" class="university-logo">
                         </div>
+                    {% endif %}
+                    <div class="user-info-box">
+                        <p><strong>Prénom et nom :</strong> {{ admin.prenom|upper }} {{ admin.nom|upper }}</p>
+                        <p><strong>Rôle :</strong> Administrateur de l'{{ admin_universite.nom if admin_universite else "Université inconnue" }}</p>
                     </div>
                 </div>
             {% endif %}
