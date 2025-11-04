@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecteur de Fichiers - Étude LINE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .file-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .viewer-container {
+            padding: 24px;
+            min-height: 600px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9ecef;
+            border-top-color: #764ba2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .pdf-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pdf-controls {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pdf-controls button {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-controls button:hover:not(:disabled) {
+            background: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .pdf-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pdf-page {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 16px 0;
+        }
+
+        .docx-content {
+            background: white;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .docx-content h1 { font-size: 28px; margin: 24px 0 16px; }
+        .docx-content h2 { font-size: 24px; margin: 20px 0 12px; }
+        .docx-content h3 { font-size: 20px; margin: 16px 0 10px; }
+        .docx-content p { margin: 12px 0; }
+        .docx-content ul, .docx-content ol { margin: 12px 0; padding-left: 40px; }
+        .docx-content li { margin: 6px 0; }
+
+        .image-viewer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-viewer img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .video-viewer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-viewer video {
+            max-width: 100%;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pptx-viewer iframe {
+            width: 100%;
+            min-height: 600px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .viewer-container {
+                padding: 16px;
+            }
+
+            .docx-content {
+                padding: 20px;
+            }
+
+            .pdf-controls {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Lecteur de Fichiers</h1>
+            <a href="{{ request.url_for('dashboard_etudiant') }}" class="back-button">
+                ← Retour
+            </a>
+        </div>
+
+        <div class="file-info">
+            <div class="file-info-grid">
+                <div class="info-item">
+                    <span class="info-label">Nom du fichier</span>
+                    <span class="info-value" id="file-name">Chargement...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Type de fichier</span>
+                    <span class="info-value" id="file-type">Détection...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Statut</span>
+                    <span class="info-value" id="file-status">En cours...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewer-container" id="viewer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement du fichier...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.8/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+
+    <script>
+        const fileUrl = {{ file_url|tojson }};
+        const fileName = {{ file_name|tojson }};
+        const viewerContainer = document.getElementById('viewer');
+
+        document.getElementById('file-name').textContent = fileName;
+
+        const fileExtension = fileName.split('.').pop().toLowerCase();
+        let fileTypeLabel = 'Inconnu';
+
+        if (['pdf'].includes(fileExtension)) fileTypeLabel = 'PDF';
+        else if (['doc', 'docx'].includes(fileExtension)) fileTypeLabel = 'Word';
+        else if (['ppt', 'pptx'].includes(fileExtension)) fileTypeLabel = 'PowerPoint';
+        else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileExtension)) fileTypeLabel = 'Image';
+        else if (['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension)) fileTypeLabel = 'Vidéo';
+
+        document.getElementById('file-type').textContent = fileTypeLabel;
+
+        async function loadFile() {
+            try {
+                if (fileExtension === 'pdf') {
+                    await loadPDF();
+                } else if (['doc', 'docx'].includes(fileExtension)) {
+                    await loadDOCX();
+                } else if (['ppt', 'pptx'].includes(fileExtension)) {
+                    loadPPTX();
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileExtension)) {
+                    loadImage();
+                } else if (['mp4', 'webm', 'ogg', 'mov'].includes(fileExtension)) {
+                    loadVideo();
+                } else {
+                    showError('Type de fichier non supporté');
+                }
+            } catch (error) {
+                console.error('Erreur de chargement:', error);
+                showError('Erreur lors du chargement du fichier: ' + error.message);
+            }
+        }
+
+        async function loadPDF() {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            const pdf = await pdfjsLib.getDocument(fileUrl).promise;
+            const numPages = pdf.numPages;
+
+            viewerContainer.innerHTML = `
+                <div class="pdf-container">
+                    <div class="pdf-controls">
+                        <button onclick="previousPage()" id="prev-btn">← Page précédente</button>
+                        <span>Page <span id="page-num">1</span> / <span id="page-count">${numPages}</span></span>
+                        <button onclick="nextPage()" id="next-btn">Page suivante →</button>
+                    </div>
+                    <canvas id="pdf-canvas" class="pdf-page"></canvas>
+                </div>
+            `;
+
+            let currentPage = 1;
+            const canvas = document.getElementById('pdf-canvas');
+            const ctx = canvas.getContext('2d');
+
+            async function renderPage(num) {
+                const page = await pdf.getPage(num);
+                const viewport = page.getViewport({ scale: 1.5 });
+
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                }).promise;
+
+                document.getElementById('page-num').textContent = num;
+                document.getElementById('prev-btn').disabled = num <= 1;
+                document.getElementById('next-btn').disabled = num >= numPages;
+            }
+
+            window.previousPage = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            };
+
+            window.nextPage = () => {
+                if (currentPage < numPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            };
+
+            await renderPage(1);
+            document.getElementById('file-status').textContent = '✅ Chargé';
+        }
+
+        async function loadDOCX() {
+            const response = await fetch(fileUrl);
+            const arrayBuffer = await response.arrayBuffer();
+
+            const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+            const cleanHtml = DOMPurify.sanitize(result.value);
+
+            viewerContainer.innerHTML = `
+                <div class="docx-content">
+                    ${cleanHtml}
+                </div>
+            `;
+
+            document.getElementById('file-status').textContent = '✅ Chargé';
+        }
+
+        function loadPPTX() {
+            viewerContainer.innerHTML = '';
+            
+            const mainDiv = document.createElement('div');
+            mainDiv.className = 'pptx-viewer';
+            mainDiv.style.cssText = 'text-align: center; padding: 60px 20px;';
+            
+            const innerDiv = document.createElement('div');
+            innerDiv.style.cssText = 'background: #f8f9fa; border-radius: 12px; padding: 40px; max-width: 600px; margin: 0 auto;';
+            
+            const icon = document.createElement('div');
+            icon.style.cssText = 'font-size: 64px; margin-bottom: 20px;';
+            icon.textContent = '📊';
+            
+            const title = document.createElement('h2');
+            title.style.cssText = 'color: #764ba2; margin-bottom: 16px;';
+            title.textContent = 'Fichier PowerPoint';
+            
+            const message = document.createElement('p');
+            message.style.cssText = 'color: #6c757d; margin-bottom: 24px; line-height: 1.6;';
+            message.innerHTML = 'L\'affichage des présentations PowerPoint n\'est pas disponible dans le navigateur.<br>Veuillez télécharger le fichier pour le consulter.';
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.setAttribute('href', '/files/download/' + fileUrl.replace('/uploads/', ''));
+            downloadLink.style.cssText = 'display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;';
+            downloadLink.textContent = '⬇️ Télécharger le fichier';
+            downloadLink.onmouseover = function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 16px rgba(118, 75, 162, 0.3)';
+            };
+            downloadLink.onmouseout = function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            };
+            
+            innerDiv.appendChild(icon);
+            innerDiv.appendChild(title);
+            innerDiv.appendChild(message);
+            innerDiv.appendChild(downloadLink);
+            mainDiv.appendChild(innerDiv);
+            viewerContainer.appendChild(mainDiv);
+            
+            document.getElementById('file-status').textContent = '📥 Téléchargement disponible';
+        }
+
+        function loadImage() {
+            viewerContainer.innerHTML = '';
+            
+            const container = document.createElement('div');
+            container.className = 'image-viewer';
+            
+            const img = document.createElement('img');
+            img.setAttribute('src', fileUrl);
+            img.setAttribute('alt', fileName);
+            img.onload = () => {
+                document.getElementById('file-status').textContent = '✅ Chargé';
+            };
+            img.onerror = () => {
+                showError('Impossible de charger l\'image');
+            };
+            
+            container.appendChild(img);
+            viewerContainer.appendChild(container);
+        }
+
+        function loadVideo() {
+            viewerContainer.innerHTML = '';
+            
+            const container = document.createElement('div');
+            container.className = 'video-viewer';
+            
+            const video = document.createElement('video');
+            video.setAttribute('controls', '');
+            video.setAttribute('preload', 'metadata');
+            video.onloadedmetadata = () => {
+                document.getElementById('file-status').textContent = '✅ Chargé';
+            };
+            
+            const source = document.createElement('source');
+            source.setAttribute('src', fileUrl);
+            source.setAttribute('type', 'video/' + fileExtension);
+            
+            video.appendChild(source);
+            video.appendChild(document.createTextNode('Votre navigateur ne supporte pas la lecture vidéo.'));
+            container.appendChild(video);
+            viewerContainer.appendChild(container);
+        }
+
+        function showError(message) {
+            viewerContainer.innerHTML = '';
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            
+            const title = document.createElement('h3');
+            title.textContent = '❌ Erreur';
+            
+            const messageP = document.createElement('p');
+            messageP.textContent = message;
+            
+            errorDiv.appendChild(title);
+            errorDiv.appendChild(messageP);
+            viewerContainer.appendChild(errorDiv);
+            
+            document.getElementById('file-status').textContent = '❌ Erreur';
+        }
+
+        loadFile();
+    </script>
+</body>
+</html>

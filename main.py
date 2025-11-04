@@ -1765,6 +1765,15 @@ async def serve_uploaded_file(file_path: str, request: Request):
     
     file_location = UPLOADS_DIR / file_path
     
+    try:
+        file_location = file_location.resolve()
+        uploads_dir_resolved = UPLOADS_DIR.resolve()
+        
+        if not file_location.is_relative_to(uploads_dir_resolved):
+            raise HTTPException(status_code=403, detail="Accès interdit")
+    except (ValueError, RuntimeError):
+        raise HTTPException(status_code=403, detail="Chemin invalide")
+    
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
@@ -1818,6 +1827,15 @@ async def view_file(file_path: str):
     
     file_location = UPLOADS_DIR / file_path
     
+    try:
+        file_location = file_location.resolve()
+        uploads_dir_resolved = UPLOADS_DIR.resolve()
+        
+        if not file_location.is_relative_to(uploads_dir_resolved):
+            raise HTTPException(status_code=403, detail="Accès interdit")
+    except (ValueError, RuntimeError):
+        raise HTTPException(status_code=403, detail="Chemin invalide")
+    
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
     
@@ -1846,6 +1864,15 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
         file_path = file_path[8:]
     
     file_location = UPLOADS_DIR / file_path
+    
+    try:
+        file_location = file_location.resolve()
+        uploads_dir_resolved = UPLOADS_DIR.resolve()
+        
+        if not file_location.is_relative_to(uploads_dir_resolved):
+            raise HTTPException(status_code=403, detail="Accès interdit")
+    except (ValueError, RuntimeError):
+        raise HTTPException(status_code=403, detail="Chemin invalide")
     
     if not file_location.exists():
         raise HTTPException(status_code=404, detail="Fichier non trouvé")
@@ -1928,6 +1955,79 @@ async def download_file(file_path: str, db: Session = Depends(get_db)):
         headers=headers,
         filename=download_filename
     )
+
+@app.get("/lecteur/{file_path:path}", response_class=HTMLResponse)
+async def lecteur_fichiers(
+    file_path: str,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Lecteur de fichiers multi-formats (PDF, Word, PowerPoint, images, vidéos)"""
+    try:
+        role, username, user_data = require_auth(request, db)
+    except HTTPException:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    if file_path.startswith("uploads/"):
+        file_path = file_path[8:]
+    
+    file_location = UPLOADS_DIR / file_path
+    
+    try:
+        file_location = file_location.resolve()
+        uploads_dir_resolved = UPLOADS_DIR.resolve()
+        
+        if not file_location.is_relative_to(uploads_dir_resolved):
+            raise HTTPException(status_code=403, detail="Accès interdit")
+    except (ValueError, RuntimeError):
+        raise HTTPException(status_code=403, detail="Chemin invalide")
+    
+    if not file_location.exists():
+        raise HTTPException(status_code=404, detail="Fichier non trouvé")
+    
+    file_path_safe = file_location.relative_to(uploads_dir_resolved).as_posix()
+    file_url = f"/uploads/{file_path_safe}"
+    file_name = file_location.name
+    
+    chapitre = db.query(ChapitreCompletDB).filter(
+        (ChapitreCompletDB.cours_fichier_path.like(f"%{str(file_location)}%")) |
+        (ChapitreCompletDB.exercice_fichier_path.like(f"%{str(file_location)}%")) |
+        (ChapitreCompletDB.solution_fichier_path.like(f"%{str(file_location)}%"))
+    ).first()
+    
+    if chapitre:
+        full_path = str(file_location)
+        if chapitre.cours_fichier_path and full_path in chapitre.cours_fichier_path:
+            if chapitre.cours_fichier_nom:
+                paths = chapitre.cours_fichier_path.split("|||")
+                names = chapitre.cours_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        file_name = names[i]
+                        break
+        elif chapitre.exercice_fichier_path and full_path in chapitre.exercice_fichier_path:
+            if chapitre.exercice_fichier_nom:
+                paths = chapitre.exercice_fichier_path.split("|||")
+                names = chapitre.exercice_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        file_name = names[i]
+                        break
+        elif chapitre.solution_fichier_path and full_path in chapitre.solution_fichier_path:
+            if chapitre.solution_fichier_nom:
+                paths = chapitre.solution_fichier_path.split("|||")
+                names = chapitre.solution_fichier_nom.split("|||")
+                for i, path in enumerate(paths):
+                    if full_path in path and i < len(names):
+                        file_name = names[i]
+                        break
+    
+    return templates.TemplateResponse("lecteur_fichiers.html", {
+        "request": request,
+        "file_url": file_url,
+        "file_name": file_name,
+        "user_data": user_data
+    })
 
 @app.get("/dashboard/etudiant", response_class=HTMLResponse)
 async def dashboard_etudiant(request: Request, db: Session = Depends(get_db)):
