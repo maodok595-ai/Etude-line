@@ -2,6 +2,79 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Corrections de sécurité critiques du lecteur de fichiers**
+
+### Renforcement de la sécurité : Protection contre path traversal et XSS
+**Contexte** : Le lecteur de fichiers multi-formats (`/lecteur/`) présentait deux vulnérabilités de sécurité critiques qui ont été identifiées et corrigées.
+
+**Vulnérabilités identifiées** :
+1. **Path Traversal** : Un attaquant pouvait accéder à des fichiers en dehors du dossier `uploads/` en utilisant des chemins comme `../../etc/passwd`
+2. **Stored XSS** : Les noms de fichiers malicieux contenant des scripts pouvaient s'exécuter dans le navigateur (ex: `evil" onerror="alert(1).jpg`)
+
+**Solutions implémentées** :
+
+**1. Protection Path Traversal** ✅ :
+- Ajout de `resolve()` pour normaliser les chemins absolus
+- Vérification `is_relative_to(UPLOADS_DIR)` pour garantir que le fichier est dans le dossier uploads
+- HTTP 403 (Forbidden) pour toute tentative d'accès en dehors du dossier autorisé
+- Protection ajoutée sur **4 routes** :
+  - `/lecteur/{file_path:path}` - Lecteur de fichiers
+  - `/uploads/{file_path:path}` - Service de fichiers
+  - `/files/view/{file_path:path}` - Affichage de fichiers
+  - `/files/download/{file_path:path}` - Téléchargement de fichiers
+
+**Exemple de code de protection** :
+```python
+file_location = file_location.resolve()
+uploads_dir_resolved = UPLOADS_DIR.resolve()
+if not file_location.is_relative_to(uploads_dir_resolved):
+    raise HTTPException(status_code=403, detail="Accès interdit")
+```
+
+**2. Protection XSS** ✅ :
+- **Refactorisation complète** du template `lecteur_fichiers.html` pour utiliser l'API DOM
+- **Suppression totale** de `innerHTML` avec template literals (vulnérable)
+- **Utilisation exclusive** de :
+  - `document.createElement()` pour créer les éléments HTML
+  - `element.setAttribute()` pour définir les attributs de manière sécurisée
+  - `element.textContent` pour insérer du texte sans risque d'injection
+  - `element.appendChild()` pour assembler les éléments
+- **Échappement Jinja2** : Utilisation de `|tojson` pour les variables JavaScript
+
+**Fonctions sécurisées (refactorisées)** :
+- `loadImage()` - Création d'images avec API DOM
+- `loadVideo()` - Création de vidéos avec API DOM
+- `loadPPTX()` - Création de bouton de téléchargement avec API DOM
+- `showError()` - Affichage d'erreurs avec API DOM
+
+**Exemple de transformation** :
+```javascript
+// AVANT (VULNÉRABLE)
+viewerContainer.innerHTML = `<img src="${fileUrl}" alt="${fileName}">`;
+
+// APRÈS (SÉCURISÉ)
+const img = document.createElement('img');
+img.setAttribute('src', fileUrl);  // Échappement automatique
+img.setAttribute('alt', fileName);  // Pas d'injection possible
+container.appendChild(img);
+```
+
+**Validation architecte** :
+- ✅ Aucune vulnérabilité path traversal détectée
+- ✅ Aucune vulnérabilité XSS détectée
+- ✅ Toutes les routes de fichiers protégées
+- ✅ Code production-ready et sécurisé
+
+**Impact** :
+- 🔒 **Sécurité renforcée** : Protection complète contre les attaques path traversal et XSS
+- ✅ **Aucune régression** : Toutes les fonctionnalités existantes préservées
+- 📱 **Compatibilité** : Fonctionne sur tous les navigateurs modernes
+- 🎯 **Production-ready** : Code sécurisé et validé pour déploiement
+
+**Fichiers modifiés** : `main.py`, `templates/lecteur_fichiers.html`
+
+---
+
 **29 octobre 2025 - Encadré violet limité au logo universitaire (Admin secondaire)**
 
 ### Amélioration visuelle : Encadré violet uniquement autour du logo
