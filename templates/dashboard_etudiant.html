@@ -408,35 +408,47 @@
         }
         
         .chapitre-item {
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            border: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 12px;
+            margin-bottom: 0.85rem;
+            border: 2px solid #e8eaf6;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+            transition: all 0.2s ease;
+        }
+        
+        .chapitre-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
         }
         
         .chapitre-header {
-            padding: 1rem 1.5rem;
+            padding: 1.2rem 1.5rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: white;
-            transition: background 0.3s ease;
+            background: transparent;
+            transition: all 0.2s ease;
         }
         
         .chapitre-header:hover {
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f6ff 0%, #e8eaff 100%);
         }
         
         .chapitre-title {
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
             flex: 1;
             word-wrap: break-word;
             overflow-wrap: break-word;
             max-width: 100%;
             padding-right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .chapitre-content {
