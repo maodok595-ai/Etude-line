@@ -3935,11 +3935,11 @@ async def send_voice_message_to_students(
         # Get professor's university and ID
         prof = db.query(ProfesseurDB).filter_by(username=prof_username).first()
         if not prof:
-            return Response("Professeur introuvable", status_code=400)
+            return Response("/messages?error=Professeur introuvable", status_code=200)
         
         # Validate audio file
         if not audio_file.content_type or not audio_file.content_type.startswith('audio/'):
-            return Response("Fichier audio invalide", status_code=400)
+            return Response("/messages?error=Fichier audio invalide", status_code=200)
         
         # Generate unique filename for audio
         file_extension = '.webm'  # Default extension
@@ -3975,7 +3975,7 @@ async def send_voice_message_to_students(
         if not etudiants:
             # Delete the audio file if no students found
             audio_path.unlink(missing_ok=True)
-            return Response("Aucun étudiant trouvé avec ces critères", status_code=400)
+            return Response("/messages?error=Aucun étudiant trouvé avec ces critères", status_code=200)
         
         # Create the voice message
         message = MessageProf(
@@ -4005,14 +4005,14 @@ async def send_voice_message_to_students(
         db.commit()
         
         success_msg = f"🎙️ Message vocal envoyé à {len(etudiants)} étudiant(s)"
-        return Response(f"/dashboard/prof?success={success_msg}", status_code=200)
+        return Response(f"/messages?success={success_msg}", status_code=200)
     
     except Exception as e:
         db.rollback()
         print(f"❌ Erreur envoi message vocal: {str(e)}")
         import traceback
         traceback.print_exc()
-        return Response(f"Erreur lors de l'envoi: {str(e)}", status_code=500)
+        return Response(f"/messages?error=Erreur lors de l'envoi: {str(e)}", status_code=200)
 
 @app.get("/audio/{filename}")
 async def serve_audio_file(filename: str):
