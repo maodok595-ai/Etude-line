@@ -258,7 +258,7 @@
                 </button>
             </div>
             
-            <form action="/prof/send-message" method="post" onsubmit="return validateMessageForm()">
+            <form action="/prof/send-message" method="post" onsubmit="return validateMessageForm(event)">
                 <!-- Ciblage hiérarchique -->
                 <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #d1d5db;">
                     <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">🎯 Choisir les destinataires</h4>
@@ -609,8 +609,8 @@
             }
         }
         
-        // Validation du formulaire
-        function validateMessageForm() {
+        // Validation et envoi du formulaire
+        async function validateMessageForm(event) {
             const messageType = document.getElementById('text-message-interface').style.display !== 'none' ? 'text' : 'voice';
             
             if (messageType === 'text') {
@@ -619,14 +619,64 @@
                     alert('Veuillez saisir un message');
                     return false;
                 }
+                return true; // Laisser le formulaire se soumettre normalement pour les messages texte
             } else {
+                // Pour les messages vocaux, intercepter l'envoi
+                event.preventDefault();
+                
                 if (!window.recordedAudioBlob) {
                     alert('Veuillez enregistrer un message vocal');
                     return false;
                 }
+                
+                // Envoyer le message vocal via fetch
+                await sendVoiceMessage();
+                return false; // Empêcher la soumission normale du formulaire
             }
-            
-            return true;
+        }
+        
+        // Fonction pour envoyer un message vocal
+        async function sendVoiceMessage() {
+            try {
+                // Récupérer les filtres de ciblage
+                const ufrId = document.getElementById('msg-ufr').value;
+                const filiereId = document.getElementById('msg-filiere').value;
+                const niveau = document.getElementById('msg-niveau').value;
+                
+                // Créer le FormData avec le fichier audio
+                const formData = new FormData();
+                formData.append('audio_file', window.recordedAudioBlob, 'message_vocal.webm');
+                if (ufrId) formData.append('ufr_id', ufrId);
+                if (filiereId) formData.append('filiere_id', filiereId);
+                if (niveau) formData.append('niveau', niveau);
+                
+                // Afficher un indicateur de chargement
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Envoi en cours...';
+                submitBtn.disabled = true;
+                
+                // Envoyer la requête
+                const response = await fetch('/prof/send-voice-message', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const redirectUrl = await response.text();
+                    window.location.href = redirectUrl;
+                } else {
+                    const error = await response.text();
+                    alert('Erreur lors de l\'envoi: ' + error);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'envoi du message vocal');
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+            }
         }
         
         // Switch message type
