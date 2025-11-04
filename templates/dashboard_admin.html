@@ -2210,20 +2210,15 @@
                         {% if filieres %}
                             {% for filiere in filieres %}
                             <div class="academic-item">
-                                <h4>{{ filiere.nom }}</h4>
-                                <div class="academic-code">Code: {{ filiere.code }}</div>
-                                <div style="color: #666; font-size: 0.9rem;">
+                                <div style="color: #667eea; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; text-transform: uppercase;">
                                     {% for ufr in ufrs %}
                                         {% if ufr.id == filiere.ufr_id %}
-                                            UFR: {{ ufr.nom }}
-                                            {% for uni in universites %}
-                                                {% if uni.id == ufr.universite_id %}
-                                                    ({{ uni.nom }})
-                                                {% endif %}
-                                            {% endfor %}
+                                            📁 {{ ufr.nom }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
+                                <h4>{{ filiere.nom }}</h4>
+                                <div class="academic-code">Code: {{ filiere.code }}</div>
                                 <div class="action-buttons">
                                     <button class="btn-edit btn-small" onclick='editFiliere({{ filiere.id|tojson }}, {{ filiere.nom|tojson }}, {{ filiere.code|tojson }})' title="Modifier">
                                         ✏️
