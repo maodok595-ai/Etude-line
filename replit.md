@@ -15,10 +15,15 @@
 - ✅ **Toutes les pages affichées** en continu (scroll vertical)
 - ✅ **Pas de boutons** de navigation (← précédent / suivant →)
 - ✅ **Scroll naturel** : glisser de haut en bas pour naviguer
-- ✅ **Affichage agrandi** : Scale 3.0 (vs 1.5 sur desktop) pour texte parfaitement lisible
+- ✅ **Zoom maximal** : Scale 3.0 (vs 1.5 sur desktop) pour texte parfaitement lisible
 - ✅ **Word optimisé** : Texte 18px, titres 28-20px (vs 15px et 22-18px avant)
-- ✅ **Plein écran** : Canvas width: 100% + hauteur calc(100vh - 100px)
-- ✅ **Utilise tout l'espace** disponible à l'écran
+- ✅ **Plein écran total** : 
+  - Body padding: 0 (aucun espace sur les bords)
+  - Container border-radius: 0 (coins carrés, pas de bords arrondis)
+  - Viewer padding: 0 (pas d'espace intérieur)
+  - PDF gap: 0 (pages collées les unes aux autres)
+  - Hauteur: calc(100vh - 60px) pour utiliser 100% de l'écran
+- ✅ **Aucun espace blanc** : Le fichier occupe tout l'écran disponible
 
 **💻 Version Desktop (>768px)** :
 - ✅ **Système actuel conservé** : Une page à la fois
