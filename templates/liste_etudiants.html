@@ -212,28 +212,11 @@
                                                         {% endfor %}
                                                         
                                                         {% if etudiants_filiere|length > 0 %}
-                                                            {% set filiere_index = loop.index %}
                                                             <div style="border-bottom: 1px solid #e0e0e0;">
-                                                                <div style="background: linear-gradient(135deg, 
-                                                                    {% if filiere_index % 5 == 1 %}#e3f2fd, #bbdefb
-                                                                    {% elif filiere_index % 5 == 2 %}#F3E8FF, #E9D5FF
-                                                                    {% elif filiere_index % 5 == 3 %}#fff3e0, #ffe0b2
-                                                                    {% elif filiere_index % 5 == 4 %}#e8f5e9, #c8e6c9
-                                                                    {% else %}#fce4ec, #f8bbd0
-                                                                    {% endif %}); 
+                                                                <div style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF); 
                                                                     padding: 0.7rem 1.5rem; font-weight: 600; font-size: 0.95rem;
-                                                                    color: {% if filiere_index % 5 == 1 %}#1565c0
-                                                                    {% elif filiere_index % 5 == 2 %}#7C3AED
-                                                                    {% elif filiere_index % 5 == 3 %}#e65100
-                                                                    {% elif filiere_index % 5 == 4 %}#2e7d32
-                                                                    {% else %}#c2185b
-                                                                    {% endif %}; 
-                                                                    border-left: 4px solid {% if filiere_index % 5 == 1 %}#2196f3
-                                                                    {% elif filiere_index % 5 == 2 %}#7C3AED
-                                                                    {% elif filiere_index % 5 == 3 %}#ff9800
-                                                                    {% elif filiere_index % 5 == 4 %}#4caf50
-                                                                    {% else %}#e91e63
-                                                                    {% endif %}; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" 
+                                                                    color: #7C3AED; 
+                                                                    border-left: 4px solid #7C3AED; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;" 
                                                                     onclick="toggleFiliereEtudiants('filiere-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}')">
                                                                     <span id="arrow-filiere-{{ universite.id }}-{{ ufr.id }}-{{ filiere.id }}" style="font-size: 1rem; transition: transform 0.3s;">►</span>
                                                                     <span>📚 {{ filiere.nom }} ({{ etudiants_filiere|length }} étudiant{{ 's' if etudiants_filiere|length > 1 else '' }})</span>
