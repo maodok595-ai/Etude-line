@@ -2,6 +2,22 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Correction bouton retour non fonctionnel**
+
+### Correction : Bouton retour cliquable sur mobile
+**Problème identifié** : Le bouton "← Retour" n'était pas cliquable après l'ouverture de fichiers sur mobile.
+
+**Corrections appliquées** :
+- ✅ **Z-index ajouté** : Header (z-index: 100) et bouton (z-index: 101) pour être au-dessus du contenu
+- ✅ **Taille tactile optimale** : min-height: 44px (taille Apple/Google recommandée pour boutons tactiles)
+- ✅ **Feedback visuel** : État :active avec background plus foncé et scale(0.98)
+- ✅ **Réactivité tactile** : touch-action: manipulation pour éliminer le délai de 300ms sur mobile
+- ✅ **Padding conservé** : 10px 20px sur mobile (vs 8px 16px avant) pour zone cliquable plus grande
+
+**Fichier modifié** : `templates/lecteur_fichiers.html`
+
+---
+
 **4 novembre 2025 - Lecteur PDF mobile : Mode scroll continu**
 
 ### Amélioration UX Mobile : Navigation naturelle pour les PDF
