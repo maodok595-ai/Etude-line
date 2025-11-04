@@ -95,7 +95,7 @@
 
         .viewer-container {
             padding: 24px;
-            min-height: 600px;
+            min-height: 400px;
             max-height: calc(100vh - 300px);
             overflow-y: auto;
             overflow-x: hidden;
@@ -228,23 +228,119 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 8px;
+            }
+
+            .container {
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 16px;
+                gap: 12px;
             }
 
             .header h1 {
-                font-size: 20px;
+                font-size: 18px;
+                flex: 1;
+                min-width: 150px;
             }
 
-            .viewer-container {
+            .back-button {
+                padding: 8px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            .file-info {
                 padding: 16px;
             }
 
-            .docx-content {
-                padding: 20px;
+            .file-info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
 
+            .info-label {
+                font-size: 11px;
+            }
+
+            .info-value {
+                font-size: 13px;
+            }
+
+            .viewer-container {
+                padding: 12px;
+                min-height: 300px;
+                max-height: calc(100vh - 280px);
+            }
+
+            .docx-content {
+                padding: 16px;
+                font-size: 15px;
+            }
+
+            .docx-content h1 { font-size: 22px; }
+            .docx-content h2 { font-size: 20px; }
+            .docx-content h3 { font-size: 18px; }
+
             .pdf-controls {
+                font-size: 13px;
+                padding: 10px 16px;
+                gap: 8px;
+            }
+
+            .pdf-controls button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .pdf-controls span {
+                font-size: 12px;
+            }
+
+            .pdf-page {
+                max-width: 100%;
+            }
+
+            .pptx-viewer {
+                padding: 40px 12px !important;
+            }
+
+            .pptx-viewer > div {
+                padding: 24px !important;
+            }
+
+            .pptx-viewer h2 {
+                font-size: 20px !important;
+            }
+
+            .pptx-viewer p {
+                font-size: 14px !important;
+            }
+
+            .loading {
+                min-height: 250px;
+                gap: 12px;
+            }
+
+            .loading p {
                 font-size: 14px;
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+            }
+
+            .error-message {
+                padding: 16px;
+                font-size: 14px;
+            }
+
+            .error-message h3 {
+                font-size: 18px;
+                margin-bottom: 8px;
             }
         }
     </style>

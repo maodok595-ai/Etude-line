@@ -2,6 +2,31 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Optimisation mobile du lecteur de fichiers**
+
+### Amélioration UX Mobile : Design responsive complet
+**Demande utilisateur** : Le lecteur de fichiers n'était pas adapté pour les écrans mobiles.
+
+**Améliorations appliquées** (Media queries @max-width: 768px) :
+- 📱 **Espacement optimisé** : Padding réduit (8px) pour maximiser l'espace d'affichage
+- 📝 **Header compact** : Titre 18px + bouton retour plus petit, alignement flexible
+- 📊 **Informations fichier** : Grille 3 colonnes → 1 colonne verticale pour mobile
+- 📄 **Contenu** : Tailles de police réduites mais lisibles (15px pour le texte, 22-18px pour les titres)
+- 🎮 **Contrôles PDF** : Boutons et texte réduits pour tenir sur petits écrans
+- 🖼️ **Images/Vidéos** : max-width: 100% pour affichage correct sans débordement
+- ⏳ **Chargement** : Spinner et messages adaptés (40px, texte 14px)
+- 📏 **Hauteur dynamique** : calc(100vh - 280px) pour s'adapter à la hauteur d'écran
+
+**Impact** :
+- ✅ Lecteur parfaitement utilisable sur smartphones et tablettes
+- ✅ Pas de débordement horizontal
+- ✅ Textes lisibles sans zoom
+- ✅ Interface tactile optimisée
+
+**Fichier modifié** : `templates/lecteur_fichiers.html`
+
+---
+
 **4 novembre 2025 - Correction du bouton retour du lecteur de fichiers**
 
 ### Correction : Navigation fluide depuis le lecteur
