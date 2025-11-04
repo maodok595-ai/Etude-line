@@ -291,12 +291,12 @@
 
             .docx-content {
                 padding: 16px;
-                font-size: 15px;
+                font-size: 18px;
             }
 
-            .docx-content h1 { font-size: 22px; }
-            .docx-content h2 { font-size: 20px; }
-            .docx-content h3 { font-size: 18px; }
+            .docx-content h1 { font-size: 28px; }
+            .docx-content h2 { font-size: 24px; }
+            .docx-content h3 { font-size: 20px; }
 
             .pdf-controls {
                 font-size: 13px;
@@ -458,7 +458,7 @@
                 viewerContainer.innerHTML = '';
                 viewerContainer.appendChild(container);
 
-                const scale = 2.0;
+                const scale = 3.0;
 
                 for (let pageNum = 1; pageNum <= numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);

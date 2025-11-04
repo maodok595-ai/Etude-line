@@ -15,7 +15,8 @@
 - ✅ **Toutes les pages affichées** en continu (scroll vertical)
 - ✅ **Pas de boutons** de navigation (← précédent / suivant →)
 - ✅ **Scroll naturel** : glisser de haut en bas pour naviguer
-- ✅ **Affichage agrandi** : Scale 2.0 (vs 1.5 sur desktop) pour texte plus lisible
+- ✅ **Affichage agrandi** : Scale 3.0 (vs 1.5 sur desktop) pour texte parfaitement lisible
+- ✅ **Word optimisé** : Texte 18px, titres 28-20px (vs 15px et 22-18px avant)
 - ✅ **Plein écran** : Canvas width: 100% + hauteur calc(100vh - 100px)
 - ✅ **Utilise tout l'espace** disponible à l'écran
 
