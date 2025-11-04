@@ -1724,13 +1724,20 @@ async def create_chapitre_complet(
             return RedirectResponse(url=f"/dashboard/prof?error={error_message}", status_code=303)
 
 @app.get("/messages", response_class=HTMLResponse)
-async def messages_page(request: Request, db: Session = Depends(get_db)):
+async def messages_page(
+    request: Request, 
+    success: str = None, 
+    error: str = None,
+    db: Session = Depends(get_db)
+):
     """Messages page for professors"""
     prof_username, user_data = require_prof(request, db)
     
     return templates.TemplateResponse("messages.html", {
         "request": request,
-        "user_data": user_data
+        "user_data": user_data,
+        "success": success,
+        "error": error
     })
 
 @app.get("/uploads/{file_path:path}")
@@ -4103,12 +4110,12 @@ async def send_message_to_students(
         db.commit()
         
         success_msg = f"✉️ Message envoyé à {len(etudiants)} étudiant(s)"
-        return RedirectResponse(f"/dashboard/prof?success={success_msg}", status_code=303)
+        return RedirectResponse(f"/messages?success={success_msg}", status_code=303)
     
     except Exception as e:
         db.rollback()
         print(f"❌ Erreur envoi message: {str(e)}")
-        return RedirectResponse(f"/dashboard/prof?error=Erreur lors de l'envoi: {str(e)}", status_code=303)
+        return RedirectResponse(f"/messages?error=Erreur lors de l'envoi: {str(e)}", status_code=303)
 
 @app.post("/prof/send-voice-message")
 async def send_voice_message_to_students(

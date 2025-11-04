@@ -195,6 +195,21 @@
     </nav>
     
     <div class="container">
+        <!-- Messages de succès/erreur -->
+        {% if success %}
+        <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">✅</span>
+            <span style="font-weight: 600;">{{ success }}</span>
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div style="background: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">❌</span>
+            <span style="font-weight: 600;">{{ error }}</span>
+        </div>
+        {% endif %}
+        
         <!-- Bouton Envoyer une annonce -->
         <div style="margin-bottom: 1.5rem;">
             <button onclick="toggleFormulaireMessage()" 
