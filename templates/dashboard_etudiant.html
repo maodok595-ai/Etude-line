@@ -1241,38 +1241,15 @@
             </button>
         </div>
         
-        <!-- Section des messages -->
-        <div id="messages-section" style="margin: 1.5rem 0; display: none;">
-            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #10b981; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: #059669; margin: 0; font-size: 1.3rem;">✉️ Messages des professeurs</h3>
-                    <button onclick="toggleMessagesSection()" 
-                            style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;"
-                            onmouseover="this.style.background='#dc2626'"
-                            onmouseout="this.style.background='#ef4444'">
-                        ✕ Masquer
-                    </button>
-                </div>
-                
-                <div id="messages-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <!-- Messages will be loaded here -->
-                </div>
-                
-                <div id="messages-empty" style="text-align: center; padding: 2rem; color: #6b7280; display: none;">
-                    <p style="font-size: 1.1rem;">📭 Aucun message pour le moment</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bouton pour afficher les messages (quand la section est masquée) -->
+        <!-- Bouton pour voir les messages -->
         <div id="messages-button-container" style="display: flex; justify-content: center; margin: 1.5rem 0;">
-            <button onclick="toggleMessagesSection()" 
-                    style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; position: relative;"
+            <a href="/messages"
+                    style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; position: relative; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.4)';"
                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)';">
                 <span id="messages-badge" style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold;">0</span>
                 ✉️ Voir mes messages
-            </button>
+            </a>
         </div>
         
         <div id="loading" class="loading">
@@ -2383,169 +2360,31 @@
         }
     </script>
     
-    <!-- Gestion des messages étudiants -->
+    <!-- Gestion du badge de messages non lus -->
     <script>
-        let messagesVisible = false;
-        let currentMessages = [];
-        
-        async function loadStudentMessages() {
+        async function updateMessagesBadge() {
             try {
                 const response = await fetch('/api/etudiant/messages');
                 const data = await response.json();
-                currentMessages = data.messages || [];
+                const messages = data.messages || [];
+                const unreadCount = messages.filter(m => !m.lu).length;
+                const badge = document.getElementById('messages-badge');
                 
-                displayMessages();
-                updateMessagesBadge();
-            } catch (error) {
-                console.error('Erreur chargement messages:', error);
-            }
-        }
-        
-        function displayMessages() {
-            const messagesList = document.getElementById('messages-list');
-            const messagesEmpty = document.getElementById('messages-empty');
-            
-            if (currentMessages.length === 0) {
-                messagesList.style.display = 'none';
-                messagesEmpty.style.display = 'block';
-                return;
-            }
-            
-            messagesList.style.display = 'flex';
-            messagesEmpty.style.display = 'none';
-            
-            messagesList.innerHTML = currentMessages.map(msg => {
-                // Déterminer si c'est un message vocal ou texte
-                const isVoiceMessage = msg.audio_file && msg.audio_file.trim() !== '';
-                
-                let contentHtml;
-                if (isVoiceMessage) {
-                    // Message vocal : afficher le lecteur audio
-                    contentHtml = `
-                        <div style="margin: 0.5rem 0 0 0;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; padding: 1rem; border-radius: 8px; border: 2px solid #10b981;">
-                                <div style="font-size: 2rem;">🎙️</div>
-                                <div style="flex: 1;">
-                                    <div style="color: #059669; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem;">Message vocal</div>
-                                    <audio controls style="width: 100%; max-width: 500px;" preload="metadata">
-                                        <source src="/audio/${msg.audio_file}" type="audio/webm">
-                                        <source src="/audio/${msg.audio_file}" type="audio/mp4">
-                                        <source src="/audio/${msg.audio_file}" type="audio/ogg">
-                                        Votre navigateur ne supporte pas la lecture audio.
-                                    </audio>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'flex';
                 } else {
-                    // Message texte normal
-                    contentHtml = `<p style="margin: 0.5rem 0 0 0; color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${msg.contenu}</p>`;
-                }
-                
-                return `
-                    <div class="message-item" style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid ${msg.lu ? '#10b981' : '#f59e0b'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1; margin-right: 1rem;">
-                                <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">
-                                    <strong style="color: #059669;">👨‍🏫 ${msg.prof_nom || 'Professeur'}</strong>
-                                    <span style="margin-left: 1rem;">📅 ${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
-                                    ${!msg.lu ? '<span style="margin-left: 1rem; background: #fbbf24; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">✉️ NOUVEAU</span>' : ''}
-                                </div>
-                                ${contentHtml}
-                            </div>
-                            <button onclick="deleteMessage('${msg.id}')" 
-                                    style="background: #ef4444; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; white-space: nowrap; transition: all 0.3s ease;"
-                                    onmouseover="this.style.background='#dc2626'"
-                                    onmouseout="this.style.background='#ef4444'"
-                                    title="Supprimer ce message">
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Marquer tous les messages comme lus automatiquement
-            markMessagesAsRead();
-        }
-        
-        function toggleMessagesSection() {
-            const section = document.getElementById('messages-section');
-            const buttonContainer = document.getElementById('messages-button-container');
-            
-            messagesVisible = !messagesVisible;
-            
-            if (messagesVisible) {
-                section.style.display = 'block';
-                buttonContainer.style.display = 'none';
-                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                section.style.display = 'none';
-                buttonContainer.style.display = 'flex';
-            }
-        }
-        
-        async function markMessagesAsRead() {
-            try {
-                const unreadIds = currentMessages.filter(m => !m.lu).map(m => m.id);
-                if (unreadIds.length === 0) return;
-                
-                await fetch('/api/etudiant/messages/mark-read', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message_ids: unreadIds})
-                });
-                
-                // Mettre à jour l'état local
-                currentMessages = currentMessages.map(m => ({...m, lu: true}));
-                updateMessagesBadge();
-            } catch (error) {
-                console.error('Erreur marquage messages lus:', error);
-            }
-        }
-        
-        async function deleteMessage(messageId) {
-            if (!confirm('Supprimer ce message ?')) return;
-            
-            try {
-                const response = await fetch(`/api/etudiant/messages/${messageId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    currentMessages = currentMessages.filter(m => m.id !== messageId);
-                    displayMessages();
-                    updateMessagesBadge();
+                    badge.style.display = 'none';
                 }
             } catch (error) {
-                console.error('Erreur suppression message:', error);
-                alert('Erreur lors de la suppression du message');
+                console.error('Erreur chargement badge messages:', error);
             }
         }
         
-        function updateMessagesBadge() {
-            const unreadCount = currentMessages.filter(m => !m.lu).length;
-            const badge = document.getElementById('messages-badge');
-            const buttonContainer = document.getElementById('messages-button-container');
-            
-            // Toujours afficher le bouton, même sans messages
-            buttonContainer.style.display = 'flex';
-            
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-        
-        // Charger les messages au démarrage
+        // Charger le badge au démarrage
         document.addEventListener('DOMContentLoaded', function() {
-            loadStudentMessages();
+            updateMessagesBadge();
         });
-        
-        window.toggleMessagesSection = toggleMessagesSection;
-        window.deleteMessage = deleteMessage;
     </script>
 </body>
 </html>

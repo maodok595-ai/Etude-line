@@ -1730,15 +1730,29 @@ async def messages_page(
     error: str = None,
     db: Session = Depends(get_db)
 ):
-    """Messages page for professors"""
-    prof_username, user_data = require_prof(request, db)
+    """Messages page for professors and students"""
+    user = request.session.get('user')
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     
-    return templates.TemplateResponse("messages.html", {
-        "request": request,
-        "user_data": user_data,
-        "success": success,
-        "error": error
-    })
+    if user.get('type') == 'professeur':
+        prof_username, user_data = require_prof(request, db)
+        return templates.TemplateResponse("messages.html", {
+            "request": request,
+            "user_data": user_data,
+            "success": success,
+            "error": error
+        })
+    elif user.get('type') == 'etudiant':
+        student_username, user_data = require_student(request, db)
+        return templates.TemplateResponse("messages_etudiant.html", {
+            "request": request,
+            "user_data": user_data,
+            "success": success,
+            "error": error
+        })
+    else:
+        return RedirectResponse(url="/login", status_code=303)
 
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str, request: Request):
