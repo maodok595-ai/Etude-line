@@ -1723,6 +1723,16 @@ async def create_chapitre_complet(
         else:
             return RedirectResponse(url=f"/dashboard/prof?error={error_message}", status_code=303)
 
+@app.get("/messages", response_class=HTMLResponse)
+async def messages_page(request: Request, db: Session = Depends(get_db)):
+    """Messages page for professors"""
+    prof_username, user_data = require_prof(request, db)
+    
+    return templates.TemplateResponse("messages.html", {
+        "request": request,
+        "user_data": user_data
+    })
+
 @app.get("/uploads/{file_path:path}")
 async def serve_uploaded_file(file_path: str, request: Request):
     """Serve uploaded files with proper content type for browser viewing"""

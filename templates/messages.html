@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Étude LINE</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Étude LINE">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            scrollbar-gutter: stable;
+            width: 100%;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .navbar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-group select,
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+            
+            .navbar h1 {
+                font-size: 1.3rem;
+            }
+            
+            .navbar .user-info {
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>✉️ Messages</h1>
+        <div class="user-info">
+            <span>👨‍🏫 {{ user_data.nom if user_data.nom else 'Professeur' }}</span>
+            <a href="/dashboard/prof">← Retour au tableau de bord</a>
+            <a href="/logout">Déconnexion</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- Bouton Envoyer une annonce -->
+        <div style="margin-bottom: 2rem;">
+            <button onclick="toggleFormulaireMessage()" 
+                    class="btn-send-message"
+                    style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">✉️</span>
+                <span>Envoyer une annonce</span>
+            </button>
+        </div>
+        
+        <!-- Formulaire d'envoi de message (caché par défaut) -->
+        <div class="card" id="formulaire-message" style="display: none; background: #f0fdf4; border: 2px solid #10b981;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #059669;">✉️ Envoyer une annonce aux étudiants</h3>
+                <button onclick="toggleFormulaireMessage()" 
+                        style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    ✕ Fermer
+                </button>
+            </div>
+            
+            <form action="/prof/send-message" method="post" onsubmit="return validateMessageForm()">
+                <!-- Ciblage hiérarchique -->
+                <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #d1d5db;">
+                    <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">🎯 Choisir les destinataires</h4>
+                    
+                    <div class="form-group">
+                        <label for="msg-ufr">UFR (optionnel - vide = toutes les UFR)</label>
+                        <select id="msg-ufr" name="ufr_id" onchange="loadMessageFilieresProf()">
+                            <option value="">-- Toutes les UFR --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="msg-filiere">Filière (optionnel)</label>
+                        <select id="msg-filiere" name="filiere_id" disabled>
+                            <option value="">-- Toutes les filières --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="msg-niveau">Niveau (optionnel)</label>
+                        <select id="msg-niveau" name="niveau">
+                            <option value="">-- Tous les niveaux --</option>
+                            <option value="L1">L1 - Licence 1</option>
+                            <option value="L2">L2 - Licence 2</option>
+                            <option value="L3">L3 - Licence 3</option>
+                            <option value="M1">M1 - Master 1</option>
+                            <option value="M2">M2 - Master 2</option>
+                        </select>
+                    </div>
+                    
+                    <div style="background: #e0f2fe; padding: 0.875rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid #0284c7;">
+                        <small style="color: #075985; font-weight: 500;">
+                            ℹ️ <strong>Hiérarchie de ciblage :</strong> Université → UFR → Filière → Niveau
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Type de message : Texte ou Vocal -->
+                <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #d1d5db;">
+                    <h4 style="margin: 0 0 1rem 0; color: #059669; font-size: 1rem;">💬 Type de message</h4>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <button type="button" id="btn-type-text" onclick="switchMessageType('text')" 
+                                style="flex: 1; padding: 0.75rem; border: 2px solid #10b981; background: #10b981; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            💬 Message texte
+                        </button>
+                        <button type="button" id="btn-type-voice" onclick="switchMessageType('voice')" 
+                                style="flex: 1; padding: 0.75rem; border: 2px solid #d1d5db; background: white; color: #374151; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            🎙️ Message vocal
+                        </button>
+                    </div>
+                    
+                    <!-- Interface message texte (par défaut) -->
+                    <div id="text-message-interface">
+                        <div class="form-group">
+                            <label for="msg-contenu">Message *</label>
+                            <textarea id="msg-contenu" name="contenu" rows="6" 
+                                      placeholder="Exemple: Cours annulé ce vendredi. Reprise le lundi suivant à 8h."
+                                      style="width: 100%; padding: 1rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+                            <small style="color: #6b7280;">Écrivez votre annonce comme un message normal. Les étudiants concernés la recevront.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Interface message vocal (caché par défaut) -->
+                    <div id="voice-message-interface" style="display: none;">
+                        <div style="text-align: center; padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 2px dashed #d1d5db; max-width: 100%; overflow: hidden; box-sizing: border-box;">
+                            <!-- État: Prêt à enregistrer -->
+                            <div id="voice-ready" style="display: block;">
+                                <p style="color: #6b7280; margin-bottom: 0.75rem; font-size: 0.9rem;">Appuyez sur le micro pour enregistrer</p>
+                                <button type="button" id="btn-start-recording" onclick="startVoiceRecording()" 
+                                        style="background: #ef4444; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center;">
+                                    🎙️
+                                </button>
+                            </div>
+                            
+                            <!-- État: Enregistrement en cours -->
+                            <div id="voice-recording" style="display: none;">
+                                <p style="color: #ef4444; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">Enregistrement...</p>
+                                <p id="recording-timer" style="color: #6b7280; margin-bottom: 0.75rem; font-size: 1.3rem; font-weight: 600;">00:00</p>
+                                <button type="button" onclick="stopVoiceRecording()" 
+                                        style="background: #3b82f6; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); display: inline-flex; align-items: center; justify-content: center;">
+                                    ⏹️
+                                </button>
+                            </div>
+                            
+                            <!-- État: Enregistrement terminé -->
+                            <div id="voice-recorded" style="display: none;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+                                <p style="color: #059669; margin-bottom: 0.25rem; font-weight: 600; font-size: 0.9rem;">Enregistré</p>
+                                <p id="recorded-duration" style="color: #6b7280; margin-bottom: 0.75rem; font-size: 1rem;"></p>
+                                
+                                <!-- Lecteur audio pour prévisualiser -->
+                                <audio id="voice-preview" controls style="max-width: 100%; width: 100%; margin-bottom: 0.75rem; border-radius: 8px; box-sizing: border-box; height: 40px;"></audio>
+                                
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                    <button type="button" onclick="cancelVoiceRecording()" 
+                                            style="background: #ef4444; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center;" 
+                                            title="Supprimer">
+                                        🗑️
+                                    </button>
+                                    <button type="button" onclick="startVoiceRecording()" 
+                                            style="background: #f59e0b; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center;" 
+                                            title="Réenregistrer">
+                                        🔄
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <small style="color: #6b7280; display: block; margin-top: 0.5rem; text-align: center; font-size: 0.85rem;">
+                            💡 Parlez clairement près du micro
+                        </small>
+                    </div>
+                </div>
+                
+                <button type="submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); width: 100%;">
+                    ✉️ Envoyer l'annonce
+                </button>
+            </form>
+        </div>
+        
+        <!-- Historique des messages envoyés -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">📨 Historique des messages envoyés</h3>
+                <button onclick="toggleHistoriqueMessages()" 
+                        id="btn-toggle-historique"
+                        style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                    📊 Voir l'historique
+                </button>
+            </div>
+            
+            <div id="historique-messages" style="display: none;">
+                <div id="historique-messages-list">
+                    <p style="text-align: center; color: #9ca3af;">Chargement...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/sw-register.js"></script>
+    <script>
+        // Toggle formulaire message
+        function toggleFormulaireMessage() {
+            const formulaire = document.getElementById('formulaire-message');
+            if (formulaire.style.display === 'none') {
+                formulaire.style.display = 'block';
+            } else {
+                formulaire.style.display = 'none';
+            }
+        }
+        
+        // Toggle historique messages
+        function toggleHistoriqueMessages() {
+            const historique = document.getElementById('historique-messages');
+            const btn = document.getElementById('btn-toggle-historique');
+            
+            if (historique.style.display === 'none') {
+                historique.style.display = 'block';
+                btn.textContent = '📊 Masquer l\'historique';
+                chargerHistoriqueMessages();
+            } else {
+                historique.style.display = 'none';
+                btn.textContent = '📊 Voir l\'historique';
+            }
+        }
+        
+        // Charger l'historique des messages
+        async function chargerHistoriqueMessages() {
+            try {
+                const response = await fetch('/api/prof/messages');
+                const data = await response.json();
+                
+                const container = document.getElementById('historique-messages-list');
+                
+                if (data.messages && data.messages.length > 0) {
+                    container.innerHTML = data.messages.map(msg => {
+                        return `
+                            <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid #10b981;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 600; color: #374151;">📬 ${msg.ciblage || 'Tous les étudiants'}</span>
+                                    <span style="font-size: 0.85rem; color: #6b7280;">${new Date(msg.date_envoi).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</span>
+                                </div>
+                                <p style="color: #6b7280; margin: 0.5rem 0 0 0;">${msg.contenu || '<em>Message vocal</em>'}</p>
+                                ${msg.audio_file ? `<audio controls style="width: 100%; margin-top: 0.5rem;"><source src="/audio/${msg.audio_file}" type="audio/webm"></audio>` : ''}
+                                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #6b7280;">
+                                    📊 ${msg.nb_lus}/${msg.total_destinataires} lu(s)
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<p style="text-align: center; color: #9ca3af;">Aucun message envoyé pour le moment.</p>';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('historique-messages-list').innerHTML = '<p style="text-align: center; color: #ef4444;">Erreur lors du chargement de l\'historique.</p>';
+            }
+        }
+        
+        // Load UFRs for message form
+        async function loadMessageUFRsProf() {
+            try {
+                const response = await fetch('/api/prof/ufrs');
+                const data = await response.json();
+                
+                const select = document.getElementById('msg-ufr');
+                select.innerHTML = '<option value="">-- Toutes les UFR --</option>';
+                data.ufrs.forEach(ufr => {
+                    const option = document.createElement('option');
+                    option.value = ufr.id;
+                    option.textContent = ufr.nom;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erreur lors du chargement des UFRs:', error);
+            }
+        }
+        
+        // Load filieres for message form
+        async function loadMessageFilieresProf() {
+            const ufrSelect = document.getElementById('msg-ufr');
+            const filiereSelect = document.getElementById('msg-filiere');
+            
+            if (!ufrSelect.value) {
+                filiereSelect.disabled = true;
+                filiereSelect.innerHTML = '<option value="">-- Toutes les filières --</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/prof/filieres/${ufrSelect.value}`);
+                const data = await response.json();
+                
+                filiereSelect.innerHTML = '<option value="">-- Toutes les filières --</option>';
+                data.filieres.forEach(filiere => {
+                    const option = document.createElement('option');
+                    option.value = filiere.id;
+                    option.textContent = filiere.nom;
+                    filiereSelect.appendChild(option);
+                });
+                filiereSelect.disabled = false;
+            } catch (error) {
+                console.error('Erreur lors du chargement des filières:', error);
+            }
+        }
+        
+        // Validation du formulaire
+        function validateMessageForm() {
+            const messageType = document.getElementById('text-message-interface').style.display !== 'none' ? 'text' : 'voice';
+            
+            if (messageType === 'text') {
+                const contenu = document.getElementById('msg-contenu').value.trim();
+                if (!contenu) {
+                    alert('Veuillez saisir un message');
+                    return false;
+                }
+            } else {
+                if (!window.recordedAudioBlob) {
+                    alert('Veuillez enregistrer un message vocal');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // Switch message type
+        function switchMessageType(type) {
+            const btnText = document.getElementById('btn-type-text');
+            const btnVoice = document.getElementById('btn-type-voice');
+            const textInterface = document.getElementById('text-message-interface');
+            const voiceInterface = document.getElementById('voice-message-interface');
+            
+            if (type === 'text') {
+                btnText.style.background = '#10b981';
+                btnText.style.color = 'white';
+                btnText.style.borderColor = '#10b981';
+                btnVoice.style.background = 'white';
+                btnVoice.style.color = '#374151';
+                btnVoice.style.borderColor = '#d1d5db';
+                textInterface.style.display = 'block';
+                voiceInterface.style.display = 'none';
+            } else {
+                btnVoice.style.background = '#10b981';
+                btnVoice.style.color = 'white';
+                btnVoice.style.borderColor = '#10b981';
+                btnText.style.background = 'white';
+                btnText.style.color = '#374151';
+                btnText.style.borderColor = '#d1d5db';
+                textInterface.style.display = 'none';
+                voiceInterface.style.display = 'block';
+            }
+        }
+        
+        // Voice recording functions (simplified placeholders)
+        let mediaRecorder;
+        let audioChunks = [];
+        let recordingStartTime;
+        let timerInterval;
+        
+        async function startVoiceRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    window.recordedAudioBlob = audioBlob;
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('voice-preview').src = audioUrl;
+                    
+                    const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    document.getElementById('recorded-duration').textContent = `Durée: ${duration}s`;
+                    
+                    document.getElementById('voice-ready').style.display = 'none';
+                    document.getElementById('voice-recording').style.display = 'none';
+                    document.getElementById('voice-recorded').style.display = 'block';
+                };
+                
+                mediaRecorder.start();
+                recordingStartTime = Date.now();
+                
+                document.getElementById('voice-ready').style.display = 'none';
+                document.getElementById('voice-recording').style.display = 'block';
+                
+                let seconds = 0;
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    document.getElementById('recording-timer').textContent = 
+                        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                }, 1000);
+                
+            } catch (error) {
+                alert('Impossible d\'accéder au microphone');
+                console.error(error);
+            }
+        }
+        
+        function stopVoiceRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                clearInterval(timerInterval);
+            }
+        }
+        
+        function cancelVoiceRecording() {
+            window.recordedAudioBlob = null;
+            document.getElementById('voice-ready').style.display = 'block';
+            document.getElementById('voice-recording').style.display = 'none';
+            document.getElementById('voice-recorded').style.display = 'none';
+            document.getElementById('recording-timer').textContent = '00:00';
+        }
+        
+        // Load UFRs on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadMessageUFRsProf();
+        });
+    </script>
+</body>
+</html>
