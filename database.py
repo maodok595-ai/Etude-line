@@ -29,11 +29,15 @@ else:
     print("   Utilisation d'une base par défaut (NON FONCTIONNELLE)")
     print("=" * 70)
 
-# Création de l'engine et de la session avec configuration SSL
+# Création de l'engine et de la session avec configuration SSL et connection pooling optimisé
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=300,
+    # Connection pooling pour production (100 profs + 12,000 étudiants)
+    pool_size=10,              # Nombre de connexions maintenues dans le pool
+    max_overflow=20,           # Connexions supplémentaires autorisées en pic de charge
+    pool_timeout=30,           # Délai d'attente pour obtenir une connexion (secondes)
+    pool_pre_ping=True,        # Vérifie que la connexion est vivante avant utilisation
+    pool_recycle=300,          # Recycle les connexions après 5 minutes
     connect_args={"sslmode": "prefer"}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
