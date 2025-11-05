@@ -3735,7 +3735,7 @@
             document.getElementById('logoUniversiteId').value = universiteId;
             document.getElementById('logoUploadForm').style.display = 'block';
             document.querySelector('#logoUploadForm h3').textContent = `📸 Ajouter un logo à "${universiteNom}"`;
-            document.getElementById('logoUploadForm').scrollIntoView({ behavior: 'smooth' });
+            // Pas de scroll automatique - l'utilisateur reste à sa position
         }
         
         function cancelLogoUpload() {
@@ -3787,8 +3787,7 @@
                     formView.classList.remove('hidden');
                     formView.classList.add('fade-in');
                     
-                    // Scroll vers le formulaire
-                    formView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Pas de scroll automatique - l'utilisateur reste à sa position
                 }, 300);
             } else {
                 // Le formulaire est visible, donc on cache le formulaire et affiche la liste
@@ -3806,8 +3805,7 @@
                     listView.style.display = 'block';
                     listView.classList.add('fade-in');
                     
-                    // Scroll vers la liste
-                    listView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Pas de scroll automatique - l'utilisateur reste à sa position
                 }, 300);
             }
         }
