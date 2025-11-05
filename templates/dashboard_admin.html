@@ -3235,7 +3235,7 @@
         // Functions pour les actions CRUD
         
         // Administrateurs
-        function editAdmin(username, nom, prenom) {
+        async function editAdmin(username, nom, prenom) {
             const newNom = prompt('Nouveau nom:', nom);
             if (!newNom) return;
             
@@ -3245,18 +3245,44 @@
             const newUsername = prompt('Nouveau nom d\'utilisateur (laisser vide pour ne pas changer):', username);
             const newPassword = prompt('Nouveau mot de passe (laisser vide pour ne pas changer):');
             
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/edit-admin';
-            form.innerHTML = `
-                <input type="hidden" name="username" value="${username}">
-                <input type="hidden" name="nom" value="${newNom}">
-                <input type="hidden" name="prenom" value="${newPrenom}">
-                <input type="hidden" name="new_username" value="${newUsername || ''}">
-                <input type="hidden" name="new_password" value="${newPassword || ''}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('nom', newNom);
+            formData.append('prenom', newPrenom);
+            formData.append('new_username', newUsername || '');
+            formData.append('new_password', newPassword || '');
+            
+            try {
+                const response = await fetch('/admin/edit-admin', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Mettre à jour l'affichage sans recharger
+                    const adminElement = document.querySelector(`button[onclick*="editAdmin('${username}'"]`).closest('.prof-item');
+                    if (adminElement) {
+                        const nameElement = adminElement.querySelector('strong');
+                        const usernameElement = adminElement.querySelector('.username');
+                        if (nameElement) nameElement.textContent = `${newPrenom} ${newNom}`;
+                        if (usernameElement) usernameElement.textContent = `Username: ${newUsername || username}`;
+                        
+                        // Mettre à jour le onclick avec le nouveau username si changé
+                        if (newUsername) {
+                            const editBtn = adminElement.querySelector('button[onclick*="editAdmin"]');
+                            if (editBtn) {
+                                editBtn.setAttribute('onclick', `editAdmin('${newUsername}', '${newNom}', '${newPrenom}')`);
+                            }
+                        }
+                    }
+                    showAlert('Administrateur modifié avec succès', 'success');
+                } else {
+                    showAlert('Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur lors de la modification', 'error');
+            }
         }
         
         async function toggleAdminStatus(username, fullName, currentStatus) {
@@ -3419,7 +3445,7 @@
         }
         
         // Professeurs
-        function editProf(username, nom, prenom, specialite) {
+        async function editProf(username, nom, prenom, specialite) {
             const newNom = prompt('Nouveau nom:', nom);
             if (!newNom) return;
             
@@ -3432,19 +3458,47 @@
             const newUsername = prompt('Nouveau nom d\'utilisateur (laisser vide pour ne pas changer):', username);
             const newPassword = prompt('Nouveau mot de passe (laisser vide pour ne pas changer):');
             
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/edit-prof';
-            form.innerHTML = `
-                <input type="hidden" name="username" value="${username}">
-                <input type="hidden" name="nom" value="${newNom}">
-                <input type="hidden" name="prenom" value="${newPrenom}">
-                <input type="hidden" name="specialite" value="${newSpecialite}">
-                <input type="hidden" name="new_username" value="${newUsername || ''}">
-                <input type="hidden" name="new_password" value="${newPassword || ''}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('nom', newNom);
+            formData.append('prenom', newPrenom);
+            formData.append('specialite', newSpecialite);
+            formData.append('new_username', newUsername || '');
+            formData.append('new_password', newPassword || '');
+            
+            try {
+                const response = await fetch('/admin/edit-prof', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Mettre à jour l'affichage sans recharger
+                    const profElement = document.querySelector(`button[onclick*="editProf('${username}'"]`).closest('.prof-item');
+                    if (profElement) {
+                        const nameElement = profElement.querySelector('strong');
+                        const specialiteElement = profElement.querySelector('.specialite');
+                        const usernameElement = profElement.querySelector('.username');
+                        if (nameElement) nameElement.textContent = `${newPrenom} ${newNom}`;
+                        if (specialiteElement) specialiteElement.textContent = `Spécialité: ${newSpecialite}`;
+                        if (usernameElement) usernameElement.textContent = `Username: ${newUsername || username}`;
+                        
+                        // Mettre à jour le onclick avec le nouveau username si changé
+                        if (newUsername) {
+                            const editBtn = profElement.querySelector('button[onclick*="editProf"]');
+                            if (editBtn) {
+                                editBtn.setAttribute('onclick', `editProf('${newUsername}', '${newNom}', '${newPrenom}', '${newSpecialite}')`);
+                            }
+                        }
+                    }
+                    showAlert('Professeur modifié avec succès', 'success');
+                } else {
+                    showAlert('Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur lors de la modification', 'error');
+            }
         }
         
         async function deleteProf(username, fullName) {
@@ -3519,20 +3573,38 @@
         }
         
         // Universités
-        function editUniversite(id, nom, code) {
+        async function editUniversite(id, nom, code) {
             const newNom = prompt('Nouveau nom:', nom);
             const newCode = prompt('Nouveau code:', code);
             if (newNom && newCode) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-universite';
-                form.innerHTML = `
-                    <input type="hidden" name="id" value="${id}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="code" value="${newCode}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('nom', newNom);
+                formData.append('code', newCode);
+                
+                try {
+                    const response = await fetch('/admin/edit-universite', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // Mettre à jour l'affichage sans recharger la page
+                        const uniElement = document.querySelector(`button[onclick*="editUniversite('${id}'"]`).closest('.academic-item');
+                        if (uniElement) {
+                            const nomElement = uniElement.querySelector('strong');
+                            const codeElement = uniElement.querySelector('.code');
+                            if (nomElement) nomElement.textContent = newNom;
+                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
+                        }
+                        showAlert(`Université "${newNom}" modifiée avec succès`, 'success');
+                    } else {
+                        showAlert('Erreur lors de la modification', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showAlert('Erreur lors de la modification', 'error');
+                }
             }
         }
         
@@ -3572,20 +3644,38 @@
         }
         
         // UFR
-        function editUfr(id, nom, code) {
+        async function editUfr(id, nom, code) {
             const newNom = prompt('Nouveau nom:', nom);
             const newCode = prompt('Nouveau code:', code);
             if (newNom && newCode) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-ufr';
-                form.innerHTML = `
-                    <input type="hidden" name="id" value="${id}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="code" value="${newCode}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('nom', newNom);
+                formData.append('code', newCode);
+                
+                try {
+                    const response = await fetch('/admin/edit-ufr', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // Mettre à jour l'affichage sans recharger la page
+                        const ufrElement = document.querySelector(`button[onclick*="editUfr('${id}'"]`).closest('.academic-item');
+                        if (ufrElement) {
+                            const nomElement = ufrElement.querySelector('strong');
+                            const codeElement = ufrElement.querySelector('.code');
+                            if (nomElement) nomElement.textContent = newNom;
+                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
+                        }
+                        showAlert(`UFR "${newNom}" modifiée avec succès`, 'success');
+                    } else {
+                        showAlert('Erreur lors de la modification', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showAlert('Erreur lors de la modification', 'error');
+                }
             }
         }
         
@@ -3625,20 +3715,38 @@
         }
         
         // Filières
-        function editFiliere(id, nom, code) {
+        async function editFiliere(id, nom, code) {
             const newNom = prompt('Nouveau nom:', nom);
             const newCode = prompt('Nouveau code:', code);
             if (newNom && newCode) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-filiere';
-                form.innerHTML = `
-                    <input type="hidden" name="id" value="${id}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="code" value="${newCode}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('nom', newNom);
+                formData.append('code', newCode);
+                
+                try {
+                    const response = await fetch('/admin/edit-filiere', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // Mettre à jour l'affichage sans recharger la page
+                        const filiereElement = document.querySelector(`button[onclick*="editFiliere('${id}'"]`).closest('.academic-item');
+                        if (filiereElement) {
+                            const nomElement = filiereElement.querySelector('strong');
+                            const codeElement = filiereElement.querySelector('.code');
+                            if (nomElement) nomElement.textContent = newNom;
+                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
+                        }
+                        showAlert(`Filière "${newNom}" modifiée avec succès`, 'success');
+                    } else {
+                        showAlert('Erreur lors de la modification', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showAlert('Erreur lors de la modification', 'error');
+                }
             }
         }
         
@@ -3678,20 +3786,38 @@
         }
         
         // Matières
-        function editMatiere(id, nom, code) {
+        async function editMatiere(id, nom, code) {
             const newNom = prompt('Nouveau nom:', nom);
             const newCode = prompt('Nouveau code:', code);
             if (newNom && newCode) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/admin/edit-matiere';
-                form.innerHTML = `
-                    <input type="hidden" name="id" value="${id}">
-                    <input type="hidden" name="nom" value="${newNom}">
-                    <input type="hidden" name="code" value="${newCode}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
+                const formData = new FormData();
+                formData.append('id', id);
+                formData.append('nom', newNom);
+                formData.append('code', newCode);
+                
+                try {
+                    const response = await fetch('/admin/edit-matiere', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // Mettre à jour l'affichage sans recharger la page
+                        const matiereElement = document.querySelector(`button[onclick*="editMatiere('${id}'"]`).closest('.matiere-item');
+                        if (matiereElement) {
+                            const nomElement = matiereElement.querySelector('strong');
+                            const codeElement = matiereElement.querySelector('.code');
+                            if (nomElement) nomElement.textContent = newNom;
+                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
+                        }
+                        showAlert(`Matière "${newNom}" modifiée avec succès`, 'success');
+                    } else {
+                        showAlert('Erreur lors de la modification', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showAlert('Erreur lors de la modification', 'error');
+                }
             }
         }
         
