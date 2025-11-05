@@ -17,16 +17,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Éditeur riche Quill.js pour contenu scientifique (open-source, sans clé API) -->
-    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-    
-    <!-- MathJax pour le rendu des équations mathématiques -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
-    <!-- Chart.js pour les graphiques -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
     <style>
         /* Désactiver sélection accidentelle sur l'interface */
         button, .navbar, .navbar *, a, .btn, 
@@ -1807,8 +1797,7 @@
                         
                         <div class="form-group">
                             <label for="cours_texte">Contenu textuel du cours</label>
-                            <div id="editor_cours" style="height: 300px; background: white;"></div>
-                            <input type="hidden" id="cours_texte" name="cours_texte">
+                            <textarea id="cours_texte" name="cours_texte" placeholder="Saisissez le contenu du cours..." style="min-height: 200px;"></textarea>
                         </div>
                         
                         <div class="form-group">
@@ -1831,8 +1820,7 @@
                         
                         <div class="form-group">
                             <label for="exercice_texte">Contenu textuel des exercices</label>
-                            <div id="editor_exercice" style="height: 300px; background: white;"></div>
-                            <input type="hidden" id="exercice_texte" name="exercice_texte">
+                            <textarea id="exercice_texte" name="exercice_texte" placeholder="Saisissez les exercices..." style="min-height: 200px;"></textarea>
                         </div>
                         
                         <div class="form-group">
@@ -1855,8 +1843,7 @@
                         
                         <div class="form-group">
                             <label for="solution_texte">Contenu textuel des solutions</label>
-                            <div id="editor_solution" style="height: 300px; background: white;"></div>
-                            <input type="hidden" id="solution_texte" name="solution_texte">
+                            <textarea id="solution_texte" name="solution_texte" placeholder="Saisissez les solutions..." style="min-height: 200px;"></textarea>
                         </div>
                         
                         <div class="form-group">
@@ -3720,181 +3707,6 @@
         window.startVoiceRecording = startVoiceRecording;
         window.stopVoiceRecording = stopVoiceRecording;
         window.cancelVoiceRecording = cancelVoiceRecording;
-    </script>
-    
-    <!-- ==================== ÉDITEUR RICHE SCIENTIFIQUE (Quill.js) ==================== -->
-    <script>
-        // Initialisation des éditeurs Quill.js pour les 3 champs scientifiques
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // Configuration de la toolbar Quill.js
-            const toolbarOptions = [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'align': [] }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link', 'image'],
-                ['clean']
-            ];
-            
-            // Créer les 3 éditeurs Quill
-            const editorCours = new Quill('#editor_cours', {
-                theme: 'snow',
-                placeholder: 'Saisissez le contenu du cours...',
-                modules: { toolbar: toolbarOptions }
-            });
-            
-            const editorExercice = new Quill('#editor_exercice', {
-                theme: 'snow',
-                placeholder: 'Saisissez les exercices...',
-                modules: { toolbar: toolbarOptions }
-            });
-            
-            const editorSolution = new Quill('#editor_solution', {
-                theme: 'snow',
-                placeholder: 'Saisissez les solutions...',
-                modules: { toolbar: toolbarOptions }
-            });
-            
-            // ==================== BOUTON ÉQUATION (Σ) ====================
-            function addEquationButton(editor) {
-                const toolbar = editor.getModule('toolbar');
-                const buttonHtml = document.createElement('button');
-                buttonHtml.innerHTML = 'Σ';
-                buttonHtml.className = 'ql-equation';
-                buttonHtml.title = 'Insérer une équation (LaTeX)';
-                buttonHtml.onclick = function(e) {
-                    e.preventDefault();
-                    const latex = prompt('Entrez votre équation LaTeX :\n\nExemples :\n• Fraction : \\frac{a}{b}\n• Puissance : x^2 ou x^{10}\n• Racine : \\sqrt{x}\n• Somme : \\sum_{i=1}^{n} i\n• Intégrale : \\int_{0}^{\\infty} x dx\n• Limite : \\lim_{x \\to \\infty} f(x)');
-                    
-                    if (latex && latex.trim() !== '') {
-                        const range = editor.getSelection();
-                        const mathHtml = '<span class="math-tex" style="display:inline-block; padding:5px; background:#f9f9f9; border:1px solid #ddd; border-radius:3px; font-family:serif;">\\(' + latex + '\\)</span>&nbsp;';
-                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, mathHtml);
-                        
-                        // Rendre l'équation avec MathJax
-                        setTimeout(() => {
-                            if (window.MathJax && window.MathJax.typesetPromise) {
-                                MathJax.typesetPromise();
-                            }
-                        }, 100);
-                    }
-                };
-                return buttonHtml;
-            }
-            
-            // ==================== BOUTON GRAPHIQUE (📊) ====================
-            function addChartButton(editor) {
-                const buttonHtml = document.createElement('button');
-                buttonHtml.innerHTML = '📊';
-                buttonHtml.className = 'ql-chart';
-                buttonHtml.title = 'Insérer un graphique';
-                buttonHtml.onclick = function(e) {
-                    e.preventDefault();
-                    
-                    const csvData = prompt('📊 Entrez les données CSV (une ligne par point) :\n\nFormat : X,Y (sans en-tête)\n\nExemple :\n0,0\n1,1\n2,4\n3,9\n4,16');
-                    
-                    if (!csvData || csvData.trim() === '') {
-                        return;
-                    }
-                    
-                    try {
-                        const lines = csvData.trim().split('\n');
-                        const xValues = [];
-                        const yValues = [];
-                        
-                        for (let i = 0; i < lines.length; i++) {
-                            const parts = lines[i].split(',');
-                            if (parts.length >= 2) {
-                                xValues.push(parts[0].trim());
-                                yValues.push(parseFloat(parts[1].trim()));
-                            }
-                        }
-                        
-                        if (xValues.length === 0) {
-                            alert('⚠️ Aucune donnée valide détectée.\n\nFormat attendu (sans en-tête) :\n0,0\n1,1\n2,4');
-                            return;
-                        }
-                        
-                        const chartTitle = prompt('📝 Titre du graphique :') || 'Graphique';
-                        const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                        
-                        const chartDataJson = JSON.stringify({
-                            type: 'line',
-                            title: chartTitle,
-                            labels: xValues,
-                            data: yValues
-                        });
-                        
-                        const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson.replace(/'/g, '&apos;') + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + chartTitle + '</p></div><p>&nbsp;</p>';
-                        
-                        const range = editor.getSelection();
-                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, chartHtml);
-                        
-                        setTimeout(() => {
-                            const canvas = document.getElementById(chartId);
-                            if (canvas && window.Chart) {
-                                try {
-                                    const chartData = JSON.parse(canvas.getAttribute('data-chart'));
-                                    new Chart(canvas, {
-                                        type: chartData.type,
-                                        data: {
-                                            labels: chartData.labels,
-                                            datasets: [{
-                                                label: chartData.title,
-                                                data: chartData.data,
-                                                borderColor: 'rgb(75, 192, 192)',
-                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                tension: 0.1
-                                            }]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                title: {
-                                                    display: true,
-                                                    text: chartData.title
-                                                }
-                                            }
-                                        }
-                                    });
-                                    console.log('✅ Graphique créé avec succès:', chartId);
-                                } catch (err) {
-                                    console.error('❌ Erreur création Chart.js:', err);
-                                }
-                            } else {
-                                console.error('❌ Canvas ou Chart.js non trouvé');
-                            }
-                        }, 200);
-                        
-                    } catch (error) {
-                        console.error('❌ Erreur parsing données:', error);
-                        alert('❌ Erreur lors de la création du graphique.\n\nVérifiez le format des données :\n0,0\n1,1\n2,4');
-                    }
-                };
-                return buttonHtml;
-            }
-            
-            // Ajouter les boutons personnalisés aux toolbars
-            const toolbars = document.querySelectorAll('.ql-toolbar');
-            toolbars.forEach((toolbar, index) => {
-                const editor = [editorCours, editorExercice, editorSolution][index];
-                toolbar.appendChild(addEquationButton(editor));
-                toolbar.appendChild(addChartButton(editor));
-            });
-            
-            // Synchroniser le contenu des éditeurs avec les inputs hidden lors de la soumission
-            const form = document.getElementById('form-chapitre-complet');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    document.getElementById('cours_texte').value = editorCours.root.innerHTML;
-                    document.getElementById('exercice_texte').value = editorExercice.root.innerHTML;
-                    document.getElementById('solution_texte').value = editorSolution.root.innerHTML;
-                });
-            }
-        });
     </script>
 </body>
 </html>
