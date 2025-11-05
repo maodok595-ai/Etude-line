@@ -17,8 +17,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Éditeur riche TinyMCE pour contenu scientifique -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Éditeur riche Quill.js pour contenu scientifique (open-source, sans clé API) -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     
     <!-- MathJax pour le rendu des équations mathématiques -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -1806,7 +1807,8 @@
                         
                         <div class="form-group">
                             <label for="cours_texte">Contenu textuel du cours</label>
-                            <textarea id="cours_texte" name="cours_texte" placeholder="Saisissez le contenu du cours..."></textarea>
+                            <div id="editor_cours" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="cours_texte" name="cours_texte">
                         </div>
                         
                         <div class="form-group">
@@ -1829,7 +1831,8 @@
                         
                         <div class="form-group">
                             <label for="exercice_texte">Contenu textuel des exercices</label>
-                            <textarea id="exercice_texte" name="exercice_texte" placeholder="Saisissez les exercices..."></textarea>
+                            <div id="editor_exercice" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="exercice_texte" name="exercice_texte">
                         </div>
                         
                         <div class="form-group">
@@ -1852,7 +1855,8 @@
                         
                         <div class="form-group">
                             <label for="solution_texte">Contenu textuel des solutions</label>
-                            <textarea id="solution_texte" name="solution_texte" placeholder="Saisissez les solutions..."></textarea>
+                            <div id="editor_solution" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="solution_texte" name="solution_texte">
                         </div>
                         
                         <div class="form-group">
@@ -3718,305 +3722,161 @@
         window.cancelVoiceRecording = cancelVoiceRecording;
     </script>
     
-    <!-- ==================== ÉDITEUR RICHE SCIENTIFIQUE (TinyMCE) ==================== -->
+    <!-- ==================== ÉDITEUR RICHE SCIENTIFIQUE (Quill.js) ==================== -->
     <script>
-        // Configuration et initialisation de TinyMCE pour les 3 textarea scientifiques
+        // Initialisation des éditeurs Quill.js pour les 3 champs scientifiques
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Configuration complète de TinyMCE
-            const editorConfig = {
-                // Sélectionner les 3 textarea (cours, exercices, solutions)
-                selector: '#cours_texte, #exercice_texte, #solution_texte',
-                
-                // Langue française
-                language: 'fr_FR',
-                language_url: 'https://cdn.tiny.cloud/1/no-api-key/tinymce/6/langs/fr_FR.js',
-                
-                // Hauteur de l'éditeur
-                height: 450,
-                
-                // Resize manuel possible
-                resize: true,
-                
-                // Plugins activés
-                plugins: [
-                    'lists',           // Listes à puces et numérotées
-                    'link',            // Insertion de liens
-                    'image',           // Insertion d'images
-                    'table',           // Tableaux avancés
-                    'code',            // Vue code HTML
-                    'help',            // Aide
-                    'wordcount',       // Compteur de mots
-                    'searchreplace',   // Rechercher/remplacer
-                    'fullscreen'       // Plein écran
-                ],
-                
-                // Barre d'outils (toolbar)
-                toolbar: 'undo redo | styles | bold italic underline | ' +
-                         'alignleft aligncenter alignright alignjustify | ' +
-                         'bullist numlist outdent indent | ' +
-                         'forecolor backcolor | ' +
-                         'link image | ' +
-                         'table | ' +
-                         'equation chart | ' +
-                         'code fullscreen help',
-                
-                // Styles de texte disponibles
-                style_formats: [
-                    { title: 'Titre 1', format: 'h1' },
-                    { title: 'Titre 2', format: 'h2' },
-                    { title: 'Titre 3', format: 'h3' },
-                    { title: 'Paragraphe', format: 'p' },
-                    { title: 'Code', format: 'code' }
-                ],
-                
-                // Désactiver le menu complet (on utilise la toolbar)
-                menubar: false,
-                
-                // Configuration automatique de la sauvegarde
-                autosave_ask_before_unload: true,
-                autosave_interval: '30s',
-                
-                // Configuration des images
-                image_advtab: true,
-                image_caption: true,
-                
-                // Configuration des tableaux
-                table_toolbar: 'tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol',
-                table_appearance_options: true,
-                table_advtab: true,
-                table_cell_advtab: true,
-                table_row_advtab: true,
-                
-                // Boutons personnalisés pour équations et graphiques
-                setup: function(editor) {
-                    
-                    // ==================== BOUTON ÉQUATION (Σ) ====================
-                    editor.ui.registry.addButton('equation', {
-                        text: 'Σ',
-                        tooltip: 'Insérer une équation mathématique (LaTeX)',
-                        onAction: function() {
-                            // Ouvrir une boîte de dialogue pour saisir l'équation
-                            editor.windowManager.open({
-                                title: 'Insérer une équation mathématique',
-                                body: {
-                                    type: 'panel',
-                                    items: [
-                                        {
-                                            type: 'textarea',
-                                            name: 'latex',
-                                            label: 'Code LaTeX (ex: x^2 + y^2 = r^2)',
-                                            placeholder: 'Entrez votre équation en LaTeX...'
-                                        },
-                                        {
-                                            type: 'htmlpanel',
-                                            html: '<div style="padding:10px; background:#f5f5f5; border-radius:5px; margin-top:10px;">' +
-                                                  '<strong>📐 Exemples LaTeX :</strong><br>' +
-                                                  '• Fraction : <code>\\frac{a}{b}</code><br>' +
-                                                  '• Puissance : <code>x^2</code> ou <code>x^{10}</code><br>' +
-                                                  '• Racine : <code>\\sqrt{x}</code> ou <code>\\sqrt[3]{x}</code><br>' +
-                                                  '• Somme : <code>\\sum_{i=1}^{n} i</code><br>' +
-                                                  '• Intégrale : <code>\\int_{0}^{\\infty} x dx</code><br>' +
-                                                  '• Limite : <code>\\lim_{x \\to \\infty} f(x)</code>' +
-                                                  '</div>'
-                                        }
-                                    ]
-                                },
-                                buttons: [
-                                    {
-                                        type: 'cancel',
-                                        text: 'Annuler'
-                                    },
-                                    {
-                                        type: 'submit',
-                                        text: 'Insérer',
-                                        primary: true
-                                    }
-                                ],
-                                onSubmit: function(api) {
-                                    const data = api.getData();
-                                    const latex = data.latex;
-                                    
-                                    if (latex && latex.trim() !== '') {
-                                        // Insérer l'équation avec la syntaxe MathJax
-                                        const mathHtml = `<span class="math-tex" style="display:inline-block; padding:5px; background:#f9f9f9; border:1px solid #ddd; border-radius:3px; font-family:serif;">\\(${latex}\\)</span>&nbsp;`;
-                                        editor.insertContent(mathHtml);
-                                        
-                                        // Fermer la boîte de dialogue
-                                        api.close();
-                                        
-                                        // Rendre l'équation avec MathJax après un court délai
-                                        setTimeout(() => {
-                                            if (window.MathJax && window.MathJax.typesetPromise) {
-                                                MathJax.typesetPromise();
-                                            }
-                                        }, 100);
-                                    } else {
-                                        alert('⚠️ Veuillez entrer une équation LaTeX');
-                                    }
-                                }
-                            });
-                        }
-                    });
-                    
-                    // ==================== BOUTON GRAPHIQUE (📊) ====================
-                    editor.ui.registry.addButton('chart', {
-                        text: '📊',
-                        tooltip: 'Insérer un graphique',
-                        onAction: function() {
-                            // Ouvrir une boîte de dialogue pour créer un graphique
-                            editor.windowManager.open({
-                                title: 'Créer un graphique',
-                                size: 'large',
-                                body: {
-                                    type: 'panel',
-                                    items: [
-                                        {
-                                            type: 'selectbox',
-                                            name: 'type',
-                                            label: 'Type de graphique',
-                                            items: [
-                                                { value: 'line', text: '📈 Courbe (Line)' },
-                                                { value: 'bar', text: '📊 Histogramme (Bar)' },
-                                                { value: 'scatter', text: '⚫ Nuage de points (Scatter)' },
-                                                { value: 'pie', text: '🥧 Camembert (Pie)' }
-                                            ]
-                                        },
-                                        {
-                                            type: 'input',
-                                            name: 'title',
-                                            label: 'Titre du graphique',
-                                            placeholder: 'Ex: Évolution de f(x)'
-                                        },
-                                        {
-                                            type: 'textarea',
-                                            name: 'data',
-                                            label: 'Données (format CSV: X,Y)',
-                                            placeholder: 'X,Y\n0,0\n1,1\n2,4\n3,9\n4,16'
-                                        },
-                                        {
-                                            type: 'htmlpanel',
-                                            html: '<div style="padding:10px; background:#e3f2fd; border-radius:5px; margin-top:10px;">' +
-                                                  '<strong>💡 Format des données :</strong><br>' +
-                                                  'Entrez vos données au format CSV (une ligne par point) :<br>' +
-                                                  '<code>X,Y</code> (première ligne = entête)<br>' +
-                                                  '<code>0,0</code><br>' +
-                                                  '<code>1,1</code><br>' +
-                                                  '<code>2,4</code>' +
-                                                  '</div>'
-                                        }
-                                    ]
-                                },
-                                buttons: [
-                                    {
-                                        type: 'cancel',
-                                        text: 'Annuler'
-                                    },
-                                    {
-                                        type: 'submit',
-                                        text: 'Créer le graphique',
-                                        primary: true
-                                    }
-                                ],
-                                onSubmit: function(api) {
-                                    const data = api.getData();
-                                    const chartType = data.type;
-                                    const chartTitle = data.title || 'Graphique';
-                                    const csvData = data.data;
-                                    
-                                    if (!csvData || csvData.trim() === '') {
-                                        alert('⚠️ Veuillez entrer des données pour le graphique');
-                                        return;
-                                    }
-                                    
-                                    // Parser les données CSV
-                                    try {
-                                        const lines = csvData.trim().split('\n');
-                                        const xValues = [];
-                                        const yValues = [];
-                                        
-                                        // Ignorer la première ligne (entête X,Y)
-                                        for (let i = 1; i < lines.length; i++) {
-                                            const parts = lines[i].split(',');
-                                            if (parts.length >= 2) {
-                                                xValues.push(parts[0].trim());
-                                                yValues.push(parseFloat(parts[1].trim()));
-                                            }
-                                        }
-                                        
-                                        if (xValues.length === 0) {
-                                            alert('⚠️ Aucune donnée valide détectée');
-                                            return;
-                                        }
-                                        
-                                        // Créer un ID unique pour le canvas
-                                        const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                                        
-                                        // Stocker les données du graphique dans un attribut data
-                                        const chartDataJson = JSON.stringify({
-                                            type: chartType,
-                                            title: chartTitle,
-                                            labels: xValues,
-                                            data: yValues
-                                        });
-                                        
-                                        // Insérer le canvas avec les données
-                                        const chartHtml = `<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;">
-                                            <canvas id="${chartId}" data-chart='${chartDataJson.replace(/'/g, '&apos;')}' width="600" height="300"></canvas>
-                                            <p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ${chartTitle}</p>
-                                        </div><p>&nbsp;</p>`;
-                                        
-                                        editor.insertContent(chartHtml);
-                                        
-                                        // Fermer la boîte de dialogue
-                                        api.close();
-                                        
-                                        // Créer le graphique après un court délai
-                                        setTimeout(() => {
-                                            const canvas = document.getElementById(chartId);
-                                            if (canvas && window.Chart) {
-                                                const chartData = JSON.parse(canvas.getAttribute('data-chart'));
-                                                
-                                                new Chart(canvas, {
-                                                    type: chartData.type,
-                                                    data: {
-                                                        labels: chartData.labels,
-                                                        datasets: [{
-                                                            label: chartData.title,
-                                                            data: chartData.data,
-                                                            borderColor: 'rgb(75, 192, 192)',
-                                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                                            tension: 0.1
-                                                        }]
-                                                    },
-                                                    options: {
-                                                        responsive: true,
-                                                        maintainAspectRatio: false,
-                                                        plugins: {
-                                                            title: {
-                                                                display: true,
-                                                                text: chartData.title
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }, 100);
-                                        
-                                    } catch (error) {
-                                        console.error('Erreur parsing données:', error);
-                                        alert('❌ Erreur lors de la création du graphique. Vérifiez le format des données.');
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            };
+            // Configuration de la toolbar Quill.js
+            const toolbarOptions = [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image'],
+                ['clean']
+            ];
             
-            // Initialiser TinyMCE avec la configuration
-            tinymce.init(editorConfig);
+            // Créer les 3 éditeurs Quill
+            const editorCours = new Quill('#editor_cours', {
+                theme: 'snow',
+                placeholder: 'Saisissez le contenu du cours...',
+                modules: { toolbar: toolbarOptions }
+            });
             
+            const editorExercice = new Quill('#editor_exercice', {
+                theme: 'snow',
+                placeholder: 'Saisissez les exercices...',
+                modules: { toolbar: toolbarOptions }
+            });
+            
+            const editorSolution = new Quill('#editor_solution', {
+                theme: 'snow',
+                placeholder: 'Saisissez les solutions...',
+                modules: { toolbar: toolbarOptions }
+            });
+            
+            // ==================== BOUTON ÉQUATION (Σ) ====================
+            function addEquationButton(editor) {
+                const toolbar = editor.getModule('toolbar');
+                const buttonHtml = document.createElement('button');
+                buttonHtml.innerHTML = 'Σ';
+                buttonHtml.className = 'ql-equation';
+                buttonHtml.title = 'Insérer une équation (LaTeX)';
+                buttonHtml.onclick = function(e) {
+                    e.preventDefault();
+                    const latex = prompt('Entrez votre équation LaTeX :\n\nExemples :\n• Fraction : \\frac{a}{b}\n• Puissance : x^2 ou x^{10}\n• Racine : \\sqrt{x}\n• Somme : \\sum_{i=1}^{n} i\n• Intégrale : \\int_{0}^{\\infty} x dx\n• Limite : \\lim_{x \\to \\infty} f(x)');
+                    
+                    if (latex && latex.trim() !== '') {
+                        const range = editor.getSelection();
+                        const mathHtml = '<span class="math-tex" style="display:inline-block; padding:5px; background:#f9f9f9; border:1px solid #ddd; border-radius:3px; font-family:serif;">\\(' + latex + '\\)</span>&nbsp;';
+                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, mathHtml);
+                        
+                        // Rendre l'équation avec MathJax
+                        setTimeout(() => {
+                            if (window.MathJax && window.MathJax.typesetPromise) {
+                                MathJax.typesetPromise();
+                            }
+                        }, 100);
+                    }
+                };
+                return buttonHtml;
+            }
+            
+            // ==================== BOUTON GRAPHIQUE (📊) ====================
+            function addChartButton(editor) {
+                const buttonHtml = document.createElement('button');
+                buttonHtml.innerHTML = '📊';
+                buttonHtml.className = 'ql-chart';
+                buttonHtml.title = 'Insérer un graphique';
+                buttonHtml.onclick = function(e) {
+                    e.preventDefault();
+                    const csvData = prompt('Entrez les données CSV (format X,Y) :\n\nExemple :\nX,Y\n0,0\n1,1\n2,4\n3,9\n4,16');
+                    
+                    if (csvData && csvData.trim() !== '') {
+                        try {
+                            const lines = csvData.trim().split('\n');
+                            const xValues = [];
+                            const yValues = [];
+                            
+                            for (let i = 1; i < lines.length; i++) {
+                                const parts = lines[i].split(',');
+                                if (parts.length >= 2) {
+                                    xValues.push(parts[0].trim());
+                                    yValues.push(parseFloat(parts[1].trim()));
+                                }
+                            }
+                            
+                            if (xValues.length === 0) {
+                                alert('⚠️ Aucune donnée valide détectée');
+                                return;
+                            }
+                            
+                            const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                            const chartTitle = prompt('Titre du graphique :') || 'Graphique';
+                            
+                            const chartDataJson = JSON.stringify({
+                                type: 'line',
+                                title: chartTitle,
+                                labels: xValues,
+                                data: yValues
+                            });
+                            
+                            const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + chartTitle + '</p></div><p>&nbsp;</p>';
+                            
+                            const range = editor.getSelection();
+                            editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, chartHtml);
+                            
+                            setTimeout(() => {
+                                const canvas = document.getElementById(chartId);
+                                if (canvas && window.Chart) {
+                                    const chartData = JSON.parse(canvas.getAttribute('data-chart'));
+                                    new Chart(canvas, {
+                                        type: chartData.type,
+                                        data: {
+                                            labels: chartData.labels,
+                                            datasets: [{
+                                                label: chartData.title,
+                                                data: chartData.data,
+                                                borderColor: 'rgb(75, 192, 192)',
+                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                tension: 0.1
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false
+                                        }
+                                    });
+                                }
+                            }, 100);
+                        } catch (error) {
+                            console.error('Erreur:', error);
+                            alert('❌ Erreur lors de la création du graphique');
+                        }
+                    }
+                };
+                return buttonHtml;
+            }
+            
+            // Ajouter les boutons personnalisés aux toolbars
+            const toolbars = document.querySelectorAll('.ql-toolbar');
+            toolbars.forEach((toolbar, index) => {
+                const editor = [editorCours, editorExercice, editorSolution][index];
+                toolbar.appendChild(addEquationButton(editor));
+                toolbar.appendChild(addChartButton(editor));
+            });
+            
+            // Synchroniser le contenu des éditeurs avec les inputs hidden lors de la soumission
+            const form = document.getElementById('form-chapitre-complet');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    document.getElementById('cours_texte').value = editorCours.root.innerHTML;
+                    document.getElementById('exercice_texte').value = editorExercice.root.innerHTML;
+                    document.getElementById('solution_texte').value = editorSolution.root.innerHTML;
+                });
+            }
         });
     </script>
 </body>
