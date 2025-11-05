@@ -162,21 +162,27 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Database helper functions (PostgreSQL)
 def create_default_admin_if_needed(db: Session) -> None:
     """Create default admin if none exists"""
-    existing_admin = db.query(AdministrateurDB).filter_by(username="kamaodo65").first()
+    # Utiliser variables d'environnement pour sécurité
+    admin_username = os.getenv("ADMIN_USERNAME", "admin_default")
+    admin_password = os.getenv("ADMIN_PASSWORD", "ChangeMeNow2024!")
+    
+    existing_admin = db.query(AdministrateurDB).filter_by(username=admin_username).first()
     if not existing_admin:
         print("👑 Création de l'administrateur principal par défaut...")
         default_admin = AdministrateurDB(
-            username="kamaodo65",
-            password_hash=hash_password("admin123"),
-            nom="Maodo",
-            prenom="Ka",
+            username=admin_username,
+            password_hash=hash_password(admin_password),
+            nom="Administrateur",
+            prenom="Principal",
             is_main_admin=True
         )
         db.add(default_admin)
         db.commit()
-        print("✅ Administrateur principal créé avec succès (kamaodo65/admin123)")
+        print(f"✅ Administrateur principal créé avec succès ({admin_username})")
+        if admin_password == "ChangeMeNow2024!":
+            print("⚠️  ATTENTION : Utilisez des credentials personnalisés via variables d'environnement ADMIN_USERNAME et ADMIN_PASSWORD")
     else:
-        print("✅ Administrateur principal déjà présent")
+        print(f"✅ Administrateur principal déjà présent ({admin_username})")
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[Tuple[str, Dict[str, Any]]]:
     """Authenticate user against PostgreSQL database"""
