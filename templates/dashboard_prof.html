@@ -3792,45 +3792,50 @@
                 buttonHtml.title = 'Insérer un graphique';
                 buttonHtml.onclick = function(e) {
                     e.preventDefault();
-                    const csvData = prompt('Entrez les données CSV (format X,Y) :\n\nExemple :\nX,Y\n0,0\n1,1\n2,4\n3,9\n4,16');
                     
-                    if (csvData && csvData.trim() !== '') {
-                        try {
-                            const lines = csvData.trim().split('\n');
-                            const xValues = [];
-                            const yValues = [];
-                            
-                            for (let i = 1; i < lines.length; i++) {
-                                const parts = lines[i].split(',');
-                                if (parts.length >= 2) {
-                                    xValues.push(parts[0].trim());
-                                    yValues.push(parseFloat(parts[1].trim()));
-                                }
+                    const csvData = prompt('📊 Entrez les données CSV (une ligne par point) :\n\nFormat : X,Y (sans en-tête)\n\nExemple :\n0,0\n1,1\n2,4\n3,9\n4,16');
+                    
+                    if (!csvData || csvData.trim() === '') {
+                        return;
+                    }
+                    
+                    try {
+                        const lines = csvData.trim().split('\n');
+                        const xValues = [];
+                        const yValues = [];
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            const parts = lines[i].split(',');
+                            if (parts.length >= 2) {
+                                xValues.push(parts[0].trim());
+                                yValues.push(parseFloat(parts[1].trim()));
                             }
-                            
-                            if (xValues.length === 0) {
-                                alert('⚠️ Aucune donnée valide détectée');
-                                return;
-                            }
-                            
-                            const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                            const chartTitle = prompt('Titre du graphique :') || 'Graphique';
-                            
-                            const chartDataJson = JSON.stringify({
-                                type: 'line',
-                                title: chartTitle,
-                                labels: xValues,
-                                data: yValues
-                            });
-                            
-                            const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + chartTitle + '</p></div><p>&nbsp;</p>';
-                            
-                            const range = editor.getSelection();
-                            editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, chartHtml);
-                            
-                            setTimeout(() => {
-                                const canvas = document.getElementById(chartId);
-                                if (canvas && window.Chart) {
+                        }
+                        
+                        if (xValues.length === 0) {
+                            alert('⚠️ Aucune donnée valide détectée.\n\nFormat attendu (sans en-tête) :\n0,0\n1,1\n2,4');
+                            return;
+                        }
+                        
+                        const chartTitle = prompt('📝 Titre du graphique :') || 'Graphique';
+                        const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        
+                        const chartDataJson = JSON.stringify({
+                            type: 'line',
+                            title: chartTitle,
+                            labels: xValues,
+                            data: yValues
+                        });
+                        
+                        const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson.replace(/'/g, '&apos;') + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + chartTitle + '</p></div><p>&nbsp;</p>';
+                        
+                        const range = editor.getSelection();
+                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, chartHtml);
+                        
+                        setTimeout(() => {
+                            const canvas = document.getElementById(chartId);
+                            if (canvas && window.Chart) {
+                                try {
                                     const chartData = JSON.parse(canvas.getAttribute('data-chart'));
                                     new Chart(canvas, {
                                         type: chartData.type,
@@ -3846,15 +3851,27 @@
                                         },
                                         options: {
                                             responsive: true,
-                                            maintainAspectRatio: false
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: chartData.title
+                                                }
+                                            }
                                         }
                                     });
+                                    console.log('✅ Graphique créé avec succès:', chartId);
+                                } catch (err) {
+                                    console.error('❌ Erreur création Chart.js:', err);
                                 }
-                            }, 100);
-                        } catch (error) {
-                            console.error('Erreur:', error);
-                            alert('❌ Erreur lors de la création du graphique');
-                        }
+                            } else {
+                                console.error('❌ Canvas ou Chart.js non trouvé');
+                            }
+                        }, 200);
+                        
+                    } catch (error) {
+                        console.error('❌ Erreur parsing données:', error);
+                        alert('❌ Erreur lors de la création du graphique.\n\nVérifiez le format des données :\n0,0\n1,1\n2,4');
                     }
                 };
                 return buttonHtml;
