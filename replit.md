@@ -2,35 +2,37 @@
 
 ## Recent Changes
 
-**5 novembre 2025 - Éditeur riche scientifique pour création de chapitres (TinyMCE + MathJax + Chart.js)**
+**5 novembre 2025 - Éditeur riche scientifique pour création de chapitres (Quill.js + MathJax + Chart.js)**
 
 ### 🎓 Amélioration majeure : Support du contenu scientifique avancé
 **Objectif** : Permettre aux professeurs de créer des contenus pédagogiques riches avec équations mathématiques, tableaux et graphiques sans connaissances techniques en LaTeX ou programmation.
 
 **Problème initial** : Les 3 champs de texte (Cours, Exercices, Solutions) dans le formulaire de création de chapitre n'étaient que de simples textarea sans formatage ni support d'éléments scientifiques.
 
-**Solution implémentée** : Intégration de **TinyMCE** (éditeur WYSIWYG) avec support complet pour :
+**Solution implémentée** : Intégration de **Quill.js** (éditeur WYSIWYG open-source) avec support complet pour :
 - ✅ Équations mathématiques (LaTeX via MathJax)
-- ✅ Tableaux avancés
+- ✅ Tableaux natifs
 - ✅ Graphiques interactifs (Chart.js)
-- ✅ Formatage riche (gras, italique, listes, titres)
+- ✅ Formatage riche (gras, italique, listes, titres, couleurs)
+- ✅ **Pas de clé API requise** (contrairement à TinyMCE qui nécessitait une clé)
 
 ---
 
 ### 📊 **Fonctionnalités détaillées**
 
-#### **1. Éditeur riche TinyMCE**
+#### **1. Éditeur riche Quill.js**
 - **Toolbar complète** : Formatage de texte, alignement, listes, couleurs, liens, images
-- **Hauteur ajustable** : 450px par défaut, redimensionnable
-- **Interface française** : Traduction complète en français
-- **Auto-save** : Sauvegarde automatique toutes les 30 secondes
-- **Plein écran** : Mode plein écran pour édition confortable
+- **Hauteur fixe** : 300px par éditeur pour interface cohérente
+- **Interface intuitive** : Design moderne et épuré
+- **Thème Snow** : Interface professionnelle avec toolbar claire
+- **Open-source** : Pas de clé API nécessaire (contrairement à TinyMCE)
 
 #### **2. Équations mathématiques (Bouton Σ)**
 **Dialogue d'insertion** :
-- Saisie LaTeX avec aperçu en temps réel
-- Exemples intégrés (fractions, puissances, racines, intégrales, sommes, limites)
-- Rendu MathJax automatique
+- Prompt JavaScript avec exemples LaTeX intégrés
+- Saisie LaTeX simple et directe
+- Rendu MathJax automatique après insertion
+- Bouton personnalisé ajouté dynamiquement à la toolbar
 
 **Syntaxe LaTeX supportée** :
 ```latex
@@ -47,20 +49,19 @@ x^2 ou x^{10}                  # Puissance
 - Rendu professionnel avec MathJax côté professeur ET étudiant
 
 #### **3. Tableaux avancés**
-- **Plugin natif TinyMCE** : Création de tableaux directement dans l'éditeur
+- **Module natif Quill.js** : Création de tableaux directement dans l'éditeur
 - **Fonctionnalités** :
-  - Ajout/suppression de lignes et colonnes
-  - Fusion de cellules
-  - Couleur de fond personnalisable
-  - Bordures et styles de tableau
-  - Entête automatique
+  - Ajout de lignes et colonnes via la toolbar
+  - Support HTML complet pour tableaux enrichis
+  - Tableaux responsive et bien formatés
+  - Compatible avec le copier-coller depuis Excel/Word
 
 #### **4. Graphiques (Bouton 📊)**
 **Dialogue de création** :
-- **Types supportés** : Courbe (line), Histogramme (bar), Nuage de points (scatter), Camembert (pie)
-- **Saisie CSV intuitive** : Format simple X,Y
-- **Titre personnalisable**
-- **Aperçu avant insertion**
+- **Type par défaut** : Courbe (line) pour simplifier l'interface
+- **Saisie CSV intuitive** : Format simple X,Y via prompt JavaScript
+- **Titre personnalisable** : Demandé après saisie des données
+- **Bouton personnalisé** ajouté dynamiquement à la toolbar
 
 **Exemple de données CSV** :
 ```csv
@@ -83,8 +84,9 @@ X,Y
 
 #### **Bibliothèques CDN intégrées**
 ```html
-<!-- TinyMCE (éditeur WYSIWYG) -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js"></script>
+<!-- Quill.js (éditeur WYSIWYG open-source) -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
 <!-- MathJax (rendu équations LaTeX) -->
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -93,20 +95,29 @@ X,Y
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 ```
 
-#### **Configuration TinyMCE**
+#### **Configuration Quill.js**
 ```javascript
-tinymce.init({
-    selector: '#cours_texte, #exercice_texte, #solution_texte',
-    language: 'fr_FR',
-    height: 450,
-    plugins: ['lists', 'link', 'image', 'table', 'code', 'help', 'wordcount', 'searchreplace', 'fullscreen'],
-    toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | forecolor backcolor | link image | table | equation chart | code fullscreen help'
+const toolbarOptions = [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'align': [] }],
+    [{ 'color': [] }, { 'background': [] }],
+    ['link', 'image'],
+    ['clean']
+];
+
+const editorCours = new Quill('#editor_cours', {
+    theme: 'snow',
+    placeholder: 'Saisissez le contenu du cours...',
+    modules: { toolbar: toolbarOptions }
 });
 ```
 
 #### **Boutons personnalisés**
-- **Bouton Équation (Σ)** : Dialogue avec textarea LaTeX + exemples + insertion MathJax
-- **Bouton Graphique (📊)** : Dialogue avec type, titre, données CSV + génération Chart.js
+- **Bouton Équation (Σ)** : Prompt JavaScript avec exemples LaTeX + insertion via `dangerouslyPasteHTML()`
+- **Bouton Graphique (📊)** : Prompt CSV + titre + génération Chart.js + insertion dans l'éditeur
+- **Synchronisation** : Event listener sur submit pour copier le contenu Quill vers les inputs hidden
 
 #### **Affichage côté étudiant**
 **chapitre_detail.html** :
@@ -119,10 +130,11 @@ tinymce.init({
 ### 📁 **Fichiers modifiés**
 
 **1. templates/dashboard_prof.html** (Côté professeur)
-- **Lignes 23-30** : Ajout CDN TinyMCE, MathJax, Chart.js
-- **Lignes 3724-4003** : Initialisation complète de TinyMCE avec boutons personnalisés
-- Configuration des dialogues équations et graphiques
-- Gestion des événements et rendu en temps réel
+- **Lignes 23-30** : Ajout CDN Quill.js, MathJax, Chart.js
+- **Lignes 1808-1862** : Remplacement des textarea par des divs + inputs hidden pour Quill
+- **Lignes 3728-3885** : Initialisation complète de Quill.js avec boutons personnalisés
+- Configuration des toolbars et ajout dynamique des boutons Σ et 📊
+- Synchronisation des éditeurs avec les inputs hidden lors de la soumission du formulaire
 
 **2. templates/chapitre_detail.html** (Côté étudiant)
 - **Lignes 11-15** : Ajout CDN MathJax et Chart.js
@@ -135,10 +147,11 @@ tinymce.init({
 
 **Pour les professeurs** :
 - ✅ Interface WYSIWYG intuitive (pas besoin de connaître HTML/LaTeX)
-- ✅ Prévisualisation en temps réel
+- ✅ Prévisualisation en temps réel dans l'éditeur
 - ✅ Création de contenu scientifique professionnel en quelques clics
-- ✅ Exemples LaTeX intégrés dans l'interface
+- ✅ Exemples LaTeX intégrés dans les prompts
 - ✅ Graphiques interactifs sans coder
+- ✅ **Pas de clé API requise** (100% gratuit et open-source)
 
 **Pour les étudiants** :
 - ✅ Affichage professionnel des équations mathématiques
@@ -152,15 +165,18 @@ tinymce.init({
 - ✅ Compatible mobile et desktop
 - ✅ Chargement CDN (cache navigateur)
 - ✅ Sécurisé (pas d'injection XSS grâce à l'API DOM)
+- ✅ **Open-source** : Quill.js est entièrement gratuit (MIT License)
+- ✅ **Aucune limite d'utilisation** contrairement à TinyMCE
 
 ---
 
 ### 🔐 **Sécurité**
 
-- ✅ **Pas d'injection de code** : TinyMCE nettoie automatiquement le HTML
+- ✅ **Pas d'injection de code** : Quill.js nettoie automatiquement le HTML
 - ✅ **Filtre safe contrôlé** : Utilisé uniquement sur contenu créé par professeurs (rôle de confiance)
 - ✅ **API DOM** : Création d'éléments Chart.js sans innerHTML
 - ✅ **Échappement JSON** : Données de graphiques stockées en JSON échappé
+- ✅ **dangerouslyPasteHTML sécurisé** : Utilisé uniquement pour insérer du HTML contrôlé (équations et graphiques)
 
 ---
 
@@ -183,11 +199,11 @@ tinymce.init({
 
 **Créer un chapitre de mathématiques** :
 1. Ouvrir le formulaire "Créer un chapitre"
-2. Remplir Cours, Exercices, Solutions avec l'éditeur TinyMCE :
-   - Cliquer **Σ** → Saisir `x^2 + y^2 = r^2` → Insérer
-   - Cliquer **📊** → Type: Courbe → Données CSV → Créer
-   - Utiliser le bouton **Table** pour ajouter un tableau de valeurs
-3. Sauvegarder le chapitre
+2. Remplir Cours, Exercices, Solutions avec l'éditeur Quill.js :
+   - Cliquer **Σ** (bouton personnalisé) → Saisir `x^2 + y^2 = r^2` → OK
+   - Cliquer **📊** (bouton personnalisé) → Données CSV → Titre → OK
+   - Utiliser les boutons natifs Quill pour formatage (gras, listes, couleurs)
+3. Sauvegarder le chapitre (le contenu Quill est automatiquement synchronisé)
 4. Les étudiants voient le contenu enrichi avec équations, graphiques et tableaux
 
 ---
