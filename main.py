@@ -7,7 +7,7 @@ import fcntl
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, validator
@@ -1217,21 +1217,21 @@ async def create_chapitre_complet(
     if prof_universite_id and universite_id != prof_universite_id:
         error_msg = "Vous ne pouvez créer des chapitres que dans votre université"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
     # Validate semester (only S1 and S2 allowed)
     if semestre not in ["S1", "S2"]:
         error_msg = "Semestre non valide (seuls S1 et S2 sont autorisés)"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
     # Validate academic level
     if niveau not in ["L1", "L2", "L3", "M1", "M2"]:
         error_msg = "Niveau d'étude non valide"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
     # Récupérer tous les fichiers uploadés via le formulaire
@@ -1264,7 +1264,7 @@ async def create_chapitre_complet(
     if errors:
         error_msg = " | ".join(errors)
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
     
     # Check if chapter already exists for this context in PostgreSQL
@@ -1279,7 +1279,7 @@ async def create_chapitre_complet(
     if existing:
         error_msg = "Ce chapitre existe déjà pour ce niveau/semestre/matière"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/prof?error={error_msg}", status_code=303)
 
     # Helper function to save multiple files
@@ -1399,7 +1399,7 @@ async def create_chapitre_complet(
         is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
         
         if is_ajax:
-            return {"success": True, "message": "Chapitre complet créé avec succès"}
+            return JSONResponse({"success": True, "message": "Chapitre complet créé avec succès"})
         else:
             return RedirectResponse(url="/dashboard/prof?success=Chapitre complet créé avec succès", status_code=303)
         
@@ -1411,7 +1411,7 @@ async def create_chapitre_complet(
         is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
         
         if is_ajax:
-            return {"success": False, "message": error_message}
+            return JSONResponse({"success": False, "message": error_message})
         else:
             return RedirectResponse(url=f"/dashboard/prof?error={error_message}", status_code=303)
 
@@ -2270,7 +2270,7 @@ async def admin_create_admin(
     if not admin_data.get("is_main_admin", False):
         error_msg = "Seul l'administrateur principal peut créer des administrateurs"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
     
     try:
@@ -2282,7 +2282,7 @@ async def admin_create_admin(
         if existing_admin or existing_prof or existing_etudiant:
             error_msg = "Ce nom d'utilisateur existe déjà"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Vérifier que l'université existe
@@ -2290,7 +2290,7 @@ async def admin_create_admin(
         if not universite:
             error_msg = "Université invalide"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Créer le nouvel administrateur
@@ -2325,7 +2325,7 @@ async def admin_create_admin(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 @app.post("/admin/create-prof")
@@ -2359,7 +2359,7 @@ async def admin_create_prof(
         if existing_username:
             error_msg = "Ce nom d'utilisateur existe déjà"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Validate university exists
@@ -2367,14 +2367,14 @@ async def admin_create_prof(
         if not universite:
             error_msg = "Université non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Validate at least one UFR and one filière selected
         if not ufr_ids or not filiere_ids:
             error_msg = "Sélectionnez au moins une UFR et une filière"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Validate all UFRs belong to the selected university (optimized - single query with in_)
@@ -2386,7 +2386,7 @@ async def admin_create_prof(
         if len(ufrs) != len(ufr_ids):
             error_msg = "Une ou plusieurs UFR ne sont pas valides pour cette université"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Validate all filières are valid (belong to the selected UFRs) - optimized
@@ -2397,7 +2397,7 @@ async def admin_create_prof(
         if invalid_filieres:
             error_msg = "Une ou plusieurs filières ne sont pas valides pour les UFR sélectionnées"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new professor (without UFR/filière, using many-to-many relations)
@@ -2449,7 +2449,7 @@ async def admin_create_prof(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 @app.post("/admin/create-universite")
@@ -2468,7 +2468,7 @@ async def admin_create_universite(
     if not admin_data.get("is_main_admin", False):
         error_msg = "Seul l'administrateur principal peut créer des universités"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
     
     try:
@@ -2477,7 +2477,7 @@ async def admin_create_universite(
         if existing_universite:
             error_msg = "Code université déjà existant"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new university
@@ -2508,7 +2508,7 @@ async def admin_create_universite(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 @app.post("/admin/create-ufr")
@@ -2529,7 +2529,7 @@ async def admin_create_ufr(
         if admin_data.get("universite_id") != universite_id:
             error_msg = "Vous ne pouvez créer des UFR que dans votre université"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
     
     try:
@@ -2538,7 +2538,7 @@ async def admin_create_ufr(
         if not universite:
             error_msg = "Université non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Check if code already exists for this university
@@ -2549,7 +2549,7 @@ async def admin_create_ufr(
         if existing_ufr:
             error_msg = "Code UFR déjà existant pour cette université"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new UFR
@@ -2581,7 +2581,7 @@ async def admin_create_ufr(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -2604,7 +2604,7 @@ async def admin_create_filiere(
         if not ufr:
             error_msg = "UFR non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Vérifier que l'admin secondaire crée la filière dans une UFR de son université
@@ -2612,7 +2612,7 @@ async def admin_create_filiere(
             if ufr.universite_id != admin_data.get("universite_id"):
                 error_msg = "Vous ne pouvez créer des filières que dans votre université"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Check if code already exists for this UFR
@@ -2623,7 +2623,7 @@ async def admin_create_filiere(
         if existing_filiere:
             error_msg = "Code filière déjà existant pour cette UFR"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new filiere
@@ -2655,7 +2655,7 @@ async def admin_create_filiere(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -2680,7 +2680,7 @@ async def admin_create_matiere(
         if niveau not in niveaux_valides:
             error_msg = f"Niveau invalide. Choisir parmi : {', '.join(niveaux_valides)}"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Valider le semestre
@@ -2688,7 +2688,7 @@ async def admin_create_matiere(
         if semestre not in semestres_valides:
             error_msg = f"Semestre invalide. Choisir parmi : {', '.join(semestres_valides)}"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Check if filiere exists
@@ -2696,7 +2696,7 @@ async def admin_create_matiere(
         if not filiere:
             error_msg = "Filière non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Vérifier que l'admin secondaire crée la matière dans une filière de son université
@@ -2706,7 +2706,7 @@ async def admin_create_matiere(
             if ufr and ufr.universite_id != admin_data.get("universite_id"):
                 error_msg = "Vous ne pouvez créer des matières que dans votre université"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Check if code already exists for this filiere, niveau AND semestre
@@ -2719,7 +2719,7 @@ async def admin_create_matiere(
         if existing_matiere:
             error_msg = f"Code matière déjà existant pour cette filière, niveau ({niveau}) et semestre ({semestre})"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Create new matiere
@@ -2753,7 +2753,7 @@ async def admin_create_matiere(
         db.rollback()
         error_msg = f"Erreur lors de la création: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 # ========== ROUTES HIÉRARCHIE DE PASSAGE ==========
@@ -2783,7 +2783,7 @@ async def admin_create_passage(
         if not filiere_depart or not filiere_arrivee:
             error_msg = "Filière invalide"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Vérifier que les filières appartiennent à l'université de l'admin (si admin secondaire)
@@ -2796,7 +2796,7 @@ async def admin_create_passage(
                 ufr_arrivee.universite_id != universite_id):
                 error_msg = "Vous ne pouvez créer des règles que pour votre université"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         else:
             # Admin principal : récupérer l'université de la filière de départ
@@ -2806,7 +2806,7 @@ async def admin_create_passage(
         if not universite_id:
             error_msg = "Université invalide"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Vérifier si cette règle existe déjà
@@ -2821,7 +2821,7 @@ async def admin_create_passage(
         if existing_rule:
             error_msg = "Cette règle de passage existe déjà"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
         
         # Créer la nouvelle règle
@@ -2855,7 +2855,7 @@ async def admin_create_passage(
         db.rollback()
         error_msg = f"Erreur: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(url=f"/dashboard/admin?error={error_msg}", status_code=303)
 
 @app.delete("/admin/passage/{passage_id}")
@@ -2879,7 +2879,7 @@ async def admin_delete_passage(
         
         db.delete(passage)
         db.commit()
-        return {"success": True, "message": "Règle supprimée avec succès"}
+        return JSONResponse({"success": True, "message": "Règle supprimée avec succès"})
         
     except HTTPException:
         raise
@@ -3038,7 +3038,7 @@ async def admin_edit_admin(
     if not admin_data.get("is_main_admin", False):
         error_msg = "Seul l'administrateur principal peut modifier des administrateurs"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg  })
         return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
     
     try:
@@ -3046,7 +3046,7 @@ async def admin_edit_admin(
         if not admin:
             error_msg = "Administrateur non trouvé"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg  })
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         # Mettre à jour nom et prénom
@@ -3062,7 +3062,7 @@ async def admin_edit_admin(
             if existing_admin or existing_prof or existing_etudiant:
                 error_msg = "Ce nom d'utilisateur existe déjà"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
             
             admin.username = new_username
@@ -3074,13 +3074,13 @@ async def admin_edit_admin(
         db.commit()
         success_msg = "Administrateur modifié avec succès"
         if is_ajax:
-            return {"success": True, "message": success_msg}
+            return JSONResponse({"success": True, "message": success_msg})
         return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -3232,7 +3232,7 @@ async def admin_edit_prof(
         if not prof:
             error_msg = "Professeur non trouvé"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         # Mettre à jour nom, prénom et spécialité
@@ -3249,7 +3249,7 @@ async def admin_edit_prof(
             if existing_admin or existing_prof or existing_etudiant:
                 error_msg = "Ce nom d'utilisateur existe déjà"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
             
             # Mettre à jour le username dans les chapitres créés
@@ -3266,13 +3266,13 @@ async def admin_edit_prof(
         db.commit()
         success_msg = "Professeur modifié avec succès"
         if is_ajax:
-            return {"success": True, "message": success_msg}
+            return JSONResponse({"success": True, "message": success_msg})
         return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -3357,7 +3357,7 @@ async def admin_edit_universite(
     if not admin_data.get("is_main_admin", False):
         error_msg = "Seul l'administrateur principal peut modifier des universités"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
     
     try:
@@ -3368,18 +3368,18 @@ async def admin_edit_universite(
             db.commit()
             success_msg = "Université modifiée avec succès"
             if is_ajax:
-                return {"success": True, "message": success_msg}
+                return JSONResponse({"success": True, "message": success_msg})
             return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
         else:
             error_msg = "Université non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -3446,7 +3446,7 @@ async def admin_edit_ufr(
         if not ufr:
             error_msg = "UFR non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         # Vérifier que l'admin secondaire modifie une UFR de son université
@@ -3454,7 +3454,7 @@ async def admin_edit_ufr(
             if ufr.universite_id != admin_data.get("universite_id"):
                 error_msg = "Vous ne pouvez modifier que les UFR de votre université"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         ufr.nom = nom
@@ -3462,13 +3462,13 @@ async def admin_edit_ufr(
         db.commit()
         success_msg = "UFR modifiée avec succès"
         if is_ajax:
-            return {"success": True, "message": success_msg}
+            return JSONResponse({"success": True, "message": success_msg})
         return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -3527,7 +3527,7 @@ async def admin_edit_filiere(
         if not filiere:
             error_msg = "Filière non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         # Vérifier que l'admin secondaire modifie une filière de son université
@@ -3536,7 +3536,7 @@ async def admin_edit_filiere(
             if ufr and ufr.universite_id != admin_data.get("universite_id"):
                 error_msg = "Vous ne pouvez modifier que les filières de votre université"
                 if is_ajax:
-                    return {"success": False, "message": error_msg}
+                    return JSONResponse({"success": False, "message": error_msg})
                 return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         filiere.nom = nom
@@ -3544,13 +3544,13 @@ async def admin_edit_filiere(
         db.commit()
         success_msg = "Filière modifiée avec succès"
         if is_ajax:
-            return {"success": True, "message": success_msg}
+            return JSONResponse({"success": True, "message": success_msg})
         return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -3610,7 +3610,7 @@ async def admin_edit_matiere(
         if not matiere:
             error_msg = "Matière non trouvée"
             if is_ajax:
-                return {"success": False, "message": error_msg}
+                return JSONResponse({"success": False, "message": error_msg})
             return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         # Vérifier que l'admin secondaire modifie une matière de son université
@@ -3621,7 +3621,7 @@ async def admin_edit_matiere(
                 if ufr and ufr.universite_id != admin_data.get("universite_id"):
                     error_msg = "Vous ne pouvez modifier que les matières de votre université"
                     if is_ajax:
-                        return {"success": False, "message": error_msg}
+                        return JSONResponse({"success": False, "message": error_msg})
                     return RedirectResponse("/dashboard/admin?error=" + error_msg, status_code=303)
         
         matiere.nom = nom
@@ -3629,13 +3629,13 @@ async def admin_edit_matiere(
         db.commit()
         success_msg = "Matière modifiée avec succès"
         if is_ajax:
-            return {"success": True, "message": success_msg}
+            return JSONResponse({"success": True, "message": success_msg})
         return RedirectResponse("/dashboard/admin?success=" + success_msg, status_code=303)
     except Exception as e:
         db.rollback()
         error_msg = f"Erreur lors de la modification: {str(e)}"
         if is_ajax:
-            return {"success": False, "message": error_msg}
+            return JSONResponse({"success": False, "message": error_msg})
         return RedirectResponse(f"/dashboard/admin?error={error_msg}", status_code=303)
 
 
@@ -4585,12 +4585,12 @@ async def delete_commentaire(
         # Les admins peuvent supprimer n'importe quel commentaire
         db.delete(commentaire)
         db.commit()
-        return {"success": True, "message": "Commentaire supprimé"}
+        return JSONResponse({"success": True, "message": "Commentaire supprimé"})
     elif (commentaire.auteur_type == role and commentaire.auteur_id == user_data.get('id')):
         # L'auteur peut supprimer son propre commentaire
         db.delete(commentaire)
         db.commit()
-        return {"success": True, "message": "Commentaire supprimé"}
+        return JSONResponse({"success": True, "message": "Commentaire supprimé"})
     else:
         raise HTTPException(status_code=403, detail="Vous ne pouvez pas supprimer ce commentaire")
 
@@ -4659,7 +4659,7 @@ async def mark_notification_read(
     notification.lue = True
     db.commit()
     
-    return {"success": True, "message": "Notification marquée comme lue"}
+    return JSONResponse({"success": True, "message": "Notification marquée comme lue"})
 
 @app.put("/api/notifications/lire-toutes")
 async def mark_all_notifications_read(
@@ -4678,7 +4678,7 @@ async def mark_all_notifications_read(
     ).update({"lue": True})
     db.commit()
     
-    return {"success": True, "message": "Toutes les notifications ont été marquées comme lues"}
+    return JSONResponse({"success": True, "message": "Toutes les notifications ont été marquées comme lues"})
 
 @app.delete("/api/notifications/{notification_id}")
 async def delete_notification(
@@ -4700,7 +4700,7 @@ async def delete_notification(
     db.delete(notification)
     db.commit()
     
-    return {"success": True, "message": "Notification supprimée"}
+    return JSONResponse({"success": True, "message": "Notification supprimée"})
 
 @app.delete("/api/notifications/supprimer-toutes")
 async def delete_all_notifications(
@@ -4718,7 +4718,7 @@ async def delete_all_notifications(
     ).delete()
     db.commit()
     
-    return {"success": True, "message": "Toutes les notifications ont été supprimées"}
+    return JSONResponse({"success": True, "message": "Toutes les notifications ont été supprimées"})
 
 # ==================== ROUTES API PASSAGE ÉTUDIANT ====================
 
@@ -5167,7 +5167,7 @@ async def delete_professor_message(
         db.delete(message)
         db.commit()
         
-        return {"success": True}
+        return JSONResponse({"success": True})
     except HTTPException:
         raise
     except Exception as e:
@@ -5238,13 +5238,13 @@ async def mark_messages_as_read(
         # Get student ID from username
         etudiant = db.query(EtudiantDB).filter_by(username=etudiant_username).first()
         if not etudiant:
-            return {"success": False}
+            return JSONResponse({"success": False})
         
         body = await request.json()
         message_ids = body.get('message_ids', [])
         
         if not message_ids:
-            return {"success": True}
+            return JSONResponse({"success": True})
         
         # Mettre à jour les statuts
         db.query(MessageEtudiantStatut).filter(
@@ -5254,7 +5254,7 @@ async def mark_messages_as_read(
         
         db.commit()
         
-        return {"success": True}
+        return JSONResponse({"success": True})
     except Exception as e:
         db.rollback()
         print(f"❌ Erreur marquage messages lus: {str(e)}")
@@ -5288,7 +5288,7 @@ async def delete_student_message(
         statut.supprime = True
         db.commit()
         
-        return {"success": True}
+        return JSONResponse({"success": True})
     except HTTPException:
         raise
     except Exception as e:
