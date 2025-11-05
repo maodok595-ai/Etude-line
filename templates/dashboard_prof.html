@@ -17,6 +17,10 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Éditeur riche Quill.js pour contenu scientifique (open-source, sans clé API) -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    
     <!-- MathJax pour le rendu des équations mathématiques -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
@@ -1803,25 +1807,8 @@
                         
                         <div class="form-group">
                             <label for="cours_texte">Contenu textuel du cours</label>
-                            <textarea id="cours_texte" name="cours_texte" 
-                                      style="width: 100%; min-height: 200px; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 0.95rem; resize: vertical;"
-                                      placeholder="Saisissez le contenu du cours..."></textarea>
-                            
-                            <!-- Boutons d'édition scientifique -->
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                                <button type="button" onclick="openEquationModal('cours')" 
-                                        style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">∑</span> Ajouter une équation
-                                </button>
-                                <button type="button" onclick="openChartModal('cours')" 
-                                        style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📊</span> Ajouter un graphique
-                                </button>
-                                <button type="button" onclick="openTableModal('cours')" 
-                                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📋</span> Ajouter un tableau
-                                </button>
-                            </div>
+                            <div id="editor_cours" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="cours_texte" name="cours_texte">
                         </div>
                         
                         <div class="form-group">
@@ -1844,25 +1831,8 @@
                         
                         <div class="form-group">
                             <label for="exercice_texte">Contenu textuel des exercices</label>
-                            <textarea id="exercice_texte" name="exercice_texte" 
-                                      style="width: 100%; min-height: 200px; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 0.95rem; resize: vertical;"
-                                      placeholder="Saisissez les exercices..."></textarea>
-                            
-                            <!-- Boutons d'édition scientifique -->
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                                <button type="button" onclick="openEquationModal('exercice')" 
-                                        style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">∑</span> Ajouter une équation
-                                </button>
-                                <button type="button" onclick="openChartModal('exercice')" 
-                                        style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📊</span> Ajouter un graphique
-                                </button>
-                                <button type="button" onclick="openTableModal('exercice')" 
-                                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📋</span> Ajouter un tableau
-                                </button>
-                            </div>
+                            <div id="editor_exercice" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="exercice_texte" name="exercice_texte">
                         </div>
                         
                         <div class="form-group">
@@ -1885,25 +1855,8 @@
                         
                         <div class="form-group">
                             <label for="solution_texte">Contenu textuel des solutions</label>
-                            <textarea id="solution_texte" name="solution_texte" 
-                                      style="width: 100%; min-height: 200px; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 0.95rem; resize: vertical;"
-                                      placeholder="Saisissez les solutions..."></textarea>
-                            
-                            <!-- Boutons d'édition scientifique -->
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                                <button type="button" onclick="openEquationModal('solution')" 
-                                        style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">∑</span> Ajouter une équation
-                                </button>
-                                <button type="button" onclick="openChartModal('solution')" 
-                                        style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📊</span> Ajouter un graphique
-                                </button>
-                                <button type="button" onclick="openTableModal('solution')" 
-                                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem;">
-                                    <span style="font-size: 1.2rem;">📋</span> Ajouter un tableau
-                                </button>
-                            </div>
+                            <div id="editor_solution" style="height: 300px; background: white;"></div>
+                            <input type="hidden" id="solution_texte" name="solution_texte">
                         </div>
                         
                         <div class="form-group">
@@ -3769,7 +3722,7 @@
         window.cancelVoiceRecording = cancelVoiceRecording;
     </script>
     
-    <!-- ==================== MODALS POUR ÉDITION SCIENTIFIQUE ==================== -->
+    <!-- ==================== ÉDITEUR RICHE SCIENTIFIQUE (Quill.js) ==================== -->
     
     <!-- Modal Équation LaTeX -->
     <div id="equationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
