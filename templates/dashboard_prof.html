@@ -2501,8 +2501,7 @@
             const formulaire = document.getElementById('formulaire-chapitre');
             if (formulaire.style.display === 'none') {
                 formulaire.style.display = 'block';
-                // Scroll vers le formulaire
-                formulaire.scrollIntoView({ behavior: 'auto', block: 'start' });
+                // Pas de scroll automatique - l'utilisateur reste à sa position
             } else {
                 formulaire.style.display = 'none';
             }
@@ -3059,9 +3058,7 @@
                 const formulaire = document.getElementById('formulaire-chapitre');
                 if (formulaire) {
                     formulaire.style.display = 'block';
-                    setTimeout(() => {
-                        formulaire.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
+                    // Pas de scroll automatique - l'utilisateur reste à sa position
                 }
                 sessionStorage.removeItem('keepChapterFormOpen');
             }
@@ -3234,7 +3231,7 @@
             const form = document.getElementById('formulaire-message');
             if (form.style.display === 'none') {
                 form.style.display = 'block';
-                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Pas de scroll automatique - l'utilisateur reste à sa position
                 // Charger les UFR si pas déjà fait
                 loadMessageUFRsProf();
             } else {
