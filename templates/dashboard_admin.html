@@ -3259,22 +3259,7 @@
                 });
                 
                 if (response.ok) {
-                    // Mettre à jour l'affichage sans recharger
-                    const adminElement = document.querySelector(`button[onclick*="editAdmin('${username}'"]`).closest('.prof-item');
-                    if (adminElement) {
-                        const nameElement = adminElement.querySelector('strong');
-                        const usernameElement = adminElement.querySelector('.username');
-                        if (nameElement) nameElement.textContent = `${newPrenom} ${newNom}`;
-                        if (usernameElement) usernameElement.textContent = `Username: ${newUsername || username}`;
-                        
-                        // Mettre à jour le onclick avec le nouveau username si changé
-                        if (newUsername) {
-                            const editBtn = adminElement.querySelector('button[onclick*="editAdmin"]');
-                            if (editBtn) {
-                                editBtn.setAttribute('onclick', `editAdmin('${newUsername}', '${newNom}', '${newPrenom}')`);
-                            }
-                        }
-                    }
+                    location.reload();
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -3469,24 +3454,7 @@
                 });
                 
                 if (response.ok) {
-                    // Mettre à jour l'affichage sans recharger
-                    const profElement = document.querySelector(`button[onclick*="editProf('${username}'"]`).closest('.prof-item');
-                    if (profElement) {
-                        const nameElement = profElement.querySelector('strong');
-                        const specialiteElement = profElement.querySelector('.specialite');
-                        const usernameElement = profElement.querySelector('.username');
-                        if (nameElement) nameElement.textContent = `${newPrenom} ${newNom}`;
-                        if (specialiteElement) specialiteElement.textContent = `Spécialité: ${newSpecialite}`;
-                        if (usernameElement) usernameElement.textContent = `Username: ${newUsername || username}`;
-                        
-                        // Mettre à jour le onclick avec le nouveau username si changé
-                        if (newUsername) {
-                            const editBtn = profElement.querySelector('button[onclick*="editProf"]');
-                            if (editBtn) {
-                                editBtn.setAttribute('onclick', `editProf('${newUsername}', '${newNom}', '${newPrenom}', '${newSpecialite}')`);
-                            }
-                        }
-                    }
+                    location.reload();
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -3581,14 +3549,7 @@
                     });
                     
                     if (response.ok) {
-                        // Mettre à jour l'affichage sans recharger la page
-                        const uniElement = document.querySelector(`button[onclick*="editUniversite('${id}'"]`).closest('.academic-item');
-                        if (uniElement) {
-                            const nomElement = uniElement.querySelector('strong');
-                            const codeElement = uniElement.querySelector('.code');
-                            if (nomElement) nomElement.textContent = newNom;
-                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
-                        }
+                        location.reload();
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3648,14 +3609,7 @@
                     });
                     
                     if (response.ok) {
-                        // Mettre à jour l'affichage sans recharger la page
-                        const ufrElement = document.querySelector(`button[onclick*="editUfr('${id}'"]`).closest('.academic-item');
-                        if (ufrElement) {
-                            const nomElement = ufrElement.querySelector('strong');
-                            const codeElement = ufrElement.querySelector('.code');
-                            if (nomElement) nomElement.textContent = newNom;
-                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
-                        }
+                        location.reload();
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3715,14 +3669,7 @@
                     });
                     
                     if (response.ok) {
-                        // Mettre à jour l'affichage sans recharger la page
-                        const filiereElement = document.querySelector(`button[onclick*="editFiliere('${id}'"]`).closest('.academic-item');
-                        if (filiereElement) {
-                            const nomElement = filiereElement.querySelector('strong');
-                            const codeElement = filiereElement.querySelector('.code');
-                            if (nomElement) nomElement.textContent = newNom;
-                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
-                        }
+                        location.reload();
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3782,14 +3729,7 @@
                     });
                     
                     if (response.ok) {
-                        // Mettre à jour l'affichage sans recharger la page
-                        const matiereElement = document.querySelector(`button[onclick*="editMatiere('${id}'"]`).closest('.matiere-item');
-                        if (matiereElement) {
-                            const nomElement = matiereElement.querySelector('strong');
-                            const codeElement = matiereElement.querySelector('.code');
-                            if (nomElement) nomElement.textContent = newNom;
-                            if (codeElement) codeElement.textContent = `Code: ${newCode}`;
-                        }
+                        location.reload();
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
