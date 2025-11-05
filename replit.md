@@ -2,6 +2,56 @@
 
 ## Recent Changes
 
+**5 novembre 2025 - Sécurisation des identifiants administrateur + Préparation déploiement Render**
+
+### 🔐 Sécurité : Migration vers variables d'environnement
+**Objectif** : Sécuriser les identifiants administrateur pour le déploiement production sur Render.
+
+**Problème initial** : Les identifiants administrateur (username/password) étaient codés en dur dans `main.py`, exposant des credentials sensibles dans le code source.
+
+**Solution implémentée** :
+- ✅ **Variables d'environnement sécurisées** : `ADMIN_USERNAME` et `ADMIN_PASSWORD`
+- ✅ **Fichier `.env.example`** : Template documenté pour configuration Render
+- ✅ **Valeurs par défaut safe** : Système avec avertissement si credentials non configurés
+- ✅ **Documentation complète** : `replit.md` mis à jour avec toutes les variables requises
+
+**Détails techniques** :
+```python
+# Avant (NON SÉCURISÉ)
+username = "kamaodo65"
+password = "admin123"
+
+# Après (SÉCURISÉ)
+admin_username = os.getenv("ADMIN_USERNAME", "admin_default")
+admin_password = os.getenv("ADMIN_PASSWORD", "ChangeMeNow2024!")
+```
+
+**Variables d'environnement Render requises** :
+1. `DATABASE_URL` - Connexion PostgreSQL (auto-fournie par Render)
+2. `ADMIN_USERNAME` - Identifiant admin principal
+3. `ADMIN_PASSWORD` - Mot de passe admin (fort recommandé)
+4. `SESSION_SECRET` - Clé signature sessions (32+ caractères)
+5. `PYTHON_VERSION` - 3.11.2
+
+**Corrections additionnelles** :
+- ✅ **Dossier `/uploads/audio/`** : Organisation fichiers messages vocaux
+- ✅ **Route `/audio/`** : Compatibilité anciens/nouveaux fichiers audio
+- ✅ **Fichier `sw-register.js`** : PWA Service Worker registration (404 corrigé)
+
+**Impact** :
+- 🔒 **Production-ready** : Application sécurisée pour déploiement Render
+- 📝 **Documentation complète** : `.env.example` + `replit.md` mis à jour
+- 🚀 **Déploiement simplifié** : Configuration claire des variables d'environnement
+
+**Fichiers modifiés** :
+- `main.py` - Fonction `create_default_admin_if_needed()` utilise variables d'environnement
+- `.env.example` - Nouveau fichier template configuration Render
+- `replit.md` - Section "Deployment Configuration" enrichie
+- `static/sw-register.js` - Nouveau fichier pour PWA
+- `uploads/audio/` - Nouveau dossier organisation fichiers audio
+
+---
+
 **5 novembre 2025 - Éditeur riche scientifique pour création de chapitres (Quill.js + MathJax + Chart.js)**
 
 ### 🎓 Amélioration majeure : Support du contenu scientifique avancé
@@ -1313,5 +1363,12 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **render.yaml**: Blueprint configuration file for automatic Render deployment setup with web service, PostgreSQL database, and persistent disk for uploads.
 - **Production Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT` (Single Uvicorn process - recommended for containerized platforms like Render/Cloud Run. Render handles process scaling automatically. This avoids SIGTERM signal handling issues that occur with Gunicorn multi-worker setups in containers.)
 - **Build Command**: `pip install -r requirements.txt`
-- **Required Environment Variables**: DATABASE_URL, SECRET_KEY, SESSION_SECRET, PYTHON_VERSION (3.11.2)
+- **Required Environment Variables**: 
+  - `DATABASE_URL`: URL de connexion PostgreSQL (fournie automatiquement par Render PostgreSQL)
+  - `ADMIN_USERNAME`: Nom d'utilisateur administrateur principal (ex: kamaodo65)
+  - `ADMIN_PASSWORD`: Mot de passe administrateur principal (IMPORTANT: utilisez un mot de passe fort)
+  - `SESSION_SECRET`: Clé secrète pour signer les sessions (générez avec: `openssl rand -hex 32`)
+  - `PYTHON_VERSION`: 3.11.2
+  - `ENVIRONMENT`: production (optionnel, détecte automatiquement)
+- **Note**: Pour un fichier `.env.example` complet, consultez le fichier `.env.example` à la racine du projet.
 - **Note**: For bare-metal/VPS deployments, you can still use `gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT` if needed.
