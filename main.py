@@ -7,7 +7,7 @@ import fcntl
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, validator
@@ -3035,12 +3035,12 @@ async def admin_edit_admin(
     
     # Vérifier que seul l'admin principal peut modifier des admins
     if not admin_data.get("is_main_admin", False):
-        return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des administrateurs", status_code=303)
+        return JSONResponse({"success": False, "error": "Seul l'administrateur principal peut modifier des administrateurs"}, status_code=403)
     
     try:
         admin = db.query(AdministrateurDB).filter(AdministrateurDB.username == username).first()
         if not admin:
-            return RedirectResponse("/dashboard/admin?error=Administrateur non trouvé", status_code=303)
+            return JSONResponse({"success": False, "error": "Administrateur non trouvé"}, status_code=404)
         
         # Mettre à jour nom et prénom
         admin.nom = nom
@@ -3053,7 +3053,7 @@ async def admin_edit_admin(
             existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == new_username).first()
             
             if existing_admin or existing_prof or existing_etudiant:
-                return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+                return JSONResponse({"success": False, "error": "Ce nom d'utilisateur existe déjà"}, status_code=400)
             
             admin.username = new_username
         
@@ -3062,10 +3062,10 @@ async def admin_edit_admin(
             admin.password = hash_password(new_password)
         
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=Administrateur modifié avec succès", status_code=303)
+        return JSONResponse({"success": True, "message": "Administrateur modifié avec succès"})
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-admin")
@@ -3213,7 +3213,7 @@ async def admin_edit_prof(
     try:
         prof = db.query(ProfesseurDB).filter(ProfesseurDB.username == username).first()
         if not prof:
-            return RedirectResponse("/dashboard/admin?error=Professeur non trouvé", status_code=303)
+            return JSONResponse({"success": False, "error": "Professeur non trouvé"}, status_code=404)
         
         # Mettre à jour nom, prénom et spécialité
         prof.nom = nom
@@ -3227,7 +3227,7 @@ async def admin_edit_prof(
             existing_etudiant = db.query(EtudiantDB).filter(EtudiantDB.username == new_username).first()
             
             if existing_admin or existing_prof or existing_etudiant:
-                return RedirectResponse("/dashboard/admin?error=Ce nom d'utilisateur existe déjà", status_code=303)
+                return JSONResponse({"success": False, "error": "Ce nom d'utilisateur existe déjà"}, status_code=400)
             
             # Mettre à jour le username dans les chapitres créés
             chapitres = db.query(ChapitreCompletDB).filter(ChapitreCompletDB.created_by == username).all()
@@ -3241,10 +3241,10 @@ async def admin_edit_prof(
             prof.password = hash_password(new_password)
         
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=Professeur modifié avec succès", status_code=303)
+        return JSONResponse({"success": True, "message": "Professeur modifié avec succès"})
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-prof")
@@ -3325,7 +3325,7 @@ async def admin_edit_universite(
     
     # Vérifier que seul l'admin principal peut modifier des universités
     if not admin_data.get("is_main_admin", False):
-        return RedirectResponse("/dashboard/admin?error=Seul l'administrateur principal peut modifier des universités", status_code=303)
+        return JSONResponse({"success": False, "error": "Seul l'administrateur principal peut modifier des universités"}, status_code=403)
     
     try:
         universite = db.query(UniversiteDB).filter(UniversiteDB.id == id).first()
@@ -3333,12 +3333,12 @@ async def admin_edit_universite(
             universite.nom = nom
             universite.code = code
             db.commit()
-            return RedirectResponse("/dashboard/admin?success=Université modifiée avec succès", status_code=303)
+            return JSONResponse({"success": True, "message": "Université modifiée avec succès"})
         else:
-            return RedirectResponse("/dashboard/admin?error=Université non trouvée", status_code=303)
+            return JSONResponse({"success": False, "error": "Université non trouvée"}, status_code=404)
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-universite")
@@ -3401,20 +3401,20 @@ async def admin_edit_ufr(
     try:
         ufr = db.query(UFRDB).filter(UFRDB.id == id).first()
         if not ufr:
-            return RedirectResponse("/dashboard/admin?error=UFR non trouvée", status_code=303)
+            return JSONResponse({"success": False, "error": "UFR non trouvée"}, status_code=404)
         
         # Vérifier que l'admin secondaire modifie une UFR de son université
         if not admin_data.get("is_main_admin", False):
             if ufr.universite_id != admin_data.get("universite_id"):
-                return RedirectResponse("/dashboard/admin?error=Vous ne pouvez modifier que les UFR de votre université", status_code=303)
+                return JSONResponse({"success": False, "error": "Vous ne pouvez modifier que les UFR de votre université"}, status_code=403)
         
         ufr.nom = nom
         ufr.code = code
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=UFR modifiée avec succès", status_code=303)
+        return JSONResponse({"success": True, "message": "UFR modifiée avec succès"})
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-ufr")
@@ -3469,21 +3469,21 @@ async def admin_edit_filiere(
     try:
         filiere = db.query(FiliereDB).filter(FiliereDB.id == id).first()
         if not filiere:
-            return RedirectResponse("/dashboard/admin?error=Filière non trouvée", status_code=303)
+            return JSONResponse({"success": False, "error": "Filière non trouvée"}, status_code=404)
         
         # Vérifier que l'admin secondaire modifie une filière de son université
         if not admin_data.get("is_main_admin", False):
             ufr = db.query(UFRDB).filter(UFRDB.id == filiere.ufr_id).first()
             if ufr and ufr.universite_id != admin_data.get("universite_id"):
-                return RedirectResponse("/dashboard/admin?error=Vous ne pouvez modifier que les filières de votre université", status_code=303)
+                return JSONResponse({"success": False, "error": "Vous ne pouvez modifier que les filières de votre université"}, status_code=403)
         
         filiere.nom = nom
         filiere.code = code
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=Filière modifiée avec succès", status_code=303)
+        return JSONResponse({"success": True, "message": "Filière modifiée avec succès"})
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-filiere")
@@ -3539,7 +3539,7 @@ async def admin_edit_matiere(
     try:
         matiere = db.query(MatiereDB).filter(MatiereDB.id == id).first()
         if not matiere:
-            return RedirectResponse("/dashboard/admin?error=Matière non trouvée", status_code=303)
+            return JSONResponse({"success": False, "error": "Matière non trouvée"}, status_code=404)
         
         # Vérifier que l'admin secondaire modifie une matière de son université
         if not admin_data.get("is_main_admin", False):
@@ -3547,15 +3547,15 @@ async def admin_edit_matiere(
             if filiere:
                 ufr = db.query(UFRDB).filter(UFRDB.id == filiere.ufr_id).first()
                 if ufr and ufr.universite_id != admin_data.get("universite_id"):
-                    return RedirectResponse("/dashboard/admin?error=Vous ne pouvez modifier que les matières de votre université", status_code=303)
+                    return JSONResponse({"success": False, "error": "Vous ne pouvez modifier que les matières de votre université"}, status_code=403)
         
         matiere.nom = nom
         matiere.code = code
         db.commit()
-        return RedirectResponse("/dashboard/admin?success=Matière modifiée avec succès", status_code=303)
+        return JSONResponse({"success": True, "message": "Matière modifiée avec succès"})
     except Exception as e:
         db.rollback()
-        return RedirectResponse(f"/dashboard/admin?error=Erreur lors de la modification: {str(e)}", status_code=303)
+        return JSONResponse({"success": False, "error": f"Erreur lors de la modification: {str(e)}"}, status_code=500)
 
 
 @app.post("/admin/delete-matiere")
