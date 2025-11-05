@@ -2,6 +2,51 @@
 
 ## Recent Changes
 
+**4 novembre 2025 - Correction défilement automatique lors des modifications/suppressions**
+
+### Amélioration UX : Notifications toast sans scroll forcé
+**Problème identifié** : Lorsqu'un utilisateur (professeur ou administrateur) cliquait sur un bouton "Modifier" ou "Supprimer", un message de validation apparaissait en haut de la page et la page défilait automatiquement vers ce message avec `scrollIntoView()`, ce qui faisait "sortir" l'utilisateur de la section où il travaillait.
+
+**Comportement avant** :
+- Modifier un chapitre → ❌ Message en haut → Scroll automatique vers le haut → Perte de position
+- Supprimer une université → ❌ Message en haut → Scroll automatique vers le haut → Perte de position  
+- L'utilisateur devait rescroller pour retrouver où il était
+
+**Solution appliquée** :
+- ✅ **Système de notifications toast** : Messages en position `fixed` (haut à droite de l'écran)
+- ✅ **Pas de scroll forcé** : Suppression complète de `scrollIntoView()` pour les messages
+- ✅ **Animation élégante** : Les toasts apparaissent de la droite avec une animation fluide
+- ✅ **Disparition automatique** : Après 5 secondes, les toasts s'effacent automatiquement
+- ✅ **Responsive mobile** : Les toasts s'adaptent aux petits écrans (centré en haut)
+- ✅ **Visibilité garantie** : Z-index 9999 assure que les toasts sont toujours visibles
+
+**Comportement après** :
+- Modifier un chapitre → ✅ Toast en haut à droite → Pas de scroll → Position maintenue
+- Supprimer une université → ✅ Toast en haut à droite → Pas de scroll → Position maintenue
+- L'utilisateur reste exactement où il était
+
+**Détails techniques** :
+```css
+#toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+}
+```
+
+**Impact** :
+- ✅ Navigation fluide sans interruption du workflow
+- ✅ Pas de perte de contexte après modification/suppression
+- ✅ Meilleure expérience utilisateur pour professeurs et administrateurs
+- ✅ Messages toujours visibles sans forcer le scroll
+
+**Fichiers modifiés** : 
+- `templates/dashboard_prof.html` (fonction showAlert + suppression scrollIntoView ligne 3024)
+- `templates/dashboard_admin.html` (fonction showAlert)
+
+---
+
 **4 novembre 2025 - Correction navigation onglets après retour du lecteur**
 
 ### Correction : Mémorisation de l'onglet actif dans les chapitres

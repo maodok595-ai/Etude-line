@@ -1221,27 +1221,73 @@
     </nav>
     
     <div class="container">
-        <!-- Messages d'alerte -->
-        <div id="alert-container"></div>
+        <!-- Conteneur de notifications toast (position fixe) -->
+        <div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999; max-width: 400px; width: 100%;"></div>
         
         <script>
-            // Fonction pour afficher un message qui disparaît automatiquement
+            // Fonction pour afficher une notification toast qui reste en place (sans scroll)
             function showAlert(message, type = 'success') {
-                const container = document.getElementById('alert-container');
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type}`;
-                alertDiv.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + message;
+                const container = document.getElementById('toast-container');
+                const toastDiv = document.createElement('div');
                 
-                container.appendChild(alertDiv);
+                // Style de base pour le toast
+                toastDiv.style.cssText = `
+                    padding: 1rem 1.5rem;
+                    border-radius: 8px;
+                    margin-bottom: 0.75rem;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    animation: slideInRight 0.3s ease-out;
+                    transition: opacity 0.3s, transform 0.3s;
+                `;
                 
-                // Faire disparaître après 4 secondes
+                if (type === 'success') {
+                    toastDiv.style.background = '#d4edda';
+                    toastDiv.style.color = '#155724';
+                    toastDiv.style.border = '2px solid #c3e6cb';
+                } else {
+                    toastDiv.style.background = '#f8d7da';
+                    toastDiv.style.color = '#721c24';
+                    toastDiv.style.border = '2px solid #f5c6cb';
+                }
+                
+                toastDiv.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + message;
+                container.appendChild(toastDiv);
+                
+                // Faire disparaître après 5 secondes
                 setTimeout(() => {
-                    alertDiv.style.transition = 'opacity 0.5s, transform 0.5s';
-                    alertDiv.style.opacity = '0';
-                    alertDiv.style.transform = 'translateY(-20px)';
-                    setTimeout(() => alertDiv.remove(), 500);
-                }, 4000);
+                    toastDiv.style.opacity = '0';
+                    toastDiv.style.transform = 'translateX(400px)';
+                    setTimeout(() => toastDiv.remove(), 300);
+                }, 5000);
             }
+            
+            // Animation CSS pour les toasts
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(400px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                @media (max-width: 768px) {
+                    #toast-container {
+                        top: 60px !important;
+                        right: 10px !important;
+                        left: 10px !important;
+                        max-width: calc(100% - 20px) !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
             
             // Afficher les messages depuis l'URL au chargement
             const urlParams = new URLSearchParams(window.location.search);
