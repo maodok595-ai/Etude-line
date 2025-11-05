@@ -3259,6 +3259,13 @@
                 });
                 
                 if (response.ok) {
+                    // Sauvegarder l'onglet actif
+                    const activeTab = document.querySelector('.tab-button.active');
+                    if (activeTab) {
+                        const activeTabId = activeTab.id.replace('tab-', '');
+                        sessionStorage.setItem('activeTab', activeTabId);
+                    }
+                    // Sauvegarder la position de scroll
                     sessionStorage.setItem('scrollPosition', window.scrollY);
                     location.reload();
                 }
@@ -3455,6 +3462,13 @@
                 });
                 
                 if (response.ok) {
+                    // Sauvegarder l'onglet actif
+                    const activeTab = document.querySelector('.tab-button.active');
+                    if (activeTab) {
+                        const activeTabId = activeTab.id.replace('tab-', '');
+                        sessionStorage.setItem('activeTab', activeTabId);
+                    }
+                    // Sauvegarder la position de scroll
                     sessionStorage.setItem('scrollPosition', window.scrollY);
                     location.reload();
                 }
@@ -3551,6 +3565,13 @@
                     });
                     
                     if (response.ok) {
+                        // Sauvegarder l'onglet actif
+                        const activeTab = document.querySelector('.tab-button.active');
+                        if (activeTab) {
+                            const activeTabId = activeTab.id.replace('tab-', '');
+                            sessionStorage.setItem('activeTab', activeTabId);
+                        }
+                        // Sauvegarder la position de scroll
                         sessionStorage.setItem('scrollPosition', window.scrollY);
                         location.reload();
                     }
@@ -3612,6 +3633,13 @@
                     });
                     
                     if (response.ok) {
+                        // Sauvegarder l'onglet actif
+                        const activeTab = document.querySelector('.tab-button.active');
+                        if (activeTab) {
+                            const activeTabId = activeTab.id.replace('tab-', '');
+                            sessionStorage.setItem('activeTab', activeTabId);
+                        }
+                        // Sauvegarder la position de scroll
                         sessionStorage.setItem('scrollPosition', window.scrollY);
                         location.reload();
                     }
@@ -3673,6 +3701,13 @@
                     });
                     
                     if (response.ok) {
+                        // Sauvegarder l'onglet actif
+                        const activeTab = document.querySelector('.tab-button.active');
+                        if (activeTab) {
+                            const activeTabId = activeTab.id.replace('tab-', '');
+                            sessionStorage.setItem('activeTab', activeTabId);
+                        }
+                        // Sauvegarder la position de scroll
                         sessionStorage.setItem('scrollPosition', window.scrollY);
                         location.reload();
                     }
@@ -3734,6 +3769,13 @@
                     });
                     
                     if (response.ok) {
+                        // Sauvegarder l'onglet actif
+                        const activeTab = document.querySelector('.tab-button.active');
+                        if (activeTab) {
+                            const activeTabId = activeTab.id.replace('tab-', '');
+                            sessionStorage.setItem('activeTab', activeTabId);
+                        }
+                        // Sauvegarder la position de scroll
                         sessionStorage.setItem('scrollPosition', window.scrollY);
                         location.reload();
                     }
