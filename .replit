@@ -42,6 +42,10 @@ externalPort = 3001
 localPort = 40837
 externalPort = 3000
 
+[[ports]]
+localPort = 46099
+externalPort = 3002
+
 [deployment]
 deploymentTarget = "vm"
 run = ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:5000", "--timeout", "120"]
