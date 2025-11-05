@@ -3255,15 +3255,10 @@
             try {
                 const response = await fetch('/admin/edit-admin', {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
                     body: formData
                 });
                 
-                const data = await response.json();
-                
-                if (data.success) {
+                if (response.ok) {
                     // Mettre à jour l'affichage sans recharger
                     const adminElement = document.querySelector(`button[onclick*="editAdmin('${username}'"]`).closest('.prof-item');
                     if (adminElement) {
@@ -3280,9 +3275,9 @@
                             }
                         }
                     }
-                    showAlert(data.message || 'Administrateur modifié avec succès', 'success');
+                    showAlert('Administrateur modifié avec succès', 'success');
                 } else {
-                    showAlert(data.message || 'Erreur lors de la modification', 'error');
+                    showAlert('Erreur lors de la modification', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -3474,22 +3469,10 @@
             try {
                 const response = await fetch('/admin/edit-prof', {
                     method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
                     body: formData
                 });
                 
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers.get('Content-Type'));
-                
-                const text = await response.text();
-                console.log('Response text:', text);
-                
-                const data = JSON.parse(text);
-                console.log('Parsed data:', data);
-                
-                if (data.success) {
+                if (response.ok) {
                     // Mettre à jour l'affichage sans recharger
                     const profElement = document.querySelector(`button[onclick*="editProf('${username}'"]`).closest('.prof-item');
                     if (profElement) {
@@ -3508,9 +3491,9 @@
                             }
                         }
                     }
-                    showAlert(data.message || 'Professeur modifié avec succès', 'success');
+                    showAlert('Professeur modifié avec succès', 'success');
                 } else {
-                    showAlert(data.message || 'Erreur lors de la modification', 'error');
+                    showAlert('Erreur lors de la modification', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -3602,15 +3585,10 @@
                 try {
                     const response = await fetch('/admin/edit-universite', {
                         method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
                         body: formData
                     });
                     
-                    const data = await response.json();
-                    
-                    if (data.success) {
+                    if (response.ok) {
                         // Mettre à jour l'affichage sans recharger la page
                         const uniElement = document.querySelector(`button[onclick*="editUniversite('${id}'"]`).closest('.academic-item');
                         if (uniElement) {
@@ -3619,9 +3597,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(data.message || `Université "${newNom}" modifiée avec succès`, 'success');
+                        showAlert(`Université "${newNom}" modifiée avec succès`, 'success');
                     } else {
-                        showAlert(data.message || 'Erreur lors de la modification', 'error');
+                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3678,15 +3656,10 @@
                 try {
                     const response = await fetch('/admin/edit-ufr', {
                         method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
                         body: formData
                     });
                     
-                    const data = await response.json();
-                    
-                    if (data.success) {
+                    if (response.ok) {
                         // Mettre à jour l'affichage sans recharger la page
                         const ufrElement = document.querySelector(`button[onclick*="editUfr('${id}'"]`).closest('.academic-item');
                         if (ufrElement) {
@@ -3695,9 +3668,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(data.message || `UFR "${newNom}" modifiée avec succès`, 'success');
+                        showAlert(`UFR "${newNom}" modifiée avec succès`, 'success');
                     } else {
-                        showAlert(data.message || 'Erreur lors de la modification', 'error');
+                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3754,15 +3727,10 @@
                 try {
                     const response = await fetch('/admin/edit-filiere', {
                         method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
                         body: formData
                     });
                     
-                    const data = await response.json();
-                    
-                    if (data.success) {
+                    if (response.ok) {
                         // Mettre à jour l'affichage sans recharger la page
                         const filiereElement = document.querySelector(`button[onclick*="editFiliere('${id}'"]`).closest('.academic-item');
                         if (filiereElement) {
@@ -3771,9 +3739,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(data.message || `Filière "${newNom}" modifiée avec succès`, 'success');
+                        showAlert(`Filière "${newNom}" modifiée avec succès`, 'success');
                     } else {
-                        showAlert(data.message || 'Erreur lors de la modification', 'error');
+                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -3830,15 +3798,10 @@
                 try {
                     const response = await fetch('/admin/edit-matiere', {
                         method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
                         body: formData
                     });
                     
-                    const data = await response.json();
-                    
-                    if (data.success) {
+                    if (response.ok) {
                         // Mettre à jour l'affichage sans recharger la page
                         const matiereElement = document.querySelector(`button[onclick*="editMatiere('${id}'"]`).closest('.matiere-item');
                         if (matiereElement) {
@@ -3847,9 +3810,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(data.message || `Matière "${newNom}" modifiée avec succès`, 'success');
+                        showAlert(`Matière "${newNom}" modifiée avec succès`, 'success');
                     } else {
-                        showAlert(data.message || 'Erreur lors de la modification', 'error');
+                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
