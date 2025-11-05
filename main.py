@@ -3957,7 +3957,10 @@ async def send_voice_message_to_students(
             file_extension = '.ogg'
         
         unique_filename = f"voice_{uuid.uuid4().hex[:12]}{file_extension}"
-        audio_path = UPLOADS_DIR / unique_filename
+        # Sauvegarder dans le sous-dossier audio/
+        audio_dir = UPLOADS_DIR / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        audio_path = audio_dir / unique_filename
         
         # Save audio file
         with open(audio_path, 'wb') as f:
@@ -4033,9 +4036,15 @@ async def serve_audio_file(filename: str):
     if '..' in filename or '/' in filename:
         raise HTTPException(status_code=400, detail="Invalid filename")
     
-    file_path = UPLOADS_DIR / filename
+    # Chercher dans le dossier audio d'abord, puis à la racine uploads pour compatibilité
+    audio_path = UPLOADS_DIR / "audio" / filename
+    fallback_path = UPLOADS_DIR / filename
     
-    if not file_path.exists():
+    if audio_path.exists():
+        file_path = audio_path
+    elif fallback_path.exists():
+        file_path = fallback_path
+    else:
         raise HTTPException(status_code=404, detail="Audio file not found")
     
     # Determine MIME type
