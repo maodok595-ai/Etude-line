@@ -3838,26 +3838,15 @@
                         
                         // Vérifier d'abord s'il y a une erreur
                         if (url.searchParams.has('error')) {
-                            const errorMsg = url.searchParams.get('error');
-                            showAlert(decodeURIComponent(errorMsg), 'error');
-                            
                             // Restaurer le bouton pour permettre une nouvelle tentative
                             if (submitButton) {
                                 submitButton.disabled = false;
                                 submitButton.textContent = originalText;
                             }
-                            return; // Ne pas recharger ni réinitialiser le formulaire
+                            // Recharger immédiatement pour afficher l'erreur (évite double affichage)
+                            window.location.href = url.href;
+                            return;
                         }
-                        
-                        // Sinon vérifier s'il y a un message de succès
-                        if (url.searchParams.has('success')) {
-                            const successMsg = url.searchParams.get('success');
-                            showAlert(decodeURIComponent(successMsg), 'success');
-                        } else {
-                            showAlert('Création réussie !', 'success');
-                        }
-                    } else {
-                        showAlert('Création réussie !', 'success');
                     }
                     
                     // Réinitialiser le formulaire
@@ -3873,10 +3862,8 @@
                         sessionStorage.setItem('activeTab', activeTabId);
                     }
                     
-                    // Recharger la page après un court délai
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    // Recharger la page immédiatement (le message s'affichera au chargement)
+                    window.location.reload();
                 } else {
                     showAlert('Une erreur est survenue', 'error');
                     if (submitButton) {
