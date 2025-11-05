@@ -3814,6 +3814,14 @@
         // Fonction pour soumettre un formulaire en AJAX et recharger la page
         async function submitFormWithReload(event, formElement) {
             event.preventDefault();
+            event.stopPropagation(); // Empêcher la propagation à d'autres listeners
+            
+            // Sauvegarder l'onglet actif avant soumission
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) {
+                const activeTabId = activeTab.id.replace('tab-', '');
+                sessionStorage.setItem('activeTab', activeTabId);
+            }
             
             const formData = new FormData(formElement);
             const submitButton = formElement.querySelector('button[type="submit"]');
@@ -3881,15 +3889,6 @@
             }
         }
         
-        // Sauvegarder l'onglet actif avant soumission d'un formulaire
-        function saveActiveTabBeforeSubmit() {
-            const activeTab = document.querySelector('.tab-btn.active');
-            if (activeTab) {
-                const activeTabId = activeTab.id.replace('tab-', '');
-                sessionStorage.setItem('activeTab', activeTabId);
-            }
-        }
-        
         // Intercepter automatiquement tous les formulaires de création
         document.addEventListener('DOMContentLoaded', function() {
             // Restaurer l'onglet actif si il a été sauvegardé
@@ -3898,12 +3897,6 @@
                 showTab(savedActiveTab);
                 sessionStorage.removeItem('activeTab');
             }
-            
-            // Attacher le gestionnaire de sauvegarde à tous les formulaires
-            const allForms = document.querySelectorAll('form[action*="/admin/"]');
-            allForms.forEach(form => {
-                form.addEventListener('submit', saveActiveTabBeforeSubmit);
-            });
             
             // Restaurer la position de scroll si elle a été sauvegardée
             const savedScrollPosition = sessionStorage.getItem('scrollPosition');
@@ -3918,7 +3911,7 @@
             createForms.forEach(form => {
                 form.addEventListener('submit', function(event) {
                     submitFormWithReload(event, this);
-                });
+                }, true); // Utiliser capture phase pour intercepter en premier
             });
         });
         
@@ -4303,7 +4296,6 @@
         window.togglePassword = togglePassword;
         window.toggleForm = toggleForm;
         window.submitFormWithReload = submitFormWithReload;
-        window.saveActiveTabBeforeSubmit = saveActiveTabBeforeSubmit;
         window.loadFilieresForPassage = loadFilieresForPassage;
         window.compareNiveaux = compareNiveaux;
         window.validatePassageForm = validatePassageForm;
