@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ chapitre.titre }} - Étude LINE</title>
     <link rel="icon" type="image/png" href="/static/favicon.png">
+    
+    <!-- MathJax pour le rendu des équations mathématiques -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Chart.js pour le rendu des graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <style>
         /* Désactiver sélection accidentelle sur l'interface */
         button, .header, .header *, .back-button,
@@ -391,7 +398,7 @@
                 <div class="section-title">📘 Cours</div>
                 {% if chapitre.cours_texte or chapitre.cours_fichier_nom %}
                     {% if chapitre.cours_texte %}
-                        <div class="content-text">{{ chapitre.cours_texte }}</div>
+                        <div class="content-text">{{ chapitre.cours_texte | safe }}</div>
                     {% endif %}
                     {% if chapitre.cours_fichier_nom %}
                         {% set fichier_noms = chapitre.cours_fichier_nom.split('|||') %}
@@ -428,7 +435,7 @@
                 <div class="section-title">✏️ Exercices</div>
                 {% if chapitre.exercice_texte or chapitre.exercice_fichier_nom %}
                     {% if chapitre.exercice_texte %}
-                        <div class="content-text">{{ chapitre.exercice_texte }}</div>
+                        <div class="content-text">{{ chapitre.exercice_texte | safe }}</div>
                     {% endif %}
                     {% if chapitre.exercice_fichier_nom %}
                         {% set fichier_noms = chapitre.exercice_fichier_nom.split('|||') %}
@@ -465,7 +472,7 @@
                 <div class="section-title">✅ Solutions</div>
                 {% if chapitre.solution_texte or chapitre.solution_fichier_nom %}
                     {% if chapitre.solution_texte %}
-                        <div class="content-text">{{ chapitre.solution_texte }}</div>
+                        <div class="content-text">{{ chapitre.solution_texte | safe }}</div>
                     {% endif %}
                     {% if chapitre.solution_fichier_nom %}
                         {% set fichier_noms = chapitre.solution_fichier_nom.split('|||') %}
@@ -667,6 +674,54 @@
         // Charger l'état des téléchargements au chargement de la page
         window.addEventListener('DOMContentLoaded', function() {
             loadDownloadButtonsStatus();
+            
+            // ==================== RENDU SCIENTIFIQUE (ÉQUATIONS + GRAPHIQUES) ====================
+            
+            // 1. Rendre les équations mathématiques avec MathJax
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise().then(() => {
+                    console.log('✅ Équations mathématiques rendues avec MathJax');
+                }).catch((err) => {
+                    console.error('❌ Erreur rendu MathJax:', err);
+                });
+            }
+            
+            // 2. Rendre les graphiques Chart.js
+            if (window.Chart) {
+                const canvases = document.querySelectorAll('canvas[data-chart]');
+                canvases.forEach((canvas) => {
+                    try {
+                        const chartData = JSON.parse(canvas.getAttribute('data-chart'));
+                        
+                        new Chart(canvas, {
+                            type: chartData.type,
+                            data: {
+                                labels: chartData.labels,
+                                datasets: [{
+                                    label: chartData.title,
+                                    data: chartData.data,
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: chartData.title
+                                    }
+                                }
+                            }
+                        });
+                        console.log('✅ Graphique rendu:', chartData.title);
+                    } catch (error) {
+                        console.error('❌ Erreur rendu graphique:', error);
+                    }
+                });
+            }
         });
     </script>
 </body>
