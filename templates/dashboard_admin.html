@@ -3275,13 +3275,9 @@
                             }
                         }
                     }
-                    showAlert('Administrateur modifié avec succès', 'success');
-                } else {
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                showAlert('Erreur lors de la modification', 'error');
             }
         }
         
@@ -3491,13 +3487,9 @@
                             }
                         }
                     }
-                    showAlert('Professeur modifié avec succès', 'success');
-                } else {
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                showAlert('Erreur lors de la modification', 'error');
             }
         }
         
@@ -3597,13 +3589,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(`Université "${newNom}" modifiée avec succès`, 'success');
-                    } else {
-                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             }
         }
@@ -3668,13 +3656,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(`UFR "${newNom}" modifiée avec succès`, 'success');
-                    } else {
-                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             }
         }
@@ -3739,13 +3723,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(`Filière "${newNom}" modifiée avec succès`, 'success');
-                    } else {
-                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             }
         }
@@ -3810,13 +3790,9 @@
                             if (nomElement) nomElement.textContent = newNom;
                             if (codeElement) codeElement.textContent = `Code: ${newCode}`;
                         }
-                        showAlert(`Matière "${newNom}" modifiée avec succès`, 'success');
-                    } else {
-                        showAlert('Erreur lors de la modification', 'error');
                     }
                 } catch (error) {
                     console.error('Erreur:', error);
-                    showAlert('Erreur lors de la modification', 'error');
                 }
             }
         }
