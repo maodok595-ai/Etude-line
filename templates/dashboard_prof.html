@@ -3723,302 +3723,178 @@
     </script>
     
     <!-- ==================== ÉDITEUR RICHE SCIENTIFIQUE (Quill.js) ==================== -->
-    
-    <!-- Modal Équation LaTeX -->
-    <div id="equationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <h3 style="margin: 0 0 1.5rem 0; color: #6366f1; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 1.5rem;">∑</span> Insérer une équation mathématique
-            </h3>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Code LaTeX :</label>
-                <textarea id="latexInput" placeholder="Ex: x^2 + y^2 = r^2" 
-                          style="width: 100%; height: 100px; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1rem;"></textarea>
-            </div>
-            
-            <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                <strong style="color: #374151; display: block; margin-bottom: 0.5rem;">📐 Exemples LaTeX :</strong>
-                <div style="font-size: 0.9rem; color: #6b7280; line-height: 1.6;">
-                    • Fraction : <code style="background: white; padding: 2px 6px; border-radius: 3px;">\\frac{a}{b}</code><br>
-                    • Puissance : <code style="background: white; padding: 2px 6px; border-radius: 3px;">x^2</code> ou <code style="background: white; padding: 2px 6px; border-radius: 3px;">x^{10}</code><br>
-                    • Racine : <code style="background: white; padding: 2px 6px; border-radius: 3px;">\\sqrt{x}</code><br>
-                    • Somme : <code style="background: white; padding: 2px 6px; border-radius: 3px;">\\sum_{i=1}^{n} i</code><br>
-                    • Intégrale : <code style="background: white; padding: 2px 6px; border-radius: 3px;">\\int_{0}^{\\infty} x dx</code>
-                </div>
-            </div>
-            
-            <div style="background: #eff6ff; padding: 1rem; border-radius: 8px; border: 2px solid #93c5fd; margin-bottom: 1.5rem;">
-                <strong style="color: #1e40af; display: block; margin-bottom: 0.5rem;">👁️ Prévisualisation :</strong>
-                <div id="latexPreview" style="min-height: 50px; font-size: 1.2rem; text-align: center; padding: 1rem; background: white; border-radius: 6px;"></div>
-            </div>
-            
-            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                <button type="button" onclick="closeEquationModal()" 
-                        style="padding: 0.75rem 1.5rem; border: 2px solid #e0e0e0; background: white; color: #374151; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    Annuler
-                </button>
-                <button type="button" onclick="insertEquation()" 
-                        style="padding: 0.75rem 1.5rem; border: none; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    ✅ Insérer l'équation
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal Graphique -->
-    <div id="chartModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <h3 style="margin: 0 0 1.5rem 0; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 1.5rem;">📊</span> Créer un graphique
-            </h3>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Titre du graphique :</label>
-                <input type="text" id="chartTitle" placeholder="Ex: Évolution de f(x) = x²" 
-                       style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
-            </div>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Données (format CSV) :</label>
-                <textarea id="chartData" placeholder="0,0&#10;1,1&#10;2,4&#10;3,9&#10;4,16" 
-                          style="width: 100%; height: 150px; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1rem;"></textarea>
-            </div>
-            
-            <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                <strong style="color: #374151; display: block; margin-bottom: 0.5rem;">💡 Format des données :</strong>
-                <div style="font-size: 0.9rem; color: #6b7280; line-height: 1.6;">
-                    Entrez vos données au format <strong>X,Y</strong> (une ligne par point) :<br>
-                    <code style="background: white; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 0.3rem;">
-                        0,0<br>1,1<br>2,4<br>3,9
-                    </code>
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                <button type="button" onclick="closeChartModal()" 
-                        style="padding: 0.75rem 1.5rem; border: 2px solid #e0e0e0; background: white; color: #374151; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    Annuler
-                </button>
-                <button type="button" onclick="insertChart()" 
-                        style="padding: 0.75rem 1.5rem; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    ✅ Créer le graphique
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal Tableau -->
-    <div id="tableModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <h3 style="margin: 0 0 1.5rem 0; color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 1.5rem;">📋</span> Créer un tableau
-            </h3>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div>
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nombre de lignes :</label>
-                    <input type="number" id="tableRows" value="3" min="1" max="20" 
-                           style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nombre de colonnes :</label>
-                    <input type="number" id="tableCols" value="3" min="1" max="10" 
-                           style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                <button type="button" onclick="closeTableModal()" 
-                        style="padding: 0.75rem 1.5rem; border: 2px solid #e0e0e0; background: white; color: #374151; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    Annuler
-                </button>
-                <button type="button" onclick="insertTable()" 
-                        style="padding: 0.75rem 1.5rem; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500;">
-                    ✅ Créer le tableau
-                </button>
-            </div>
-        </div>
-    </div>
-    
     <script>
-        let currentTextareaId = '';
-        
-        // ==================== GESTION DES MODALS ====================
-        
-        function openEquationModal(section) {
-            currentTextareaId = section + '_texte';
-            document.getElementById('equationModal').style.display = 'flex';
-            document.getElementById('latexInput').value = '';
-            document.getElementById('latexPreview').innerHTML = '';
-            document.getElementById('latexInput').focus();
+        // Initialisation des éditeurs Quill.js pour les 3 champs scientifiques
+        document.addEventListener('DOMContentLoaded', function() {
             
-            // Mise à jour de la prévisualisation en temps réel
-            document.getElementById('latexInput').addEventListener('input', function() {
-                const latex = this.value;
-                const preview = document.getElementById('latexPreview');
-                if (latex.trim() !== '') {
-                    preview.innerHTML = '\\(' + latex + '\\)';
-                    if (window.MathJax && window.MathJax.typesetPromise) {
-                        MathJax.typesetPromise([preview]);
-                    }
-                } else {
-                    preview.innerHTML = '<em style="color: #9ca3af;">Saisissez une équation pour voir l\'aperçu...</em>';
-                }
+            // Configuration de la toolbar Quill.js
+            const toolbarOptions = [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image'],
+                ['clean']
+            ];
+            
+            // Créer les 3 éditeurs Quill
+            const editorCours = new Quill('#editor_cours', {
+                theme: 'snow',
+                placeholder: 'Saisissez le contenu du cours...',
+                modules: { toolbar: toolbarOptions }
             });
-        }
-        
-        function closeEquationModal() {
-            document.getElementById('equationModal').style.display = 'none';
-        }
-        
-        function insertEquation() {
-            const latex = document.getElementById('latexInput').value.trim();
-            if (!latex) {
-                alert('⚠️ Veuillez saisir une équation LaTeX');
-                return;
-            }
             
-            const textarea = document.getElementById(currentTextareaId);
-            const mathHtml = '<span class="math-tex">\\(' + latex + '\\)</span> ';
+            const editorExercice = new Quill('#editor_exercice', {
+                theme: 'snow',
+                placeholder: 'Saisissez les exercices...',
+                modules: { toolbar: toolbarOptions }
+            });
             
-            // Insérer à la position du curseur
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            textarea.value = text.substring(0, start) + mathHtml + text.substring(end);
-            textarea.selectionStart = textarea.selectionEnd = start + mathHtml.length;
+            const editorSolution = new Quill('#editor_solution', {
+                theme: 'snow',
+                placeholder: 'Saisissez les solutions...',
+                modules: { toolbar: toolbarOptions }
+            });
             
-            closeEquationModal();
-        }
-        
-        function openChartModal(section) {
-            currentTextareaId = section + '_texte';
-            document.getElementById('chartModal').style.display = 'flex';
-            document.getElementById('chartTitle').value = '';
-            document.getElementById('chartData').value = '';
-            document.getElementById('chartTitle').focus();
-        }
-        
-        function closeChartModal() {
-            document.getElementById('chartModal').style.display = 'none';
-        }
-        
-        function insertChart() {
-            const title = document.getElementById('chartTitle').value.trim() || 'Graphique';
-            const csvData = document.getElementById('chartData').value.trim();
-            
-            if (!csvData) {
-                alert('⚠️ Veuillez entrer des données pour le graphique');
-                return;
-            }
-            
-            try {
-                const lines = csvData.split('\n');
-                const xValues = [];
-                const yValues = [];
-                
-                for (let i = 0; i < lines.length; i++) {
-                    const parts = lines[i].split(',');
-                    if (parts.length >= 2) {
-                        xValues.push(parts[0].trim());
-                        yValues.push(parseFloat(parts[1].trim()));
+            // ==================== BOUTON ÉQUATION (Σ) ====================
+            function addEquationButton(editor) {
+                const toolbar = editor.getModule('toolbar');
+                const buttonHtml = document.createElement('button');
+                buttonHtml.innerHTML = 'Σ';
+                buttonHtml.className = 'ql-equation';
+                buttonHtml.title = 'Insérer une équation (LaTeX)';
+                buttonHtml.onclick = function(e) {
+                    e.preventDefault();
+                    const latex = prompt('Entrez votre équation LaTeX :\n\nExemples :\n• Fraction : \\frac{a}{b}\n• Puissance : x^2 ou x^{10}\n• Racine : \\sqrt{x}\n• Somme : \\sum_{i=1}^{n} i\n• Intégrale : \\int_{0}^{\\infty} x dx\n• Limite : \\lim_{x \\to \\infty} f(x)');
+                    
+                    if (latex && latex.trim() !== '') {
+                        const range = editor.getSelection();
+                        const mathHtml = '<span class="math-tex" style="display:inline-block; padding:5px; background:#f9f9f9; border:1px solid #ddd; border-radius:3px; font-family:serif;">\\(' + latex + '\\)</span>&nbsp;';
+                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, mathHtml);
+                        
+                        // Rendre l'équation avec MathJax
+                        setTimeout(() => {
+                            if (window.MathJax && window.MathJax.typesetPromise) {
+                                MathJax.typesetPromise();
+                            }
+                        }, 100);
                     }
-                }
-                
-                if (xValues.length === 0) {
-                    alert('⚠️ Aucune donnée valide détectée');
-                    return;
-                }
-                
-                const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const chartDataJson = JSON.stringify({
-                    type: 'line',
-                    title: title,
-                    labels: xValues,
-                    data: yValues
+                };
+                return buttonHtml;
+            }
+            
+            // ==================== BOUTON GRAPHIQUE (📊) ====================
+            function addChartButton(editor) {
+                const buttonHtml = document.createElement('button');
+                buttonHtml.innerHTML = '📊';
+                buttonHtml.className = 'ql-chart';
+                buttonHtml.title = 'Insérer un graphique';
+                buttonHtml.onclick = function(e) {
+                    e.preventDefault();
+                    
+                    const csvData = prompt('📊 Entrez les données CSV (une ligne par point) :\n\nFormat : X,Y (sans en-tête)\n\nExemple :\n0,0\n1,1\n2,4\n3,9\n4,16');
+                    
+                    if (!csvData || csvData.trim() === '') {
+                        return;
+                    }
+                    
+                    try {
+                        const lines = csvData.trim().split('\n');
+                        const xValues = [];
+                        const yValues = [];
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            const parts = lines[i].split(',');
+                            if (parts.length >= 2) {
+                                xValues.push(parts[0].trim());
+                                yValues.push(parseFloat(parts[1].trim()));
+                            }
+                        }
+                        
+                        if (xValues.length === 0) {
+                            alert('⚠️ Aucune donnée valide détectée.\n\nFormat attendu (sans en-tête) :\n0,0\n1,1\n2,4');
+                            return;
+                        }
+                        
+                        const chartTitle = prompt('📝 Titre du graphique :') || 'Graphique';
+                        const chartId = 'chart_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        
+                        const chartDataJson = JSON.stringify({
+                            type: 'line',
+                            title: chartTitle,
+                            labels: xValues,
+                            data: yValues
+                        });
+                        
+                        const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson.replace(/'/g, '&apos;') + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + chartTitle + '</p></div><p>&nbsp;</p>';
+                        
+                        const range = editor.getSelection();
+                        editor.clipboard.dangerouslyPasteHTML(range ? range.index : 0, chartHtml);
+                        
+                        setTimeout(() => {
+                            const canvas = document.getElementById(chartId);
+                            if (canvas && window.Chart) {
+                                try {
+                                    const chartData = JSON.parse(canvas.getAttribute('data-chart'));
+                                    new Chart(canvas, {
+                                        type: chartData.type,
+                                        data: {
+                                            labels: chartData.labels,
+                                            datasets: [{
+                                                label: chartData.title,
+                                                data: chartData.data,
+                                                borderColor: 'rgb(75, 192, 192)',
+                                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                tension: 0.1
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: chartData.title
+                                                }
+                                            }
+                                        }
+                                    });
+                                    console.log('✅ Graphique créé avec succès:', chartId);
+                                } catch (err) {
+                                    console.error('❌ Erreur création Chart.js:', err);
+                                }
+                            } else {
+                                console.error('❌ Canvas ou Chart.js non trouvé');
+                            }
+                        }, 200);
+                        
+                    } catch (error) {
+                        console.error('❌ Erreur parsing données:', error);
+                        alert('❌ Erreur lors de la création du graphique.\n\nVérifiez le format des données :\n0,0\n1,1\n2,4');
+                    }
+                };
+                return buttonHtml;
+            }
+            
+            // Ajouter les boutons personnalisés aux toolbars
+            const toolbars = document.querySelectorAll('.ql-toolbar');
+            toolbars.forEach((toolbar, index) => {
+                const editor = [editorCours, editorExercice, editorSolution][index];
+                toolbar.appendChild(addEquationButton(editor));
+                toolbar.appendChild(addChartButton(editor));
+            });
+            
+            // Synchroniser le contenu des éditeurs avec les inputs hidden lors de la soumission
+            const form = document.getElementById('form-chapitre-complet');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    document.getElementById('cours_texte').value = editorCours.root.innerHTML;
+                    document.getElementById('exercice_texte').value = editorExercice.root.innerHTML;
+                    document.getElementById('solution_texte').value = editorSolution.root.innerHTML;
                 });
-                
-                const chartHtml = '<div class="chart-container" style="margin:20px 0; padding:15px; background:#f9f9f9; border:2px solid #e0e0e0; border-radius:8px;"><canvas id="' + chartId + '" data-chart=\'' + chartDataJson.replace(/'/g, '&apos;') + '\' width="600" height="300"></canvas><p style="text-align:center; margin-top:10px; font-size:0.9em; color:#666;">📊 ' + title + '</p></div>\n\n';
-                
-                const textarea = document.getElementById(currentTextareaId);
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const text = textarea.value;
-                textarea.value = text.substring(0, start) + chartHtml + text.substring(end);
-                
-                closeChartModal();
-                alert('✅ Graphique ajouté ! Il s\'affichera pour les étudiants.');
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('❌ Erreur lors de la création du graphique');
-            }
-        }
-        
-        function openTableModal(section) {
-            currentTextareaId = section + '_texte';
-            document.getElementById('tableModal').style.display = 'flex';
-            document.getElementById('tableRows').focus();
-        }
-        
-        function closeTableModal() {
-            document.getElementById('tableModal').style.display = 'none';
-        }
-        
-        function insertTable() {
-            const rows = parseInt(document.getElementById('tableRows').value);
-            const cols = parseInt(document.getElementById('tableCols').value);
-            
-            if (rows < 1 || cols < 1 || rows > 20 || cols > 10) {
-                alert('⚠️ Veuillez entrer des dimensions valides (max 20 lignes, 10 colonnes)');
-                return;
-            }
-            
-            let tableHtml = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 20px 0;">\n';
-            
-            for (let i = 0; i < rows; i++) {
-                tableHtml += '  <tr>\n';
-                for (let j = 0; j < cols; j++) {
-                    if (i === 0) {
-                        tableHtml += '    <th style="padding: 8px; background: #f3f4f6; border: 1px solid #ddd;">En-tête ' + (j + 1) + '</th>\n';
-                    } else {
-                        tableHtml += '    <td style="padding: 8px; border: 1px solid #ddd;">Cellule</td>\n';
-                    }
-                }
-                tableHtml += '  </tr>\n';
-            }
-            
-            tableHtml += '</table>\n\n';
-            
-            const textarea = document.getElementById(currentTextareaId);
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            textarea.value = text.substring(0, start) + tableHtml + text.substring(end);
-            
-            closeTableModal();
-        }
-        
-        // Fermer les modals en cliquant en dehors
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'equationModal') closeEquationModal();
-            if (e.target.id === 'chartModal') closeChartModal();
-            if (e.target.id === 'tableModal') closeTableModal();
-        });
-        
-        // Fermer avec la touche Échap
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeEquationModal();
-                closeChartModal();
-                closeTableModal();
             }
         });
-        
-        window.openEquationModal = openEquationModal;
-        window.openChartModal = openChartModal;
-        window.openTableModal = openTableModal;
     </script>
 </body>
 </html>
