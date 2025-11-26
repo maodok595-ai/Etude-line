@@ -628,7 +628,7 @@
                 data.forEach(ufr => {
                     const option = document.createElement('option');
                     option.value = ufr.id;
-                    option.textContent = `${ufr.code} - ${ufr.nom}`;
+                    option.textContent = ufr.nom;
                     select.appendChild(option);
                 });
                 
@@ -661,7 +661,7 @@
                 data.forEach(filiere => {
                     const option = document.createElement('option');
                     option.value = filiere.id;
-                    option.textContent = `${filiere.code} - ${filiere.nom}`;
+                    option.textContent = filiere.nom;
                     select.appendChild(option);
                 });
                 
@@ -703,7 +703,7 @@
                 matieres.forEach(matiere => {
                     const option = document.createElement('option');
                     option.value = matiere.id;
-                    option.textContent = `${matiere.code} - ${matiere.nom}`;
+                    option.textContent = matiere.nom;
                     select.appendChild(option);
                 });
                 
