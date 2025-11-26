@@ -618,7 +618,8 @@
             
             try {
                 const response = await fetch('/api/prof/ufrs');
-                const data = await response.json();
+                const result = await response.json();
+                const data = result.ufrs || result;
                 ufrsData = data;
                 
                 const select = document.getElementById('ufr_id');
@@ -651,7 +652,8 @@
             
             try {
                 const response = await fetch(`/api/prof/filieres/${ufrId}`);
-                const data = await response.json();
+                const result = await response.json();
+                const data = result.filieres || result;
                 filieresData = data;
                 
                 select.innerHTML = '<option value="">Sélectionner une filière...</option>';
