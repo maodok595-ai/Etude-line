@@ -33,6 +33,19 @@ The application uses a server-side rendered architecture with Jinja2 templates, 
 - **Academic Progression Hierarchy System**: Comprehensive system for managing student advancement between academic levels and programs, defined by administrators using `PassageHierarchy` model. Includes admin interface for hierarchy management, real-time statistics, student choice validation with confirmation dialogs, and permanent tracking of progression history (`StudentPassage` model).
 - **Rich Scientific Content Editor**: Integration of Quill.js WYSIWYG editor with MathJax for LaTeX equations, native tables, and Chart.js for interactive graphs, allowing professors to create rich pedagogical content without technical knowledge. This utilizes CDN libraries for Quill.js, MathJax, and Chart.js, with custom buttons for equation and chart insertion. Content is stored as HTML and rendered safely.
 - **File Reader Improvements**: Files now open within the integrated reader (not new tabs), `window.history.back()` ensures correct navigation. Security has been enhanced against Path Traversal and Stored XSS vulnerabilities using path normalization, `is_relative_to()` checks, and DOM API for secure element creation.
+- **Scheduled Online Courses with Jitsi**: Complete system for professors to schedule live online courses using Jitsi video conferencing:
+  - **ScheduledCourse Model**: Database table storing course scheduling details (filière, niveau, semestre, matière, date, heure, durée, Jitsi link, notification flags).
+  - **Automatic Jitsi Link Generation**: Links are generated with format `https://meet.jit.si/etudeline-{niveau}-{filiere}-{semestre}-{matiere}-{date}-{heure}`.
+  - **REST API Endpoints**: 
+    - `POST /courses/schedule` - Schedule a new course
+    - `GET /courses/upcoming` - Get all upcoming courses (filtered by student's filière/niveau)
+    - `GET /courses/prof/{prof_id}` - Get courses by professor
+    - `GET /courses/my` - Get current professor's courses
+    - `PUT /courses/{course_id}` - Update a course
+    - `DELETE /courses/{course_id}` - Delete a course
+  - **Automatic Notification System**: Background tasks send notifications to eligible students at 24h, 1h, and course start time. Uses `threading.Timer` with daemon threads.
+  - **Startup Rescheduling**: On server restart, pending notifications are automatically rescheduled from the database.
+  - **UI Page**: `/courses/view` displays scheduled courses with role-aware interface (professors can create, all users can view and join).
 
 ### System Design Choices
 - **Monolithic Architecture**: FastAPI handles all backend logic, database interactions, and API endpoints.

@@ -367,3 +367,46 @@ class MessageEtudiantStatut(Base):
         Index('idx_statut_etudiant_message', 'etudiant_id', 'message_id'),
         Index('idx_statut_non_supprime', 'etudiant_id', 'supprime'),
     )
+
+class ScheduledCourse(Base):
+    """Cours en ligne programmés avec Jitsi"""
+    __tablename__ = "scheduled_courses"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    prof_id = Column(Integer, ForeignKey("professeurs.id", ondelete='CASCADE'), nullable=False, index=True)
+    universite_id = Column(String, ForeignKey("universites.id", ondelete='CASCADE'), nullable=False, index=True)
+    ufr_id = Column(String, ForeignKey("ufrs.id", ondelete='CASCADE'), nullable=True, index=True)
+    filiere_id = Column(String, ForeignKey("filieres.id", ondelete='CASCADE'), nullable=True, index=True)
+    matiere_id = Column(String, ForeignKey("matieres.id", ondelete='CASCADE'), nullable=True, index=True)
+    
+    filiere = Column(String(100), nullable=False)
+    niveau = Column(String(10), nullable=False)
+    semestre = Column(String(10), nullable=False)
+    matiere = Column(String(200), nullable=False)
+    
+    cours_date = Column(String(10), nullable=False)
+    cours_heure = Column(String(5), nullable=False)
+    duree_minutes = Column(Integer, nullable=False, default=60)
+    
+    jitsi_link = Column(String(500), nullable=False)
+    
+    notification_24h_sent = Column(Boolean, default=False, nullable=False)
+    notification_1h_sent = Column(Boolean, default=False, nullable=False)
+    notification_debut_sent = Column(Boolean, default=False, nullable=False)
+    
+    statut = Column(String(20), default='programme', nullable=False)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    professeur = relationship("Professeur", foreign_keys=[prof_id])
+    universite = relationship("Universite", foreign_keys=[universite_id])
+    ufr_rel = relationship("UFR", foreign_keys=[ufr_id])
+    filiere_rel = relationship("Filiere", foreign_keys=[filiere_id])
+    matiere_rel = relationship("Matiere", foreign_keys=[matiere_id])
+    
+    __table_args__ = (
+        Index('idx_scheduled_course_date', 'cours_date', 'cours_heure'),
+        Index('idx_scheduled_course_prof', 'prof_id', 'cours_date'),
+        Index('idx_scheduled_course_filiere', 'filiere_id', 'niveau', 'semestre'),
+    )

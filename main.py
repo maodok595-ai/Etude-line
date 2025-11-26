@@ -1,12 +1,14 @@
 import json
 import os
 import uuid
+import threading
+import re
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List, Tuple
 import fcntl
 from pathlib import Path
 
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status, File, UploadFile, BackgroundTasks
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -25,7 +27,7 @@ from models import (
     Content, ChapitreComplet as ChapitreCompletDB, Commentaire as CommentaireDB, Notification as NotificationDB,
     ParametreSysteme as ParametreSystemeDB, ParametreUniversite as ParametreUniversiteDB,
     PassageHierarchy as PassageHierarchyDB, StudentPassage as StudentPassageDB,
-    MessageProf, MessageEtudiantStatut
+    MessageProf, MessageEtudiantStatut, ScheduledCourse as ScheduledCourseDB
 )
 
 # === CONFIGURATION STOCKAGE FICHIERS ===
@@ -85,6 +87,13 @@ async def startup_event():
         print("✅ Tables de base de données vérifiées")
     except Exception as e:
         print(f"⚠️ Erreur création tables (peut être ignorée si elles existent): {e}")
+    
+    # Reprogrammer les notifications pour les cours programmés au redémarrage
+    try:
+        reschedule_pending_course_notifications()
+        print("✅ Notifications de cours reprogrammées")
+    except Exception as e:
+        print(f"⚠️ Erreur reprogrammation notifications: {e}")
 # Configuration from environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-this")
 
@@ -5214,6 +5223,523 @@ async def delete_student_message(
         db.rollback()
         print(f"❌ Erreur suppression message: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================================================
+# SYSTÈME DE COURS EN LIGNE PROGRAMMÉS AVEC JITSI
+# ============================================================================
+
+class ScheduledCourseCreate(BaseModel):
+    """Schéma pour la création d'un cours programmé"""
+    filiere: str
+    niveau: str
+    semestre: str
+    matiere: str
+    cours_date: str  # Format: YYYY-MM-DD
+    cours_heure: str  # Format: HH:MM
+    duree_minutes: int = 60
+
+def generate_jitsi_link(niveau: str, filiere: str, semestre: str, matiere: str, date: str, heure: str) -> str:
+    """Générer un lien Jitsi unique basé sur les paramètres du cours"""
+    def sanitize(text: str) -> str:
+        text = text.lower().strip()
+        text = re.sub(r'[^a-z0-9]+', '-', text)
+        text = re.sub(r'-+', '-', text)
+        return text.strip('-')
+    
+    room_name = f"etudeline-{sanitize(niveau)}-{sanitize(filiere)}-{sanitize(semestre)}-{sanitize(matiere)}-{date}-{heure.replace(':', '')}"
+    return f"https://meet.jit.si/{room_name}"
+
+def calculate_deadlines(cours_date: str, cours_heure: str) -> Dict[str, datetime]:
+    """Calculer les deadlines pour les notifications"""
+    cours_datetime = datetime.strptime(f"{cours_date} {cours_heure}", "%Y-%m-%d %H:%M")
+    return {
+        "deadline_24h": cours_datetime - timedelta(hours=24),
+        "deadline_1h": cours_datetime - timedelta(hours=1),
+        "deadline_debut": cours_datetime
+    }
+
+def send_course_notifications_background(course_id: int, notification_type: str):
+    """Envoyer des notifications aux étudiants concernés (tâche de fond)"""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        course = db.query(ScheduledCourseDB).filter_by(id=course_id).first()
+        if not course:
+            return
+        
+        filiere_obj = db.query(FiliereDB).filter_by(id=course.filiere_id).first() if course.filiere_id else None
+        
+        level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+        course_level_value = level_hierarchy.get(course.niveau, 0)
+        eligible_levels = [level for level, value in level_hierarchy.items() if value >= course_level_value]
+        
+        etudiants_query = db.query(EtudiantDB)
+        if course.filiere_id:
+            etudiants_query = etudiants_query.filter(EtudiantDB.filiere_id == course.filiere_id)
+        etudiants_query = etudiants_query.filter(EtudiantDB.niveau.in_(eligible_levels))
+        etudiants = etudiants_query.all()
+        
+        prof = db.query(ProfesseurDB).filter_by(id=course.prof_id).first()
+        prof_name = f"{prof.prenom} {prof.nom}" if prof else "Professeur"
+        
+        if notification_type == "24h":
+            message = f"📅 Rappel : Cours en ligne demain à {course.cours_heure} - {course.matiere} ({course.niveau} {course.semestre})"
+            course.notification_24h_sent = True
+        elif notification_type == "1h":
+            message = f"⏰ Cours dans 1 heure : {course.matiere} - Rejoignez la session Jitsi"
+            course.notification_1h_sent = True
+        else:
+            message = f"🎥 Le cours commence MAINTENANT ! {course.matiere} par {prof_name}"
+            course.notification_debut_sent = True
+        
+        for etudiant in etudiants:
+            notification = NotificationDB(
+                type='cours_programme',
+                message=message,
+                destinataire_type='etudiant',
+                destinataire_id=etudiant.id,
+                lien=course.jitsi_link,
+                universite_id=course.universite_id
+            )
+            db.add(notification)
+        
+        db.commit()
+        print(f"✅ Notifications {notification_type} envoyées pour le cours {course_id} à {len(etudiants)} étudiants")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur envoi notifications: {str(e)}")
+    finally:
+        db.close()
+
+def schedule_course_notifications(course_id: int, deadlines: Dict[str, datetime]):
+    """Programmer les notifications automatiques pour un cours"""
+    now = datetime.utcnow()
+    
+    for notification_type, deadline in [("24h", deadlines["deadline_24h"]), ("1h", deadlines["deadline_1h"]), ("debut", deadlines["deadline_debut"])]:
+        if deadline > now:
+            delay_seconds = (deadline - now).total_seconds()
+            timer = threading.Timer(delay_seconds, send_course_notifications_background, args=[course_id, notification_type])
+            timer.daemon = True
+            timer.start()
+            print(f"⏰ Notification {notification_type} programmée dans {delay_seconds/3600:.1f}h pour le cours {course_id}")
+
+def reschedule_pending_course_notifications():
+    """Reprogrammer toutes les notifications en attente au démarrage du serveur"""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        now = datetime.utcnow()
+        today = now.strftime("%Y-%m-%d")
+        
+        pending_courses = db.query(ScheduledCourseDB).filter(
+            ScheduledCourseDB.statut == 'programme',
+            ScheduledCourseDB.cours_date >= today
+        ).all()
+        
+        scheduled_count = 0
+        for course in pending_courses:
+            deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+            
+            notifications_to_schedule = []
+            if not course.notification_24h_sent and deadlines["deadline_24h"] > now:
+                notifications_to_schedule.append(("24h", deadlines["deadline_24h"]))
+            if not course.notification_1h_sent and deadlines["deadline_1h"] > now:
+                notifications_to_schedule.append(("1h", deadlines["deadline_1h"]))
+            if not course.notification_debut_sent and deadlines["deadline_debut"] > now:
+                notifications_to_schedule.append(("debut", deadlines["deadline_debut"]))
+            
+            for notification_type, deadline in notifications_to_schedule:
+                delay_seconds = (deadline - now).total_seconds()
+                if delay_seconds > 0:
+                    timer = threading.Timer(delay_seconds, send_course_notifications_background, args=[course.id, notification_type])
+                    timer.daemon = True
+                    timer.start()
+                    scheduled_count += 1
+        
+        print(f"📅 {scheduled_count} notifications reprogrammées pour {len(pending_courses)} cours")
+    except Exception as e:
+        print(f"❌ Erreur reprogrammation: {str(e)}")
+    finally:
+        db.close()
+
+@app.post("/courses/schedule")
+async def schedule_course(
+    request: Request,
+    filiere: str = Form(...),
+    niveau: str = Form(...),
+    semestre: str = Form(...),
+    matiere: str = Form(...),
+    cours_date: str = Form(...),
+    cours_heure: str = Form(...),
+    duree_minutes: int = Form(60),
+    background_tasks: BackgroundTasks = None,
+    db: Session = Depends(get_db)
+):
+    """Programmer un nouveau cours en ligne avec Jitsi"""
+    try:
+        username, user_data = require_prof(request, db)
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        jitsi_link = generate_jitsi_link(niveau, filiere, semestre, matiere, cours_date, cours_heure)
+        deadlines = calculate_deadlines(cours_date, cours_heure)
+        
+        filiere_obj = db.query(FiliereDB).filter_by(id=prof.filiere_id).first() if prof.filiere_id else None
+        matiere_obj = db.query(MatiereDB).filter_by(id=prof.matiere_id).first() if prof.matiere_id else None
+        
+        new_course = ScheduledCourseDB(
+            prof_id=prof.id,
+            universite_id=prof.universite_id,
+            ufr_id=prof.ufr_id,
+            filiere_id=prof.filiere_id,
+            matiere_id=prof.matiere_id,
+            filiere=filiere,
+            niveau=niveau,
+            semestre=semestre,
+            matiere=matiere,
+            cours_date=cours_date,
+            cours_heure=cours_heure,
+            duree_minutes=duree_minutes,
+            jitsi_link=jitsi_link,
+            statut='programme'
+        )
+        
+        db.add(new_course)
+        db.commit()
+        db.refresh(new_course)
+        
+        schedule_course_notifications(new_course.id, deadlines)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "Cours programmé avec succès",
+            "course": {
+                "id": new_course.id,
+                "filiere": filiere,
+                "niveau": niveau,
+                "semestre": semestre,
+                "matiere": matiere,
+                "date": cours_date,
+                "heure": cours_heure,
+                "duree": duree_minutes,
+                "jitsi_link": jitsi_link,
+                "deadline_24h": deadlines["deadline_24h"].isoformat(),
+                "deadline_1h": deadlines["deadline_1h"].isoformat(),
+                "deadline_debut": deadlines["deadline_debut"].isoformat()
+            }
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur programmation cours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/courses/upcoming")
+async def get_upcoming_courses(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer tous les cours à venir, triés par date/heure"""
+    try:
+        role, username, user_data = require_auth(request, db)
+        
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        current_time = datetime.utcnow().strftime("%H:%M")
+        
+        courses = db.query(ScheduledCourseDB).filter(
+            or_(
+                ScheduledCourseDB.cours_date > today,
+                and_(
+                    ScheduledCourseDB.cours_date == today,
+                    ScheduledCourseDB.cours_heure >= current_time
+                )
+            ),
+            ScheduledCourseDB.statut == 'programme'
+        ).order_by(
+            ScheduledCourseDB.cours_date,
+            ScheduledCourseDB.cours_heure
+        ).all()
+        
+        if role == "etudiant":
+            etudiant = db.query(EtudiantDB).filter_by(username=username).first()
+            if etudiant:
+                level_hierarchy = {"L1": 1, "L2": 2, "L3": 3, "M1": 4, "M2": 5}
+                student_level = level_hierarchy.get(etudiant.niveau, 0)
+                courses = [c for c in courses if 
+                           (c.filiere_id == etudiant.filiere_id or c.filiere_id is None) and
+                           level_hierarchy.get(c.niveau, 0) <= student_level]
+        
+        result = []
+        for course in courses:
+            prof = db.query(ProfesseurDB).filter_by(id=course.prof_id).first()
+            prof_name = f"{prof.prenom} {prof.nom}" if prof else "Professeur"
+            
+            deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+            
+            result.append({
+                "id": course.id,
+                "filiere": course.filiere,
+                "niveau": course.niveau,
+                "semestre": course.semestre,
+                "matiere": course.matiere,
+                "date": course.cours_date,
+                "heure": course.cours_heure,
+                "duree": course.duree_minutes,
+                "jitsi_link": course.jitsi_link,
+                "professeur": prof_name,
+                "deadline_24h": deadlines["deadline_24h"].isoformat(),
+                "deadline_1h": deadlines["deadline_1h"].isoformat(),
+                "deadline_debut": deadlines["deadline_debut"].isoformat(),
+                "statut": course.statut
+            })
+        
+        return {"success": True, "courses": result, "total": len(result)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur récupération cours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/courses/prof/{prof_id}")
+async def get_courses_by_professor(
+    prof_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer tous les cours programmés par un professeur"""
+    try:
+        role, username, user_data = require_auth(request, db)
+        
+        prof = db.query(ProfesseurDB).filter_by(id=prof_id).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        courses = db.query(ScheduledCourseDB).filter(
+            ScheduledCourseDB.prof_id == prof_id
+        ).order_by(
+            ScheduledCourseDB.cours_date.desc(),
+            ScheduledCourseDB.cours_heure.desc()
+        ).all()
+        
+        result = []
+        for course in courses:
+            deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+            result.append({
+                "id": course.id,
+                "filiere": course.filiere,
+                "niveau": course.niveau,
+                "semestre": course.semestre,
+                "matiere": course.matiere,
+                "date": course.cours_date,
+                "heure": course.cours_heure,
+                "duree": course.duree_minutes,
+                "jitsi_link": course.jitsi_link,
+                "deadline_24h": deadlines["deadline_24h"].isoformat(),
+                "deadline_1h": deadlines["deadline_1h"].isoformat(),
+                "deadline_debut": deadlines["deadline_debut"].isoformat(),
+                "statut": course.statut,
+                "notifications": {
+                    "24h_sent": course.notification_24h_sent,
+                    "1h_sent": course.notification_1h_sent,
+                    "debut_sent": course.notification_debut_sent
+                }
+            })
+        
+        return {
+            "success": True,
+            "professeur": f"{prof.prenom} {prof.nom}",
+            "courses": result,
+            "total": len(result)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur récupération cours professeur: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/courses/my")
+async def get_my_scheduled_courses(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Récupérer mes cours programmés (pour professeur connecté)"""
+    try:
+        username, user_data = require_prof(request, db)
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        courses = db.query(ScheduledCourseDB).filter(
+            ScheduledCourseDB.prof_id == prof.id
+        ).order_by(
+            ScheduledCourseDB.cours_date.desc(),
+            ScheduledCourseDB.cours_heure.desc()
+        ).all()
+        
+        result = []
+        for course in courses:
+            deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+            result.append({
+                "id": course.id,
+                "filiere": course.filiere,
+                "niveau": course.niveau,
+                "semestre": course.semestre,
+                "matiere": course.matiere,
+                "date": course.cours_date,
+                "heure": course.cours_heure,
+                "duree": course.duree_minutes,
+                "jitsi_link": course.jitsi_link,
+                "deadline_24h": deadlines["deadline_24h"].isoformat(),
+                "deadline_1h": deadlines["deadline_1h"].isoformat(),
+                "deadline_debut": deadlines["deadline_debut"].isoformat(),
+                "statut": course.statut,
+                "notifications": {
+                    "24h_sent": course.notification_24h_sent,
+                    "1h_sent": course.notification_1h_sent,
+                    "debut_sent": course.notification_debut_sent
+                }
+            })
+        
+        return {"success": True, "courses": result, "total": len(result)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur récupération mes cours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/courses/{course_id}")
+async def delete_scheduled_course(
+    course_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Supprimer un cours programmé"""
+    try:
+        username, user_data = require_prof(request, db)
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        course = db.query(ScheduledCourseDB).filter_by(id=course_id).first()
+        if not course:
+            raise HTTPException(status_code=404, detail="Cours non trouvé")
+        
+        if course.prof_id != prof.id:
+            raise HTTPException(status_code=403, detail="Vous ne pouvez supprimer que vos propres cours")
+        
+        db.delete(course)
+        db.commit()
+        
+        return {"success": True, "message": "Cours supprimé avec succès"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur suppression cours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/courses/{course_id}")
+async def update_scheduled_course(
+    course_id: int,
+    request: Request,
+    filiere: str = Form(None),
+    niveau: str = Form(None),
+    semestre: str = Form(None),
+    matiere: str = Form(None),
+    cours_date: str = Form(None),
+    cours_heure: str = Form(None),
+    duree_minutes: int = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Modifier un cours programmé"""
+    try:
+        username, user_data = require_prof(request, db)
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
+        if not prof:
+            raise HTTPException(status_code=404, detail="Professeur non trouvé")
+        
+        course = db.query(ScheduledCourseDB).filter_by(id=course_id).first()
+        if not course:
+            raise HTTPException(status_code=404, detail="Cours non trouvé")
+        
+        if course.prof_id != prof.id:
+            raise HTTPException(status_code=403, detail="Vous ne pouvez modifier que vos propres cours")
+        
+        if filiere:
+            course.filiere = filiere
+        if niveau:
+            course.niveau = niveau
+        if semestre:
+            course.semestre = semestre
+        if matiere:
+            course.matiere = matiere
+        if cours_date:
+            course.cours_date = cours_date
+        if cours_heure:
+            course.cours_heure = cours_heure
+        if duree_minutes:
+            course.duree_minutes = duree_minutes
+        
+        if any([filiere, niveau, semestre, matiere, cours_date, cours_heure]):
+            course.jitsi_link = generate_jitsi_link(
+                course.niveau, course.filiere, course.semestre, 
+                course.matiere, course.cours_date, course.cours_heure
+            )
+            course.notification_24h_sent = False
+            course.notification_1h_sent = False
+            course.notification_debut_sent = False
+            
+            deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+            schedule_course_notifications(course.id, deadlines)
+        
+        db.commit()
+        
+        deadlines = calculate_deadlines(course.cours_date, course.cours_heure)
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "Cours modifié avec succès",
+            "course": {
+                "id": course.id,
+                "filiere": course.filiere,
+                "niveau": course.niveau,
+                "semestre": course.semestre,
+                "matiere": course.matiere,
+                "date": course.cours_date,
+                "heure": course.cours_heure,
+                "duree": course.duree_minutes,
+                "jitsi_link": course.jitsi_link,
+                "deadline_24h": deadlines["deadline_24h"].isoformat(),
+                "deadline_1h": deadlines["deadline_1h"].isoformat(),
+                "deadline_debut": deadlines["deadline_debut"].isoformat()
+            }
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erreur modification cours: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Endpoint HTML pour afficher les cours à venir (étudiants)
+@app.get("/courses/view", response_class=HTMLResponse)
+async def view_upcoming_courses_html(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Page HTML pour afficher les cours à venir"""
+    try:
+        role, username, user_data = require_auth(request, db)
+    except HTTPException:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    return templates.TemplateResponse("scheduled_courses.html", {
+        "request": request,
+        "user_data": user_data,
+        "role": role
+    })
 
 if __name__ == "__main__":
     import os
