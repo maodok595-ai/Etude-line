@@ -48,3 +48,16 @@ pydantic
 python-multipart
 sqlalchemy
 uvicorn
+alembic
+bcrypt
+fastapi
+gunicorn
+itsdangerous
+jinja2
+passlib
+Pillow
+psycopg2-binary
+pydantic
+python-multipart
+sqlalchemy
+uvicorn

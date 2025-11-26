@@ -1,3 +1,15 @@
 modules = ["python-3.11"]
 [agent]
 expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "rustc", "tcl", "tk", "zlib"]
+
+[userenv]
+
+[userenv.shared]
+ADMIN_USERNAME = "admin_default"
+ADMIN_PASSWORD = "ChangeMeNow2024!"
+SECRET_KEY = "your-super-secret-key-for-etude-line-app-2024"
+ENVIRONMENT = "development"
