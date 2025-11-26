@@ -399,12 +399,20 @@
             <form id="courseForm" onsubmit="submitCourse(event)">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="filiere">Filière</label>
-                        <input type="text" id="filiere" name="filiere" required placeholder="Ex: Informatique">
+                        <label for="ufr_id">UFR</label>
+                        <select id="ufr_id" name="ufr_id" required onchange="loadFilieres()">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filiere_id">Filière</label>
+                        <select id="filiere_id" name="filiere_id" required onchange="updateMatieresList()">
+                            <option value="">Sélectionner d'abord un UFR</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="niveau">Niveau</label>
-                        <select id="niveau" name="niveau" required>
+                        <select id="niveau" name="niveau" required onchange="updateMatieresList()">
                             <option value="">Sélectionner...</option>
                             <option value="L1">L1</option>
                             <option value="L2">L2</option>
@@ -415,15 +423,17 @@
                     </div>
                     <div class="form-group">
                         <label for="semestre">Semestre</label>
-                        <select id="semestre" name="semestre" required>
+                        <select id="semestre" name="semestre" required onchange="updateMatieresList()">
                             <option value="">Sélectionner...</option>
                             <option value="S1">S1</option>
                             <option value="S2">S2</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="matiere">Matière</label>
-                        <input type="text" id="matiere" name="matiere" required placeholder="Ex: Algorithmes">
+                        <label for="matiere_id">Matière</label>
+                        <select id="matiere_id" name="matiere_id" required>
+                            <option value="">Sélectionner niveau et semestre d'abord</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="cours_date">Date du cours</label>
@@ -599,7 +609,116 @@
             setTimeout(() => toast.remove(), 4000);
         }
         
-        document.addEventListener('DOMContentLoaded', loadCourses);
+        let ufrsData = [];
+        let filieresData = [];
+        let matieresCache = {};
+        
+        async function loadUfrs() {
+            if (role !== 'prof') return;
+            
+            try {
+                const response = await fetch('/api/prof/ufrs');
+                const data = await response.json();
+                ufrsData = data;
+                
+                const select = document.getElementById('ufr_id');
+                select.innerHTML = '<option value="">Sélectionner un UFR...</option>';
+                
+                data.forEach(ufr => {
+                    const option = document.createElement('option');
+                    option.value = ufr.id;
+                    option.textContent = `${ufr.code} - ${ufr.nom}`;
+                    select.appendChild(option);
+                });
+                
+                if (data.length === 1) {
+                    select.value = data[0].id;
+                    loadFilieres();
+                }
+            } catch (error) {
+                console.error('Erreur chargement UFRs:', error);
+            }
+        }
+        
+        async function loadFilieres() {
+            const ufrId = document.getElementById('ufr_id').value;
+            const select = document.getElementById('filiere_id');
+            
+            if (!ufrId) {
+                select.innerHTML = '<option value="">Sélectionner d\'abord un UFR</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/prof/filieres/${ufrId}`);
+                const data = await response.json();
+                filieresData = data;
+                
+                select.innerHTML = '<option value="">Sélectionner une filière...</option>';
+                
+                data.forEach(filiere => {
+                    const option = document.createElement('option');
+                    option.value = filiere.id;
+                    option.textContent = `${filiere.code} - ${filiere.nom}`;
+                    select.appendChild(option);
+                });
+                
+                if (data.length === 1) {
+                    select.value = data[0].id;
+                    updateMatieresList();
+                }
+            } catch (error) {
+                console.error('Erreur chargement filières:', error);
+            }
+        }
+        
+        async function updateMatieresList() {
+            const filiereId = document.getElementById('filiere_id').value;
+            const niveau = document.getElementById('niveau').value;
+            const semestre = document.getElementById('semestre').value;
+            const select = document.getElementById('matiere_id');
+            
+            if (!filiereId || !niveau || !semestre) {
+                select.innerHTML = '<option value="">Sélectionner filière, niveau et semestre</option>';
+                return;
+            }
+            
+            const cacheKey = `${filiereId}-${niveau}-${semestre}`;
+            
+            try {
+                let matieres;
+                if (matieresCache[cacheKey]) {
+                    matieres = matieresCache[cacheKey];
+                } else {
+                    const response = await fetch(`/api/matieres/${filiereId}?niveau=${niveau}&semestre=${semestre}`);
+                    matieres = await response.json();
+                    matieresCache[cacheKey] = matieres;
+                }
+                
+                select.innerHTML = '<option value="">Sélectionner une matière...</option>';
+                
+                matieres.forEach(matiere => {
+                    const option = document.createElement('option');
+                    option.value = matiere.id;
+                    option.textContent = `${matiere.code} - ${matiere.nom}`;
+                    select.appendChild(option);
+                });
+                
+                if (matieres.length === 0) {
+                    select.innerHTML = '<option value="">Aucune matière disponible</option>';
+                }
+            } catch (error) {
+                console.error('Erreur chargement matières:', error);
+                select.innerHTML = '<option value="">Erreur de chargement</option>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCourses();
+            if (role === 'prof') {
+                loadUfrs();
+            }
+        });
         
         setInterval(loadCourses, 60000);
     </script>

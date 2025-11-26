@@ -5365,10 +5365,11 @@ def reschedule_pending_course_notifications():
 @app.post("/courses/schedule")
 async def schedule_course(
     request: Request,
-    filiere: str = Form(...),
+    ufr_id: str = Form(...),
+    filiere_id: str = Form(...),
     niveau: str = Form(...),
     semestre: str = Form(...),
-    matiere: str = Form(...),
+    matiere_id: str = Form(...),
     cours_date: str = Form(...),
     cours_heure: str = Form(...),
     duree_minutes: int = Form(60),
@@ -5382,22 +5383,34 @@ async def schedule_course(
         if not prof:
             raise HTTPException(status_code=404, detail="Professeur non trouvé")
         
-        jitsi_link = generate_jitsi_link(niveau, filiere, semestre, matiere, cours_date, cours_heure)
-        deadlines = calculate_deadlines(cours_date, cours_heure)
+        filiere_obj = db.query(FiliereDB).filter_by(id=filiere_id).first()
+        if not filiere_obj:
+            raise HTTPException(status_code=404, detail="Filière non trouvée")
         
-        filiere_obj = db.query(FiliereDB).filter_by(id=prof.filiere_id).first() if prof.filiere_id else None
-        matiere_obj = db.query(MatiereDB).filter_by(id=prof.matiere_id).first() if prof.matiere_id else None
+        matiere_obj = db.query(MatiereDB).filter_by(id=matiere_id).first()
+        if not matiere_obj:
+            raise HTTPException(status_code=404, detail="Matière non trouvée")
+        
+        ufr_obj = db.query(UFRDB).filter_by(id=ufr_id).first()
+        if not ufr_obj:
+            raise HTTPException(status_code=404, detail="UFR non trouvé")
+        
+        filiere_nom = filiere_obj.nom
+        matiere_nom = matiere_obj.nom
+        
+        jitsi_link = generate_jitsi_link(niveau, filiere_nom, semestre, matiere_nom, cours_date, cours_heure)
+        deadlines = calculate_deadlines(cours_date, cours_heure)
         
         new_course = ScheduledCourseDB(
             prof_id=prof.id,
             universite_id=prof.universite_id,
-            ufr_id=prof.ufr_id,
-            filiere_id=prof.filiere_id,
-            matiere_id=prof.matiere_id,
-            filiere=filiere,
+            ufr_id=ufr_id,
+            filiere_id=filiere_id,
+            matiere_id=matiere_id,
+            filiere=filiere_nom,
             niveau=niveau,
             semestre=semestre,
-            matiere=matiere,
+            matiere=matiere_nom,
             cours_date=cours_date,
             cours_heure=cours_heure,
             duree_minutes=duree_minutes,
