@@ -5429,10 +5429,10 @@ async def schedule_course(
             "message": "Cours programmé avec succès",
             "course": {
                 "id": new_course.id,
-                "filiere": filiere,
+                "filiere": filiere_nom,
                 "niveau": niveau,
                 "semestre": semestre,
-                "matiere": matiere,
+                "matiere": matiere_nom,
                 "date": cours_date,
                 "heure": cours_heure,
                 "duree": duree_minutes,
