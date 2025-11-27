@@ -397,63 +397,75 @@
         <div class="schedule-form" id="scheduleForm">
             <h2>📅 Programmer un nouveau cours</h2>
             <form id="courseForm" onsubmit="submitCourse(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="ufr_id">UFR</label>
-                        <select id="ufr_id" name="ufr_id" required onchange="loadFilieres()">
-                            <option value="">Chargement...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filiere_id">Filière</label>
-                        <select id="filiere_id" name="filiere_id" required onchange="updateMatieresList()">
-                            <option value="">Sélectionner d'abord un UFR</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="niveau">Niveau</label>
-                        <select id="niveau" name="niveau" required onchange="updateMatieresList()">
-                            <option value="">Sélectionner...</option>
-                            <option value="L1">L1</option>
-                            <option value="L2">L2</option>
-                            <option value="L3">L3</option>
-                            <option value="M1">M1</option>
-                            <option value="M2">M2</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="semestre">Semestre</label>
-                        <select id="semestre" name="semestre" required onchange="updateMatieresList()">
-                            <option value="">Sélectionner...</option>
-                            <option value="S1">S1</option>
-                            <option value="S2">S2</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="matiere_id">Matière</label>
-                        <select id="matiere_id" name="matiere_id" required>
-                            <option value="">Sélectionner niveau et semestre d'abord</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cours_date">Date du cours</label>
-                        <input type="date" id="cours_date" name="cours_date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cours_heure">Heure du cours</label>
-                        <input type="time" id="cours_heure" name="cours_heure" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="duree_minutes">Durée (minutes)</label>
-                        <input type="number" id="duree_minutes" name="duree_minutes" value="60" min="15" max="180">
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #6366f1; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">1. Sélectionner la cible</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ufr_id">UFR</label>
+                            <select id="ufr_id" name="ufr_id" required onchange="loadFilieres()">
+                                <option value="">Chargement...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filiere_id">Filière</label>
+                            <select id="filiere_id" name="filiere_id" required onchange="updateMatieresList()">
+                                <option value="">Sélectionner d'abord un UFR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="niveau">Niveau</label>
+                            <select id="niveau" name="niveau" required onchange="updateMatieresList()">
+                                <option value="">Sélectionner...</option>
+                                <option value="L1">Licence 1</option>
+                                <option value="L2">Licence 2</option>
+                                <option value="L3">Licence 3</option>
+                                <option value="M1">Master 1</option>
+                                <option value="M2">Master 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="semestre">Semestre</label>
+                            <select id="semestre" name="semestre" required onchange="updateMatieresList()">
+                                <option value="">Sélectionner...</option>
+                                <option value="S1">Semestre 1</option>
+                                <option value="S2">Semestre 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="matiere_id">Matière</label>
+                            <select id="matiere_id" name="matiere_id" required>
+                                <option value="">Sélectionner niveau et semestre d'abord</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">
-                    🚀 Programmer le cours
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="toggleScheduleForm()" style="margin-left: 10px;">
-                    Annuler
-                </button>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #10b981; font-size: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;">2. Planifier le cours</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="form-group">
+                            <label for="cours_date">Date</label>
+                            <input type="date" id="cours_date" name="cours_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cours_heure">Heure</label>
+                            <input type="time" id="cours_heure" name="cours_heure" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="duree_minutes">Durée (min)</label>
+                            <input type="number" id="duree_minutes" name="duree_minutes" value="60" min="15" max="180">
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="toggleScheduleForm()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        🚀 Programmer le cours
+                    </button>
+                </div>
             </form>
         </div>
         {% endif %}
