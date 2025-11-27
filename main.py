@@ -5493,6 +5493,7 @@ async def get_upcoming_courses(
             
             result.append({
                 "id": course.id,
+                "prof_id": course.prof_id,
                 "filiere": course.filiere,
                 "niveau": course.niveau,
                 "semestre": course.semestre,
@@ -5748,10 +5749,17 @@ async def view_upcoming_courses_html(
     except HTTPException:
         return RedirectResponse(url="/login", status_code=303)
     
+    prof_id = None
+    if role == "prof":
+        prof = db.query(ProfesseurDB).filter_by(username=username).first()
+        if prof:
+            prof_id = prof.id
+    
     return templates.TemplateResponse("scheduled_courses.html", {
         "request": request,
         "user_data": user_data,
-        "role": role
+        "role": role,
+        "prof_id": prof_id
     })
 
 if __name__ == "__main__":

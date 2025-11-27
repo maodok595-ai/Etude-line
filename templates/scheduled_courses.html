@@ -351,6 +351,117 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
         
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(238, 90, 90, 0.4);
+        }
+        
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .edit-modal.active {
+            display: flex;
+        }
+        
+        .edit-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .edit-modal h3 {
+            margin: 0 0 20px;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .edit-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .edit-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .edit-form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        
+        .edit-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .edit-modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -446,6 +557,16 @@
             .join-btn {
                 padding: 12px;
                 font-size: 0.95em;
+            }
+            
+            .course-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .action-btn {
+                padding: 10px;
+                font-size: 0.85em;
             }
             
             .empty-state {
@@ -589,8 +710,38 @@
         </div>
     </div>
     
+    <div class="edit-modal" id="editModal">
+        <div class="edit-modal-content">
+            <h3>✏️ Modifier le cours</h3>
+            <form id="editForm" onsubmit="submitEdit(event)">
+                <input type="hidden" id="editCourseId">
+                <div class="edit-form-group">
+                    <label for="editDate">Date</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="edit-form-group">
+                    <label for="editHeure">Heure</label>
+                    <input type="time" id="editHeure" required>
+                </div>
+                <div class="edit-form-group">
+                    <label for="editDuree">Durée (minutes)</label>
+                    <input type="number" id="editDuree" min="15" max="180" required>
+                </div>
+                <div class="edit-modal-actions">
+                    <button type="button" onclick="closeEditModal()" style="background: #e0e0e0; color: #333;">
+                        Annuler
+                    </button>
+                    <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <script>
         const role = '{{ role }}';
+        const currentProfId = {{ prof_id if prof_id else 'null' }};
         
         function toggleScheduleForm() {
             const form = document.getElementById('scheduleForm');
@@ -680,6 +831,17 @@
                         <a href="${course.jitsi_link}" target="_blank" class="join-btn">
                             🎥 Rejoindre le cours Jitsi
                         </a>
+                        
+                        ${role === 'prof' && course.prof_id === currentProfId ? `
+                        <div class="course-actions">
+                            <button class="action-btn edit-btn" onclick="editCourse(${course.id}, '${course.date}', '${course.heure}', ${course.duree})">
+                                ✏️ Modifier
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteCourse(${course.id})">
+                                🗑️ Supprimer
+                            </button>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
@@ -725,6 +887,74 @@
             document.body.appendChild(toast);
             
             setTimeout(() => toast.remove(), 4000);
+        }
+        
+        async function deleteCourse(courseId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce cours programmé ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/courses/${courseId}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Cours supprimé avec succès', 'success');
+                    loadCourses();
+                } else {
+                    showToast(data.detail || 'Erreur lors de la suppression', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur de connexion', 'error');
+            }
+        }
+        
+        function editCourse(courseId, date, heure, duree) {
+            document.getElementById('editCourseId').value = courseId;
+            document.getElementById('editDate').value = date;
+            document.getElementById('editHeure').value = heure;
+            document.getElementById('editDuree').value = duree;
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+        
+        async function submitEdit(event) {
+            event.preventDefault();
+            
+            const courseId = document.getElementById('editCourseId').value;
+            const formData = new FormData();
+            formData.append('cours_date', document.getElementById('editDate').value);
+            formData.append('cours_heure', document.getElementById('editHeure').value);
+            formData.append('duree_minutes', document.getElementById('editDuree').value);
+            
+            try {
+                const response = await fetch(`/courses/${courseId}`, {
+                    method: 'PUT',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Cours modifié avec succès', 'success');
+                    closeEditModal();
+                    loadCourses();
+                } else {
+                    showToast(data.detail || 'Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur de connexion', 'error');
+            }
         }
         
         let ufrsData = [];
