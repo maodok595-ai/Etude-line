@@ -752,15 +752,22 @@
         
         async function loadCourses() {
             try {
-                const response = await fetch('/courses/upcoming');
+                const response = await fetch('/courses/upcoming', {
+                    credentials: 'same-origin'
+                });
                 const data = await response.json();
                 
                 document.getElementById('loading').style.display = 'none';
                 
-                if (data.success && data.courses.length > 0) {
+                // Toujours cacher les deux éléments d'abord
+                document.getElementById('coursesGrid').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+                
+                if (data.success && data.courses && data.courses.length > 0) {
                     renderCourses(data.courses);
                     document.getElementById('coursesGrid').style.display = 'grid';
                 } else {
+                    document.getElementById('coursesGrid').innerHTML = '';
                     document.getElementById('emptyState').style.display = 'block';
                 }
             } catch (error) {
