@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "workspace"
+version = "0.1.0"
+description = ""
+authors = ["Ka <51740993-adamkane547@users.noreply.replit.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.127.0"
+uvicorn = "^0.40.0"
+sqlalchemy = "^2.0.45"
+jinja2 = "^3.1.6"
+python-multipart = "^0.0.21"
+psycopg2-binary = "^2.9.11"
+pydantic = "^2.12.5"
+passlib = "^1.7.4"
+bcrypt = "^5.0.0"
+itsdangerous = "^2.2.0"
+pillow = "^12.0.0"
+gunicorn = "^23.0.0"
+alembic = "^1.17.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

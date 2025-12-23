@@ -1,0 +1,118 @@
+Tu es un assistant de génération de projet. Crée un projet FastAPI appelé **Étude LINE** conforme aux spécifications ci-dessous. Génère tous les fichiers et du code prêt à exécuter avec Uvicorn sur Replit.
+## Objectif
+Application web éducative avec 2 rôles (Professeur / Étudiant). Les professeurs publient des contenus (cours, exercices, solutions) organisés par université, filière, niveau, semestre, matière, chapitre. Les étudiants consultent les contenus correspondant à leur profil **si** l’abonnement de leur semestre est actif. Paiement principal via **QR Wave** (réel si webhooks, sinon mode manuel de test). Toutes les données sont stockées dans un seul fichier `data.json`.
+## Pile & Dépendances
+- Python 3.11+
+- FastAPI, Uvicorn
+- Jinja2 (templates)
+- python-multipart (upload forms)
+- passlib[bcrypt] (hash mots de passe)
+- itsdangerous (signer cookies de session)
+- pydantic
+Ajoute un fichier `requirements.txt` avec ces libs.
+## Arborescence à créer
+etude_express/
+├── main.py
+├── data.json                     # créer avec un squelette JSON valide
+├── requirements.txt
+└── templates/
+    ├── index.html
+    ├── login.html
+    ├── dashboard_prof.html
+    └── dashboard_etudiant.html
+## Variables d’environnement (utiliser ces clés dans le code)
+- SECRET_KEY (obligatoire, pour signer les cookies)
+- PRICE_FCFA=990 (par défaut)
+- WAVE_WEBHOOK_SECRET (optionnel, si on configure le webhook Wave)
+- WAVE_QR_IMAGE_PATH="templates/wave_qr.png" (afficher le QR dans la page paiement)
+Crée un fichier d’image de placeholder `templates/wave_qr.png` (petit PNG vide ou texte “QR WAVE”).
+## Sessions & Auth
+- Formulaire d’inscription **prof**: nom, prénom, username, mot de passe, spécialité, matière.
+- Formulaire d’inscription **étudiant**: nom, prénom, username, mot de passe, université, filière, niveau.
+- Stocker les utilisateurs dans `data.json` séparés en `users.prof[]` et `users.etudiant[]`.
+- Hasher les mots de passe avec bcrypt.
+- Connexion unique `/login` pour les 2 rôles (détecter le rôle à partir des données).
+- Cookies de session signés avec itsdangerous; décorateur/ dépendance `current_user()` qui renvoie (role, username) ou redirige vers /login.
+## Modèle de données (pydantic)
+- UserProf, UserEtudiant
+- ContentItem: id, type (cours|exercice|solution), universite, filiere, niveau, semestre, matiere, chapitre, titre, texte
+- Payment: id, username, semestre, amount, provider, status, paid_at, raw
+- Subscription: username, semestre, paid_at, expires_at
+## Persistance
+- Un module interne de lecture/écriture JSON avec verrou (file lock simple) pour sérialiser les accès.
+- Fonctions utilitaires: `load_db()`, `save_db(db)`, `now_utc()`, `add_days()`.
+- Sur la première exécution, si `data.json` est absent/invalide, initialiser avec la structure vide ci-dessous:
+{
+  "users": {"prof": [], "etudiant": []},
+  "contents": [],
+  "payments": [],
+  "subscriptions": []
+}
+## Routes à implémenter
+- GET `/` : page d’accueil avec 2 cartes “Créer compte Prof” et “Créer compte Étudiant” + liens vers /login.
+  - Sur la même page, 2 formulaires POST `/register/prof` et `/register/etudiant`.
+- GET+POST `/login` : formulaire (username, password). Après succès:
+  - Prof → `/dashboard/prof`
+  - Étudiant → `/dashboard/etudiant`
+- GET `/logout` : efface la session et redirige vers `/`.
+- GET `/dashboard/prof` :
+  - Formulaire d’ajout de contenu (selects université, filière, niveau, semestre, matière, chapitre ; type ; titre ; texte).
+  - POST `/prof/content` : crée un `ContentItem` (id = uuid4), l’ajoute à `db["contents"]` et sauvegarde.
+  - Liste compacte des contenus du prof (filtre par méta: université/filière/niveau/semestre/matière).
+- GET `/dashboard/etudiant` :
+  - Affiche son profil (université, filière, niveau).
+  - Liste des **semestres** possibles (S1..S10 ou dérive des contenus présents).
+  - Pour chaque semestre: si **abonné actif** (expires_at > now) → bouton “Voir contenus”.
+    sinon → bouton “Payer 990 F” (POST `/pay/start` avec semestre).
+  - Zone “Contenus accessibles” avec filtres (matière, chapitre) et liste des contenus correspondant à son profil + semestres actifs.
+- POST `/pay/start` (étudiant connecté):
+  - Crée une “intention” (facultatif), renvoie une page `payment.html` (peut être intégré dans `dashboard_etudiant.html`) avec:
+    - Affichage du **QR Wave** (image `wave_qr.png`).
+    - Indication du montant (990 F).
+    - Bouton “J’ai payé” → ouvre un petit formulaire POST `/pay/confirm-manual` (mode test) avec champs `semestre` et `transaction_id`.
+    - Message expliquant que si le marchand configure Wave webhook, l’accès sera automatique.
+- POST `/pay/confirm-manual` (mode test):
+  - Vérifie que `transaction_id` non vide, crée un `Payment` status=`succeeded`, provider=`WAVE`, amount=PRICE_FCFA.
+  - Ajoute/renouvelle `Subscription` du semestre pour 30 jours (expires_at = now + 30j).
+  - Redirige vers `/dashboard/etudiant` avec message succès.
+- POST `/webhook/wave` (réel):
+  - Lit le header de signature (`WAVE_SIGNATURE` par ex., variable à nommer clairement).
+  - Vérifie la signature avec `WAVE_WEBHOOK_SECRET`. Si valide et event=“payment.succeeded” correspondant à `username` et `semestre`, enregistre `Payment` et active/renouvelle `Subscription` 30 jours.
+  - Répond 200/OK.
+  - Laisse des TODO/notes pour adapter le parsing exact en fonction du payload Wave réel (garder le code clair et modulaire).
+- GET `/content` :
+  - Renvoie (HTML) la liste filtrée des contenus autorisés pour l’étudiant courant (profil + semestres actifs). Utilisé par le dashboard étudiant.
+## Règles métier
+- Prix = `PRICE_FCFA` (défaut 990).
+- Durée d’accès = 30 jours par paiement/semestre.
+- Accès au contenu **uniquement** si l’étudiant a une `Subscription` active pour le semestre.
+## Templates HTML (simples, sans frameworks lourds)
+- `index.html`: accueil + formulaires d’inscription prof/étudiant.
+- `login.html`: formulaire login + messages d’erreur.
+- `dashboard_prof.html`:
+  - Formulaire ajout contenu (tous champs requis).
+  - Liste des contenus existants (table).
+- `dashboard_etudiant.html`:
+  - Carte profil.
+  - Grille Semestres (S1..S10, ou dynamique selon contenus). Chaque carte:
+    - Si actif: badge “Actif jusqu’au {{expires_at}}” + bouton “Voir contenus”.
+    - Si inactif: bouton “Payer 990 F” (POST /pay/start).
+  - Section “Contenus accessibles” avec filtres (matière, chapitre) + table des contenus.
+  - Inclure un modal ou bloc “Paiement” affichant l’image `wave_qr.png` + formulaire “J’ai payé” (POST `/pay/confirm-manual`).
+- Styles minimalistes en CSS inline ou <style> embarqué (pas de dépendances externes).
+## Sécurité & Validation
+- Valider tous les champs serveurs (pydantic).
+- Hacher les mots de passe.
+- Protéger les routes par rôle (prof vs étudiant).
+- Ne jamais exposer le hash.
+## Lancement
+- Ajouter dans README (ou en commentaire) la commande:
+  uvicorn main:app --reload --host 0.0.0.0 --port 8000
+- Au démarrage, si `data.json` n’existe pas, le créer avec la structure vide.
+- Afficher dans la console l’URL du webhook attendu `/webhook/wave`.
+## Critères d’acceptation
+- Je peux créer comptes prof/étudiant, me connecter, ajouter des contenus en tant que prof, et les voir en tant qu’étudiant **après** avoir payé (mode manuel OK).
+- Le bouton “Payer 990 F” est visible par semestre.
+- Un paiement valide (manuel ou webhook) active l’accès 30 jours.
+- Tout est stocké dans `data.json`.
+- Code clair, commenté, prêt à exécuter sur Replit.
