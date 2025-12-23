@@ -2057,10 +2057,10 @@
                                                         {% endfor %}
                                                         
                                                         {% if etudiants_niveau|length > 0 %}
-                                                            <div style="background: #fafafa; 
+                                                            <div style="background: {% if niveau in ['BTS1', 'BTS2', 'BTS3', 'BTS4'] %}#F3E8FF{% else %}#fafafa{% endif %}; 
                                                                 padding: 0.4rem 1rem 0.4rem 2rem; font-weight: 600; 
-                                                                color: #666; 
-                                                                font-size: 0.85rem; border-left: 4px solid #999; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
+                                                                color: {% if niveau in ['BTS1', 'BTS2', 'BTS3', 'BTS4'] %}#7C3AED{% else %}#666{% endif %}; 
+                                                                font-size: 0.85rem; border-left: 4px solid {% if niveau in ['BTS1', 'BTS2', 'BTS3', 'BTS4'] %}#7C3AED{% else %}#999{% endif %}; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem;" 
                                                                 onclick="toggleNiveauEtudiants('niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}')">
                                                                 <span id="arrow-niveau-{{ ufr.id }}-{{ filiere.id }}-{{ niveau }}" style="font-size: 0.9rem; transition: transform 0.3s;">►</span>
                                                                 <span>{% if niveau == "L1" %}📘
