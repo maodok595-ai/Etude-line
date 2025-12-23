@@ -1545,7 +1545,7 @@
                         <div class="admin-secondary-overlay"></div>
                         <div class="admin-secondary-content">
                             <h2 class="admin-secondary-title">
-                                BIENVENUE A L'{{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
+                                {{ admin_universite.nom if admin_universite else "UNIVERSITÉ INCONNUE" }}
                             </h2>
                             {% if admin_universite and admin_universite.logo_url %}
                                 <div class="admin-secondary-logo-container">

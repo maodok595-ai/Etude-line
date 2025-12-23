@@ -1670,7 +1670,7 @@
         <div class="welcome-card">
             <div class="university-welcome">
                 <h2 class="university-name">
-                    BIENVENUE A L'{{ prof_universite.nom if prof_universite else "UNIVERSITÉ INCONNUE" }}
+                    {{ prof_universite.nom if prof_universite else "UNIVERSITÉ INCONNUE" }}
                 </h2>
                 {% if prof_universite and prof_universite.logo_url %}
                     <img src="{{ prof_universite.logo_url }}" alt="Logo {{ prof_universite.nom }}" class="university-logo">
